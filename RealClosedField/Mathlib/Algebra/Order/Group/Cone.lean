@@ -63,15 +63,17 @@ initialize_simps_projections AddGroupCone (carrier → coe, as_prefix coe)
 
 /-- Typeclass for maximal additive cones. -/
 class IsMaxCone {S G : Type*} [AddGroup G] [SetLike S G] (C : S) : Prop where
-  mem_or_neg_mem (a : G) : a ∈ C ∨ -a ∈ C
+  mem_or_neg_mem' (a : G) : a ∈ C ∨ -a ∈ C
 
 /-- Typeclass for maximal multiplicative cones. -/
 @[to_additive IsMaxCone]
 class IsMaxMulCone {S G : Type*} [Group G] [SetLike S G] (C : S) : Prop where
-  mem_or_inv_mem (a : G) : a ∈ C ∨ a⁻¹ ∈ C
+  mem_or_inv_mem' (a : G) : a ∈ C ∨ a⁻¹ ∈ C
 
-export IsMaxCone (mem_or_neg_mem)
-export IsMaxMulCone (mem_or_inv_mem)
+@[to_additive]
+theorem mem_or_inv_mem {S G : Type*} [Group G] [SetLike S G] (C : S) [IsMaxMulCone C] (a : G) :
+    a ∈ C ∨ a⁻¹ ∈ C :=
+  IsMaxMulCone.mem_or_inv_mem' (C := C) a
 
 namespace GroupCone
 variable {H : Type*} [OrderedCommGroup H] {a : H}
@@ -92,7 +94,7 @@ lemma coe_oneLE : oneLE H = {x : H | 1 ≤ x} := rfl
 
 @[to_additive nonneg.isMaxCone]
 instance oneLE.isMaxMulCone {H : Type*} [LinearOrderedCommGroup H] : IsMaxMulCone (oneLE H) where
-  mem_or_inv_mem := by simpa using le_total 1
+  mem_or_inv_mem' := by simpa using le_total 1
 
 end GroupCone
 
@@ -117,5 +119,5 @@ def LinearOrderedCommGroup.mkOfCone
     [GroupConeClass S G] [IsMaxMulCone C] [DecidablePred (· ∈ C)] :
     LinearOrderedCommGroup G where
   __ := OrderedCommGroup.mkOfCone C
-  le_total a b := by simpa using mem_or_inv_mem (b / a)
+  le_total a b := by simpa using mem_or_inv_mem _ (b / a)
   decidableLE _ := _

@@ -35,6 +35,7 @@ theorem IsFormallyReal.eq_zero_of_isSumSq_of_sum_eq_zero {R : Type*}
   case sq_add a S₁ hS₁ ih =>
     intro h
     sorry /- TODO : figure this out, can't do directly -/
+  /- TODO : try submonoid closure induction -/
 
 theorem IsFormallyReal.eq_zero_of_isSumSq_of_sum_eq_zero' {R : Type*}
     [NonUnitalNonAssocSemiring R] [IsFormallyReal R] {S₁ S₂ : R}
@@ -46,7 +47,7 @@ theorem IsFormallyReal.of_eq_zero_of_square_and_eq_zero_of_sum (R : Type*) [AddC
     (hz : ∀ {a : R}, a * a = 0 → a = 0)
     (hs : ∀ {S₁ S₂ : R}, IsSumSq S₁ → IsSumSq S₂ → S₁ + S₂ = 0 → S₁ = 0) : IsFormallyReal R where
   eq_zero_of_sum_of_squares_eq_zero {_} {I} {x} {i} hx hi :=
-    hz (hs (S₂ := ∑ j ∈ I.erase i, x j * x j) (by aesop) (by aesop)
+    hz (hs (S₂ := ∑ j ∈ I.erase i, x j * x j) (by aesop) (by aesop) /- TODO : figure out why IsSumSq.sum isn't working -/
         (by simpa [hx] using Finset.add_sum_erase _ (fun j => x j * x j) hi))
 
 instance IsFormallyReal.instIsSemireal [NonAssocSemiring R] [Nontrivial R] [IsFormallyReal R] :
@@ -67,16 +68,21 @@ variable {T : Type*} [CommRing T] [IsFormallyReal T]
 
 variable (T) in
 /--
-In a commutative formally real ring `R`, `Subsemiring.sumSqIn R`
+In a commutative formally real ring `R`, `Subsemiring.sumSq R`
 is the cone of sums of squares in `R`.
 -/
-def sumSqIn : RingCone T where
-  __ := Subsemiring.sumSqIn T
+def sumSq : RingCone T where
+  __ := Subsemiring.sumSq T
   eq_zero_of_mem_of_neg_mem' {x} hx hnx :=
-    IsFormallyReal.eq_zero_of_isSumSq_of_sum_eq_zero hx hnx (add_neg_cancel x)
+    IsFormallyReal.eq_zero_of_isSumSq_of_sum_eq_zero
+      (by simpa using hx) (by simpa using hnx) (add_neg_cancel x)
 
-@[simp] lemma sumSqIn_toSubsemiring : (sumSqIn T).toSubsemiring = .sumSqIn T := rfl
-@[simp] lemma mem_sumSqIn {a : T} : a ∈ sumSqIn T ↔ IsSumSq a := Iff.rfl
-@[simp, norm_cast] lemma coe_sumSqIn : sumSqIn T = {x : T | IsSumSq x} := rfl
+@[simp] lemma sumSq_toSubsemiring : (sumSq T).toSubsemiring = .sumSq T := rfl
+
+@[simp] lemma mem_sumSq {a : T} : a ∈ sumSq T ↔ IsSumSq a :=
+  show a ∈ Subsemiring.sumSq T ↔ IsSumSq a by simp
+
+@[simp, norm_cast] lemma coe_sumSq : sumSq T = {x : T | IsSumSq x} :=
+  show Subsemiring.sumSq T = {x : T | IsSumSq x} by simp
 
 end RingCone

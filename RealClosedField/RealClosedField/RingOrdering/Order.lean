@@ -5,17 +5,18 @@ Authors: Florent Schaffhauser, Artie Khovanov
 -/
 import RealClosedField.RealClosedField.RingOrdering.Basic
 import RealClosedField.Mathlib.Algebra.Order.Ring.Cone
+import Mathlib.RingTheory.Ideal.Quotient.Operations
 
 @[reducible]
-def RingPreordering.mkOfCone {R : Type*} [Nontrivial R] [CommRing R] (C : RingCone R) [IsMaxCone C] :
-    RingPreordering R where
+def RingPreordering.mkOfCone {R : Type*} [Nontrivial R] [CommRing R] (C : RingCone R)
+    [IsMaxCone C] : RingPreordering R where
   __ := RingCone.toSubsemiring C
   isSquare_mem' x := by
     rcases x with ⟨y, rfl⟩
     cases mem_or_neg_mem C y with
     | inl h  => aesop
     | inr h => simpa using (show -y * -y ∈ C by aesop (config := { enableSimp := false }))
-  minus_one_not_mem' h := one_ne_zero <| RingCone.eq_zero_of_mem_of_neg_mem (one_mem _) h
+  minus_one_not_mem' h := one_ne_zero <| eq_zero_of_mem_of_neg_mem (one_mem C) h
 
 /-- A maximal cone over a commutative ring `R` is an ordering on `R`. -/
 instance {R : Type*} [CommRing R] [Nontrivial R] (C : RingCone R) [IsMaxCone C] :
@@ -28,10 +29,8 @@ instance {R : Type*} [CommRing R] [Nontrivial R] (C : RingCone R) [IsMaxCone C] 
     (hP : RingPreordering.AddSubgroup.support P = ⊥) : RingCone R where
   __ := P.toSubsemiring
   eq_zero_of_mem_of_neg_mem' {a} := by
-    have : ∀ x, x ∈ RingPreordering.AddSubgroup.support P → x ∈ (⊥ : AddSubgroup R) := by simp_all
-    rcases hP with -
+    apply_fun (a ∈ ·) at hP
     aesop
-  /- TODO : make this proof less awful -/
 
 instance RingCone.mkOfRingPreordering.inst_isMaxCone {R : Type*} [CommRing R]
     {P : RingPreordering R} [RingPreordering.IsOrdering P]
