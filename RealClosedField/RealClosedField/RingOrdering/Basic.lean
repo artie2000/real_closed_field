@@ -3,7 +3,6 @@ Copyright (c) 2024 Florent Schaffhauser. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Florent Schaffhauser, Artie Khovanov
 -/
-
 import Mathlib.RingTheory.Ideal.Maps
 import Mathlib.Tactic.LinearCombination
 import Mathlib.Tactic.FieldSimp
@@ -49,6 +48,7 @@ theorem Field.inv_mem {F : Type*} [Field F] {P : RingPreordering F} {a : F} (ha 
   rw [show a⁻¹ = a * (a⁻¹ * a⁻¹) by field_simp]
   aesop
 
+@[simp]
 theorem mem_of_isSumSq {x : R} (hx : IsSumSq x) : x ∈ P := by
   induction hx using IsSumSq.rec' <;> aesop
 
@@ -65,7 +65,7 @@ def mk' {R : Type*} [CommRing R] (P : Set R)
   carrier := P
   add_mem' {x y} := by simpa using add
   mul_mem' {x y} := by simpa using mul
-  isSquare_mem' hx := by rcases hx with ⟨y, hy⟩; aesop /- TODO : automate? -/
+  isSquare_mem' hx := by rcases hx with ⟨y, hy⟩; aesop
   minus_one_not_mem' := by simpa using minus
   zero_mem' := by simpa using sq 0
   one_mem' := by simpa using sq 1
@@ -286,18 +286,21 @@ section Bot
 variable [IsSemireal R]
 
 instance : Bot (RingPreordering R) where
-  bot := { Subsemiring.sumSqIn R with
+  bot := {  Subsemiring.sumSq R with
             isSquare_mem' := by aesop
             minus_one_not_mem' := by simpa using IsSemireal.not_isSumSq_neg_one }
 
-@[simp] lemma bot_toSubsemiring : (⊥ : RingPreordering R).toSubsemiring = .sumSqIn R := rfl
-@[simp] lemma mem_sumSqIn : a ∈ (⊥ : RingPreordering R) ↔ IsSumSq a := Iff.rfl
-@[simp, norm_cast] lemma coe_sumSqIn : (⊥ : RingPreordering R) = {x : R | IsSumSq x} := rfl
+@[simp] lemma bot_toSubsemiring : (⊥ : RingPreordering R).toSubsemiring = .sumSq R := rfl
+
+@[simp] lemma mem_sumSqIn : a ∈ (⊥ : RingPreordering R) ↔ IsSumSq a :=
+  show a ∈ Subsemiring.sumSq R ↔ IsSumSq a by simp
+
+@[simp, norm_cast] lemma coe_sumSqIn : (⊥ : RingPreordering R) = {x : R | IsSumSq x} :=
+  show Subsemiring.sumSq R = {x : R | IsSumSq x} by simp
 
 instance : OrderBot (RingPreordering R) where
   bot := ⊥
-  bot_le := by simp [← SetLike.coe_subset_coe]; intro y hy; simp_all [mem_of_isSumSq]
-/- TODO : fix this proof-/
+  bot_le a ha := by simp_all
 
 end Bot
 

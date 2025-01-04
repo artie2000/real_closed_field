@@ -63,7 +63,7 @@ instance LinearOrderedRing.instIsFormallyReal [LinearOrderedRing R] : IsFormally
       (mul_self_nonneg <| x i))
 
 namespace RingCone
-variable {T : Type*} [CommRing T] [IsFormallyReal T] {a : T}
+variable {T : Type*} [CommRing T] [IsFormallyReal T]
 
 variable (T) in
 /--
@@ -76,7 +76,7 @@ def sumSqIn : RingCone T where
     IsFormallyReal.eq_zero_of_isSumSq_of_sum_eq_zero hx hnx (add_neg_cancel x)
 
 @[simp] lemma sumSqIn_toSubsemiring : (sumSqIn T).toSubsemiring = .sumSqIn T := rfl
-@[simp] lemma mem_sumSqIn : a ∈ sumSqIn T ↔ IsSumSq a := Iff.rfl
+@[simp] lemma mem_sumSqIn {a : T} : a ∈ sumSqIn T ↔ IsSumSq a := Iff.rfl
 @[simp, norm_cast] lemma coe_sumSqIn : sumSqIn T = {x : T | IsSumSq x} := rfl
 
 end RingCone
