@@ -7,29 +7,29 @@ import RealClosedField.RealClosedField.FormallyReal
 import RealClosedField.RealClosedField.RingOrdering.Order
 import RealClosedField.RealClosedField.RingOrdering.Adjoin
 
-variable (S F : Type*) [Field F] [SetLike S F] [RingPreorderingClass S F]
+variable (F : Type*) [Field F]
 
-instance RingPreorderingClass.instRingConeClass : RingConeClass S F where
+instance : RingConeClass (RingPreordering F) F where
   eq_zero_of_mem_of_neg_mem {P} {a} ha hna := by
     by_contra h
     have : a⁻¹ * -a ∈ P := by aesop (config := { enableSimp := False })
-    exact minus_one_not_mem P (by aesop)
+    aesop
 
-instance RingPreorderingClass.instIsMaxCone (O : S) [RingPreordering.IsOrdering O] : IsMaxCone O
-    where
+/- TODO : decide whether to unify these -/
+instance (O : RingPreordering F) [RingPreordering.IsOrdering O] : IsMaxCone O where
   mem_or_neg_mem' := RingPreordering.mem_or_neg_mem O
 
-open Classical in
 instance IsSemireal.instIsFormallyReal [IsSemireal F] : IsFormallyReal F where
-  eq_zero_of_sum_of_squares_eq_zero {ι} {I} {x} {i} hx hi := by
+  eq_zero_of_mul_self_add {a} {s} hs h := by
     by_contra
-    exact add_one_ne_zero_of_isSumSq (IsSumSq.mul (IsSumSq.sum_mul_self _) (IsSumSq.mul_self _))
-      (show 1 + (∑ j ∈ I.erase i, x j * x j) * ((x i)⁻¹ * (x i)⁻¹) = 0 by field_simp [hx])
+    exact add_one_ne_zero_of_isSumSq (by aesop) (show 1 + s * (a⁻¹ * a⁻¹) = 0 by field_simp [h])
+
+variable [IsSemireal F]
 
 open Classical RingPreordering in
 noncomputable def LinearOrderedField.mkOfIsSemireal [IsSemireal F] : LinearOrderedField F where
-  __ := have := (choose_spec <| exists_le_isPrimeOrdering <| sumSqIn F).2
-        LinearOrderedRing.mkOfCone (choose <| exists_le_isPrimeOrdering <| sumSqIn F)
+  __ := have := (choose_spec <| exists_le_isPrimeOrdering (⊥ : RingPreordering F)).2
+        LinearOrderedRing.mkOfCone (choose <| exists_le_isPrimeOrdering ⊥)
   __ := ‹Field F›
 
 theorem ArtinSchreier_basic :

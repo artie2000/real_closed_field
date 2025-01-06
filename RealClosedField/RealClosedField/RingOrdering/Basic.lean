@@ -12,7 +12,7 @@ import RealClosedField.RealClosedField.RingOrdering.Defs
 
 /- TODO : make this change in the actual location -/
 attribute [- aesop] mul_mem add_mem
-attribute [aesop unsafe 90% apply (rule_sets := [SetLike])] mul_mem add_mem
+attribute [aesop unsafe 99% apply (rule_sets := [SetLike])] mul_mem add_mem
 
 variable {R : Type*} [CommRing R] {P : RingPreordering R}
 
@@ -369,6 +369,7 @@ def map {f : A →+* B} {P : RingPreordering A} (hf : Function.Surjective f)
   isSquare_mem' hx := by
     rcases hx with ⟨y, rfl⟩
     rcases hf y with ⟨y', rfl⟩ /- TODO : generalise? ie Surjective f → IsSquare x → ∃ y, f y = x ∧ IsSquare y -/
+    simp_all
     aesop
   minus_one_not_mem' := fun ⟨x', hx', _⟩ => by
     have : -(x' + 1) + x' ∈ P := add_mem (hsupp (show f (x' + 1) = 0 by simp_all)).2 hx'
@@ -399,7 +400,7 @@ instance map.instIsOrdering {f : A →+* B} {P : RingPreordering A} [IsOrdering 
 theorem AddSubgroup.mem_map_support {f : A →+* B} {P : RingPreordering A}
     {hf : Function.Surjective f} {hsupp : (RingHom.ker f : Set A) ⊆ support P} {x : B} :
     x ∈ support (map hf hsupp) ↔ ∃ y ∈ support P, f y = x := by
-  refine Iff.intro (fun ⟨⟨a, ⟨ha₁, ha₂⟩⟩, ⟨b, ⟨hb₁, hb₂⟩⟩⟩ => ?_) (by aesop)
+  refine Iff.intro (fun ⟨⟨a, ⟨ha₁, ha₂⟩⟩, ⟨b, ⟨hb₁, hb₂⟩⟩⟩ => ?_) (by aesop?)
   have : -(a + b) + b ∈ P := by exact add_mem (hsupp (show f (a + b) = 0 by simp_all)).2 hb₁
   aesop
 

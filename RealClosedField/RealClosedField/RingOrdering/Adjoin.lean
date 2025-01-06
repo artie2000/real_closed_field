@@ -6,6 +6,10 @@ Authors: Florent Schaffhauser, Artie Khovanov
 import RealClosedField.RealClosedField.RingOrdering.Basic
 import Mathlib.Order.Zorn
 
+/- TODO : make this change in the actual location -/
+attribute [- aesop] mul_mem add_mem
+attribute [aesop unsafe 99% apply (rule_sets := [SetLike])] mul_mem add_mem
+
 /-!
 ## Adjoining an element to a preordering
 -/
@@ -20,25 +24,25 @@ def ringPreordering_adjoin : Subsemiring R where
   zero_mem' := ⟨0, by aesop, 0, by aesop, by simp⟩
   one_mem' := ⟨1, by aesop, 0, by aesop, by simp⟩
   add_mem' := fun ha hb => by
-    obtain ⟨x₁, hx₁, y₁, hy₁, eqw⟩ := ha
-    obtain ⟨x₂, hx₂, y₂, hy₂, eqz⟩ := hb
-    exact ⟨x₁ + x₂, by aesop, y₁ + y₂, by aesop, by linear_combination eqw + eqz⟩
-  mul_mem' := fun {w z} ⟨x₁, hx₁, y₁, hy₁, eqw⟩ ⟨x₂, hx₂, y₂, hy₂, eqz⟩ => by
+    rcases ha, hb with ⟨⟨x₁, hx₁, y₁, hy₁, rfl⟩, ⟨x₂, hx₂, y₂, hy₂, rfl⟩⟩
+    exact ⟨x₁ + x₂, by aesop, y₁ + y₂, by aesop, by linear_combination⟩
+  mul_mem' := fun ha hb => by
+    rcases ha, hb with ⟨⟨x₁, hx₁, y₁, hy₁, rfl⟩, ⟨x₂, hx₂, y₂, hy₂, rfl⟩⟩
     exact ⟨x₁ * x₂ + (a * a) * (y₁ * y₂), by aesop, x₁ * y₂ + y₁ * x₂, by aesop,
-      by linear_combination z * eqw + (a * y₁ + x₁) * eqz⟩
+      by linear_combination⟩
 
 variable {P} in
 @[aesop unsafe 70% apply (rule_sets := [SetLike])]
-lemma subset_ringPreordering_adjoin {x : R} (hx : x ∈ P) :
+lemma mem_ringPreordering_adjoin_of_mem {x : R} (hx : x ∈ P) :
     x ∈ ringPreordering_adjoin P a := ⟨x, by aesop, 0, by aesop, by simp⟩
 
-@[aesop safe 0 apply (rule_sets := [SetLike])]
+@[aesop safe apply (rule_sets := [SetLike])]
 lemma mem_ringPreordering_adjoin : a ∈ ringPreordering_adjoin P a :=
   ⟨0, by aesop, 1, by aesop, by simp⟩
 
 @[aesop unsafe 50% apply (rule_sets := [SetLike])]
 lemma isSquare_mem_ringPreordering_adjoin {x : R} (hx : IsSquare x) : x ∈ ringPreordering_adjoin P a :=
-  by simpa using subset_ringPreordering_adjoin a (by aesop)
+  by simpa using mem_ringPreordering_adjoin_of_mem a (by aesop)
 
 theorem closure_insert_eq_ringPreordering_adjoin :
     closure (insert a P) = ringPreordering_adjoin P a :=
@@ -57,7 +61,7 @@ def adjoin (h : -1 ∉ Subsemiring.ringPreordering_adjoin P a) : RingPreordering
 variable {P a} in
 @[aesop unsafe 70% apply (rule_sets := [SetLike])]
 lemma subset_adjoin' (h : -1 ∉ Subsemiring.ringPreordering_adjoin P a) {x : R} (hx : x ∈ P) :
-    x ∈ adjoin h := Subsemiring.subset_ringPreordering_adjoin a hx
+    x ∈ adjoin h := Subsemiring.mem_ringPreordering_adjoin_of_mem a hx
 
 variable {P a} in
 lemma subset_adjoin (h : -1 ∉ Subsemiring.ringPreordering_adjoin P a) : (P : Set R) ⊆ adjoin h :=

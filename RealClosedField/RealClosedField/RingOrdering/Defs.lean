@@ -39,7 +39,7 @@ variable {R}
 
 /- TODO : make this change in the actual location -/
 attribute [- aesop] mul_mem add_mem
-attribute [aesop unsafe 90% apply (rule_sets := [SetLike])] mul_mem add_mem
+attribute [aesop unsafe 99% apply (rule_sets := [SetLike])] mul_mem add_mem
 
 @[aesop unsafe 50% apply (rule_sets := [SetLike])]
 protected theorem isSquare_mem (P : RingPreordering R) {x : R} (hx : IsSquare x) : x ∈ P :=
