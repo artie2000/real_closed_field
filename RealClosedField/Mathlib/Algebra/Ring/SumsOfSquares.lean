@@ -80,6 +80,7 @@ def sumSq : AddSubmonoid T where
 end AddSubmonoid
 
 /-- In an additive unital magma with multiplication, `x * x` is a sum of squares for all `x`. -/
+@[aesop safe apply]
 theorem IsSumSq.mul_self [AddZeroClass R] [Mul R] (a : R) : IsSumSq (a * a) := by
   rw [← add_zero (a * a)]; exact sq_add zero
 
@@ -112,12 +113,14 @@ theorem IsSumSq.sum [AddCommMonoid R] [Mul R] {ι : Type*} {I : Finset ι} {s : 
 
 /-- In an additive, commutative monoid with multiplication,
 a term of the form `∑ i ∈ I, x i`, where each `x i` is a square, is a sum of squares. -/
+@[aesop unsafe 50% apply]
 theorem IsSumSq.sum_isSquare [AddCommMonoid R] [Mul R] {ι : Type*} (I : Finset ι) {x : ι → R}
     (ha : ∀ i ∈ I, IsSquare <| x i) :
     IsSumSq (∑ i ∈ I, x i) := by aesop
 
 /-- In an additive, commutative monoid with multiplication,
 a term of the form `∑ i ∈ I, a i * a i` is a sum of squares. -/
+@[aesop safe apply]
 theorem IsSumSq.sum_mul_self [AddCommMonoid R] [Mul R] {ι : Type*} (I : Finset ι) (a : ι → R) :
     IsSumSq (∑ i ∈ I, a i * a i) := by aesop
 

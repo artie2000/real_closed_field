@@ -7,8 +7,12 @@ import Mathlib.RingTheory.Ideal.Maps
 import Mathlib.Tactic.LinearCombination
 import Mathlib.Tactic.FieldSimp
 import Mathlib.Algebra.CharP.Two
-import RealClosedField.RealClosedField.RingOrdering.Defs
 import RealClosedField.Mathlib.Algebra.Ring.Semireal.Defs
+import RealClosedField.RealClosedField.RingOrdering.Defs
+
+/- TODO : make this change in the actual location -/
+attribute [- aesop] mul_mem add_mem
+attribute [aesop unsafe 90% apply (rule_sets := [SetLike])] mul_mem add_mem
 
 variable {R : Type*} [CommRing R] {P : RingPreordering R}
 

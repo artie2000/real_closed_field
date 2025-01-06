@@ -45,7 +45,7 @@ attribute [aesop unsafe 90% apply (rule_sets := [SetLike])] mul_mem add_mem
 protected theorem isSquare_mem (P : RingPreordering R) {x : R} (hx : IsSquare x) : x ∈ P :=
   RingPreordering.isSquare_mem' _ hx
 
-@[aesop safe 0 apply (rule_sets := [SetLike])]
+@[aesop safe apply (rule_sets := [SetLike])]
 protected theorem mul_self_mem (P : RingPreordering R) (x : R) : x * x ∈ P := by aesop
 
 @[aesop unsafe 20% forward (rule_sets := [SetLike])]
