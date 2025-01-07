@@ -370,7 +370,7 @@ def map {f : A →+* B} {P : RingPreordering A} (hf : Function.Surjective f)
   __ := P.toSubsemiring.map f
   isSquare_mem' hx := by
     rcases hx with ⟨y, rfl⟩
-    rcases hf y with ⟨y', rfl⟩ /- TODO : generalise? ie Surjective f → IsSquare x → ∃ y, f y = x ∧ IsSquare y -/
+    rcases hf y with ⟨y', rfl⟩ /- TODO : generalise to Surjective f → IsSquare x → ∃ y, f y = x ∧ IsSquare y -/
     aesop
   minus_one_not_mem' := fun ⟨x', hx', _⟩ => by
     have : -(x' + 1) + x' ∈ P := add_mem (hsupp (show f (x' + 1) = 0 by simp_all)).2 hx'

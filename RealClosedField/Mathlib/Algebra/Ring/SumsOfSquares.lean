@@ -71,8 +71,8 @@ is the submonoid of sums of squares in `R`.
 -/
 def sumSq : AddSubmonoid T where
   carrier := {s : T | IsSumSq s}
-  zero_mem' := IsSumSq.zero
-  add_mem' := IsSumSq.add
+  zero_mem' := .zero
+  add_mem' := .add
 
 @[simp] theorem mem_sumSq : s ∈ sumSq T ↔ IsSumSq s := Iff.rfl
 @[simp, norm_cast] theorem coe_sumSq : sumSq T = {s : T | IsSumSq s} := rfl
