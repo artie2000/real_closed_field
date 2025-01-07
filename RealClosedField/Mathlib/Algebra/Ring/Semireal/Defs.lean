@@ -3,7 +3,7 @@ Copyright (c) 2024 Florent Schaffhauser. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Florent Schaffhauser, Artie Khovanov
 -/
-import RealClosedField.Mathlib.Algebra.Ring.SumsOfSquares
+import Mathlib.Algebra.Ring.SumsOfSquares
 
 /-!
 # Semireal rings
@@ -23,26 +23,31 @@ not.
 [lam_1984](https://doi.org/10.1216/RMJ-1984-14-4-767)
 -/
 
-variable (R : Type*)
+variable {R : Type*}
 
+variable (R) in
 /--
 A semireal ring is a commutative ring (with unit) in which `-1` is *not* a sum of
-squares. We define the class `IsSemireal R` for all structures equipped with
+squares. We define the predicate `IsSemireal R` for structures `R` equipped with
 a multiplication, an addition, a multiplicative unit and an additive unit.
 -/
 @[mk_iff]
 class IsSemireal [Add R] [Mul R] [One R] [Zero R] : Prop where
-  add_one_ne_zero_of_isSumSq {a : R} (ssa : IsSumSq a) : 1 + a ≠ 0
+  one_add_ne_zero {s : R} (hs : IsSumSq s) : 1 + s ≠ 0
 
 @[deprecated (since := "2024-08-09")] alias isSemireal := IsSemireal
+
+/-- In a semireal ring, `-1` is not a sum of squares. -/
+theorem IsSemireal.not_isSumSq_neg_one [AddGroup R] [One R] [Mul R] [IsSemireal R]:
+    ¬ IsSumSq (-1 : R) := (by simpa using one_add_ne_zero ·)
+
 @[deprecated (since := "2024-08-09")] alias isSemireal.neg_one_not_SumSq :=
-  IsSemireal.add_one_ne_zero_of_isSumSq
+  IsSemireal.not_isSumSq_neg_one
 
-theorem IsSemireal.not_isSumSq_neg_one {R : Type*} [AddGroup R] [One R] [Mul R] [IsSemireal R]:
-    ¬ IsSumSq (-1 : R) := (by simpa using add_one_ne_zero_of_isSumSq ·)
-
-/-- Linearly ordered semirings with the property `a ≤ b → ∃ c, a + c = b` (e.g. `ℕ`)
-are semireal. -/
+/--
+Linearly ordered semirings with the property `a ≤ b → ∃ c, a + c = b` (e.g. `ℕ`)
+are semireal.
+-/
 instance [LinearOrderedSemiring R] [ExistsAddOfLE R] : IsSemireal R where
-  add_one_ne_zero_of_isSumSq ssa amo := zero_ne_one' R (le_antisymm zero_le_one
-                                          (le_of_le_of_eq (le_add_of_nonneg_right ssa.nonneg) amo))
+  one_add_ne_zero hs amo := zero_ne_one' R (le_antisymm zero_le_one
+                              (le_of_le_of_eq (le_add_of_nonneg_right hs.nonneg) amo))

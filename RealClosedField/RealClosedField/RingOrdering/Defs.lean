@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Florent Schaffhauser, Artie Khovanov
 -/
 
+/- TODO : add proper doc headers inc. source -/
+
 import Mathlib.Algebra.Ring.Subsemiring.Basic
 import Mathlib.RingTheory.Ideal.Basic
 import Mathlib.Algebra.Group.Even
