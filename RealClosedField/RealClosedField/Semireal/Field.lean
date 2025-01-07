@@ -7,7 +7,7 @@ import RealClosedField.RealClosedField.FormallyReal
 import RealClosedField.RealClosedField.RingOrdering.Order
 import RealClosedField.RealClosedField.RingOrdering.Adjoin
 
-variable (F : Type*) [Field F]
+variable {F : Type*} [Field F]
 
 instance : RingConeClass (RingPreordering F) F where
   eq_zero_of_mem_of_neg_mem {P} {a} ha hna := by
@@ -26,6 +26,7 @@ instance IsSemireal.instIsFormallyReal [IsSemireal F] : IsFormallyReal F where
 
 variable [IsSemireal F]
 
+variable (F) in
 open Classical RingPreordering in
 noncomputable def LinearOrderedField.mkOfIsSemireal [IsSemireal F] : LinearOrderedField F where
   __ := have := (choose_spec <| exists_le_isPrimeOrdering (⊥ : RingPreordering F)).2

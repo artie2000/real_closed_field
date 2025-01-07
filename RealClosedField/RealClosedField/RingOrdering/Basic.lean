@@ -317,7 +317,7 @@ variable {A B C : Type*} [CommRing A] [CommRing B] [CommRing C]
 /-- The preimage of a preordering along a ring homomorphism is a preordering. -/
 def comap (f : A →+* B) (P : RingPreordering B) : RingPreordering A where
   __ := P.toSubsemiring.comap f
-  isSquare_mem' := by aesop (add unsafe apply IsSquare.map) /- TODO : automate? -/
+  isSquare_mem' := by aesop (add unsafe apply IsSquare.map) /- TODO : automate -/
   minus_one_not_mem' := by aesop
 
 @[simp]
@@ -371,7 +371,6 @@ def map {f : A →+* B} {P : RingPreordering A} (hf : Function.Surjective f)
   isSquare_mem' hx := by
     rcases hx with ⟨y, rfl⟩
     rcases hf y with ⟨y', rfl⟩ /- TODO : generalise? ie Surjective f → IsSquare x → ∃ y, f y = x ∧ IsSquare y -/
-    simp_all
     aesop
   minus_one_not_mem' := fun ⟨x', hx', _⟩ => by
     have : -(x' + 1) + x' ∈ P := add_mem (hsupp (show f (x' + 1) = 0 by simp_all)).2 hx'
