@@ -8,7 +8,7 @@ import Mathlib.Order.Zorn
 
 /- TODO : make this change in the actual location -/
 attribute [- aesop] mul_mem add_mem
-attribute [aesop unsafe 99% apply (rule_sets := [SetLike])] mul_mem add_mem
+attribute [aesop unsafe 90% apply (rule_sets := [SetLike])] mul_mem add_mem
 
 /-!
 ## Adjoining an element to a preordering

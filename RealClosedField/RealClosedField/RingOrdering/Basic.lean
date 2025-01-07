@@ -12,7 +12,7 @@ import RealClosedField.RealClosedField.RingOrdering.Defs
 
 /- TODO : make this change in the actual location -/
 attribute [- aesop] mul_mem add_mem
-attribute [aesop unsafe 99% apply (rule_sets := [SetLike])] mul_mem add_mem
+attribute [aesop unsafe 90% apply (rule_sets := [SetLike])] mul_mem add_mem
 
 variable {R : Type*} [CommRing R] {P : RingPreordering R}
 
@@ -312,6 +312,8 @@ variable {A B C : Type*} [CommRing A] [CommRing B] [CommRing C]
 
 /-! ## comap -/
 
+/- TODO : generalise bundled "→+*" to class instances -/
+
 /-- The preimage of a preordering along a ring homomorphism is a preordering. -/
 def comap (f : A →+* B) (P : RingPreordering B) : RingPreordering A where
   __ := P.toSubsemiring.comap f
@@ -400,7 +402,7 @@ instance map.instIsOrdering {f : A →+* B} {P : RingPreordering A} [IsOrdering 
 theorem AddSubgroup.mem_map_support {f : A →+* B} {P : RingPreordering A}
     {hf : Function.Surjective f} {hsupp : (RingHom.ker f : Set A) ⊆ support P} {x : B} :
     x ∈ support (map hf hsupp) ↔ ∃ y ∈ support P, f y = x := by
-  refine Iff.intro (fun ⟨⟨a, ⟨ha₁, ha₂⟩⟩, ⟨b, ⟨hb₁, hb₂⟩⟩⟩ => ?_) (by aesop?)
+  refine Iff.intro (fun ⟨⟨a, ⟨ha₁, ha₂⟩⟩, ⟨b, ⟨hb₁, hb₂⟩⟩⟩ => ?_) (by aesop)
   have : -(a + b) + b ∈ P := by exact add_mem (hsupp (show f (a + b) = 0 by simp_all)).2 hb₁
   aesop
 

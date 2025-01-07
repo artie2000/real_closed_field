@@ -8,6 +8,10 @@ import Mathlib.Algebra.Ring.Subsemiring.Basic
 import Mathlib.RingTheory.Ideal.Basic
 import Mathlib.Algebra.Group.Even
 
+/- TODO : make this change in the actual location -/
+attribute [- aesop] mul_mem add_mem
+attribute [aesop unsafe 99% apply (rule_sets := [SetLike])] mul_mem add_mem
+
 /-!
 ## Preorderings
 -/
@@ -36,10 +40,6 @@ instance : SubsemiringClass (RingPreordering R) R where
   mul_mem := Subsemiring.mul_mem _
 
 variable {R}
-
-/- TODO : make this change in the actual location -/
-attribute [- aesop] mul_mem add_mem
-attribute [aesop unsafe 99% apply (rule_sets := [SetLike])] mul_mem add_mem
 
 @[aesop unsafe 50% apply (rule_sets := [SetLike])]
 protected theorem isSquare_mem (P : RingPreordering R) {x : R} (hx : IsSquare x) : x ∈ P :=
