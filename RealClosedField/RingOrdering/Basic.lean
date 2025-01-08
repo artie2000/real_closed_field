@@ -8,7 +8,7 @@ import Mathlib.Tactic.LinearCombination
 import Mathlib.Tactic.FieldSimp
 import Mathlib.Algebra.CharP.Two
 import RealClosedField.Mathlib.Algebra.Ring.Semireal.Defs
-import RealClosedField.RealClosedField.RingOrdering.Defs
+import RealClosedField.RingOrdering.Defs
 
 /- TODO : make this change in the actual location -/
 attribute [- aesop] mul_mem add_mem

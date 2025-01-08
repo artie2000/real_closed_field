@@ -3,7 +3,7 @@ Copyright (c) 2024 Florent Schaffhauser. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Florent Schaffhauser, Artie Khovanov
 -/
-import RealClosedField.RealClosedField.RingOrdering.Basic
+import RealClosedField.RingOrdering.Basic
 import RealClosedField.Mathlib.Algebra.Order.Ring.Cone
 import Mathlib.RingTheory.Ideal.Quotient.Operations
 
@@ -59,7 +59,7 @@ instance RingCone.mkOfRingPreordering.inst_isMaxCone {R : Type*} [CommRing R]
   apply_fun (x ∈ ·) at this
   rw [Ideal.mem_map_iff_of_surjective _ Ideal.Quotient.mk_surjective] at this
   simp_all
-  /- TODO : make this proof better -/
+  /- TODO : make this proof better - need theorem like I.map f = f '' ↑I?  -/
 
 /- TODO : move to the right place -/
 theorem Quotient.image_mk_eq_lift {α : Type*} {s : Setoid α} (A : Set α)
@@ -69,24 +69,27 @@ theorem Quotient.image_mk_eq_lift {α : Type*} {s : Setoid α} (A : Set α)
 
 /- TODO : move to the right place -/
 @[to_additive]
-theorem QuotientGroup.mem_iff_mem_of_quotientRel {G : Type*} [CommGroup G] {H : Subgroup G}
-    {M : Submonoid G} (hM : (H : Set G) ⊆ M) :
+theorem QuotientGroup.mem_iff_mem_of_rel {G S : Type*} [CommGroup G]
+    [SetLike S G] [MulMemClass S G] (H : Subgroup G) {M : S} (hM : (H : Set G) ⊆ M) :
     ∀ x y, QuotientGroup.leftRel H x y → (x ∈ M ↔ y ∈ M) := fun x y hxy => by
   rw [QuotientGroup.leftRel_apply] at hxy
-  exact ⟨fun h => by have := mul_mem h <| hM hxy; simpa,
-        fun h => by have := mul_mem h <| hM <| inv_mem hxy; simpa⟩
+  exact ⟨fun h => by simpa using mul_mem h <| hM hxy,
+        fun h => by simpa using mul_mem h <| hM <| inv_mem hxy⟩
+
+/- TODO : move to the right place -/
+def decidablePred_mem_map_quotient_mk
+    {R S : Type*} [CommRing R] [SetLike S R] [AddMemClass S R] (I : Ideal R)
+    {M : S} (hM : (I : Set R) ⊆ M) [DecidablePred (· ∈ M)] :
+    DecidablePred (· ∈ (Ideal.Quotient.mk I) '' M) := by
+  have : ∀ x y, I.quotientRel x y → (x ∈ M ↔ y ∈ M) :=
+    QuotientAddGroup.mem_iff_mem_of_rel _ (by simpa)
+  rw [show (· ∈ (Ideal.Quotient.mk I) '' _) = (· ∈ (Quotient.mk _) '' _) by rfl,
+      Quotient.image_mk_eq_lift _ this]
+  exact Quotient.lift.decidablePred (· ∈ M) (by simpa)
 
 @[reducible] def LinearOrderedRing.mkOfRingPreordering_quot {R : Type*} [CommRing R]
     (P : RingPreordering R) [RingPreordering.IsPrimeOrdering P] [DecidablePred (· ∈ P)] :
     LinearOrderedRing (R ⧸ (RingPreordering.Ideal.support P)) :=
-  /- technical instance -/
-  /- TODO : generalise this quotient instance? -/
-  have : DecidablePred (· ∈ RingCone.mkOfRingPreordering_quot P) := by
-    rw [show (· ∈ RingCone.mkOfRingPreordering_quot P) = (· ∈ (Quotient.mk _) '' P) by rfl]
-    have : ∀ x y, (RingPreordering.Ideal.support P).quotientRel x y → (x ∈ P ↔ y ∈ P) :=
-      QuotientAddGroup.mem_iff_mem_of_quotientRel
-        (M := P.toAddSubmonoid) (H := (RingPreordering.Ideal.support P).toAddSubgroup)
-        (by aesop (add unsafe apply Set.sep_subset))
-    rw [Quotient.image_mk_eq_lift _ this]
-    exact Quotient.lift.decidablePred (· ∈ P) (by simpa)
-  mkOfCone (RingCone.mkOfRingPreordering_quot P)
+  @mkOfCone _ _ _ _ (RingCone.mkOfRingPreordering_quot P) _ _ _ <| by
+    simpa using decidablePred_mem_map_quotient_mk (RingPreordering.Ideal.support P)
+      (by aesop (add safe apply Set.sep_subset))
