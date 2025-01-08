@@ -35,7 +35,7 @@ theorem isFormallyReal_of_eq_zero_of_mul_self_of_eq_zero_of_add
 
 instance IsFormallyReal.instIsSemireal [NonAssocSemiring R] [Nontrivial R] [IsFormallyReal R] :
     IsSemireal R where
-  add_one_ne_zero_of_isSumSq hs h_contr := by
+  one_add_ne_zero hs h_contr := by
     simpa using IsFormallyReal.eq_zero_of_add_left (by aesop) hs h_contr
 
 instance LinearOrderedRing.instIsFormallyReal [LinearOrderedRing R] : IsFormallyReal R where

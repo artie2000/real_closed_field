@@ -22,7 +22,7 @@ instance (O : RingPreordering F) [RingPreordering.IsOrdering O] : IsMaxCone O wh
 instance IsSemireal.instIsFormallyReal [IsSemireal F] : IsFormallyReal F where
   eq_zero_of_mul_self_add {a} {s} hs h := by
     by_contra
-    exact add_one_ne_zero_of_isSumSq (by aesop) (show 1 + s * (a⁻¹ * a⁻¹) = 0 by field_simp [h])
+    exact one_add_ne_zero (by aesop) (show 1 + s * (a⁻¹ * a⁻¹) = 0 by field_simp [h])
 
 variable [IsSemireal F]
 
