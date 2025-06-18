@@ -16,7 +16,7 @@ instance : RingConeClass (RingPreordering F) F where
     aesop
 
 /- TODO : decide whether to unify these -/
-instance (O : RingPreordering F) [RingPreordering.IsOrdering O] : IsMaxCone O where
+instance (O : RingPreordering F) [O.IsOrdering] : IsMaxCone O where
   mem_or_neg_mem := RingPreordering.mem_or_neg_mem O
 
 instance IsSemireal.instIsFormallyReal [IsSemireal F] : IsFormallyReal F where
@@ -32,6 +32,7 @@ noncomputable abbrev LinearOrder.mkOfIsSemireal [IsSemireal F] : LinearOrder F :
   have := (choose_spec <| exists_le_isPrimeOrdering (⊥ : RingPreordering F)).2
   LinearOrder.mkOfAddGroupCone (choose <| exists_le_isPrimeOrdering ⊥) inferInstance
 
+/- TODO : delete this once isOrderedRing.mkOfCone becomes an instance -/
 instance IsOrderedRing.mkOfIsSemireal [IsSemireal F] :
     letI _ := LinearOrder.mkOfIsSemireal F
     IsOrderedRing F := .mkOfCone _

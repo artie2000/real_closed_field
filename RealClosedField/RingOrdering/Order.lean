@@ -17,9 +17,9 @@ abbrev RingPreordering.mkOfCone {R : Type*} [Nontrivial R] [CommRing R] (C : Rin
     | inr h => simpa using (show -y * -y ∈ C by aesop (config := { enableSimp := false }))
   minus_one_not_mem' h := one_ne_zero <| eq_zero_of_mem_of_neg_mem (one_mem C) h
 
-/-- A maximal cone over a commutative ring `R` is an ordering on `R`. -/
+/-- A maximal cone over a nontrivial commutative ring `R` is an ordering on `R`. -/
 instance {R : Type*} [CommRing R] [Nontrivial R] (C : RingCone R) [IsMaxCone C] :
-    RingPreordering.IsOrdering <| RingPreordering.mkOfCone C where
+    (RingPreordering.mkOfCone C).IsOrdering where
   mem_or_neg_mem' x := mem_or_neg_mem (C := C) x
 
 /- TODO : decide what to do about the maximality typeclasses -/
@@ -35,17 +35,18 @@ abbrev RingCone.mkOfRingPreordering : RingCone R where
     apply_fun (a ∈ ·) at hP
     aesop
 
-instance RingCone.mkOfRingPreordering.inst_isMaxCone [RingPreordering.IsOrdering P] :
+instance RingCone.mkOfRingPreordering.inst_isMaxCone [P.IsOrdering] :
     IsMaxCone <| mkOfRingPreordering hP where
   mem_or_neg_mem := RingPreordering.mem_or_neg_mem P
 
 abbrev PartialOrder.mkOfRingPreordering : PartialOrder R :=
   .mkOfAddGroupCone <| RingCone.mkOfRingPreordering hP
 
-abbrev LinearOrder.mkOfRingOrdering [RingPreordering.IsOrdering P] [DecidablePred (· ∈ P)] :
+abbrev LinearOrder.mkOfRingOrdering [P.IsOrdering] [DecidablePred (· ∈ P)] :
     LinearOrder R :=
   .mkOfAddGroupCone (RingCone.mkOfRingPreordering hP) inferInstance
 
+/- TODO : delete this once isOrderedRing.mkOfCone becomes an instance -/
 instance IsOrderedRing.mkOfRingPreordering :
     letI _ : PartialOrder R := .mkOfRingPreordering hP
     IsOrderedRing R :=
@@ -63,22 +64,27 @@ abbrev RingCone.mkOfRingPreordering_field : RingCone F :=
 abbrev PartialOrder.mkOfRingPreordering_field : PartialOrder F :=
   .mkOfAddGroupCone <| RingCone.mkOfRingPreordering_field P
 
-abbrev LinearOrder.mkOfRingOrdering_field [RingPreordering.IsOrdering P] [DecidablePred (· ∈ P)] :
+abbrev LinearOrder.mkOfRingOrdering_field [P.IsOrdering] [DecidablePred (· ∈ P)] :
     LinearOrder F :=
   .mkOfAddGroupCone (RingCone.mkOfRingPreordering_field P) inferInstance
 
 end Field
 
+/- TODO : move to the right place -/
+theorem Ideal.coe_map_of_surjective {R S F : Type*} [Semiring R] [Semiring S] [FunLike F R S]
+    [RingHomClass F R S] {f : F} (hf : Function.Surjective f) {I : Ideal R} :
+    map f I = f '' I := by
+  ext y
+  exact mem_map_iff_of_surjective _ hf
+
 abbrev RingCone.mkOfRingPreordering_quot {R : Type*} [CommRing R] (P : RingPreordering R)
-    [RingPreordering.IsOrdering P] : RingCone (R ⧸ (RingPreordering.Ideal.support P)) := by
+    [P.IsOrdering] : RingCone (R ⧸ RingPreordering.Ideal.support P) := by
   refine mkOfRingPreordering (P := P.map Ideal.Quotient.mk_surjective (by simp)) ?_
-  have : Ideal.map (Ideal.Quotient.mk <| RingPreordering.Ideal.support P)
-    (RingPreordering.Ideal.support P) = ⊥ := by simp
-  ext x
-  apply_fun (x ∈ ·) at this
-  rw [Ideal.mem_map_iff_of_surjective _ Ideal.Quotient.mk_surjective] at this
+  apply_fun SetLike.coe using SetLike.coe_injective
+  have : _ = (Ideal.Quotient.mk (RingPreordering.Ideal.support P)) ''
+      (RingPreordering.Ideal.support P) :=
+    Ideal.coe_map_of_surjective Ideal.Quotient.mk_surjective
   simp_all
-  /- TODO : make this proof better - need theorem like I.map f = f '' ↑I?  -/
 
 /- TODO : move to the right place -/
 theorem Quotient.image_mk_eq_lift {α : Type*} {s : Setoid α} (A : Set α)
@@ -107,13 +113,13 @@ def decidablePred_mem_map_quotient_mk
   exact Quotient.lift.decidablePred (· ∈ M) (by simpa)
 
 abbrev LinearOrder.mkOfRingPreordering_quot {R : Type*} [CommRing R]
-    (P : RingPreordering R) [RingPreordering.IsPrimeOrdering P] [DecidablePred (· ∈ P)] :
+    (P : RingPreordering R) [P.IsPrimeOrdering] [DecidablePred (· ∈ P)] :
     LinearOrder (R ⧸ (RingPreordering.Ideal.support P)) :=
   @mkOfAddGroupCone _ _ _ _ (RingCone.mkOfRingPreordering_quot P) _ _ <| by
     simpa using decidablePred_mem_map_quotient_mk (RingPreordering.Ideal.support P)
       (by aesop (add safe apply Set.sep_subset))
 
 instance IsOrderedRing.mkOfRingPreordering_quot {R : Type*} [CommRing R]
-    (P : RingPreordering R) [RingPreordering.IsPrimeOrdering P] [DecidablePred (· ∈ P)] :
+    (P : RingPreordering R) [P.IsPrimeOrdering] [DecidablePred (· ∈ P)] :
     letI  _ : LinearOrder _ := LinearOrder.mkOfRingPreordering_quot P
     IsOrderedRing (R ⧸ (RingPreordering.Ideal.support P)) := mkOfRingPreordering _
