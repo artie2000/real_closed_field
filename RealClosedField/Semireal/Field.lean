@@ -24,21 +24,20 @@ instance IsSemireal.instIsFormallyReal [IsSemireal F] : IsFormallyReal F where
     by_contra
     exact one_add_ne_zero (by aesop) (show 1 + s * (a⁻¹ * a⁻¹) = 0 by field_simp [h])
 
-variable [IsSemireal F]
-
 variable (F) in
 open Classical RingPreordering in
 noncomputable abbrev LinearOrder.mkOfIsSemireal [IsSemireal F] : LinearOrder F :=
   have := (choose_spec <| exists_le_isPrimeOrdering (⊥ : RingPreordering F)).2
   LinearOrder.mkOfAddGroupCone (choose <| exists_le_isPrimeOrdering ⊥) inferInstance
 
-/- TODO : delete this once isOrderedRing.mkOfCone becomes an instance -/
-instance IsOrderedRing.mkOfIsSemireal [IsSemireal F] :
+lemma IsOrderedRing.mkOfIsSemireal [IsSemireal F] :
     letI _ := LinearOrder.mkOfIsSemireal F
     IsOrderedRing F := .mkOfCone _
 
 theorem ArtinSchreier_basic :
-    Nonempty ({S : LinearOrder F // IsOrderedRing F}) ↔ IsSemireal F :=
+    Nonempty ({O : LinearOrder F // IsOrderedRing F}) ↔ IsSemireal F :=
   Iff.intro
-    (fun h => let _ := Classical.choice h; inferInstance)
-    (fun _ => Nonempty.intro ⟨.mkOfIsSemireal _, inferInstance⟩)
+    (fun h => let ⟨_, _⟩ := Classical.choice h
+              letI _ := IsOrderedRing.toIsStrictOrderedRing F /- TODO : upstream global instance -/
+              inferInstance)
+    (fun _ => Nonempty.intro ⟨.mkOfIsSemireal _, .mkOfIsSemireal⟩)
