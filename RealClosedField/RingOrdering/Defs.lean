@@ -115,20 +115,15 @@ def support : AddSubgroup R where
 
 end AddSubgroup
 
-variable (P) in
-class HasIdealSupport : Prop where
-  smul_mem_support' (x : R) {a : R} (ha : a ∈ AddSubgroup.support P) :
+class HasIdealSupport (P) :  Prop where
+  smul_mem_support (P) (x : R) {a : R} (ha : a ∈ AddSubgroup.support P) :
     x * a ∈ AddSubgroup.support P
 
-variable (P) in
-lemma smul_mem_support [HasIdealSupport P] :
-    ∀ (x : R) {a : R}, a ∈ AddSubgroup.support P →
-      x * a ∈ AddSubgroup.support P :=
-  HasIdealSupport.smul_mem_support' (P := P)
+export HasIdealSupport (smul_mem_support)
 
 theorem hasIdealSupport
     (h : ∀ x a : R, a ∈ P → -a ∈ P → x * a ∈ P ∧ -(x * a) ∈ P) : HasIdealSupport P where
-  smul_mem_support' := by simp_all
+  smul_mem_support := by simp_all
 
 namespace Ideal
 
@@ -155,26 +150,18 @@ end Ideal
 ## (Prime) orderings
 -/
 
-variable (P) in
 /-- An ordering `P` on a ring `R` is a preordering such that, for every `x` in `R`,
 either `x` or `-x` lies in `P`. -/
-class IsOrdering : Prop where
-  mem_or_neg_mem' (x : R) : x ∈ P ∨ -x ∈ P
+class IsOrdering (P : RingPreordering R) : Prop where
+  protected mem_or_neg_mem (P) (x : R) : x ∈ P ∨ -x ∈ P
 
-variable (P) in
-/-- Technical lemma to get P as explicit argument -/
-protected lemma mem_or_neg_mem [IsOrdering P] :
-    ∀ x : R, x ∈ P ∨ -x ∈ P := IsOrdering.mem_or_neg_mem' (P := P)
+/- protected to avoid conflict with the `AddGroupCone` version -/
+protected lemma mem_or_neg_mem (P : RingPreordering R) [IsOrdering P] : ∀ x, x ∈ P ∨ -x ∈ P :=
+  IsOrdering.mem_or_neg_mem P
 
-variable (P) in
 /-- A prime ordering `P` on a ring `R` is an ordering whose support is a prime ideal. -/
-class IsPrimeOrdering : Prop where
-  mem_or_neg_mem' (x : R) : x ∈ P ∨ -x ∈ P
-  mem_or_mem' {x y : R} (h : x * y ∈ AddSubgroup.support P) :
+class IsPrimeOrdering (P : RingPreordering R) extends IsOrdering P where
+  mem_or_mem {x y : R} (h : x * y ∈ AddSubgroup.support P) :
     x ∈ AddSubgroup.support P ∨ y ∈ AddSubgroup.support P
-
-instance IsPrimeOrdering.instIsOrdering [IsPrimeOrdering P] :
-    IsOrdering P where
-  mem_or_neg_mem' := IsPrimeOrdering.mem_or_neg_mem'
 
 end RingPreordering

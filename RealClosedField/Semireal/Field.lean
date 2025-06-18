@@ -17,7 +17,7 @@ instance : RingConeClass (RingPreordering F) F where
 
 /- TODO : decide whether to unify these -/
 instance (O : RingPreordering F) [O.IsOrdering] : IsMaxCone O where
-  mem_or_neg_mem := RingPreordering.mem_or_neg_mem O
+  mem_or_neg_mem' := RingPreordering.mem_or_neg_mem O
 
 instance IsSemireal.instIsFormallyReal [IsSemireal F] : IsFormallyReal F where
   eq_zero_of_mul_self_add {a} {s} hs h := by
@@ -28,7 +28,7 @@ variable (F) in
 open Classical RingPreordering in
 noncomputable abbrev LinearOrder.mkOfIsSemireal [IsSemireal F] : LinearOrder F :=
   have := (choose_spec <| exists_le_isPrimeOrdering (⊥ : RingPreordering F)).2
-  .mkOfAddGroupCone (choose <| exists_le_isPrimeOrdering ⊥) inferInstance
+  .mkOfAddGroupCone (choose <| exists_le_isPrimeOrdering ⊥)
 
 lemma IsOrderedRing.mkOfIsSemireal [IsSemireal F] :
     letI _ := LinearOrder.mkOfIsSemireal F

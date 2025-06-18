@@ -147,7 +147,7 @@ lemma mem_of_not_neg_mem (x : R) (h : -x ∉ P) : x ∈ P := by
   simp_all
 
 instance IsOrdering.hasIdealSupport : HasIdealSupport P where
-  smul_mem_support' x a ha := by
+  smul_mem_support x a ha := by
     cases RingPreordering.mem_or_neg_mem P x with
     | inl => aesop
     | inr hx => simpa using ⟨by simpa using mul_mem hx ha.2, by simpa using mul_mem hx ha.1⟩
@@ -157,30 +157,31 @@ end IsOrdering
 instance IsPrimeOrdering.support_isPrime [IsPrimeOrdering P] :
     (Ideal.support P).IsPrime where
   ne_top' h := RingPreordering.minus_one_not_mem P (by aesop : 1 ∈ Ideal.support P).2
-  mem_or_mem' := mem_or_mem'
+  mem_or_mem' := mem_or_mem
 
 instance IsOrdering.isPrimeOrdering
     [IsOrdering P] [(Ideal.support P).IsPrime] : IsPrimeOrdering P where
-  mem_or_neg_mem' := RingPreordering.mem_or_neg_mem P
-  mem_or_mem' := Ideal.IsPrime.mem_or_mem (by assumption)
+  mem_or_neg_mem := RingPreordering.mem_or_neg_mem P
+  mem_or_mem := Ideal.IsPrime.mem_or_mem (by assumption)
 
 theorem isPrimeOrdering_iff :
     IsPrimeOrdering P ↔ (∀ a b : R, -(a * b) ∈ P → a ∈ P ∨ b ∈ P) := by
   refine ⟨fun prime a b h₁ => ?_, fun h => ?_⟩
-  · by_contra h₂
+  · by_contra
     have : a * b ∈ P := by simpa using mul_mem (by aesop : -a ∈ P) (by aesop : -b ∈ P)
     have : a ∈ Ideal.support P ∨ b ∈ Ideal.support P :=
       Ideal.IsPrime.mem_or_mem inferInstance (by simp_all)
     simp_all
-  · refine ⟨by aesop, fun {x y} hxy => ?_⟩
-    by_contra h₂
-    cases (by aesop : x ∈ P ∨ -x ∈ P) with
-    | inl =>  have := h (-x) y
-              have := h (-x) (-y)
-              simp_all
-    | inr =>  have := h x y
-              have := h x (-y)
-              simp_all
+  · exact {(⟨by aesop⟩ : IsOrdering _) with
+      mem_or_mem := fun {x y} hxy => by
+        by_contra
+        cases (by aesop : x ∈ P ∨ -x ∈ P) with
+        | inl =>  have := h (-x) y
+                  have := h (-x) (-y)
+                  simp_all
+        | inr =>  have := h x y
+                  have := h x (-y)
+                  simp_all }
 
 /-! ## Order operations -/
 
@@ -333,7 +334,7 @@ theorem comap_comap (P : RingPreordering C) (g : B →+* C) (f : A →+* B) :
 /-- The preimage of an ordering along a ring homomorphism is an ordering. -/
 instance comap.instIsOrdering (P : RingPreordering B) [IsOrdering P] (f : A →+* B) :
     IsOrdering (comap f P) where
-  mem_or_neg_mem' x := by have := RingPreordering.mem_or_neg_mem P (f x); aesop
+  mem_or_neg_mem x := by have := RingPreordering.mem_or_neg_mem P (f x); aesop
 
 @[simp]
 theorem AddSubgroup.mem_comap_support {P : RingPreordering B} {f : A →+* B} {x : A} :
@@ -345,7 +346,7 @@ theorem AddSubgroup.comap_support {P : RingPreordering B} {f : A →+* B} :
 
 instance comap_hasIdealSupport (P : RingPreordering B) [HasIdealSupport P] (f : A →+* B) :
     HasIdealSupport (P.comap f) where
-  smul_mem_support' x a ha := by have := smul_mem_support P (f x) (by simpa using ha); simp_all
+  smul_mem_support x a ha := by have := smul_mem_support P (f x) (by simpa using ha); simp_all
 
 @[simp]
 theorem Ideal.mem_comap_support {P : RingPreordering B} [HasIdealSupport P] {f : A →+* B} {x : A} :
@@ -392,7 +393,7 @@ instance map.instIsOrdering {f : A →+* B} {P : RingPreordering A} [IsOrdering 
     (hf : Function.Surjective f)
     (hsupp : (RingHom.ker f : Set A) ⊆ AddSubgroup.support P) :
     IsOrdering (map hf hsupp) where
-  mem_or_neg_mem' x := by
+  mem_or_neg_mem x := by
     obtain ⟨x', rfl⟩ := hf x
     have := RingPreordering.mem_or_neg_mem P x'
     aesop
@@ -414,7 +415,7 @@ instance {f : A →+* B} {P : RingPreordering A} [HasIdealSupport P]
     (hf : Function.Surjective f)
     (hsupp : (RingHom.ker f : Set A) ⊆ AddSubgroup.support P) :
     HasIdealSupport <| map hf hsupp where
-  smul_mem_support' x a ha := by
+  smul_mem_support x a ha := by
     rw [AddSubgroup.mem_map_support] at ha
     rcases ha with ⟨a', ha', rfl⟩
     rcases hf x with ⟨x', rfl⟩

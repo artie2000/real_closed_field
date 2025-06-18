@@ -12,15 +12,16 @@ abbrev RingPreordering.mkOfCone {R : Type*} [Nontrivial R] [CommRing R] (C : Rin
   __ := RingCone.toSubsemiring C
   isSquare_mem' x := by
     rcases x with ⟨y, rfl⟩
-    cases mem_or_neg_mem (C := C) y with
+    have := mem_or_neg_mem C
+    cases mem_or_neg_mem C y with
     | inl h  => aesop
     | inr h => simpa using (show -y * -y ∈ C by aesop (config := { enableSimp := false }))
   minus_one_not_mem' h := one_ne_zero <| eq_zero_of_mem_of_neg_mem (one_mem C) h
 
 /-- A maximal cone over a nontrivial commutative ring `R` is an ordering on `R`. -/
-instance IsOrdering.mkOfCone {R : Type*} [CommRing R] [Nontrivial R]
+instance {R : Type*} [CommRing R] [Nontrivial R]
     (C : RingCone R) [IsMaxCone C] : (RingPreordering.mkOfCone C).IsOrdering where
-  mem_or_neg_mem' x := mem_or_neg_mem (C := C) x
+  mem_or_neg_mem := mem_or_neg_mem C
 
 /- TODO : decide what to do about the maximality typeclasses -/
 
@@ -36,14 +37,14 @@ abbrev RingCone.mkOfRingPreordering : RingCone R where
     aesop
 
 instance [P.IsOrdering] : IsMaxCone <| RingCone.mkOfRingPreordering hP where
-  mem_or_neg_mem := RingPreordering.mem_or_neg_mem P
+  mem_or_neg_mem' := RingPreordering.mem_or_neg_mem P
 
 abbrev PartialOrder.mkOfRingPreordering : PartialOrder R :=
   .mkOfAddGroupCone <| RingCone.mkOfRingPreordering hP
 
 abbrev LinearOrder.mkOfRingOrdering [P.IsOrdering] [DecidablePred (· ∈ P)] :
     LinearOrder R :=
-  .mkOfAddGroupCone (RingCone.mkOfRingPreordering hP) inferInstance
+  .mkOfAddGroupCone (RingCone.mkOfRingPreordering hP)
 
 lemma IsOrderedRing.mkOfRingPreordering :
     letI _ : PartialOrder R := .mkOfRingPreordering hP
@@ -60,14 +61,14 @@ abbrev RingCone.mkOfRingPreordering_field : RingCone F :=
   mkOfRingPreordering <| RingPreordering.support_eq_bot P
 
 instance [P.IsOrdering] : IsMaxCone <| RingCone.mkOfRingPreordering_field P where
-  mem_or_neg_mem := RingPreordering.mem_or_neg_mem P
+  mem_or_neg_mem' := RingPreordering.mem_or_neg_mem P
 
 abbrev PartialOrder.mkOfRingPreordering_field : PartialOrder F :=
   .mkOfAddGroupCone <| RingCone.mkOfRingPreordering_field P
 
 abbrev LinearOrder.mkOfRingOrdering_field [P.IsOrdering] [DecidablePred (· ∈ P)] :
     LinearOrder F :=
-  .mkOfAddGroupCone (RingCone.mkOfRingPreordering_field P) inferInstance
+  .mkOfAddGroupCone (RingCone.mkOfRingPreordering_field P)
 
 end Field
 
