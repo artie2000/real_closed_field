@@ -33,17 +33,13 @@ theorem isFormallyReal_of_eq_zero_of_mul_self_of_eq_zero_of_add
     (ha : ∀ {S₁ S₂ : R}, IsSumSq S₁ → IsSumSq S₂ → S₁ + S₂ = 0 → S₁ = 0) : IsFormallyReal R where
   eq_zero_of_mul_self_add hs h := hz <| ha (IsSumSq.mul_self _) hs h
 
-instance IsFormallyReal.instIsSemireal {R : Type*} [NonAssocSemiring R] [Nontrivial R]
-    [IsFormallyReal R] : IsSemireal R where
+instance {R : Type*} [NonAssocSemiring R] [Nontrivial R] [IsFormallyReal R] : IsSemireal R where
   one_add_ne_zero hs h_contr := by
     simpa using IsFormallyReal.eq_zero_of_add_left (by aesop) hs h_contr
 
-instance LinearOrderedRing.instIsFormallyReal {R : Type*} [Ring R] [LinearOrder R]
-    [IsStrictOrderedRing R] : IsFormallyReal R where
-  eq_zero_of_mul_self_add {a} {s} hs h := by
-    refine mul_self_eq_zero.mp <|
-      le_antisymm (by simpa [eq_neg_of_add_eq_zero_left h] using IsSumSq.nonneg hs)
-        (mul_self_nonneg a)
+instance {R : Type*} [Ring R] [LinearOrder R] [IsStrictOrderedRing R] : IsFormallyReal R where
+  eq_zero_of_mul_self_add {a} {s} hs h := mul_self_eq_zero.mp <| le_antisymm
+    (by simpa [eq_neg_of_add_eq_zero_left h] using IsSumSq.nonneg hs) (mul_self_nonneg a)
 
 namespace RingCone
 variable {T : Type*} [CommRing T] [IsFormallyReal T]

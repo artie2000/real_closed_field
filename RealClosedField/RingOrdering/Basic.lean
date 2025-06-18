@@ -110,8 +110,8 @@ theorem neg_smul_mem [HasIdealSupport P]
 
 end HasIdealSupport
 
-theorem hasIdealSupport_of_isUnit_2 (isUnit_2 : IsUnit (2 : R)) : HasIdealSupport P := by
-  refine hasIdealSupport (fun x a h₁a h₂a => ?_)
+theorem hasIdealSupport_of_isUnit_2 (isUnit_2 : IsUnit (2 : R)) : HasIdealSupport P :=
+  hasIdealSupport <| fun x a h₁a h₂a => by
   obtain ⟨half, h2⟩ := IsUnit.exists_left_inv isUnit_2
   let y := (1 + x) * half
   let z := (1 - x) * half
@@ -122,7 +122,7 @@ theorem hasIdealSupport_of_isUnit_2 (isUnit_2 : IsUnit (2 : R)) : HasIdealSuppor
 
 theorem support_eq_bot {F : Type*} [Field F] (P : RingPreordering F) :
     AddSubgroup.support P = ⊥ := by
-  refine AddSubgroup.ext (fun x => Iff.intro (fun h => ?_) (fun h => by aesop))
+  refine AddSubgroup.ext <| fun x => ⟨fun h => ?_, fun h => by aesop⟩
   by_contra hz
   apply RingPreordering.minus_one_not_mem P
   rw [show -1 = -x * x⁻¹ by field_simp [show x ≠ 0 by simp_all]]
@@ -166,7 +166,7 @@ instance IsOrdering.isPrimeOrdering
 
 theorem isPrimeOrdering_iff :
     IsPrimeOrdering P ↔ (∀ a b : R, -(a * b) ∈ P → a ∈ P ∨ b ∈ P) := by
-  refine Iff.intro (fun prime a b h₁ => ?_) (fun h => ?_)
+  refine ⟨fun prime a b h₁ => ?_, fun h => ?_⟩
   · by_contra h₂
     have : a * b ∈ P := by simpa using mul_mem (by aesop : -a ∈ P) (by aesop : -b ∈ P)
     have : a ∈ Ideal.support P ∨ b ∈ Ideal.support P :=
@@ -296,7 +296,7 @@ instance : Bot (RingPreordering R) where
 
 @[simp] lemma bot_toSubsemiring : (⊥ : RingPreordering R).toSubsemiring = .sumSq R := rfl
 
-@[simp] lemma mem_sumSqIn : a ∈ (⊥ : RingPreordering R) ↔ IsSumSq a :=
+@[simp] lemma mem_sumSqIn {a} : a ∈ (⊥ : RingPreordering R) ↔ IsSumSq a :=
   show a ∈ Subsemiring.sumSq R ↔ IsSumSq a by simp
 
 @[simp, norm_cast] lemma coe_sumSqIn : (⊥ : RingPreordering R) = {x : R | IsSumSq x} :=
@@ -383,7 +383,7 @@ theorem coe_map {f : A →+* B} {P : RingPreordering A} (hf : Function.Surjectiv
 
 @[simp]
 theorem mem_map {f : A →+* B} {P : RingPreordering A} (hf : Function.Surjective f)
-    (hsupp : (RingHom.ker f : Set A) ⊆ AddSubgroup.support P) :
+    (hsupp : (RingHom.ker f : Set A) ⊆ AddSubgroup.support P) {y} :
     y ∈ map hf hsupp ↔ ∃ x ∈ P, f x = y := Iff.rfl
 
 /-- The image of an ordering `P` along a surjective ring homomorphism
@@ -401,7 +401,7 @@ instance map.instIsOrdering {f : A →+* B} {P : RingPreordering A} [IsOrdering 
 theorem AddSubgroup.mem_map_support {f : A →+* B} {P : RingPreordering A}
     {hf : Function.Surjective f} {hsupp : (RingHom.ker f : Set A) ⊆ support P} {x : B} :
     x ∈ support (map hf hsupp) ↔ ∃ y ∈ support P, f y = x := by
-  refine Iff.intro (fun ⟨⟨a, ⟨ha₁, ha₂⟩⟩, ⟨b, ⟨hb₁, hb₂⟩⟩⟩ => ?_) (by aesop)
+  refine ⟨fun ⟨⟨a, ⟨ha₁, ha₂⟩⟩, ⟨b, ⟨hb₁, hb₂⟩⟩⟩ => ?_, by aesop⟩
   have : -(a + b) + b ∈ P := by exact add_mem (hsupp (show f (a + b) = 0 by simp_all)).2 hb₁
   aesop
 
@@ -410,10 +410,10 @@ theorem AddSubgroup.map_support {f : A →+* B} {P : RingPreordering A} {hf : Fu
     {hsupp : (RingHom.ker f : Set A) ⊆ support P} :
     support (map hf hsupp) = (support P).map f := by ext; simp
 
-instance map_hasIdealSupport {f : A →+* B} {P : RingPreordering A} [HasIdealSupport P]
+instance {f : A →+* B} {P : RingPreordering A} [HasIdealSupport P]
     (hf : Function.Surjective f)
     (hsupp : (RingHom.ker f : Set A) ⊆ AddSubgroup.support P) :
-    HasIdealSupport (map hf hsupp) where
+    HasIdealSupport <| map hf hsupp where
   smul_mem_support' x a ha := by
     rw [AddSubgroup.mem_map_support] at ha
     rcases ha with ⟨a', ha', rfl⟩
@@ -436,12 +436,12 @@ theorem Ideal.map_support {f : A →+* B} {P : RingPreordering A} [HasIdealSuppo
 
 /-- The image of a prime ordering `P` along a surjective ring homomorphism
   with kernel contained in the support of `P` is a prime ordering. -/
-instance map.instIsPrimeOrdering {f : A →+* B} {P : RingPreordering A} [IsPrimeOrdering P]
+instance {f : A →+* B} {P : RingPreordering A} [IsPrimeOrdering P]
     (hf : Function.Surjective f)
     (hsupp : RingHom.ker f ≤ Ideal.support P) :
-    IsPrimeOrdering (map hf hsupp) := by
+    IsPrimeOrdering <| map hf hsupp :=
   have : (Ideal.support (map hf hsupp)).IsPrime := by
     simpa using Ideal.map_isPrime_of_surjective hf hsupp
-  infer_instance
+  inferInstance
 
 end RingPreordering

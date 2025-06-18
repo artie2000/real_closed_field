@@ -41,7 +41,8 @@ lemma mem_ringPreordering_adjoin : a ∈ ringPreordering_adjoin P a :=
   ⟨0, by aesop, 1, by aesop, by simp⟩
 
 @[aesop unsafe 50% apply (rule_sets := [SetLike])]
-lemma isSquare_mem_ringPreordering_adjoin {x : R} (hx : IsSquare x) : x ∈ ringPreordering_adjoin P a :=
+lemma isSquare_mem_ringPreordering_adjoin {x : R} (hx : IsSquare x) :
+    x ∈ ringPreordering_adjoin P a :=
   by simpa using mem_ringPreordering_adjoin_of_mem a (by aesop)
 
 theorem closure_insert_eq_ringPreordering_adjoin :
@@ -128,23 +129,23 @@ theorem exists_lt (hp : a ∉ P) (hn : -a ∉ P) :
 
 /- A preordering on `R` that is maximal with respect to inclusion is a prime ordering. -/
 theorem isPrimeOrdering_of_maximal {O : RingPreordering R} (max : IsMax O) :
-    IsPrimeOrdering O := isPrimeOrdering_iff.mpr (fun a b h => by
+    IsPrimeOrdering O := isPrimeOrdering_iff.mpr <| fun a b h => by
   cases not_mem_adjoin_or h with
   | inl h => exact Or.inl <| max (subset_adjoin h) (mem_adjoin h)
-  | inr h => exact Or.inr <| max (subset_adjoin h) (mem_adjoin h))
+  | inr h => exact Or.inr <| max (subset_adjoin h) (mem_adjoin h)
 
 /- Every preordering on `R` extends to a prime ordering. -/
 theorem exists_le_isPrimeOrdering :
     ∃ O : RingPreordering R, P ≤ O ∧ IsPrimeOrdering O := by
-  have ⟨O, le, hO⟩ : ∃ O, P ≤ O ∧ IsMax O := by
-    refine zorn_le_nonempty_Ici₀ _ (fun _ _ hc _ hQ => ?_) _ (by trivial)
+  have ⟨_, _, hO⟩ : ∃ O, P ≤ O ∧ IsMax O := by
+    refine zorn_le_nonempty_Ici₀ _ (fun _ _ hc _ hQ => ?_) _ le_rfl
     simp_all [← bddAbove_def, nonempty_chain_bddAbove (Set.nonempty_of_mem hQ) hc]
-  exact ⟨O, by aesop, isPrimeOrdering_of_maximal hO⟩
+  exact ⟨_, by assumption, isPrimeOrdering_of_maximal hO⟩
 
 /- A prime ordering on `R` is maximal among preorderings iff it is maximal among prime orderings. -/
-theorem maximal_isPrimeOrdering_iff_maximal {O : RingPreordering R} [IsPrimeOrdering O] :
-    IsMax O ↔ Maximal IsPrimeOrdering O := by
-  refine Iff.intro (fun h => ?_) (fun hO P le₁ => ?_)
-  · exact Maximal.mono (by simpa using h) (fun _ _ => trivial) (inferInstance)
-  · rcases exists_le_isPrimeOrdering P with ⟨Q, le₂, hQ⟩
-    aesop (add safe forward le_trans, safe forward Maximal.eq_of_ge)
+theorem maximal_iff_maximal_isPrimeOrdering {O : RingPreordering R} [IsPrimeOrdering O] :
+    IsMax O ↔ Maximal IsPrimeOrdering O :=
+  ⟨fun h => Maximal.mono (by simpa using h) (fun _ _ => trivial) inferInstance,
+   fun hO P le₁ => by aesop (add safe forward exists_le_isPrimeOrdering,
+                                 safe forward le_trans,
+                                 safe forward Maximal.eq_of_ge)⟩

@@ -11,7 +11,7 @@ variable {F : Type*} [Field F]
 
 instance : RingConeClass (RingPreordering F) F where
   eq_zero_of_mem_of_neg_mem {P} {a} ha hna := by
-    by_contra h
+    by_contra
     have : a⁻¹ * -a ∈ P := by aesop (config := { enableSimp := False })
     aesop
 
@@ -28,7 +28,7 @@ variable (F) in
 open Classical RingPreordering in
 noncomputable abbrev LinearOrder.mkOfIsSemireal [IsSemireal F] : LinearOrder F :=
   have := (choose_spec <| exists_le_isPrimeOrdering (⊥ : RingPreordering F)).2
-  LinearOrder.mkOfAddGroupCone (choose <| exists_le_isPrimeOrdering ⊥) inferInstance
+  .mkOfAddGroupCone (choose <| exists_le_isPrimeOrdering ⊥) inferInstance
 
 lemma IsOrderedRing.mkOfIsSemireal [IsSemireal F] :
     letI _ := LinearOrder.mkOfIsSemireal F
@@ -36,8 +36,7 @@ lemma IsOrderedRing.mkOfIsSemireal [IsSemireal F] :
 
 theorem ArtinSchreier_basic :
     Nonempty ({O : LinearOrder F // IsOrderedRing F}) ↔ IsSemireal F :=
-  Iff.intro
-    (fun h => let ⟨_, _⟩ := Classical.choice h
-              letI _ := IsOrderedRing.toIsStrictOrderedRing F /- TODO : upstream global instance -/
-              inferInstance)
-    (fun _ => Nonempty.intro ⟨.mkOfIsSemireal _, .mkOfIsSemireal⟩)
+  ⟨fun h => let ⟨_, _⟩ := Classical.choice h
+            letI _ := IsOrderedRing.toIsStrictOrderedRing F /- TODO : upstream global instance -/
+            inferInstance,
+   fun _ => Nonempty.intro ⟨.mkOfIsSemireal _, .mkOfIsSemireal⟩⟩

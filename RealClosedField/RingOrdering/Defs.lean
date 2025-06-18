@@ -110,7 +110,7 @@ def support : AddSubgroup R where
   add_mem' := by aesop
   neg_mem' := by aesop
 
-@[simp] lemma mem_support : x ∈ support P ↔ x ∈ P ∧ -x ∈ P := Iff.rfl
+@[simp] lemma mem_support {x} : x ∈ support P ↔ x ∈ P ∧ -x ∈ P := Iff.rfl
 @[simp, norm_cast] lemma coe_support : support P = {x : R | x ∈ P ∧ -x ∈ P} := rfl
 
 end AddSubgroup
@@ -143,7 +143,7 @@ def support : Ideal R where
   __ := AddSubgroup.support P
   smul_mem' := by simpa using smul_mem_support P
 
-@[simp] lemma mem_support : x ∈ support P ↔ x ∈ P ∧ -x ∈ P := Iff.rfl
+@[simp] lemma mem_support {x} : x ∈ support P ↔ x ∈ P ∧ -x ∈ P := Iff.rfl
 @[simp, norm_cast] lemma coe_support : support P = {x : R | x ∈ P ∧ -x ∈ P} := rfl
 
 @[simp]
