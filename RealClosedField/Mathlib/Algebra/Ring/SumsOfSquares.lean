@@ -3,12 +3,10 @@ Copyright (c) 2024 Florent Schaffhauser. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Florent Schaffhauser, Artie Khovanov
 -/
-import Mathlib.Algebra.Order.Ring.Defs
-import Mathlib.Algebra.Ring.Subsemiring.Basic
 import Mathlib.Algebra.Group.Subgroup.Even
-import Mathlib.Algebra.Ring.Parity
-import Mathlib.Algebra.Algebra.Subalgebra.Unitization
-
+import Mathlib.Algebra.Order.Ring.Basic
+import Mathlib.Algebra.Ring.Subsemiring.Basic
+import Mathlib.Tactic.ApplyFun
 /-!
 # Sums of squares
 
@@ -87,8 +85,8 @@ end AddSubmonoid
 @[deprecated (since := "2025-01-06")] alias sumSq := AddSubmonoid.sumSq
 
 /-- In an additive unital magma with multiplication, `x * x` is a sum of squares for all `x`. -/
-theorem IsSumSq.mul_self [AddZeroClass R] [Mul R] (a : R) : IsSumSq (a * a) := by
-  rw [← add_zero (a * a)]; exact sq_add _ zero
+@[simp] theorem IsSumSq.mul_self [AddZeroClass R] [Mul R] (a : R) : IsSumSq (a * a) := by
+  simpa using sq_add a zero
 
 /--
 In an additive unital magma with multiplication, squares are sums of squares
@@ -117,19 +115,20 @@ is a sum of squares.
 @[aesop unsafe 90% apply]
 theorem IsSumSq.sum [AddCommMonoid R] [Mul R] {ι : Type*} {I : Finset ι} {s : ι → R}
     (hs : ∀ i ∈ I, IsSumSq <| s i) : IsSumSq (∑ i ∈ I, s i) := by
-  simpa using sum_mem (S := AddSubmonoid.sumSq R) hs
+  simpa using sum_mem (S := AddSubmonoid.sumSq _) hs
 
 /--
 In an additive commutative monoid with multiplication,
 `∑ i ∈ I, x i`, where each `x i` is a square, is a sum of squares.
 -/
 theorem IsSumSq.sum_isSquare [AddCommMonoid R] [Mul R] {ι : Type*} (I : Finset ι) {x : ι → R}
-    (ha : ∀ i ∈ I, IsSquare <| x i) : IsSumSq (∑ i ∈ I, x i) := by aesop
+    (hx : ∀ i ∈ I, IsSquare <| x i) : IsSumSq (∑ i ∈ I, x i) := by aesop
 
 /--
 In an additive commutative monoid with multiplication,
 `∑ i ∈ I, a i * a i` is a sum of squares.
 -/
+@[simp]
 theorem IsSumSq.sum_mul_self [AddCommMonoid R] [Mul R] {ι : Type*} (I : Finset ι) (a : ι → R) :
     IsSumSq (∑ i ∈ I, a i * a i) := by aesop
 
@@ -146,19 +145,17 @@ the (possibly non-unital) subsemiring of sums of squares in `R`.
 def sumSq : NonUnitalSubsemiring T := (Subsemigroup.square T).nonUnitalSubsemiringClosure
 
 @[simp] theorem sumSq_toAddSubmonoid : (sumSq T).toAddSubmonoid = .sumSq T := by
-  rw [sumSq, ← AddSubmonoid.closure_isSquare,
+  simp [sumSq, ← AddSubmonoid.closure_isSquare,
     Subsemigroup.nonUnitalSubsemiringClosure_toAddSubmonoid]
-  simp
 
 @[simp]
 theorem mem_sumSq {s : T} : s ∈ sumSq T ↔ IsSumSq s := by
-  rw [← NonUnitalSubsemiring.mem_toAddSubmonoid]; simp
+  simp [← NonUnitalSubsemiring.mem_toAddSubmonoid]
 
 @[simp, norm_cast] theorem coe_sumSq : sumSq T = {s : T | IsSumSq s} := by ext; simp
 
 @[simp] theorem closure_isSquare : closure {x : T | IsSquare x} = sumSq T := by
-  rw [sumSq, Subsemigroup.nonUnitalSubsemiringClosure_eq_closure]
-  simp
+  simp [sumSq, Subsemigroup.nonUnitalSubsemiringClosure_eq_closure]
 
 end NonUnitalSubsemiring
 
@@ -191,7 +188,7 @@ def sumSq : Subsemiring T where
 
 @[simp]
 theorem mem_sumSq {s : T} : s ∈ sumSq T ↔ IsSumSq s := by
-  rw [← Subsemiring.mem_toNonUnitalSubsemiring]; simp
+  simp [← Subsemiring.mem_toNonUnitalSubsemiring]
 
 @[simp, norm_cast] theorem coe_sumSq : sumSq T = {s : T | IsSumSq s} := by ext; simp
 
@@ -211,10 +208,10 @@ theorem IsSumSq.prod [CommSemiring R] {ι : Type*} {I : Finset ι} {x : ι → R
 In a linearly ordered semiring with the property `a ≤ b → ∃ c, a + c = b` (e.g. `ℕ`),
 sums of squares are non-negative.
 -/
-theorem IsSumSq.nonneg {R : Type*} [LinearOrderedSemiring R] [ExistsAddOfLE R] {s : R}
-    (hs : IsSumSq s) : 0 ≤ s := by
+theorem IsSumSq.nonneg {R : Type*} [Semiring R] [LinearOrder R] [IsStrictOrderedRing R]
+    [ExistsAddOfLE R] {s : R} (hs : IsSumSq s) : 0 ≤ s := by
   induction hs using IsSumSq.rec' with
-  | zero           => aesop
+  | zero           => simp
   | sq_add hx hs h => exact add_nonneg (IsSquare.nonneg hx) h
 
 @[deprecated (since := "2024-08-09")] alias isSumSq.nonneg := IsSumSq.nonneg

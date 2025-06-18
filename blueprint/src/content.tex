@@ -5,3 +5,74 @@
 % If you want to split the blueprint content into several files then
 % the current file can be a simple sequence of \input. Otherwise It
 % can start with a \section or \chapter for instance.
+
+\begin{lemma}
+  \label{lem:sylow_galois}
+  Fix a prime $p$, and let $M/K$ be a separable Galois extension of degree $p^k\cdot a$, where $p\nmid a$. Then, for $0\leq j\leq k$, there are intermediate fields $K\leq L_0\leq\cdots\leq L_k\leq M$, with $[L_j:K]=p^j\cdot a$.
+\end{lemma}
+\begin{proof}
+  Since $M/K$ is Galois, $|\Gal(M/K)|=p^k\cdot a$. A version of Sylow's first theorem says that each subgroup of order $p^j$ with $0\leq j<k$ is contained in a subgroup of order $p^{j+1}$. By induction, $\Gal(M/K)$ has a chain of subgroups $H_k\leq\cdots\leq H_0\leq \Gal(M/K)$ with $|H_j|=p^{k-j}$. By the Galois correspondence, $L_j=M^{H_j}$ are the desired subfields.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:deg_2_classify}
+  Let $K$ be a field with $\ch K\neq2$. Then there is a bijection between the quadratic extensions of $K$ (up to $K$-isomorphism) and the set
+  \[\left(\frac{K^*}{{(K^*)^2}}\right)\setminus\{1\cdot(K^*)^2\}\]
+  given by the map $x(K^*)^2\to K(\sqrt{x})$.
+\end{lemma}
+\begin{proof}
+  Consider the map $\Phi:x\to K(\sqrt{x})$ from $K^*$. We will show it fully respects the relation $x(K^*)^2=y(K^*)^2$; then $\Phi$ descends to a injective map out of the quotient $K^*/(K^*)^2$. In particular, if $x\notin(K^*)^2$, then $\Phi(x)=K(\sqrt{x})$ is not $K$-isomorphic to $K$, and is therefore a quadratic extension of $K$.
+
+  Indeed, if $x(K^*)^2=y(K^*)^2$, then $x=a^2y$ for some $a\in K$, and so $K(\sqrt{x})\cong_K K(\sqrt{y})$ via $\sqrt{x}\to a\sqrt{y}$. Conversely, if $\phi:K(\sqrt{x})\to K(\sqrt{y})$ is a $K$-isomorphism, then $\phi(\sqrt{x})=a+b\sqrt{y}$ for some $a,b\in K$, and so $x=a^2+yb^2+2ab\sqrt{y}$. Comparing coefficients in the $K$-basis $\{1,\sqrt{y}\}$, either $a=0$ or $b=0$. Therefore, either $x=a^2y$ and so $x(K^*)^2=y(K^*)^2$, or $x=a^2$, in which case $K(\sqrt{y})\cong_K K(\sqrt{x})\cong_K K$; that is, $x,y\in(K^*)^2$.
+
+  It remains to show all quadratic extensions of $K$ are $K$-isomorphic to some $L\in\im\Phi$. Fix a quadratic extension $L/K$, and let $\{1,\alpha\}$ be a $K$-basis for $L$; then $\alpha^2=a\alpha+b$ for some $a,b\in K$. Let $\beta=2\alpha-a$. Since $\ch K\neq 2$, $\alpha=(\beta+a)/2$, and so $L=K+\beta K=K(\beta)$. Now, we compute $\beta^2=a^2+4b$. Therefore $L\cong_K\Phi(a^2+4b)$ via $\beta\to\sqrt{a^2+4b}$.
+\end{proof}
+
+Note that we will only use that this map is well-defined and surjective, and not that it is injective (which was the most annoying part to show).
+
+\begin{definition}
+  A real closed field is an ordered field in which every positive element has a square root and every odd-degree polynomial has a root.
+\end{definition}
+
+Let $R$ be a real closed field. Note that, since $R$ is ordered, $\ch R=0$. In particular, its algebraic extensions are separable.
+
+In what follows, all algebraic extensions are given up to isomorphism, as is conventional. Observe that, since $-1$ is not a square in $R$, $R(i)/R$ is a quadratic extension. We show that this is the \textbf{only} nontrivial algebraic extension of $R$.
+
+\begin{lemma}
+  \label{lem:alg_ext_odd_deg}
+  Nontrivial algebraic extensions of $R$ have even degree.
+\end{lemma}
+\begin{proof}
+  Let $K/R$ be an odd-degree algebraic extension of $R$. By the primitive element theorem, $K=R(\alpha)$ for some $\alpha\in K$. Let $f$ be the minimal polynomial of $\alpha$ over $K$. Then $f$ is irreducible, but $\deg f=[K:R]$ is odd, so $f$ has a root in $R$. Therefore, $[K:R]=\deg f=1$; that is, $K=R$.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:ext_deg_2}
+  The field $R(i)$ is the unique quadratic extension of $R$.
+\end{lemma}
+\begin{proof}
+  Fix $x\in R^*$. Then either $x>0$ and $x=1\cdot(\sqrt{x})^2$, or $x<0$ and $x=-1\cdot(\sqrt{-x})^2$. Further, since $-1\notin(R^*)^2$, $-1\cdot(R^*)^2\neq 1\cdot(R^*)^2$. Therefore $R^*/{(R^*)^2}=\{1\cdot(R^*)^2,-1\cdot(R^*)^2\}$, and we are done by Lemma \ref{lem:deg_2_classify}.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:Ri_ext_deg_2}
+  There is no quadratic extension of $R(i)$.
+\end{lemma}
+\begin{proof}
+ By Lemma \ref{lem:deg_2_classify}, it suffices to show that every element of $R(i)$ is a square. Indeed, take $x=a+bi\in R(i)$ with $a,b\in R$. If $b=0$, then either $a\geq0$ and so $x$ is a square in $R$, or $a\leq0$ and so $a=(i\sqrt{-a})^2$ is a square in $R$. Now let $b\neq0$. Then we compute $x=(c+di)^2$, where
+ \[c=\sqrt{\frac{a+\sqrt{a^2+b^2}}{2}}\text{ and }d=\frac{b}{2c}.\]
+ To see that $c$ and $d$ are well-defined elements of $R$, observe that $a^2+b^2>a^2\geq0$ (as $b\neq0$), and so $a+\sqrt{a^2+b^2}>0$. Therefore the square roots above lie in $R$ and $c\neq0$.
+\end{proof}
+
+\begin{theorem}
+  The only algebraic extensions of $R$ are $R$ itself and $R(i)$.
+\end{theorem}
+\begin{proof}
+  By separability, every algebraic extension of $R$ is contained in a finite Galois extension. Since $R(i)/R$ has no intermediate fields, it suffices to show the result for finite Galois extensions.
+  
+  Let $K/R$ be a nontrivial Galois extension of degree $2^k\cdot a$, where $k\geq 0$ and $a\geq1$ is odd. By Lemma \ref{lem:sylow_galois} with $p=2$, there is an intermediate extension of degree $a$. By Lemma \ref{lem:alg_ext_odd_deg}, $a=1$ (and $k>0$). If $k>1$, then applying Lemma \ref{lem:sylow_galois} again yields intermediate extensions $K/L/M/R$ with $[L:M]=[M:R]=2$. By Lemma \ref{lem:ext_deg_2}, $M\cong R(i)$, contradicting Lemma \ref{lem:Ri_ext_deg_2}.$_\#$ Therefore $k=1$ and (by Lemma \ref{lem:ext_deg_2}) $K\cong R(i)$.
+\end{proof}
+
+\begin{corollary}
+  $\bar{R}=R(i)$.
+\end{corollary}

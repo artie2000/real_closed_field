@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+  MathJax = { 
+    tex: {
+		    inlineMath: [['$','$'], ['\\(','\\)']]
+	} }
+</script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+<meta name="generator" content="plasTeX" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Real Closed Field</title>
+<link rel="stylesheet" href="styles/theme-white.css" />
+<link rel="stylesheet" href="styles/amsthm.css" />
+<link rel="stylesheet" href="styles/showmore.css" />
+<link rel="stylesheet" href="styles/blueprint.css" />
+<link rel="stylesheet" href="styles/extra_styles.css" />
+</head>
+
+<body>
+
+<div class="wrapper">
+
+<div class="content">
+<div class="content-wrapper">
+
+
+<div class="main-text">
+<div class="titlepage">
+<h1>Real Closed Field</h1>
+<p class="authors">
+<span class="author">Artie2000</span>
+</p>
+</div>
+<div class="lemma_thmwrapper theorem-style-plain" id="lem:sylow_galois">
+  <div class="lemma_thmheading">
+    <span class="lemma_thmcaption">
+    Lemma
+    </span>
+    <span class="lemma_thmlabel">1</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="index.html#lem:sylow_galois">#</a>
+    
+    <a class="icon proof" href="index.html#a0000000002"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="lemma_thmcontent">
+  <p> Fix a prime \(p\), and let \(M/K\) be a separable Galois extension of degree \(p^k\cdot a\), where \(p\nmid a\). Then, for \(0\leq j\leq k\), there are intermediate fields \(K\leq L_0\leq \cdots \leq L_k\leq M\), with \([L_j:K]=p^j\cdot a\). </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000002">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>Since \(M/K\) is Galois, \(|\operatorname{Gal}(M/K)|=p^k\cdot a\). A version of Sylow’s first theorem says that each subgroup of order \(p^j\) with \(0\leq j{\lt}k\) is contained in a subgroup of order \(p^{j+1}\). By induction, \(\operatorname{Gal}(M/K)\) has a chain of subgroups \(H_k\leq \cdots \leq H_0\leq \operatorname{Gal}(M/K)\) with \(|H_j|=p^{k-j}\). By the Galois correspondence, \(L_j=M^{H_j}\) are the desired subfields. </p>
+
+  </div>
+</div>
+<div class="lemma_thmwrapper theorem-style-plain" id="lem:deg_2_classify">
+  <div class="lemma_thmheading">
+    <span class="lemma_thmcaption">
+    Lemma
+    </span>
+    <span class="lemma_thmlabel">2</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="index.html#lem:deg_2_classify">#</a>
+    
+    <a class="icon proof" href="index.html#a0000000003"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="lemma_thmcontent">
+  <p> Let \(K\) be a field with \(\operatorname{char}K\neq 2\). Then there is a bijection between the quadratic extensions of \(K\) (up to \(K\)-isomorphism) and the set </p>
+<div class="displaymath" id="a0000000004">
+  \[ \left(\frac{K^*}{{(K^*)^2}}\right)\setminus \{ 1\cdot (K^*)^2\}  \]
+</div>
+<p> given by the map \(x(K^*)^2\to K(\sqrt{x})\). </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000003">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>Consider the map \(\Phi :x\to K(\sqrt{x})\) from \(K^*\). We will show it fully respects the relation \(x(K^*)^2=y(K^*)^2\); then \(\Phi \) descends to a injective map out of the quotient \(K^*/(K^*)^2\). In particular, if \(x\notin (K^*)^2\), then \(\Phi (x)=K(\sqrt{x})\) is not equal to \(K\), and is therefore a quadratic extension of \(K\). </p>
+<p>Indeed, if \(x(K^*)^2=y(K^*)^2\), then \(x=a^2y\) for some \(a\in K\), and so \(K(\sqrt{x})\cong K(\sqrt{y})\) via \(\sqrt{x}\to a\sqrt{y}\). Conversely, if \(\phi :K(\sqrt{x})\to K(\sqrt{y})\) is a \(K\)-isomorphism, then \(\phi (\sqrt{x})=a+b\sqrt{y}\) for some \(a,b\in K\), and so \(x=a^2+yb^2+2ab\sqrt{y}\). Comparing coefficients in the \(K\)-basis \(\{ 1,\sqrt{y}\} \), either \(a=0\) or \(b=0\). Therefore, either \(x=a^2y\) and so \(x(K^*)^2=y(K^*)^2\), or \(x=a^2\), in which case \(K(\sqrt{y})\cong K(\sqrt{x})\cong K\); that is, \(x,y\in (K^*)^2\). </p>
+<p>It remains to show all quadratic extensions of \(K\) lie in \(\operatorname{im}\Phi \). Fix a quadratic extension \(L/K\), and let \(\{ 1,\alpha \} \) be a \(K\)-basis for \(L\); then \(\alpha ^2=a\alpha +b\) for some \(a,b\in K\). Let \(\beta =2\alpha -a\). Since \(\operatorname{char}K\neq 2\), \(\alpha =(\beta +a)/2\), so \(L=K+\beta K=K(\beta )\). Now, we compute \(\beta ^2=a^2+4b\), and so \(L\cong \Phi (a^2+4b)\). </p>
+
+  </div>
+</div>
+<p>Note that we will only use that this map is well-defined and surjective, and not that it is injective (which was the most annoying part to show). </p>
+<div class="definition_thmwrapper theorem-style-definition" id="a0000000005">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">3</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="index.html#a0000000005">#</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>A real closed field is an ordered field in which every positive element has a square root and every odd-degree polynomial has a root. </p>
+
+  </div>
+</div>
+<p>Let \(R\) be a real closed field. Note that, since \(R\) is ordered, \(\operatorname{char}R=0\). In particular, its algebraic extensions are separable. Note also that, since \(-1\) is not a square in \(R\), our field has a quadratic extension \(R(i)\). We show that this is its <b class="bfseries">only</b> nontrivial algebraic extension. </p>
+<div class="lemma_thmwrapper theorem-style-plain" id="lem:alg_ext_odd_deg">
+  <div class="lemma_thmheading">
+    <span class="lemma_thmcaption">
+    Lemma
+    </span>
+    <span class="lemma_thmlabel">4</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="index.html#lem:alg_ext_odd_deg">#</a>
+    
+    <a class="icon proof" href="index.html#a0000000006"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="lemma_thmcontent">
+  <p> Nontrivial algebraic extensions of \(R\) have even degree. </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000006">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>Let \(K/R\) be an odd-degree algebraic extension of \(R\). By the primitive element theorem, \(K=R(\alpha )\) for some \(\alpha \in K\). Let \(f\) be the minimal polynomial of \(\alpha \) over \(K\). Then \(f\) is irreducible, but \(\deg f=[K:R]\) is odd, so \(f\) has a root in \(R\). Therefore, \([K:R]=\deg f=1\); that is, \(K=R\). </p>
+
+  </div>
+</div>
+<div class="lemma_thmwrapper theorem-style-plain" id="lem:ext_deg_2">
+  <div class="lemma_thmheading">
+    <span class="lemma_thmcaption">
+    Lemma
+    </span>
+    <span class="lemma_thmlabel">5</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="index.html#lem:ext_deg_2">#</a>
+    
+    <a class="icon proof" href="index.html#a0000000007"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="lemma_thmcontent">
+  <p> Let \(K/R\) be a quadratic extension. Then \(K=R(i)\). </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000007">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>Fix \(x\in R^*\). Then either \(x{\gt}0\) and \(x=1\cdot (\sqrt{x})^2\), or \(x{\lt}0\) and \(x=-1\cdot (\sqrt{-x})^2\). Further, since \(-1\notin (R^*)^2\), \(-1\cdot (R^*)^2\neq 1\cdot (R^*)^2\). Therefore \(R^*/{(R^*)^2}=\{ 1\cdot (R^*)^2,-1\cdot (R^*)^2\} \), and we are done by Lemma <a href="index.html#lem:deg_2_classify">2</a>. </p>
+
+  </div>
+</div>
+<div class="lemma_thmwrapper theorem-style-plain" id="lem:Ri_ext_deg_2">
+  <div class="lemma_thmheading">
+    <span class="lemma_thmcaption">
+    Lemma
+    </span>
+    <span class="lemma_thmlabel">6</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="index.html#lem:Ri_ext_deg_2">#</a>
+    
+    <a class="icon proof" href="index.html#a0000000008"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="lemma_thmcontent">
+  <p> There is no quadratic extension of \(R(i)\). </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000008">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>By Lemma <a href="index.html#lem:deg_2_classify">2</a>, it suffices to show that every element of \(R(i)\) is a square. Indeed, take \(x=a+bi\in R(i)\) with \(a,b\in R\). If \(b=0\), then either \(a\geq 0\) and so \(x\) is a square in \(R\), or \(a\leq 0\) and so \(a=(i\sqrt{-a})^2\) is a square in \(R\). Now let \(b\neq 0\). Then we compute \(x=(c+di)^2\), where </p>
+<div class="displaymath" id="a0000000009">
+  \[ c=\sqrt{\frac{a+\sqrt{a^2+b^2}}{2}}\text{ and }d=\frac{b}{2c}. \]
+</div>
+<p> To see that \(c\) and \(d\) are well-defined elements of \(R\), observe that \(a^2+b^2{\gt}a^2\geq 0\) (as \(b\neq 0\)), and so \(a+\sqrt{a^2+b^2}{\gt}0\). Therefore the square roots above lie in \(R\) and \(c\neq 0\). </p>
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="a0000000010">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">7</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="index.html#a0000000010">#</a>
+    
+    <a class="icon proof" href="index.html#a0000000011"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>The only algebraic extensions of \(R\) are \(R\) itself and \(R(i)\). </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000011">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>By separability, every algebraic extension of \(R\) is contained in a finite Galois extension. Since \(R(i)/R\) has no intermediate fields, it suffices to show the result for finite Galois extensions. </p>
+<p>Let \(K/R\) be a nontrivial Galois extension of degree \(2^k\cdot a\), where \(k\geq 0\) and \(a\geq 1\) is odd. By Lemma <a href="index.html#lem:sylow_galois">1</a> with \(p=2\), there is an intermediate extension of degree \(a\). By Lemma <a href="index.html#lem:alg_ext_odd_deg">4</a>, \(a=1\) (and \(k{\gt}0\)). If \(k{\gt}1\), then applying Lemma <a href="index.html#lem:sylow_galois">1</a> again yields intermediate extensions \(K/L/M/R\) with \([L:M]=[M:R]=2\). By Lemma <a href="index.html#lem:ext_deg_2">5</a>, \(M=R(i)\), contradicting Lemma <a href="index.html#lem:Ri_ext_deg_2">6</a>.\(_\# \) Therefore \(k=1\) and (by Lemma <a href="index.html#lem:ext_deg_2">5</a>) \(K=R(i)\). </p>
+
+  </div>
+</div>
+<div class="corollary_thmwrapper theorem-style-plain" id="a0000000012">
+  <div class="corollary_thmheading">
+    <span class="corollary_thmcaption">
+    Corollary
+    </span>
+    <span class="corollary_thmlabel">8</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="index.html#a0000000012">#</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="corollary_thmcontent">
+  <p>\(\bar{R}=R(i)\). </p>
+
+  </div>
+</div>
+
+</div> <!--main-text -->
+</div> <!-- content-wrapper -->
+</div> <!-- content -->
+</div> <!-- wrapper -->
+
+<nav class="prev_up_next">
+  <svg  id="showmore-minus" class="icon icon-eye-minus showmore"><use xlink:href="symbol-defs.svg#icon-eye-minus"></use></svg>
+
+  <svg  id="showmore-plus" class="icon icon-eye-plus showmore"><use xlink:href="symbol-defs.svg#icon-eye-plus"></use></svg>
+
+</nav>
+
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/plastex.js"></script>
+<script type="text/javascript" src="js/svgxuse.js"></script>
+<script type="text/javascript" src="js/js.cookie.min.js"></script>
+<script type="text/javascript" src="js/showmore.js"></script>
+</body>
+</html>

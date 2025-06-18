@@ -10,7 +10,7 @@ import Mathlib.Algebra.CharP.Two
 import RealClosedField.Mathlib.Algebra.Ring.Semireal.Defs
 import RealClosedField.RingOrdering.Defs
 
-/- TODO : make this change in the actual location -/
+/- TODO : remove this once change is merged -/
 attribute [- aesop] mul_mem add_mem
 attribute [aesop unsafe 90% apply (rule_sets := [SetLike])] mul_mem add_mem
 
@@ -212,8 +212,8 @@ variable (hS) in
 def sInf {S : Set (RingPreordering R)} (hS : S.Nonempty) : RingPreordering R where
   __ := InfSet.sInf (RingPreordering.toSubsemiring '' S)
   isSquare_mem' x := by aesop (add simp Submonoid.mem_iInf)
-  minus_one_not_mem' := by aesop (add simp Submonoid.mem_iInf,
-                                      unsafe forward (Set.Nonempty.some_mem hS))
+  minus_one_not_mem' := by simpa [Submonoid.mem_iInf] using
+    ⟨_, Set.Nonempty.some_mem hS, RingPreordering.minus_one_not_mem _⟩
 
 @[simp]
 theorem sInf_toSubsemiring :

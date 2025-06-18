@@ -3,7 +3,7 @@ Copyright (c) 2024 Artie Khovanov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
-import RealClosedField.Mathlib.Algebra.Order.Ring.Cone
+import Mathlib.Algebra.Order.Ring.Cone
 import RealClosedField.Mathlib.Algebra.Ring.Semireal.Defs
 
 class IsFormallyReal (R : Type*) [AddCommMonoid R] [Mul R] : Prop where
@@ -15,7 +15,7 @@ theorem IsFormallyReal.eq_zero_of_mul_self {R : Type*}
 
 theorem IsFormallyReal.eq_zero_of_add_left {R : Type*}
     [NonUnitalNonAssocSemiring R] [IsFormallyReal R] {s₁ s₂ : R}
-    (hs₁ : IsSumSq s₁) (hs₂ : IsSumSq s₂) (h : s₁ + s₂ = 0 ) : s₁ = 0 := by
+    (hs₁ : IsSumSq s₁) (hs₂ : IsSumSq s₂) (h : s₁ + s₂ = 0) : s₁ = 0 := by
   induction hs₁ generalizing s₂
   case zero            => simp_all
   case sq_add a s hs h =>
@@ -33,12 +33,13 @@ theorem isFormallyReal_of_eq_zero_of_mul_self_of_eq_zero_of_add
     (ha : ∀ {S₁ S₂ : R}, IsSumSq S₁ → IsSumSq S₂ → S₁ + S₂ = 0 → S₁ = 0) : IsFormallyReal R where
   eq_zero_of_mul_self_add hs h := hz <| ha (IsSumSq.mul_self _) hs h
 
-instance IsFormallyReal.instIsSemireal [NonAssocSemiring R] [Nontrivial R] [IsFormallyReal R] :
-    IsSemireal R where
+instance IsFormallyReal.instIsSemireal {R : Type*} [NonAssocSemiring R] [Nontrivial R]
+    [IsFormallyReal R] : IsSemireal R where
   one_add_ne_zero hs h_contr := by
     simpa using IsFormallyReal.eq_zero_of_add_left (by aesop) hs h_contr
 
-instance LinearOrderedRing.instIsFormallyReal [LinearOrderedRing R] : IsFormallyReal R where
+instance LinearOrderedRing.instIsFormallyReal {R : Type*} [Ring R] [LinearOrder R]
+    [IsStrictOrderedRing R] : IsFormallyReal R where
   eq_zero_of_mul_self_add {a} {s} hs h := by
     refine mul_self_eq_zero.mp <|
       le_antisymm (by simpa [eq_neg_of_add_eq_zero_left h] using IsSumSq.nonneg hs)

@@ -1,11 +1,13 @@
 # Fdb version 4
-["pdflatex"] 1749723991.83863 "print.tex" "/c/Users/Artie/Documents/Lean/real_closed_field/blueprint/print/print.pdf" "print" 1749723995.50818 0
-  "/c/Users/Artie/Documents/Lean/real_closed_field/blueprint/print/print.aux" 1749723994.41154 128 852fc3e86949e4a73cd552c13992dc37 "pdflatex"
+["pdflatex"] 1750024706.71529 "print.tex" "/c/Users/Artie/Documents/Lean/real_closed_field/blueprint/print/print.pdf" "print" 1750024709.55998 0
+  "/c/Users/Artie/Documents/Lean/real_closed_field/blueprint/print/print.aux" 1750024709.1063 408 aec2a60fd29e0f000bbcc6403c515f87 "pdflatex"
   "C:/Users/Artie/AppData/Local/MiKTeX/miktex/data/le/xetex/xelatex.fmt" 1749723722.23612 26988180 33131771151d74ae22dec70642604661 ""
   "C:/Users/Artie/AppData/Local/Programs/MiKTeX/fonts/tfm/adobe/zapfding/pzdr.tfm" 1136772254 1528 f853c4d1b4e0550255e02831fdc8496f ""
   "C:/Users/Artie/AppData/Local/Programs/MiKTeX/fonts/tfm/public/amsfonts/symbols/msam10.tfm" 1233951854 916 f87d7c45f9c908e672703b83b72241a3 ""
+  "C:/Users/Artie/AppData/Local/Programs/MiKTeX/fonts/tfm/public/amsfonts/symbols/msam5.tfm" 1233951854 924 9904cf1d39e9767e7a3622f2a125a565 ""
   "C:/Users/Artie/AppData/Local/Programs/MiKTeX/fonts/tfm/public/amsfonts/symbols/msam7.tfm" 1233951854 928 2dc8d444221b7a635bb58038579b861a ""
   "C:/Users/Artie/AppData/Local/Programs/MiKTeX/fonts/tfm/public/amsfonts/symbols/msbm10.tfm" 1233951854 908 2921f8a10601f252058503cc6570e581 ""
+  "C:/Users/Artie/AppData/Local/Programs/MiKTeX/fonts/tfm/public/amsfonts/symbols/msbm5.tfm" 1233951854 940 75ac932a52f80982a9f8ea75d03a34cf ""
   "C:/Users/Artie/AppData/Local/Programs/MiKTeX/fonts/tfm/public/amsfonts/symbols/msbm7.tfm" 1233951854 940 228d6584342e91276bf566bcf9716b83 ""
   "C:/Users/Artie/AppData/Local/Programs/MiKTeX/fonts/tfm/public/cm/cmmi12.tfm" 1136765053 1524 4414a8315f39513458b80dfc63bff03a ""
   "C:/Users/Artie/AppData/Local/Programs/MiKTeX/fonts/tfm/public/cm/cmmi6.tfm" 1136765053 1512 f21f83efb36853c0b70002322c1ab3ad ""
@@ -78,10 +80,10 @@
   "C:/Users/Artie/AppData/Local/Programs/MiKTeX/tex/latex/unicode-math/unicode-math-xetex.sty" 1691937353 131459 a23c98c9e5ecfc17568c7bc94fda1317 ""
   "C:/Users/Artie/AppData/Local/Programs/MiKTeX/tex/latex/unicode-math/unicode-math.sty" 1691937353 1474 b42cfbe849cb22ed1c0632800327884f ""
   "C:/Users/Artie/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
-  "C:/Users/Artie/Documents/Lean/real_closed_field/blueprint/print/print.aux" 1749723994.41154 128 852fc3e86949e4a73cd552c13992dc37 "pdflatex"
-  "C:/Users/Artie/Documents/Lean/real_closed_field/blueprint/print/print.out" 1749723993.69898 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "content.tex" 1749720038.14222 363 d68ec385ab7b5b65ef8d18eff416b83d ""
-  "macros/common.tex" 1749720038.34176 820 60fafcc3aa944a5e60030581a943ef6b ""
+  "C:/Users/Artie/Documents/Lean/real_closed_field/blueprint/print/print.aux" 1750024709.1063 408 aec2a60fd29e0f000bbcc6403c515f87 "pdflatex"
+  "C:/Users/Artie/Documents/Lean/real_closed_field/blueprint/print/print.out" 1750024708.2389 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "content.tex" 1750024435.03293 5855 ea840de66d77a2f53d545b309cb9f76a ""
+  "macros/common.tex" 1749946375.39733 2224 e9118624da81754c4055cf15203f96e4 ""
   "macros/print.tex" 1749720038.40434 1101 87627b2ec24fef68edc71c13f43f7bab ""
   "print.tex" 1749723891.60268 1114 7d1a9aaff3244f31452a0ea8d9b3b7cf ""
   (generated)

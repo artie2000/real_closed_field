@@ -17,7 +17,7 @@ instance : RingConeClass (RingPreordering F) F where
 
 /- TODO : decide whether to unify these -/
 instance (O : RingPreordering F) [RingPreordering.IsOrdering O] : IsMaxCone O where
-  mem_or_neg_mem' := RingPreordering.mem_or_neg_mem O
+  mem_or_neg_mem := RingPreordering.mem_or_neg_mem O
 
 instance IsSemireal.instIsFormallyReal [IsSemireal F] : IsFormallyReal F where
   eq_zero_of_mul_self_add {a} {s} hs h := by
@@ -28,13 +28,16 @@ variable [IsSemireal F]
 
 variable (F) in
 open Classical RingPreordering in
-noncomputable def LinearOrderedField.mkOfIsSemireal [IsSemireal F] : LinearOrderedField F where
-  __ := have := (choose_spec <| exists_le_isPrimeOrdering (⊥ : RingPreordering F)).2
-        LinearOrderedRing.mkOfCone (choose <| exists_le_isPrimeOrdering ⊥)
-  __ := ‹Field F›
+noncomputable abbrev LinearOrder.mkOfIsSemireal [IsSemireal F] : LinearOrder F :=
+  have := (choose_spec <| exists_le_isPrimeOrdering (⊥ : RingPreordering F)).2
+  LinearOrder.mkOfAddGroupCone (choose <| exists_le_isPrimeOrdering ⊥) inferInstance
+
+instance IsOrderedRing.mkOfIsSemireal [IsSemireal F] :
+    letI _ := LinearOrder.mkOfIsSemireal F
+    IsOrderedRing F := .mkOfCone _
 
 theorem ArtinSchreier_basic :
-    Nonempty ({S : LinearOrderedField F // S.toField = ‹Field F›}) ↔ IsSemireal F := by
-  refine Iff.intro (fun h => ?_) (fun _ => Nonempty.intro ⟨LinearOrderedField.mkOfIsSemireal F, rfl⟩)
-  rcases Classical.choice h with ⟨inst, rfl⟩
-  infer_instance
+    Nonempty ({S : LinearOrder F // IsOrderedRing F}) ↔ IsSemireal F :=
+  Iff.intro
+    (fun h => let _ := Classical.choice h; inferInstance)
+    (fun _ => Nonempty.intro ⟨.mkOfIsSemireal _, inferInstance⟩)

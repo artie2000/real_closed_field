@@ -6,7 +6,7 @@ Authors: Florent Schaffhauser, Artie Khovanov
 import RealClosedField.RingOrdering.Basic
 import Mathlib.Order.Zorn
 
-/- TODO : make this change in the actual location -/
+/- TODO : remove this once change is merged -/
 attribute [- aesop] mul_mem add_mem
 attribute [aesop unsafe 90% apply (rule_sets := [SetLike])] mul_mem add_mem
 

@@ -183,6 +183,12 @@ INPUT .\content.tex
 INPUT .\content.tex
 INPUT .\content.tex
 INPUT content.tex
+INPUT C:\Users\Artie\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam10.tfm
+INPUT C:\Users\Artie\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam7.tfm
+INPUT C:\Users\Artie\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msam5.tfm
+INPUT C:\Users\Artie\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
+INPUT C:\Users\Artie\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm7.tfm
+INPUT C:\Users\Artie\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm5.tfm
 INPUT C:\Users\Artie\Documents\Lean\real_closed_field\blueprint\print\print.aux
 INPUT C:\Users\Artie\Documents\Lean\real_closed_field\blueprint\print\print.out
 INPUT C:\Users\Artie\Documents\Lean\real_closed_field\blueprint\print\print.out
