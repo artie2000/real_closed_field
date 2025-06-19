@@ -6,6 +6,8 @@
 % the current file can be a simple sequence of \input. Otherwise It
 % can start with a \section or \chapter for instance.
 
+\section{Preliminaries}
+
 \begin{lemma}
   \label{lem:sylow_galois}
   Fix a prime $p$, and let $M/K$ be a separable Galois extension of degree $p^k\cdot a$, where $p\nmid a$. Then, for $0\leq j\leq k$, there are intermediate fields $K\leq L_0\leq\cdots\leq L_k\leq M$, with $[L_j:K]=p^j\cdot a$.
@@ -29,6 +31,8 @@
 \end{proof}
 
 Note that we will only use that this map is well-defined and surjective, and not that it is injective (which was the most annoying part to show).
+
+\section{Real Closed Fields}
 
 \begin{definition}
   A real closed field is an ordered field in which every non-negative element has a square root and every odd-degree polynomial has a root.
@@ -85,9 +89,9 @@ The converse to Theorem \ref{thm:FTAlg} is much easier.
   Suppose $R$ is an ordered field whose only nontrivial algebraic extension is $R(i)$. Then $R$ is real closed.
 \end{lemma}
 \begin{proof}
-  Let $f$ be an odd-degree polynomial over $R$; we show $f$ has a root by induction on $\deg f$. If $\deg f=1$, then $f$ has a root in $R$ since $R$ is a field. Otherwise, $R[X]/(f)$ cannot be a field since $R$ has no nontrivial odd-degree extensions, and so $f$ must have a nontrivial factorisation $f=gh$. Since $\deg f=\deg g+\deg h$, wlog $\deg g$ is odd. By induction, $g$ has a root in $R$, and therefore so does $f$.
+  Let $a\in R$ be non-negative, and consider the polynomial $f=X^2-a$. If $f$ is irreducible, then $R(\sqrt{a})\cong R(i)$. Suppose $i$ maps to $x+y\sqrt{a}$ for some $x,y\in R$; then $-1=x^2+ay^2+2xy\sqrt{a}$. Comparing coefficients, $-1=x^2+ay^2\geq0$.$_\#$ Therefore $f$ is reducible, and so $a$ has a square root in $R$.
 
-  Now let $a\in R$ be non-negative, and consider the polynomial $f=X^2-a$. If $f$ is irreducible, then $R(\sqrt{a})\cong R(i)$. Suppose $i$ maps to $x+y\sqrt{a}$ for some $x,y\in R$; then $-1=x^2+ay^2+2xy\sqrt{a}$. Comparing coefficients, $-1=x^2+ay^2\geq0$.$_\#$ Therefore $f$ is reducible, and so $a$ has a square root in $R$.
+  Now let $f$ be an odd-degree polynomial over $R$; we show $f$ has a root by induction on $\deg f$. If $\deg f=1$, then $f$ has a root in $R$ since $R$ is a field. Otherwise, $R[X]/(f)$ cannot be a field since $R$ has no nontrivial odd-degree extensions, and so $f$ must have a nontrivial factorisation $f=gh$. Since $\deg f=\deg g+\deg h$, wlog $\deg g$ is odd. By induction, $g$ has a root in $R$, and therefore so does $f$.
 \end{proof}
 
 As before, let $R$ be a real closed field. Theorem \ref{thm:FTAlg} is a powerful tool for deriving more of its properties.
@@ -132,11 +136,11 @@ In fact, the converses to Lemmas \ref{lem:RCF_max} and \ref{lem:IVP_poly} both h
   Let $R$ be an ordered field satisfying the intermediate value property for polynomials. Then $R$ is real closed.
 \end{theorem}
 \begin{proof}
+  Let $a\in R$ be non-negative, and consider the polynomial $f=X^2-a$. Then $f(0)=-a\leq0$, but $f(a+1)=a^2+a+1>0$. By the intermediate value property, $f$ has a root in $R$, and so $a$ has a square root in $R$.
+
   Let $f$ be an odd-degree polynomial over $R$. Write $f=a_nX^n+\cdots+a_0$. Replacing $f$ by $-f$ if necessary, we may assume $a_n>0$. For $x>1$, we compute
   \[f(x)\geq x^{n-1}(a_nx-n\max_i|a_i|).\]
   Therefore, when $x>\max\{1,n\max_i|a_i|/a_n\}$, $f(x)>0$. A similar calculation shows that $f(x)<0$ for sufficiently large negative values of $x$. By the intermediate value property, $f$ has a root in $R$.
-
-  Let $a\in R$ be non-negative, and consider the polynomial $f=X^2-a$. Then $f(0)=-a\leq0$, but $f(a+1)=a^2+a+1>0$. By the intermediate value property, $f$ has a root in $R$, and so $a$ has a square root in $R$.
 \end{proof}
 
 \begin{theorem}
