@@ -109,9 +109,9 @@
     <span class="expand-proof">▶</span>
   </div>
   <div class="proof_content">
-  <p>Consider the map \(\Phi :x\to K(\sqrt{x})\) from \(K^*\). We will show it fully respects the relation \(x(K^*)^2=y(K^*)^2\); then \(\Phi \) descends to a injective map out of the quotient \(K^*/(K^*)^2\). In particular, if \(x\notin (K^*)^2\), then \(\Phi (x)=K(\sqrt{x})\) is not equal to \(K\), and is therefore a quadratic extension of \(K\). </p>
-<p>Indeed, if \(x(K^*)^2=y(K^*)^2\), then \(x=a^2y\) for some \(a\in K\), and so \(K(\sqrt{x})\cong K(\sqrt{y})\) via \(\sqrt{x}\to a\sqrt{y}\). Conversely, if \(\phi :K(\sqrt{x})\to K(\sqrt{y})\) is a \(K\)-isomorphism, then \(\phi (\sqrt{x})=a+b\sqrt{y}\) for some \(a,b\in K\), and so \(x=a^2+yb^2+2ab\sqrt{y}\). Comparing coefficients in the \(K\)-basis \(\{ 1,\sqrt{y}\} \), either \(a=0\) or \(b=0\). Therefore, either \(x=a^2y\) and so \(x(K^*)^2=y(K^*)^2\), or \(x=a^2\), in which case \(K(\sqrt{y})\cong K(\sqrt{x})\cong K\); that is, \(x,y\in (K^*)^2\). </p>
-<p>It remains to show all quadratic extensions of \(K\) lie in \(\operatorname{im}\Phi \). Fix a quadratic extension \(L/K\), and let \(\{ 1,\alpha \} \) be a \(K\)-basis for \(L\); then \(\alpha ^2=a\alpha +b\) for some \(a,b\in K\). Let \(\beta =2\alpha -a\). Since \(\operatorname{char}K\neq 2\), \(\alpha =(\beta +a)/2\), so \(L=K+\beta K=K(\beta )\). Now, we compute \(\beta ^2=a^2+4b\), and so \(L\cong \Phi (a^2+4b)\). </p>
+  <p>Consider the map \(\Phi :x\to K(\sqrt{x})\) from \(K^*\). We will show it fully respects the relation \(x(K^*)^2=y(K^*)^2\); then \(\Phi \) descends to a injective map out of the quotient \(K^*/(K^*)^2\). In particular, if \(x\notin (K^*)^2\), then \(\Phi (x)=K(\sqrt{x})\) is not \(K\)-isomorphic to \(K\), and is therefore a quadratic extension of \(K\). </p>
+<p>Indeed, if \(x(K^*)^2=y(K^*)^2\), then \(x=a^2y\) for some \(a\in K\), and so \(K(\sqrt{x})\cong _K K(\sqrt{y})\) via \(\sqrt{x}\to a\sqrt{y}\). Conversely, if \(\varphi :K(\sqrt{x})\to K(\sqrt{y})\) is a \(K\)-isomorphism, then \(\varphi (\sqrt{x})=a+b\sqrt{y}\) for some \(a,b\in K\), and so \(x=a^2+yb^2+2ab\sqrt{y}\). Comparing coefficients in the \(K\)-basis \(\{ 1,\sqrt{y}\} \), either \(a=0\) or \(b=0\). Therefore, either \(x=a^2y\) and so \(x(K^*)^2=y(K^*)^2\), or \(x=a^2\), in which case \(K(\sqrt{y})\cong _K K(\sqrt{x})\cong _K K\); that is, \(x,y\in (K^*)^2\). </p>
+<p>It remains to show all quadratic extensions of \(K\) are \(K\)-isomorphic to some \(L\in \operatorname{im}\Phi \). Fix a quadratic extension \(L/K\), and let \(\{ 1,\alpha \} \) be a \(K\)-basis for \(L\); then \(\alpha ^2=a\alpha +b\) for some \(a,b\in K\). Let \(\beta =2\alpha -a\). Since \(\operatorname{char}K\neq 2\), \(\alpha =(\beta +a)/2\), and so \(L=K+\beta K=K(\beta )\). Now, we compute \(\beta ^2=a^2+4b\). Therefore \(L\cong _K\Phi (a^2+4b)\) via \(\beta \to \sqrt{a^2+4b}\). </p>
 
   </div>
 </div>
@@ -134,11 +134,12 @@
         </div>
   </div>
   <div class="definition_thmcontent">
-  <p>A real closed field is an ordered field in which every positive element has a square root and every odd-degree polynomial has a root. </p>
+  <p>A real closed field is an ordered field in which every non-negative element has a square root and every odd-degree polynomial has a root. </p>
 
   </div>
 </div>
-<p>Let \(R\) be a real closed field. Note that, since \(R\) is ordered, \(\operatorname{char}R=0\). In particular, its algebraic extensions are separable. Note also that, since \(-1\) is not a square in \(R\), our field has a quadratic extension \(R(i)\). We show that this is its <b class="bfseries">only</b> nontrivial algebraic extension. </p>
+<p>Let \(R\) be a real closed field. Note that, since \(R\) is ordered, \(\operatorname{char}R=0\). In particular, its algebraic extensions are separable. </p>
+<p>In what follows, all algebraic extensions are given up to \(R\)-isomorphism, as is conventional. Observe that, since \(-1\) is not a square in \(R\), \(R(i)/R\) is a quadratic extension. We show that this is the <b class="bfseries">only</b> nontrivial algebraic extension of \(R\). </p>
 <div class="lemma_thmwrapper theorem-style-plain" id="lem:alg_ext_odd_deg">
   <div class="lemma_thmheading">
     <span class="lemma_thmcaption">
@@ -197,7 +198,7 @@
         </div>
   </div>
   <div class="lemma_thmcontent">
-  <p> Let \(K/R\) be a quadratic extension. Then \(K=R(i)\). </p>
+  <p> The field \(R(i)\) is the unique quadratic extension of \(R\). </p>
 
   </div>
 </div>
@@ -254,7 +255,7 @@
 
   </div>
 </div>
-<div class="theorem_thmwrapper theorem-style-plain" id="a0000000010">
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:FTAlg">
   <div class="theorem_thmheading">
     <span class="theorem_thmcaption">
     Theorem
@@ -265,9 +266,9 @@
         </div>
     <div class="thm_header_hidden_extras">
 
-    <a class="icon proof" href="index.html#a0000000010">#</a>
+    <a class="icon proof" href="index.html#thm:FTAlg">#</a>
     
-    <a class="icon proof" href="index.html#a0000000011"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+    <a class="icon proof" href="index.html#a0000000010"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
 </a>
     
     
@@ -275,11 +276,11 @@
         </div>
   </div>
   <div class="theorem_thmcontent">
-  <p>The only algebraic extensions of \(R\) are \(R\) itself and \(R(i)\). </p>
+  <p> The only algebraic extensions of \(R\) are \(R\) itself and \(R(i)\). </p>
 
   </div>
 </div>
-<div class="proof_wrapper" id="a0000000011">
+<div class="proof_wrapper" id="a0000000010">
   <div class="proof_heading">
     <span class="proof_caption">
     Proof
@@ -288,11 +289,11 @@
   </div>
   <div class="proof_content">
   <p>By separability, every algebraic extension of \(R\) is contained in a finite Galois extension. Since \(R(i)/R\) has no intermediate fields, it suffices to show the result for finite Galois extensions. </p>
-<p>Let \(K/R\) be a nontrivial Galois extension of degree \(2^k\cdot a\), where \(k\geq 0\) and \(a\geq 1\) is odd. By Lemma <a href="index.html#lem:sylow_galois">1</a> with \(p=2\), there is an intermediate extension of degree \(a\). By Lemma <a href="index.html#lem:alg_ext_odd_deg">4</a>, \(a=1\) (and \(k{\gt}0\)). If \(k{\gt}1\), then applying Lemma <a href="index.html#lem:sylow_galois">1</a> again yields intermediate extensions \(K/L/M/R\) with \([L:M]=[M:R]=2\). By Lemma <a href="index.html#lem:ext_deg_2">5</a>, \(M=R(i)\), contradicting Lemma <a href="index.html#lem:Ri_ext_deg_2">6</a>.\(_\# \) Therefore \(k=1\) and (by Lemma <a href="index.html#lem:ext_deg_2">5</a>) \(K=R(i)\). </p>
+<p>Let \(K/R\) be a nontrivial Galois extension of degree \(2^k\cdot a\), where \(k\geq 0\) and \(a\geq 1\) is odd. By Lemma <a href="index.html#lem:sylow_galois">1</a> with \(p=2\), there is an intermediate extension of degree \(a\). By Lemma <a href="index.html#lem:alg_ext_odd_deg">4</a>, \(a=1\) (and \(k{\gt}0\)). If \(k{\gt}1\), then applying Lemma <a href="index.html#lem:sylow_galois">1</a> again yields intermediate extensions \(K/L/M/R\) with \([L:M]=[M:R]=2\). By Lemma <a href="index.html#lem:ext_deg_2">5</a>, \(M\cong R(i)\), contradicting Lemma <a href="index.html#lem:Ri_ext_deg_2">6</a>.\(_\# \) Therefore \(k=1\) and (by Lemma <a href="index.html#lem:ext_deg_2">5</a>) \(K\cong R(i)\). </p>
 
   </div>
 </div>
-<div class="corollary_thmwrapper theorem-style-plain" id="a0000000012">
+<div class="corollary_thmwrapper theorem-style-plain" id="a0000000011">
   <div class="corollary_thmheading">
     <span class="corollary_thmcaption">
     Corollary
@@ -303,7 +304,7 @@
         </div>
     <div class="thm_header_hidden_extras">
 
-    <a class="icon proof" href="index.html#a0000000012">#</a>
+    <a class="icon proof" href="index.html#a0000000011">#</a>
     
     
     
@@ -311,6 +312,550 @@
   </div>
   <div class="corollary_thmcontent">
   <p>\(\bar{R}=R(i)\). </p>
+
+  </div>
+</div>
+<p>The converse to Theorem <a href="index.html#thm:FTAlg">7</a> is much easier. </p>
+<div class="lemma_thmwrapper theorem-style-plain" id="lem:FTAlg_converse">
+  <div class="lemma_thmheading">
+    <span class="lemma_thmcaption">
+    Lemma
+    </span>
+    <span class="lemma_thmlabel">9</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="index.html#lem:FTAlg_converse">#</a>
+    
+    <a class="icon proof" href="index.html#a0000000012"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="lemma_thmcontent">
+  <p> Suppose \(R\) is an ordered field whose only nontrivial algebraic extension is \(R(i)\). Then \(R\) is real closed. </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000012">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>Let \(f\) be an odd-degree polynomial over \(R\); we show \(f\) has a root by induction on \(\deg f\). If \(\deg f=1\), then \(f\) has a root in \(R\) since \(R\) is a field. Otherwise, \(R[X]/(f)\) cannot be a field since \(R\) has no nontrivial odd-degree extensions, and so \(f\) must have a nontrivial factorisation \(f=gh\). Since \(\deg f=\deg g+\deg h\), wlog \(\deg g\) is odd. By induction, \(g\) has a root in \(R\), and therefore so does \(f\). </p>
+<p>Now let \(a\in R\) be non-negative, and consider the polynomial \(f=X^2-a\). If \(f\) is irreducible, then \(R(\sqrt{a})\cong R(i)\). Suppose \(i\) maps to \(x+y\sqrt{a}\) for some \(x,y\in R\); then \(-1=x^2+ay^2+2xy\sqrt{a}\). Comparing coefficients, \(-1=x^2+ay^2\geq 0\).\(_\# \) Therefore \(f\) is reducible, and so \(a\) has a square root in \(R\). </p>
+
+  </div>
+</div>
+<p>As before, let \(R\) be a real closed field. Theorem <a href="index.html#thm:FTAlg">7</a> is a powerful tool for deriving more of its properties. </p>
+<div class="lemma_thmwrapper theorem-style-plain" id="lem:RCF_max">
+  <div class="lemma_thmheading">
+    <span class="lemma_thmcaption">
+    Lemma
+    </span>
+    <span class="lemma_thmlabel">10</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="index.html#lem:RCF_max">#</a>
+    
+    <a class="icon proof" href="index.html#a0000000013"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="lemma_thmcontent">
+  <p> \(R\) is maximal with respect to algebraic extensions by ordered fields. </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000013">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>Since \(-1\) has a square root in \(R(i)\), the field \(R(i)\) is not formally real and therefore cannot be ordered. We are done by Theorem <a href="index.html#thm:FTAlg">7</a>. </p>
+
+  </div>
+</div>
+<p>In particular, \(R\) is maximal with respect to ordered algebraic extensions. </p>
+<div class="lemma_thmwrapper theorem-style-plain" id="lem:irreds_class">
+  <div class="lemma_thmheading">
+    <span class="lemma_thmcaption">
+    Lemma
+    </span>
+    <span class="lemma_thmlabel">11</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="index.html#lem:irreds_class">#</a>
+    
+    <a class="icon proof" href="index.html#a0000000014"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="lemma_thmcontent">
+  <p> The monic irreducible polynomials over \(R[X]\) have form \(X-c\) for some \(c\in R\) or \((X-a)^2+b^2\) for some \(a,b\in R\) with \(b\neq 0\). </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000014">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>Let \(f\in R[X]\) be monic and irreducible. The field \(R_f=R[X]/(f)\) is an algebraic extension of \(R\), so it is classified by Theorem <a href="index.html#thm:FTAlg">7</a>. If \(R_f\cong R\), then \(\deg f=1\), so \(f=X-c\) for some \(c\in R\). If \(R_f\cong R(i)\), let the isomorphism be \(\varphi \), and suppose \(\varphi (X+(f))=a+bi\) (\(a,b\in R\)). Note that \(b\neq 0\) since \(\varphi ^{-1}\) is constant on \(R\). Rearranging, we see that \(\varphi ((X-a)^2+b^2+(f))=0\); that is, \((X-a)^2+b^2\in (f)\). Since this polynomial is monic and has the same degree as \(f\), it must in fact be equal to \(f\). </p>
+<p>Conversely, linear polynomials over a domain are irreducible by degree, and reducible quadratics have a root. A root of \(f=(X-a)^2+b^2\) with \(a,b\in R\) is an element \(r\in R\) satisfying \((r-a)^2=-b^2\). Since squares are non-negative, if \(b\neq 0\) then \(f\) must be irreducible. </p>
+
+  </div>
+</div>
+<p>The next property is a little less obvious. </p>
+<div class="lemma_thmwrapper theorem-style-plain" id="lem:IVP_poly">
+  <div class="lemma_thmheading">
+    <span class="lemma_thmcaption">
+    Lemma
+    </span>
+    <span class="lemma_thmlabel">12</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="index.html#lem:IVP_poly">#</a>
+    
+    <a class="icon proof" href="index.html#a0000000015"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="lemma_thmcontent">
+  <p> \(R\) satisfies the intermediate value property for polynomials. </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000015">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>We will prove that, for all \(f\in R[X]\) and all \(a,b\in R\) with \(a{\lt}b\), if \(f(a)\cdot f(b){\lt}0\), then there is some \(c\in (a,b)\) such that \(f(c)=0\). </p>
+<p>Fix \(a,b\in R\) with \(a{\lt}b\). First, suppose \(f\in R[X]\) is linear. Then \(f=m(X-c)\) for some \(m,c\in R\) with \(m\neq 0\); then \(f(c)=0\). If \(m{\gt}0\), then \(f(x){\lt}0\) for \(x{\lt}c\) and \(f(x){\gt}0\) for \(x{\gt}c\), and vice versa if \(m{\lt}0\). In either case, if \(c\notin [a,b]\), then \(f(a)\cdot f(b){\gt}0\). Taking into account the cases \(c=a\) and \(c=b\), if \(f(a)\cdot f(b){\lt}0\) then \(c\in (a,b)\). </p>
+<p>Now suppose \(f(a)\cdot f(b){\lt}0\), and proceed by induction on \(\deg f\). If \(\deg f=0\), write \(f=x\in R\); then \(f(x)\cdot f(x)=x^2\leq 0\), so, since squares are non-negative, \(x=0\) and \(f((a+b)/2)=0\). The above validates the property for \(\deg f=1\). Now, take a monic irreducible factor \(g\) of \(f\); then \(g\) is classified by Lemma <a href="index.html#lem:irreds_class">11</a>. If \(g=(X-a)^2+b^2\) with \(a,b\in R\) and \(b\neq 0\), then \(g\) is everywhere positive. If \(g=X-c\) with \(c\in R\), then either \(c\in (a,b)\) and \(g(c)=0\), or \(c\notin (a,b)\) and \(g(a)\) and \(g(b)\) have the same sign (they are nonzero since \(f(a)\) and \(f(b)\) are). In the second case, \(f\) has a root in \((a,b)\); in the first and third cases, \(f/g\) satsifies the induction hypothesis, so it has a root in \((a,b)\). In all cases, a factor of \(f\) has a root in \((a,b)\), and therfore so does \(f\). </p>
+
+  </div>
+</div>
+<p>In fact, the converses to Lemmas \(\ref{lem:RCF_max}\) and \(\ref{lem:IVP_poly}\) both hold! The latter converse is the more obvious one. </p>
+<div class="theorem_thmwrapper theorem-style-plain" id="a0000000016">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">13</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="index.html#a0000000016">#</a>
+    
+    <a class="icon proof" href="index.html#a0000000017"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>Let \(R\) be an ordered field satisfying the intermediate value property for polynomials. Then \(R\) is real closed. </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000017">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>Let \(f\) be an odd-degree polynomial over \(R\). Write \(f=a_nX^n+\cdots +a_0\). Replacing \(f\) by \(-f\) if necessary, we may assume \(a_n{\gt}0\). For \(x{\gt}1\), we compute </p>
+<div class="displaymath" id="a0000000018">
+  \[ f(x)\geq x^{n-1}(a_nx-n\max _i|a_i|). \]
+</div>
+<p> Therefore, when \(x{\gt}\max \{ 1,n\max _i|a_i|/a_n\} \), \(f(x){\gt}0\). A similar calculation shows that \(f(x){\lt}0\) for sufficiently large negative values of \(x\). By the intermediate value property, \(f\) has a root in \(R\). </p>
+<p>Let \(a\in R\) be non-negative, and consider the polynomial \(f=X^2-a\). Then \(f(0)=-a\leq 0\), but \(f(a+1)=a^2+a+1{\gt}0\). By the intermediate value property, \(f\) has a root in \(R\), and so \(a\) has a square root in \(R\). </p>
+
+  </div>
+</div>
+<div class="theorem_thmwrapper theorem-style-plain" id="a0000000019">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">14</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="index.html#a0000000019">#</a>
+    
+    <a class="icon proof" href="index.html#a0000000020"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>Let \(R\) be an ordered field maximal with respect to algebraic extensions by ordered fields. Then \(R\) is real closed. </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000020">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>TODO </p>
+
+  </div>
+</div>
+<div class="corollary_thmwrapper theorem-style-plain" id="a0000000021">
+  <div class="corollary_thmheading">
+    <span class="corollary_thmcaption">
+    Corollary
+    </span>
+    <span class="corollary_thmlabel">15</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="index.html#a0000000021">#</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="corollary_thmcontent">
+  <p>Let \(R\) be an ordered field maximal with respect to ordered algebraic extensions. Then \(R\) is real closed. </p>
+
+  </div>
+</div>
+<p>We can therefore “construct” real closed fields. </p>
+<div class="definition_thmwrapper theorem-style-definition" id="a0000000022">
+  <div class="definition_thmheading">
+    <span class="definition_thmcaption">
+    Definition
+    </span>
+    <span class="definition_thmlabel">16</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="index.html#a0000000022">#</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="definition_thmcontent">
+  <p>Let \(F\) be an ordered field. A real closure of \(F\) is a real closed algebraic extension of \(F\). </p>
+
+  </div>
+</div>
+<div class="corollary_thmwrapper theorem-style-plain" id="a0000000023">
+  <div class="corollary_thmheading">
+    <span class="corollary_thmcaption">
+    Corollary
+    </span>
+    <span class="corollary_thmlabel">17</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="index.html#a0000000023">#</a>
+    
+    <a class="icon proof" href="index.html#a0000000024"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="corollary_thmcontent">
+  <p>Let \(F\) be an ordered field. Then \(F\) has a real closure. </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000024">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>Zorn’s lemma. </p>
+
+  </div>
+</div>
+<div class="corollary_thmwrapper theorem-style-plain" id="a0000000025">
+  <div class="corollary_thmheading">
+    <span class="corollary_thmcaption">
+    Corollary
+    </span>
+    <span class="corollary_thmlabel">18</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="index.html#a0000000025">#</a>
+    
+    <a class="icon proof" href="index.html#a0000000026"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="corollary_thmcontent">
+  <p>An algebraically closed field of characteristic zero has an index-2 real closed subfield. </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000026">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>TODO: do this properly The prime field \(\mathbb {Q}\) can be ordered, so it has a real closure \(R\). Given a transcendental element, you can order it anywhere you like. Done by Zorn. </p>
+
+  </div>
+</div>
+<p>Just like with the algebraic closure, it makes sense to talk of <i class="itshape">the</i> real closure of an ordered field. </p>
+<div class="lemma_thmwrapper theorem-style-plain" id="lem:real_closure_unique">
+  <div class="lemma_thmheading">
+    <span class="lemma_thmcaption">
+    Lemma
+    </span>
+    <span class="lemma_thmlabel">19</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="index.html#lem:real_closure_unique">#</a>
+    
+    <a class="icon proof" href="index.html#a0000000027"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="lemma_thmcontent">
+  <p> Let \(F\) be an ordered field. Then the real closure of \(F\) is unique up to unique \(F\)-automorphism. </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000027">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>TODO (abstract nonsense?) </p>
+
+  </div>
+</div>
+<p>We could actually have assumed much less in Lemma <a href="index.html#lem:FTAlg_converse">9</a>. The following is a weak form of the Artin-Schreier theorem. Its proof requires some more involved algebra. </p>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:Artin-Schreier_weak">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">20</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="index.html#thm:Artin-Schreier_weak">#</a>
+    
+    <a class="icon proof" href="index.html#a0000000028"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p> Let \(R\) be a field, and suppose \([\bar{R}:R]=2\). Then there is a unique field ordering on \(R\), and moreover \(R\) with this ordering is real closed. </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000028">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>TODO </p>
+
+  </div>
+</div>
+<p>In fact, we can weaken the hypotheses even further. </p>
+<div class="theorem_thmwrapper theorem-style-plain" id="thm:Artin-Schreier">
+  <div class="theorem_thmheading">
+    <span class="theorem_thmcaption">
+    Theorem
+    </span>
+    <span class="theorem_thmlabel">21</span>
+    <span class="theorem_thmtitle">Artin-Schreier Theorem</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="index.html#thm:Artin-Schreier">#</a>
+    
+    <a class="icon proof" href="index.html#a0000000029"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="theorem_thmcontent">
+  <p>  Let \(R\) be a field, and suppose \(\bar{R}\) is a <i class="itshape">finite</i> extension of \(R\). Then there is a unique field ordering on \(R\), and moreover \(R\) with this ordering is real closed. </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000029">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>TODO </p>
+
+  </div>
+</div>
+<div class="corollary_thmwrapper theorem-style-plain" id="a0000000030">
+  <div class="corollary_thmheading">
+    <span class="corollary_thmcaption">
+    Corollary
+    </span>
+    <span class="corollary_thmlabel">22</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="index.html#a0000000030">#</a>
+    
+    <a class="icon proof" href="index.html#a0000000031"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="corollary_thmcontent">
+  <p>An algebraically closed field of nonzero characteristic has no finite index subfields. </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000031">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>Ordered fields have characteristic 0. </p>
+
+  </div>
+</div>
+<div class="corollary_thmwrapper theorem-style-plain" id="a0000000032">
+  <div class="corollary_thmheading">
+    <span class="corollary_thmcaption">
+    Corollary
+    </span>
+    <span class="corollary_thmlabel">23</span>
+    <div class="thm_header_extras">
+
+        </div>
+    <div class="thm_header_hidden_extras">
+
+    <a class="icon proof" href="index.html#a0000000032">#</a>
+    
+    <a class="icon proof" href="index.html#a0000000033"><svg  class="icon icon-cogs "><use xlink:href="symbol-defs.svg#icon-cogs"></use></svg>
+</a>
+    
+    
+    
+        </div>
+  </div>
+  <div class="corollary_thmcontent">
+  <p>\(\mathbb {Q}_\text {alg}\) has a finite index subfield unique up to \(\operatorname{Gal}(\mathbb {Q}_alg/\mathbb {Q})\). </p>
+
+  </div>
+</div>
+<div class="proof_wrapper" id="a0000000033">
+  <div class="proof_heading">
+    <span class="proof_caption">
+    Proof
+    </span>
+    <span class="expand-proof">▶</span>
+  </div>
+  <div class="proof_content">
+  <p>Any finite-index subfield must be real closed. Let \(R\) be a real closed subfield of \(\mathbb {Q}_\text {alg}\). Then the order on \(R\) restricts to an order on \(\mathbb {Q}\). Now, \(R/\mathbb {Q}\) is algebraic, so \(R\) is a real closure of \(\mathbb {Q}\). Further, the field ordering on \(\mathbb {Q}\) is unique. We are done by Lemma <a href="index.html#lem:real_closure_unique">19</a>. </p>
 
   </div>
 </div>
