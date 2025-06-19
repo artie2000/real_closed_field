@@ -23,7 +23,7 @@
 \begin{proof}
   Consider the map $\Phi:x\to K(\sqrt{x})$ from $K^*$. We will show it fully respects the relation $x(K^*)^2=y(K^*)^2$; then $\Phi$ descends to a injective map out of the quotient $K^*/(K^*)^2$. In particular, if $x\notin(K^*)^2$, then $\Phi(x)=K(\sqrt{x})$ is not $K$-isomorphic to $K$, and is therefore a quadratic extension of $K$.
 
-  Indeed, if $x(K^*)^2=y(K^*)^2$, then $x=a^2y$ for some $a\in K$, and so $K(\sqrt{x})\cong_K K(\sqrt{y})$ via $\sqrt{x}\to a\sqrt{y}$. Conversely, if $\phi:K(\sqrt{x})\to K(\sqrt{y})$ is a $K$-isomorphism, then $\phi(\sqrt{x})=a+b\sqrt{y}$ for some $a,b\in K$, and so $x=a^2+yb^2+2ab\sqrt{y}$. Comparing coefficients in the $K$-basis $\{1,\sqrt{y}\}$, either $a=0$ or $b=0$. Therefore, either $x=a^2y$ and so $x(K^*)^2=y(K^*)^2$, or $x=a^2$, in which case $K(\sqrt{y})\cong_K K(\sqrt{x})\cong_K K$; that is, $x,y\in(K^*)^2$.
+  Indeed, if $x(K^*)^2=y(K^*)^2$, then $x=a^2y$ for some $a\in K$, and so $K(\sqrt{x})\cong_K K(\sqrt{y})$ via $\sqrt{x}\to a\sqrt{y}$. Conversely, if $\varphi:K(\sqrt{x})\to K(\sqrt{y})$ is a $K$-isomorphism, then $\varphi(\sqrt{x})=a+b\sqrt{y}$ for some $a,b\in K$, and so $x=a^2+yb^2+2ab\sqrt{y}$. Comparing coefficients in the $K$-basis $\{1,\sqrt{y}\}$, either $a=0$ or $b=0$. Therefore, either $x=a^2y$ and so $x(K^*)^2=y(K^*)^2$, or $x=a^2$, in which case $K(\sqrt{y})\cong_K K(\sqrt{x})\cong_K K$; that is, $x,y\in(K^*)^2$.
 
   It remains to show all quadratic extensions of $K$ are $K$-isomorphic to some $L\in\im\Phi$. Fix a quadratic extension $L/K$, and let $\{1,\alpha\}$ be a $K$-basis for $L$; then $\alpha^2=a\alpha+b$ for some $a,b\in K$. Let $\beta=2\alpha-a$. Since $\ch K\neq 2$, $\alpha=(\beta+a)/2$, and so $L=K+\beta K=K(\beta)$. Now, we compute $\beta^2=a^2+4b$. Therefore $L\cong_K\Phi(a^2+4b)$ via $\beta\to\sqrt{a^2+4b}$.
 \end{proof}
@@ -31,12 +31,12 @@
 Note that we will only use that this map is well-defined and surjective, and not that it is injective (which was the most annoying part to show).
 
 \begin{definition}
-  A real closed field is an ordered field in which every positive element has a square root and every odd-degree polynomial has a root.
+  A real closed field is an ordered field in which every non-negative element has a square root and every odd-degree polynomial has a root.
 \end{definition}
 
 Let $R$ be a real closed field. Note that, since $R$ is ordered, $\ch R=0$. In particular, its algebraic extensions are separable.
 
-In what follows, all algebraic extensions are given up to isomorphism, as is conventional. Observe that, since $-1$ is not a square in $R$, $R(i)/R$ is a quadratic extension. We show that this is the \textbf{only} nontrivial algebraic extension of $R$.
+In what follows, all algebraic extensions are given up to $R$-isomorphism, as is conventional. Observe that, since $-1$ is not a square in $R$, $R(i)/R$ is a quadratic extension. We show that this is the \textbf{only} nontrivial algebraic extension of $R$.
 
 \begin{lemma}
   \label{lem:alg_ext_odd_deg}
@@ -59,12 +59,13 @@ In what follows, all algebraic extensions are given up to isomorphism, as is con
   There is no quadratic extension of $R(i)$.
 \end{lemma}
 \begin{proof}
- By Lemma \ref{lem:deg_2_classify}, it suffices to show that every element of $R(i)$ is a square. Indeed, take $x=a+bi\in R(i)$ with $a,b\in R$. If $b=0$, then either $a\geq0$ and so $x$ is a square in $R$, or $a\leq0$ and so $a=(i\sqrt{-a})^2$ is a square in $R$. Now let $b\neq0$. Then we compute $x=(c+di)^2$, where
- \[c=\sqrt{\frac{a+\sqrt{a^2+b^2}}{2}}\text{ and }d=\frac{b}{2c}.\]
- To see that $c$ and $d$ are well-defined elements of $R$, observe that $a^2+b^2>a^2\geq0$ (as $b\neq0$), and so $a+\sqrt{a^2+b^2}>0$. Therefore the square roots above lie in $R$ and $c\neq0$.
+  By Lemma \ref{lem:deg_2_classify}, it suffices to show that every element of $R(i)$ is a square. Indeed, take $x=a+bi\in R(i)$ with $a,b\in R$. If $b=0$, then either $a\geq0$ and so $x$ is a square in $R$, or $a\leq0$ and so $a=(i\sqrt{-a})^2$ is a square in $R$. Now let $b\neq0$. Then we compute $x=(c+di)^2$, where
+  \[c=\sqrt{\frac{a+\sqrt{a^2+b^2}}{2}}\text{ and }d=\frac{b}{2c}.\]
+  To see that $c$ and $d$ are well-defined elements of $R$, observe that $a^2+b^2>a^2\geq0$ (as $b\neq0$), and so $a+\sqrt{a^2+b^2}>0$. Therefore the square roots above lie in $R$ and $c\neq0$.
 \end{proof}
 
 \begin{theorem}
+  \label{thm:FTAlg}
   The only algebraic extensions of $R$ are $R$ itself and $R(i)$.
 \end{theorem}
 \begin{proof}
@@ -76,3 +77,140 @@ In what follows, all algebraic extensions are given up to isomorphism, as is con
 \begin{corollary}
   $\bar{R}=R(i)$.
 \end{corollary}
+
+The converse to Theorem \ref{thm:FTAlg} is much easier.
+
+\begin{lemma}
+  \label{lem:FTAlg_converse}
+  Suppose $R$ is an ordered field whose only nontrivial algebraic extension is $R(i)$. Then $R$ is real closed.
+\end{lemma}
+\begin{proof}
+  Let $f$ be an odd-degree polynomial over $R$; we show $f$ has a root by induction on $\deg f$. If $\deg f=1$, then $f$ has a root in $R$ since $R$ is a field. Otherwise, $R[X]/(f)$ cannot be a field since $R$ has no nontrivial odd-degree extensions, and so $f$ must have a nontrivial factorisation $f=gh$. Since $\deg f=\deg g+\deg h$, wlog $\deg g$. By induction, the $g$ has a root in $R$, and therefore so does $f$.
+
+  Now let $a\in R$ be non-negative, and consider the polynomial $f=X^2-a$. If $f$ is irreducible, then $R(\sqrt{a})\cong R(i)$. Suppose $i$ maps to $x+y\sqrt{a}$ for some $x,y\in R$; then $-1=x^2+ay^2+2xy\sqrt{a}$. Comparing coefficients, $-1=x^2+ay^2\geq0$.$_\#$ Therefore $f$ is reducible, and so $a$ has a square root in $R$.
+\end{proof}
+
+As before, let $R$ be a real closed field. Theorem \ref{thm:FTAlg} is a powerful tool for deriving more of its properties.
+
+\begin{lemma}
+  \label{lem:RCF_max}
+  $R$ is maximal with respect to algebraic extensions by ordered fields.
+\end{lemma}
+\begin{proof}
+  Since $-1$ has a square root in $R(i)$, the field $R(i)$ is not formally real and therefore cannot be ordered. We are done by Theorem \ref{thm:FTAlg}.
+\end{proof}
+
+In particular, $R$ is maximal with respect to ordered algebraic extensions.
+
+\begin{lemma}
+  \label{lem:irreds_class}
+  The monic irreducible polynomials over $R[X]$ have form $X-c$ for some $c\in R$ or $(X-a)^2+b^2$ for some $a,b\in R$ with $b\neq0$.
+\end{lemma}
+\begin{proof}
+  Let $f\in R[X]$ be monic and irreducible. The field $R_f=R[X]/(f)$ is an algebraic extension of $R$, so it is classified by Theorem \ref{thm:FTAlg}. If $R_f\cong R$, then $\deg f=1$, so $f=X-c$ for some $c\in R$. If $R_f\cong R(i)$, let the isomorphism be $\varphi$, and suppose $\varphi(X+(f))=a+bi$ ($a,b\in R$). Note that $b\neq0$ since $\varphi^{-1}$ is constant on $R$. Rearranging, we see that $\varphi((X-a)^2+b^2+(f))=0$; that is, $(X-a)^2+b^2\in(f)$. Since this polynomial is monic and has the same degree as $f$, it must in fact be equal to $f$.
+
+  Conversely, linear polynomials over a domain are irreducible by degree, and reducible quadratics have a root. A root of $f=(X-a)^2+b^2$ with $a,b\in R$ is an element $r\in R$ satisfying $(r-a)^2=-b^2$. Since squares are non-negative, if $b\neq0$ then $f$ must be irreducible.
+\end{proof}
+
+The next property is a little less obvious.
+
+\begin{lemma}
+  \label{lem:IVP_poly}
+  $R$ satisfies the intermediate value property for polynomials.
+\end{lemma}
+\begin{proof}
+  We will prove that, for all $f\in R[X]$ and all $a,b\in R$ with $a<b$, if $f(a)\cdot f(b)<0$, then there is some $c\in(a,b)$ such that $f(c)=0$.
+
+  Fix $a,b\in R$ with $a<b$. First, suppose $f\in R[X]$ is linear. Then $f=m(X-c)$ for some $m,c\in R$ with $m\neq0$; then $f(c)=0$. If $m>0$, then $f(x)<0$ for $x<c$ and $f(x)>0$ for $x>c$, and vice versa if $m<0$. In either case, if $c\notin[a,b]$, then $f(a)\cdot f(b)>0$. Taking into account the cases $c=a$ and $c=b$, if $f(a)\cdot f(b)<0$ then $c\in(a,b)$.
+
+  Now suppose $f(a)\cdot f(b)\leq 0$, and proceed by induction on $\deg f$. If $\deg f=0$, write $f=x\in R$; then $f(x)\cdot f(x)=x^2\leq 0$, so, since squares are non-negative, $x=0$ and $f((a+b)/2)=0$. The above validates the property for $\deg f=1$. Now, take a monic irreducible factor $g$ of $f$; then $g$ is classified by Lemma \ref{lem:irreds_class}. If $g=(X-a)^2+b^2$ with $a,b\in R$ and $b\neq0$, then $g$ is everywhere positive. If $g=X-c$ with $c\in R$, then either $c\in(a,b)$ and $g(c)=0$, or $c\notin(a,b)$ and $g(a)$ and $g(b)$ have the same sign (they are nonzero since $f(a)$ and $f(b)$ are). In the second case, $f$ has a root in $(a,b)$; in the first and third cases, $f/g$ satsifies the induction hypothesis, so it has a root in $(a,b)$. In all cases, a factor of $f$ has a root in $(a,b)$, and therfore so does $f$.
+\end{proof}
+
+In fact, the converse to Lemmas $\ref{lem:RCF_max}$ and $\ref{lem:IVP_poly}$ holds!
+
+\begin{theorem}
+  Let $R$ be an ordered field satisfying the intermediate value property for polynomials. Then $R$ is real closed.
+\end{theorem}
+\begin{proof}
+  Let $f$ be an odd-degree polynomial over $R$. Write $f=a_nX^n+\cdots+a_0$. Replacing $f$ by $-f$ if necessary, we may assume $a_n>0$. For $x>1$, we compute
+  \[f(x)\geq x^{n-1}(a_nx-n\max_i|a_i|).\]
+  Therefore, when $x>\max\{1,n\max_i|a_i|/a_n\}$, $f(x)>0$. A similar calculation shows that $f(x)<0$ for sufficiently large negative values of $x$. By the intermediate value property, $f$ has a root in $R$.
+
+  Let $a\in R$ be non-negative, and consider the polynomial $f=X^2-a$. Then $f(0)=-a\leq0$, but $f(a+1)=a^2+a+1>0$. By the intermediate value property, $f$ has a root in $R$, and so $a$ has a square root in $R$.
+\end{proof}
+
+\begin{theorem}
+  Let $R$ be an ordered field maximal with respect to algebraic extensions by ordered fields. Then $R$ is real closed.
+\end{theorem}
+\begin{proof}
+  TODO
+\end{proof}
+
+\begin{corollary}
+  Let $R$ be an ordered field maximal with respect to ordered algebraic extensions. Then $R$ is real closed.
+\end{corollary}
+
+We can therefore "construct" real closed fields.
+
+\begin{definition}
+  Let $F$ be an ordered field. A real closure of $F$ is a real closed algeraic extension of $F$.
+\end{definition}
+
+\begin{corollary}
+  Let $F$ be an ordered field. Then $F$ has a real closure.
+\end{corollary}
+\begin{proof}
+  Zorn's lemma.
+\end{proof}
+
+\begin{corollary}
+  An algebraically closed field of characteristic zero has an index-2 real closed subfield.
+\end{corollary}
+\begin{proof}
+  TODO: do this properly
+  The prime field $\Q$ can be ordered, so it has a real closure $R$. Given a transcendental element, you can order it anywhere you like. Done by Zorn.
+\end{proof}
+
+Just like with the algebraic closure, it makes sense to talk of \textit{the} real closure of an ordered field.
+
+\begin{lemma}
+  \label{lem:real_closure_unique}
+  Let $F$ be an ordered field. Then the real closure of $F$ is unique up to unique $F$-automorphism.
+\end{lemma}
+\begin{proof}
+  TODO (abstract nonsense?)
+\end{proof}
+
+We could actually have assumed much less in Lemma \ref{lem:FTAlg_converse}. The following is a weak form of the Artin-Schreier theorem. Its proof requires some more involved algebra.
+
+\begin{theorem}
+  \label{thm:Artin-Schreier_weak}
+  Let $R$ be a field, and suppose $[\bar{R}:R]=2$. Then there is a unique field ordering on $R$, and moreover $R$ with this ordering is real closed.
+\end{theorem}
+\begin{proof}
+  TODO
+\end{proof}
+
+In fact, we can weaken the hypotheses even further.
+
+\begin{theorem}[Artin-Schreier Theorem]
+  \label{thm:Artin-Schreier}
+  Let $R$ be a field, and suppose $\bar{R}$ is a \textit{finite} extension of $R$. Then there is a unique field ordering on $R$, and moreover $R$ with this ordering is real closed.
+\end{theorem}
+\begin{proof}
+  TODO
+\end{proof}
+
+\begin{corollary}
+  An algebraically closed field of nonzero characteristic has no finite index subfields.
+\end{corollary}
+\begin{proof}
+  Ordered fields have characteristic 0.
+\end{proof}
+
+\begin{corollary}
+  $\Q_\text{alg}$ has a finite index subfield unique up to $\Gal(\Q_alg/\Q)$.
+\end{corollary}
+\begin{proof}
+  Any finite-index subfield must be real closed. Let $R$ be a real closed subfield of $\Q_\text{alg}$. Then the order on $R$ restricts to an order on $\Q$. Now, $R/\Q$ is algebraic, so $R$ is a real closure of $\Q$. Further, the field ordering on $\Q$ is unique. We are done by lemma \ref{lem:real_closure_unique}.
+\end{proof}
