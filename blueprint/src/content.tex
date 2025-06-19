@@ -9,6 +9,14 @@
 \section{Preliminaries}
 
 \begin{lemma}
+  \label{lem:odd_deg_red_imp_root}
+  Let $F$ be a field, and suppose all nonlinear odd-degree polynomials over $F$ are reducible. Then every odd-degree polynomial over $F$ has a root.
+\end{lemma}
+\begin{proof}
+  Fix an odd-degree polynomial $f$ over $F$, and proceed by induction on $\deg f$. If $\deg f=1$, then $f$ has a root in $F$. Otherwise, $f$ is reducible by assumption; write $f=gh$ where $\deg g,\deg h>0$. Since $\deg f=\deg g+\deg h$, wlog $\deg g$ is odd. Since $\deg g<\deg f$, the factor $g$ has a root in $F$ by induction, and therefore so does $f$.
+\end{proof}
+
+\begin{lemma}
   \label{lem:sylow_galois}
   Fix a prime $p$, and let $M/K$ be a separable Galois extension of degree $p^k\cdot a$, where $p\nmid a$. Then, for $0\leq j\leq k$, there are intermediate fields $K\leq L_0\leq\cdots\leq L_k\leq M$, with $[L_j:K]=p^j\cdot a$.
 \end{lemma}
@@ -32,13 +40,118 @@
 
 Note that we will only use that this map is well-defined and surjective, and not that it is injective (which was the most annoying part to show).
 
+\section{Ordered Fields}
+
+\begin{definition}
+  An ordered field is a field with a total order on it such that $+$ and $*$ are monotone with respect to the order.
+\end{definition}
+
+`Monotonicity' means that, if $a\leq b$, then $a+c\leq b+c$ and, if $c\geq0$, then also $ac\leq bc$.
+
+\begin{definition}
+  A preordering on a field $F$ is a subsemiring of $F$ containing all squares but not containing $-1$.
+\end{definition}
+
+\begin{definition}
+  An ordering on a field $F$ is a preordering $P\subset F$ such that $P\cup -P=F$.
+\end{definition}
+
+It is an easy check from the axioms of an ordered field that orderings deserve their name.
+
+\begin{lemma}
+  Linear orders on $F$ making $F$ into an ordered field correspond bijectively with orderings on $F$ via the map $(\leq)\to\{x\geq0\}$.
+\end{lemma}
+
+From now on, we will refer to the total order on an ordered field and its corresponding field ordering structure interchangeably.
+
+Here is a basic result about ordered fields which use the field ordering structure.
+
+\begin{lemma}
+  \label{lem:unique_ord_cond}
+  Let $F$ be a real field. Suppose that, for each $a\in F$, either $a$ is a sum of squares or $-a$ is a sum of squares. Then there is a unique field ordering on $F$.
+\end{lemma}
+\begin{proof}
+  Every ordering on $F$ contains the preordering given by sums of squares. By assumption, this preordering is in fact an ordering.
+\end{proof}
+
+\begin{corollary}[Corollary of Lemma \ref{lem:unique_ord_cond}]
+  \label{cor:unique_ord_cond_ordered}
+  Let $F$ be an ordered field in which every non-negative element is a sum of squares. Then the ordering on $F$ is unique.
+\end{corollary}
+
+There is a convenient algebraic criterion for the existence of a field ordering.
+
+\begin{definition}
+  A field is (semi)real if $-1$ is not a sum of squares.
+\end{definition}
+
+\begin{lemma}
+  \label{lem:preord_ext}
+  Let $F$ be a real field. Then any preordering on $F$ extends to an ordering.
+\end{lemma}
+
+In particular, the preordering given by sums of squares extends to an ordering. 
+
+\begin{theorem}
+  \label{thm:ord_iff_real}
+  A field can be ordered if and only if it is real.
+\end{theorem}
+
+We can use this criterion to induce orderings on certain field extensions. Note that ordered fields have characteristic 0; in particular, their algebraic extensions are separable.
+
+\begin{lemma}
+  \label{lem:adj_sqrt_real}
+  Let $F$ be an ordered field, and let $a\in F$ be non-negative. Then $F(\sqrt{a})$ is real.
+\end{lemma}
+\begin{proof}
+  Suppose $-1$ is a sum of squares in $F(\sqrt{a})$; write $-1=\sum_i(a_i+b_i\sqrt{a})^2$ for some $a_i,b_i\in F$. We compute
+  \[-1=\sum_i(a_i^2+ab_i^2)+2\sqrt{a}\sum_ia_ib_i.\]
+  Comparing coefficients, $-1=\sum_i(a_i^2+ab_i^2)\geq0$.$_\#$
+\end{proof}
+
+\begin{lemma}
+  \label{lem:odd_deg_real}
+  Let $F$ be an ordered field, and let $K/F$ be an odd-degree extension. Then $K$ is real.
+\end{lemma}
+\begin{proof}
+  By the primitive element theorem, $K=F(\alpha)$ for some $\alpha\in K$. Let $f$ be the minimal polynomial of $\alpha$ over $K$; then $\deg f=[K:F]$ is odd. Proceed by induction on $\deg f$; if $\deg f=1$, then $K\cong R$ is certainly real. Otherwise, suppose $-1+(f)=\sum_ig_i^2+(f)$ for some polynomials $g_i\in R[X]$ each of degree at most $\deg f-1$. Rearranging, $\sum_ig_i^2+1=hf$ for some $h\in R[X]$.
+
+  TODO
+\end{proof}
+
+Observe that, given an extension $L/K$ of ordered fields with total orders $(\leq_K),(\leq_L)$ and ordering structures $O_L,O_K$, we have $O_L\cap K=O_K$ if and only if $(\leq_L)|_K=(\leq_K)$. The meaning of a field ordering extending or restricting to another is therefore unambiguous.
+
+\begin{lemma}
+  \label{lem:ext_ord_to_real}
+  Let $F$ be an ordered field, and let $K\supseteq F$ be real. Then the ordering on $F$ extends to an ordering on $K$.
+\end{lemma}
+\begin{proof}
+  View the ordering on $F$ as a preordering on $K$. By Lemma \ref{lem:preord_ext}, this preordering extends to an ordering on $K$.
+\end{proof}
+
+\begin{definition}
+  An extension $L/K$ of ordered fields is ordered if the ordering on $L$ restricts to the ordering on $K$.
+\end{definition}
+
+There is an easy way to construct ordered extensions if we don't care about them being algebraic.
+
+\begin{lemma}
+  \label{lem:order_fun_field}
+  Let $F$ be an ordered field, and let $a\in F$. Then there is a unique ordering on the function field $F(X)$ extending the ordering on $F$ such that $X>a$ but $b>X$ for $b>a$, and a unique ordering such that $X<a$ but $b<X$ for $b<a$.
+\end{lemma}
+\begin{proof}
+  Let $O$ be the set of polynomials over $F$ whose Taylor expansion at $a$ has non-negative leading coefficient. It is straightforward to check that this is an ordering (note that, over a ring, we additionally need to check that, for $x\neq0$, $x$ and $-x$ are never both in $O$). This then extends to an ordering on $F(X)$ satisfying the required conditions.
+
+  For the second construction, we take the polynomials with non-positive leading coefficients instead.
+\end{proof}
+
+Intuitively, $X$ is infinitesimally close to $a$. When $a=0$, we often write $R(\eps)$ for $R(X)$ with the first type of ordering.
+
 \section{Real Closed Fields}
 
 \begin{definition}
   A real closed field is an ordered field in which every non-negative element has a square root and every odd-degree polynomial has a root.
 \end{definition}
-
-Let $R$ be a real closed field. Note that, since $R$ is ordered, $\ch R=0$. In particular, its algebraic extensions are separable.
 
 In what follows, all algebraic extensions are given up to $R$-isomorphism, as is conventional. Observe that, since $-1$ is not a square in $R$, $R(i)/R$ is a quadratic extension. We show that this is the \textbf{only} nontrivial algebraic extension of $R$.
 
@@ -91,7 +204,7 @@ The converse to Theorem \ref{thm:FTAlg} is much easier.
 \begin{proof}
   Let $a\in R$ be non-negative, and consider the polynomial $f=X^2-a$. If $f$ is irreducible, then $R(\sqrt{a})\cong R(i)$. Suppose $i$ maps to $x+y\sqrt{a}$ for some $x,y\in R$; then $-1=x^2+ay^2+2xy\sqrt{a}$. Comparing coefficients, $-1=x^2+ay^2\geq0$.$_\#$ Therefore $f$ is reducible, and so $a$ has a square root in $R$.
 
-  Now let $f$ be an odd-degree polynomial over $R$; we show $f$ has a root by induction on $\deg f$. If $\deg f=1$, then $f$ has a root in $R$ since $R$ is a field. Otherwise, $R[X]/(f)$ cannot be a field since $R$ has no nontrivial odd-degree extensions, and so $f$ must have a nontrivial factorisation $f=gh$. Since $\deg f=\deg g+\deg h$, wlog $\deg g$ is odd. By induction, $g$ has a root in $R$, and therefore so does $f$.
+  Now, fix a nonlinear odd-degree polynomial $f\in R[X]$. Then $R[X]/(f)$ cannot be a field since $R$ has no nontrivial odd-degree extensions, and so $f$ must be reducible. We are done by Lemma \ref{lem:odd_deg_red_imp_root}.
 \end{proof}
 
 As before, let $R$ be a real closed field. Theorem \ref{thm:FTAlg} is a powerful tool for deriving more of its properties.
@@ -144,45 +257,67 @@ In fact, the converses to Lemmas \ref{lem:RCF_max} and \ref{lem:IVP_poly} both h
 \end{proof}
 
 \begin{theorem}
+  \label{thm:ord_max_imp_RCF}
   Let $R$ be an ordered field maximal with respect to algebraic extensions by ordered fields. Then $R$ is real closed.
 \end{theorem}
 \begin{proof}
-  TODO
+  By Theorem \ref{thm:ord_iff_real}, $R$ is maximal with respect to algebraic extensions by \textit{real} fields.
+
+  Let $a\in R$ be non-negative. By Lemma \ref{lem:adj_sqrt_real}, $R[\sqrt{a}]$ is real. By maximality, $R[\sqrt{a}]\cong R$, and so $a$ has a square root in $R$.
+
+  By Lemma \ref{lem:odd_deg_red_imp_root}, it suffices to show that irreducible odd-degree polynomials over $R$ are linear. Let $f\in R[X]$ be such a polynomial, and consider the odd-degree field extension $R_f=R[X]/(f)$. By Lemma \ref{lem:odd_deg_real}, $R_f$ is real; by maximality, $R_f\cong R$, and therefore $\deg f=[R_f:R]=1$.
 \end{proof}
 
-\begin{corollary}
+There is a subtlety here: we used the weaker form of maximality, disallowing algebraic extensions of $R$ by ordered fields with incompatible orders. In fact, such extensions cannot exist.
+
+\begin{corollary}[Corollary to Theorem \ref{thm:ord_max_imp_RCF}]
+  \label{cor:ord_max_imp_RCF_strong}
   Let $R$ be an ordered field maximal with respect to ordered algebraic extensions. Then $R$ is real closed.
 \end{corollary}
+\begin{proof}
+  Let $a\in R$ be non-negative. By Lemmas \ref{lem:adj_sqrt_real} and \ref{lem:ext_ord_to_real}, there is an ordering on $R(\sqrt{a})$ making $R(\sqrt{a})/R$ into an ordered extension. By maximality, $R(\sqrt{a})\cong R$, and so $a$ has a square root in $R$. By Corollary \ref{cor:unique_ord_cond_ordered}, $R$ is ordered uniquely.
+
+  Let $K/R$ be an algebraic extension by an ordered field. The ordering on $K$ restricts to some field ordering on $R$; by uniqueness, this is \textit{the} order on $R$, and so the extension is ordered. By assumption, therefore, $R$ is maximal with respect to algebraic extensions by ordered fields. We are done by Theorem \ref{thm:ord_max_imp_RCF}.
+\end{proof}
 
 We can therefore ``construct'' real closed fields.
 
 \begin{definition}
-  Let $F$ be an ordered field. A real closure of $F$ is a real closed algebraic extension of $F$.
+  Let $F$ be an ordered field. A real closure of $F$ is a real closed ordered algebraic extension of $F$.
 \end{definition}
 
 \begin{corollary}
   Let $F$ be an ordered field. Then $F$ has a real closure.
 \end{corollary}
 \begin{proof}
-  Zorn's lemma.
+  Apply Zorn's lemma and Corollary \ref{cor:ord_max_imp_RCF_strong}.
 \end{proof}
 
 \begin{corollary}
   An algebraically closed field of characteristic 0 has an index-2 real closed subfield.
 \end{corollary}
 \begin{proof}
-  TODO: do this properly
-  The prime field $\Q$ can be ordered, so it has a real closure $R$. Given a transcendental element, you can order it anywhere you like. Done by Zorn.
+  Let $C$ be an algebraically closed field of characteristic 0. Observe that the prime subfield $\Q$ can be ordered. Further, given an ordered subfield $F$ with $\bar{F}\neq C$, we can use Lemma \ref{lem:order_fun_field} to adjoin an element transcendental over $F$, obtaining a strictly bigger ordered field.
+  
+  We now apply Zorn's lemma, to obtain an ordered subfield $R\subseteq C$ with $\bar{R}=C$. By Theorem \ref{hm:ord_max_imp_RCF}, $R$ must be real closed. By Theorem \ref{thm:FTAlg}, $C=R(i)$, and so $[C:R]=2$.
 \end{proof}
 
 Just like with the algebraic closure, it makes sense to talk of \textit{the} real closure of an ordered field.
 
 \begin{lemma}
-  \label{lem:real_closure_unique}
-  Let $F$ be an ordered field. Then the real closure of $F$ is unique up to unique $F$-automorphism.
+  \label{lem:closure_emb_ext}
+  Let $K$ be an ordered field with a real closure $\bar{K}$, and let $L/K$ be a finite ordered extension. Then there is an ordered $K$-homomorphism $L\to\bar{K}$.
 \end{lemma}
 \begin{proof}
-  TODO (abstract nonsense?)
+  TODO
+\end{proof}
+
+\begin{lemma}
+  \label{lem:real_closure_unique}
+  Let $F$ be an ordered field. Then the real closure of $F$ is unique up to $F$-isomorphism.
+\end{lemma}
+\begin{proof}
+  Let $K_1$ and $K_2$ be real closures of $F$. Applying Zorn's lemma to the set of ordered extensions intermediate between $K_1$ and $F$ having an ordered $F$-embedding into $K_2$, and using Lemma \ref{lem:closure_emb_ext}, we obtain an intermediate extension $K_1/L/F$ with no nontrivial finite ordered extensions and an $F$-embedding $\varphi:L\to K_2$. Since the ordered algebraic extension induced by $\varphi$ contains an ordered finite extension, $\varphi$ must be an $F$-isomorphism. In particular, $L\subseteq K_1$ is real closed; by maximality (\ref{lem:RCF_max}), in fact $L=K_1$ and so $\varphi$ is an $F$-isomorphism.
 \end{proof}
 
 We could actually have assumed much less in Lemma \ref{lem:FTAlg_converse}. The following is a weak form of the Artin-Schreier theorem. Its proof requires some more involved algebra.
@@ -216,5 +351,5 @@ In fact, we can weaken the hypotheses even further.
   $\Q_\text{alg}$ has a finite index subfield unique up to $\Gal(\Q_{alg}/\Q)$.
 \end{corollary}
 \begin{proof}
-  Any finite-index subfield must be real closed. Let $R$ be a real closed subfield of $\Q_\text{alg}$. Then the order on $R$ restricts to an order on $\Q$. Now, $R/\Q$ is algebraic, so $R$ is a real closure of $\Q$. Further, the field ordering on $\Q$ is unique. We are done by Lemma \ref{lem:real_closure_unique}.
+  Any finite-index subfield must be real closed. Let $R$ be a real closed subfield of $\Q_\text{alg}$. Then the ordering on $R$ restricts to an ordering on $\Q$. Now, $R/\Q$ is algebraic, so $R$ is a real closure of $\Q$. Further, the field ordering on $\Q$ is unique. We are done by Lemma \ref{lem:real_closure_unique}.
 \end{proof}
