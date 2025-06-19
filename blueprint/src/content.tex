@@ -126,7 +126,7 @@ The next property is a little less obvious.
   Now suppose $f(a)\cdot f(b)<0$, and proceed by induction on $\deg f$. If $\deg f=0$, write $f=x\in R$; then $f(x)\cdot f(x)=x^2\leq 0$, so, since squares are non-negative, $x=0$ and $f((a+b)/2)=0$. The above validates the property for $\deg f=1$. Now, take a monic irreducible factor $g$ of $f$; then $g$ is classified by Lemma \ref{lem:irreds_class}. If $g=(X-a)^2+b^2$ with $a,b\in R$ and $b\neq0$, then $g$ is everywhere positive. If $g=X-c$ with $c\in R$, then either $c\in(a,b)$ and $g(c)=0$, or $c\notin(a,b)$ and $g(a)$ and $g(b)$ have the same sign (they are nonzero since $f(a)$ and $f(b)$ are). In the second case, $f$ has a root in $(a,b)$; in the first and third cases, $f/g$ satsifies the induction hypothesis, so it has a root in $(a,b)$. In all cases, a factor of $f$ has a root in $(a,b)$, and therfore so does $f$.
 \end{proof}
 
-In fact, the converses to Lemmas $\ref{lem:RCF_max}$ and $\ref{lem:IVP_poly}$ both hold! The latter converse is the more obvious one.
+In fact, the converses to Lemmas \ref{lem:RCF_max} and \ref{lem:IVP_poly} both hold! The latter converse is the more obvious one.
 
 \begin{theorem}
   Let $R$ be an ordered field satisfying the intermediate value property for polynomials. Then $R$ is real closed.
@@ -209,7 +209,7 @@ In fact, we can weaken the hypotheses even further.
 \end{proof}
 
 \begin{corollary}
-  $\Q_\text{alg}$ has a finite index subfield unique up to $\Gal(\Q_alg/\Q)$.
+  $\Q_\text{alg}$ has a finite index subfield unique up to $\Gal(\Q_{alg}/\Q)$.
 \end{corollary}
 \begin{proof}
   Any finite-index subfield must be real closed. Let $R$ be a real closed subfield of $\Q_\text{alg}$. Then the order on $R$ restricts to an order on $\Q$. Now, $R/\Q$ is algebraic, so $R$ is a real closure of $\Q$. Further, the field ordering on $\Q$ is unique. We are done by Lemma \ref{lem:real_closure_unique}.
