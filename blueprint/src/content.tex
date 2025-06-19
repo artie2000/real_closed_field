@@ -85,7 +85,7 @@ The converse to Theorem \ref{thm:FTAlg} is much easier.
   Suppose $R$ is an ordered field whose only nontrivial algebraic extension is $R(i)$. Then $R$ is real closed.
 \end{lemma}
 \begin{proof}
-  Let $f$ be an odd-degree polynomial over $R$; we show $f$ has a root by induction on $\deg f$. If $\deg f=1$, then $f$ has a root in $R$ since $R$ is a field. Otherwise, $R[X]/(f)$ cannot be a field since $R$ has no nontrivial odd-degree extensions, and so $f$ must have a nontrivial factorisation $f=gh$. Since $\deg f=\deg g+\deg h$, wlog $\deg g$. By induction, the $g$ has a root in $R$, and therefore so does $f$.
+  Let $f$ be an odd-degree polynomial over $R$; we show $f$ has a root by induction on $\deg f$. If $\deg f=1$, then $f$ has a root in $R$ since $R$ is a field. Otherwise, $R[X]/(f)$ cannot be a field since $R$ has no nontrivial odd-degree extensions, and so $f$ must have a nontrivial factorisation $f=gh$. Since $\deg f=\deg g+\deg h$, wlog $\deg g$ is odd. By induction, $g$ has a root in $R$, and therefore so does $f$.
 
   Now let $a\in R$ be non-negative, and consider the polynomial $f=X^2-a$. If $f$ is irreducible, then $R(\sqrt{a})\cong R(i)$. Suppose $i$ maps to $x+y\sqrt{a}$ for some $x,y\in R$; then $-1=x^2+ay^2+2xy\sqrt{a}$. Comparing coefficients, $-1=x^2+ay^2\geq0$.$_\#$ Therefore $f$ is reducible, and so $a$ has a square root in $R$.
 \end{proof}
@@ -126,7 +126,7 @@ The next property is a little less obvious.
   Now suppose $f(a)\cdot f(b)\leq 0$, and proceed by induction on $\deg f$. If $\deg f=0$, write $f=x\in R$; then $f(x)\cdot f(x)=x^2\leq 0$, so, since squares are non-negative, $x=0$ and $f((a+b)/2)=0$. The above validates the property for $\deg f=1$. Now, take a monic irreducible factor $g$ of $f$; then $g$ is classified by Lemma \ref{lem:irreds_class}. If $g=(X-a)^2+b^2$ with $a,b\in R$ and $b\neq0$, then $g$ is everywhere positive. If $g=X-c$ with $c\in R$, then either $c\in(a,b)$ and $g(c)=0$, or $c\notin(a,b)$ and $g(a)$ and $g(b)$ have the same sign (they are nonzero since $f(a)$ and $f(b)$ are). In the second case, $f$ has a root in $(a,b)$; in the first and third cases, $f/g$ satsifies the induction hypothesis, so it has a root in $(a,b)$. In all cases, a factor of $f$ has a root in $(a,b)$, and therfore so does $f$.
 \end{proof}
 
-In fact, the converse to Lemmas $\ref{lem:RCF_max}$ and $\ref{lem:IVP_poly}$ holds!
+In fact, the converses to Lemmas $\ref{lem:RCF_max}$ and $\ref{lem:IVP_poly}$ both hold! The latter converse is the more obvious one.
 
 \begin{theorem}
   Let $R$ be an ordered field satisfying the intermediate value property for polynomials. Then $R$ is real closed.

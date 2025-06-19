@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1750024706.71529 "print.tex" "/c/Users/Artie/Documents/Lean/real_closed_field/blueprint/print/print.pdf" "print" 1750024709.55998 0
-  "/c/Users/Artie/Documents/Lean/real_closed_field/blueprint/print/print.aux" 1750024709.1063 408 aec2a60fd29e0f000bbcc6403c515f87 "pdflatex"
+["pdflatex"] 1750302420.28671 "print.tex" "/c/Users/Artie/Documents/Lean/real_closed_field/blueprint/print/print.pdf" "print" 1750302423.84337 0
+  "/c/Users/Artie/Documents/Lean/real_closed_field/blueprint/print/print.aux" 1750302423.29405 852 ead3bbe81e61a6033f3e37be7f2b9686 "pdflatex"
   "C:/Users/Artie/AppData/Local/MiKTeX/miktex/data/le/xetex/xelatex.fmt" 1749723722.23612 26988180 33131771151d74ae22dec70642604661 ""
   "C:/Users/Artie/AppData/Local/Programs/MiKTeX/fonts/tfm/adobe/zapfding/pzdr.tfm" 1136772254 1528 f853c4d1b4e0550255e02831fdc8496f ""
   "C:/Users/Artie/AppData/Local/Programs/MiKTeX/fonts/tfm/public/amsfonts/symbols/msam10.tfm" 1233951854 916 f87d7c45f9c908e672703b83b72241a3 ""
@@ -80,9 +80,9 @@
   "C:/Users/Artie/AppData/Local/Programs/MiKTeX/tex/latex/unicode-math/unicode-math-xetex.sty" 1691937353 131459 a23c98c9e5ecfc17568c7bc94fda1317 ""
   "C:/Users/Artie/AppData/Local/Programs/MiKTeX/tex/latex/unicode-math/unicode-math.sty" 1691937353 1474 b42cfbe849cb22ed1c0632800327884f ""
   "C:/Users/Artie/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
-  "C:/Users/Artie/Documents/Lean/real_closed_field/blueprint/print/print.aux" 1750024709.1063 408 aec2a60fd29e0f000bbcc6403c515f87 "pdflatex"
-  "C:/Users/Artie/Documents/Lean/real_closed_field/blueprint/print/print.out" 1750024708.2389 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "content.tex" 1750024435.03293 5855 ea840de66d77a2f53d545b309cb9f76a ""
+  "C:/Users/Artie/Documents/Lean/real_closed_field/blueprint/print/print.aux" 1750302423.29405 852 ead3bbe81e61a6033f3e37be7f2b9686 "pdflatex"
+  "C:/Users/Artie/Documents/Lean/real_closed_field/blueprint/print/print.out" 1750302422.06997 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "content.tex" 1750302383.74516 13593 406ab5289dbd1318b860cd3f86362aa4 ""
   "macros/common.tex" 1749946375.39733 2224 e9118624da81754c4055cf15203f96e4 ""
   "macros/print.tex" 1749720038.40434 1101 87627b2ec24fef68edc71c13f43f7bab ""
   "print.tex" 1749723891.60268 1114 7d1a9aaff3244f31452a0ea8d9b3b7cf ""
