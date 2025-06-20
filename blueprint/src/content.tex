@@ -74,7 +74,7 @@ Here is a basic result about ordered fields which uses the field ordering struct
   Every ordering on $F$ contains the preordering given by sums of squares. By assumption, this preordering is in fact an ordering.
 \end{proof}
 
-\begin{corollary}[Corollary of Lemma \ref{lem:unique_ord_cond}]
+\begin{corollary}
   \label{cor:unique_ord_cond_ordered}
   Let $F$ be an ordered field in which every non-negative element is a sum of squares. Then the ordering on $F$ is unique.
 \end{corollary}
@@ -97,7 +97,7 @@ In particular, the preordering given by sums of squares extends to an ordering.
   A field can be ordered if and only if it is real.
 \end{theorem}
 
-We can use this criterion to induce orderings on certain field extensions. Note that ordered fields have characteristic 0; in particular, their algebraic extensions are separable.
+Note that ordered fields have characteristic 0; in particular, their algebraic extensions are separable.
 
 \begin{lemma}
   \label{lem:adj_sqrt_real}
@@ -135,16 +135,16 @@ Observe that, given an extension $L/K$ of ordered fields with total orders $(\le
   An extension $L/K$ of ordered fields is ordered if the ordering on $L$ restricts to the ordering on $K$.
 \end{definition}
 
-There is an easy way to construct ordered extensions if we don't care about them being algebraic.
+Lemmas \ref{lem:adj_sqrt_real} and \ref{lem:odd_deg_real} therefore allow us to construct ordered algebraic extensions. There is an easier way to construct ordered extensions if we don't care about them being algebraic.
 
 \begin{lemma}
   \label{lem:order_fun_field}
   Let $F$ be an ordered field, and let $a\in F$. Then there is a unique ordering on the function field $F(X)$ extending the ordering on $F$ such that $X>a$ but $b>X$ for $b>a$, and a unique ordering such that $X<a$ but $b<X$ for $b<a$.
 \end{lemma}
 \begin{proof}
-  Let $O$ be the set of polynomials over $F$ whose Taylor expansion at $a$ has non-negative leading coefficient. It is straightforward to check that this is an ordering (note that, over a ring, we additionally need to check that, for $x\neq0$, $x$ and $-x$ are never both in $O$). This then extends to an ordering on $F(X)$ satisfying the required conditions.
+  Let $O$ be the set of polynomials over $F$ whose Taylor expansion at $a$ has positive lowest-order (nonzero) coefficient. It is straightforward to check that this is an ordering (note that, over a ring, we additionally need to check that, for $x\neq0$, $x$ and $-x$ are never both in $O$). This then extends to an ordering on $F(X)$ satisfying the required conditions.
 
-  For the second construction, we take the polynomials with non-positive leading coefficients instead.
+  For the second construction, we instead take the polynomials with negative lowest-order coefficients in their Taylor expansions.
 \end{proof}
 
 Intuitively, $X$ is infinitesimally close to $a$. When $a=0$, we often write $R(\eps)$ for $R(X)$ with the first type of ordering.
@@ -170,7 +170,7 @@ In what follows, all algebraic extensions are given up to $R$-isomorphism, as is
   Nontrivial algebraic extensions of $R$ have even degree.
 \end{lemma}
 \begin{proof}
-  Let $K/R$ be an odd-degree algebraic extension of $R$. By the primitive element theorem, $K=R(\alpha)$ for some $\alpha\in K$. Let $f$ be the minimal polynomial of $\alpha$ over $K$. Then $f$ is irreducible, but $\deg f=[K:R]$ is odd, so $f$ has a root in $R$. Therefore, $[K:R]=\deg f=1$; that is, $K=R$.
+  Let $K/R$ be an odd-degree algebraic extension of $R$. By the primitive element theorem, $K=R(\alpha)$ for some $\alpha\in K$. Let $f$ be the minimal polynomial of $\alpha$ over $K$. Then $f$ is irreducible, but $\deg f=[K:R]$ is odd, so $f$ has a root in $R$. Therefore, $[K:R]=\deg f=1$; that is, $K\cong R$.
 \end{proof}
 
 \begin{lemma}
@@ -261,9 +261,9 @@ In fact, the converses to Lemmas \ref{lem:RCF_max} and \ref{lem:IVP_poly} both h
 \begin{proof}
   Let $a\in R$ be non-negative, and consider the polynomial $f=X^2-a$. Then $f(0)=-a\leq0$, but $f(a+1)=a^2+a+1>0$. By the intermediate value property, $f$ has a root in $R$, and so $a$ is a square in $R$.
 
-  Let $f$ be an odd-degree polynomial over $R$. Write $f=a_nX^n+\cdots+a_0$. Replacing $f$ by $-f$ if necessary, we may assume $a_n>0$. For $x>1$, we compute
+  Let $f$ be an odd-degree polynomial over $R$. Write $f=a_nX^n+\cdots+a_0$. We will show $f$ has a root in $R$. Replacing $f$ by $-f$ if necessary, we may assume $a_n>0$. For $x>1$, we compute
   \[f(x)\geq x^{n-1}(a_nx-n\max_i|a_i|).\]
-  Therefore, when $x>\max\{1,n\max_i|a_i|/a_n\}$, $f(x)>0$. A similar calculation shows that $f(x)<0$ for sufficiently large negative values of $x$. By the intermediate value property, $f$ has a root in $R$.
+  Therefore, when $x>\max\{1,n\max_i|a_i|/a_n\}$, $f(x)>0$. A similar calculation shows that $f(x)<0$ for sufficiently large negative values of $x$. We are done by the intermediate value property.
 \end{proof}
 
 \begin{theorem}
@@ -290,45 +290,77 @@ There is a subtlety here: we used the weaker form of maximality, disallowing alg
   Let $K/R$ be an algebraic extension by an ordered field. The ordering on $K$ restricts to some field ordering on $R$; by uniqueness, this is \textit{the} ordering on $R$, and so the extension is ordered. By assumption, therefore, $R$ is maximal with respect to algebraic extensions by ordered fields. We are done by Theorem \ref{thm:ord_max_imp_RCF}.
 \end{proof}
 
-We can therefore ``construct'' real closed fields.
+Theorem \ref{cor:ord_max_imp_RCF} gives us a way to ``construct'' real closed fields.
+
+\begin{lemma}
+  An algebraically closed field of characteristic 0 has an index-2 real closed subfield.
+\end{lemma}
+\begin{proof}
+  Let $C$ be an algebraically closed field of characteristic 0. Observe that the prime subfield $\Q$ can be ordered. Further, given an ordered subfield $F$ with $\bar{F}\neq C$, we can use Lemma \ref{lem:order_fun_field} to adjoin an element transcendental over $F$, obtaining a strictly bigger ordered subfield.
+  
+  Apply Zorn's lemma to obtain a maximal ordered subfield $R\subseteq C$; then $\bar{R}=C$. By Theorem \ref{thm:ord_max_imp_RCF}, $R$ must be real closed. By Theorem \ref{thm:FTAlg}, $C\cong R(i)$, and so $[C:R]=2$.
+\end{proof}
+
+\section{Real Closures}
 
 \begin{definition}
   Let $F$ be an ordered field. A real closure of $F$ is a real closed ordered algebraic extension of $F$.
 \end{definition}
 
-\begin{corollary}
+\begin{lemma}
+  \label{lem:real_closure_exists}
   Let $F$ be an ordered field. Then $F$ has a real closure.
-\end{corollary}
+\end{lemma}
 \begin{proof}
-  Apply Zorn's lemma and Corollary \ref{cor:ord_max_imp_RCF_strong}.
+  Apply Zorn's lemma to ordered algebraic extensions of $F$. We are done by Corollary \ref{cor:ord_max_imp_RCF_strong}.
 \end{proof}
 
-\begin{corollary}
-  An algebraically closed field of characteristic 0 has an index-2 real closed subfield.
-\end{corollary}
-\begin{proof}
-  Let $C$ be an algebraically closed field of characteristic 0. Observe that the prime subfield $\Q$ can be ordered. Further, given an ordered subfield $F$ with $\bar{F}\neq C$, we can use Lemma \ref{lem:order_fun_field} to adjoin an element transcendental over $F$, obtaining a strictly bigger ordered field.
-  
-  We now apply Zorn's lemma, to obtain an ordered subfield $R\subseteq C$ with $\bar{R}=C$. By Theorem \ref{hm:ord_max_imp_RCF}, $R$ must be real closed. By Theorem \ref{thm:FTAlg}, $C=R(i)$, and so $[C:R]=2$.
-\end{proof}
+Just like with the algebraic closure, it makes sense to talk of \textit{the} real closure of an ordered field. Proving this uniqueness result requires a method of root-counting in real fields known as Sturm's theorem.
 
-Just like with the algebraic closure, it makes sense to talk of \textit{the} real closure of an ordered field.
+\begin{theorem}[Corollary to Sturm's Theorem]
+  \label{TODO: Sturm}
+  Let $F$ be an ordered field, and let $f$ be a polynomial over $F$. Then $f$ has the same number of roots in any real closure of $F$.
+\end{theorem}
+
+\begin{lemma}
+  \label{lem:closure_emb_ext_unordered}
+  Let $F$ be an ordered field with a real closure $R$, and let $K/F$ be a finite ordered extension. Then there is an $F$-homomorphism $K\to R$.
+\end{lemma}
+\begin{proof}
+  By the primitive element theorem, $K=F(\alpha)$ for some $\alpha\in K$. Let $f$ be the minimal polynomial of $\alpha$ over $F$. Since $F$ has a root in $K$, it has a root in a real closure of $K$ (one exists by \ref{lem:real_closure_exists}). By Theorem \ref{TODO: Sturm}, $f$ has a root $\beta$ in $R$. Therefore define $\varphi:K\to R$ with $\varphi(\alpha)=\beta$.
+\end{proof}
 
 \begin{lemma}
   \label{lem:closure_emb_ext}
-  Let $F$ be an ordered field with a real closure $\bar{F}$, and let $K/F$ be a finite ordered extension. Then there is an ordered $F$-homomorphism $K\to\bar{F}$.
+  Let $F$ be an ordered field with a real closure $R$, and let $K/F$ be a finite ordered extension. Then there is a unique order-preserving $F$-homomorphism $K\to R$.
 \end{lemma}
 \begin{proof}
-  TODO, needs Sturm's theorem
+  Fix a real closure $R'$ of $K$.
+  
+  By the primitive element theorem, $K=F(\alpha)$ for some $\alpha\in K$. Let $f$ be the minimal polynomial of $\alpha$ over $F$, and let $\alpha_1<\cdots<\alpha_m$ be the roots of $f$ in a real closure $R'$ of $K$, with $\alpha=\alpha_k$. By Theorem \ref{TODO: Sturm}, $f$ also has $m$ roots in $R$; let them be $\beta_1<\cdots<\beta_m$. Since non-negative elements of $R'$ are squares, and $x_1,\dots,x_{m-1}\in R'$ such that $\alpha_{j+1}-\alpha_j=x_j^2$, and let $L=K(\alpha_1,\dots,\alpha_m,r,x_1,\dots,x_{m-1})\leq R'$. Now, suppose we have a $K$-homomorphism $\psi:L\to R$. Each $\psi(\alpha_j)$ is equal to a different $\beta_i$. Then $\psi(\alpha_{j+1})-\psi(\alpha_j)=\psi(x_j)^2\geq0$, so $\psi(\alpha_1)<\cdots<\psi(\alpha_m)$, and so $\psi(\alpha_j)=\beta_j$ for all $j$.
+
+  By Lemma \ref{lem:closure_emb_ext_unordered}, there is in fact an $F$-homomorphism $\varphi:L\to R$. We will show that $\varphi$ is order-preserving. Indeed, fix a non-negative element $x\in L$. As before, find $r\in R'$ such that $x=r^2$, and let $M=L(r)\leq R'$. Apply Lemma $\ref{lem:closure_emb_ext_unordered}$ again to obtain an $L$-homomorphism $\psi:M\to R$; then $\varphi(x)=\psi(x)=\psi(r)^2\geq0$. Therefore $\varphi$ maps non-negative elements to non-negative elements, and so is order-preserving. Then $\varphi|_K$ is the map we want. Note that $\varphi(\alpha)=\beta_k$.
+
+  To see uniqueness, let $\tilde\varphi:K\to R$ be an order-preserving $F$-homomorphism; by existence, $\tilde\varphi$ extends to a an order-preserving $K$-homomorphism $\tilde\psi:L\to R$. Then $\tilde\varphi(\alpha)=\tilde\psi(\alpha_k)=\beta_k=\varphi(\alpha)$, and so $\tilde\varphi=\varphi$.
 \end{proof}
 
-\begin{lemma}
-  \label{lem:real_closure_unique}
-  Let $F$ be an ordered field. Then the real closure of $F$ is unique up to $F$-isomorphism.
-\end{lemma}
+Taking $K=F$ above, we see that the order-embedding of a field into its real closure is unique.
+
+\begin{theorem}
+  \label{thm:real_closure_unique}
+  Let $F$ be an ordered field. Then the real closure of $F$ is unique up to unique $F$-isomorphism.
+\end{theorem}
 \begin{proof}
-  Let $K_1$ and $K_2$ be real closures of $F$. Applying Zorn's lemma to the set of ordered extensions intermediate between $K_1$ and $F$ having an ordered $F$-embedding into $K_2$, and using Lemma \ref{lem:closure_emb_ext}, we obtain an intermediate extension $K_1/L/F$ with no nontrivial finite ordered extensions and an $F$-embedding $\varphi:L\to K_2$. Since the ordered algebraic extension induced by $\varphi$ contains an ordered finite extension, $\varphi$ must be an $F$-isomorphism. In particular, $L\subseteq K_1$ is real closed; by maximality (\ref{lem:RCF_max}), in fact $L=K_1$ and so $\varphi$ is an $F$-isomorphism.
+  Let $R_1$ and $R_2$ be real closures of $F$. Applying Zorn's lemma to the set of ordered extensions intermediate between $R_1$ and $F$ having a unique order-preserving $F$-embedding into $R_2$, and using Lemma \ref{lem:closure_emb_ext}, we obtain an intermediate extension $R_1/K/F$ with no nontrivial finite ordered extensions and a unique order-preserving $F$-embedding $\varphi:K\to R_2$. Since the ordered algebraic extension induced by $\varphi$ contains an ordered finite extension, $\varphi$ must be an $F$-isomorphism. In particular, $K\subseteq R_1$ is real closed; by maximality (\ref{lem:RCF_max}), in fact $K=R_1$ and so $\varphi$ is an $F$-isomorphism.
 \end{proof}
+
+\begin{corollary}
+  A real closed field has no nontrivial order-preserving automorphisms.
+\end{corollary}
+
+This uniqueness result is stronger than the one in the algebraically closed case: an algebraically closed field has many nontrivial automorphisms.
+
+\section{The Artin-Schreier Theorem}
 
 We didn't actually need to assume the ordering on $R$ in Lemma \ref{lem:FTAlg_converse}.
 
@@ -380,5 +412,5 @@ We can weaken the hypotheses even further. Here is the full Artin-Schreier theor
   $\Q_\text{alg}$ has a finite index subfield unique up to $\Gal(\Q_{alg}/\Q)$.
 \end{corollary}
 \begin{proof}
-  Any finite-index subfield must be real closed. Let $R$ be a real closed subfield of $\Q_\text{alg}$. Then the ordering on $R$ restricts to an ordering on $\Q$. Now, $R/\Q$ is algebraic, so $R$ is a real closure of $\Q$. Further, the field ordering on $\Q$ is unique. We are done by Lemma \ref{lem:real_closure_unique}.
+  Any finite-index subfield must be real closed. Let $R$ be a real closed subfield of $\Q_\text{alg}$. Then the ordering on $R$ restricts to an ordering on $\Q$. Now, $R/\Q$ is algebraic, so $R$ is a real closure of $\Q$. Further, the field ordering on $\Q$ is unique. We are done by Lemma \ref{thm:real_closure_unique}.
 \end{proof}
