@@ -120,6 +120,7 @@ theorem hasIdealSupport_of_isUnit_2 (isUnit_2 : IsUnit (2 : R)) : HasIdealSuppor
   ring_nf at mem ⊢
   assumption
 
+@[simp]
 theorem support_eq_bot {F : Type*} [Field F] (P : RingPreordering F) :
     AddSubgroup.support P = ⊥ := by
   refine AddSubgroup.ext <| fun x => ⟨fun h => ?_, fun h => by aesop⟩
