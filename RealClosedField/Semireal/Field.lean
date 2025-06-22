@@ -9,6 +9,10 @@ import RealClosedField.RingOrdering.Adjoin
 
 variable {F : Type*} [Field F]
 
+/- TODO : upstream global instance -/
+instance [LinearOrder F] [IsOrderedRing F] : IsStrictOrderedRing F :=
+  IsOrderedRing.toIsStrictOrderedRing F
+
 instance : RingConeClass (RingPreordering F) F where
   eq_zero_of_mem_of_neg_mem {P} {a} ha hna := by
     by_contra
@@ -29,15 +33,35 @@ variable (F) in
 open Classical RingPreordering in
 noncomputable abbrev LinearOrder.mkOfIsSemireal [IsSemireal F] : LinearOrder F :=
   have := (choose_spec <| exists_le_isPrimeOrdering (⊥ : RingPreordering F)).2
-  .mkOfAddGroupCone (choose <| exists_le_isPrimeOrdering ⊥)
+  mkOfRingOrdering_field (choose <| exists_le_isPrimeOrdering ⊥)
 
 lemma IsOrderedRing.mkOfIsSemireal [IsSemireal F] :
     letI _ := LinearOrder.mkOfIsSemireal F
-    IsOrderedRing F := .mkOfCone _
+    IsOrderedRing F := .mkOfRingPreordering _
 
-theorem ArtinSchreier_basic :
-    Nonempty ({O : LinearOrder F // IsOrderedRing F}) ↔ IsSemireal F :=
+theorem Field.nonempty_isOrderedRing_iff_isSemireal :
+    Nonempty ({l : LinearOrder F // IsOrderedRing F}) ↔ IsSemireal F :=
   ⟨fun h => let ⟨_, _⟩ := Classical.choice h
             letI _ := IsOrderedRing.toIsStrictOrderedRing F /- TODO : upstream global instance -/
             inferInstance,
    fun _ => Nonempty.intro ⟨.mkOfIsSemireal _, .mkOfIsSemireal⟩⟩
+
+noncomputable def IsSemireal.unique_isOrderedRing
+    [IsSemireal F] (h : ∀ x : F, IsSumSq x ∨ IsSumSq (-x)) :
+    Unique {l : LinearOrder F // IsOrderedRing F} where
+  default := RingOrdering_LinearOrder_equiv_field ⟨⊥, ⟨by simpa using h⟩⟩
+  uniq := fun ⟨l, hl⟩ => by
+    have : (⊥ : RingPreordering F).IsOrdering := ⟨by simpa using h⟩
+    ext x y
+    suffices x ≤ y ↔ IsSumSq (y - x) by simp [this]
+    refine ⟨fun hxy => ?_, fun hxy => by linarith [IsSumSq.nonneg hxy]⟩
+    · cases h (y - x) with | inl => assumption | inr h =>
+      have : x = y := by linarith [IsSumSq.nonneg h]
+      simp_all
+
+noncomputable abbrev LinearOrderedField.unique_isOrderedRing
+    [LinearOrder F] [IsOrderedRing F] (h : ∀ x : F, x ≥ 0 → IsSumSq x) :
+    Unique {l : LinearOrder F // IsOrderedRing F} := IsSemireal.unique_isOrderedRing <| fun x => by
+  by_cases hx : x ≥ 0
+  · exact Or.inl <| h x hx
+  · exact Or.inr <| h (-x) (by linarith)
