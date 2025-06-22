@@ -19,10 +19,11 @@ instance : RingConeClass (RingPreordering F) F where
 instance (O : RingPreordering F) [O.IsOrdering] : IsMaxCone O where
   mem_or_neg_mem' := RingPreordering.mem_or_neg_mem O
 
-instance IsSemireal.instIsFormallyReal [IsSemireal F] : IsFormallyReal F where
+open Classical in
+instance [IsSemireal F] : IsFormallyReal F where
   eq_zero_of_mul_self_add {a} {s} hs h := by
     by_contra
-    exact one_add_ne_zero (by aesop) (show 1 + s * (a⁻¹ * a⁻¹) = 0 by field_simp [h])
+    exact IsSemireal.one_add_ne_zero (by aesop) (show 1 + s * (a⁻¹ * a⁻¹) = 0 by field_simp [h])
 
 variable (F) in
 open Classical RingPreordering in

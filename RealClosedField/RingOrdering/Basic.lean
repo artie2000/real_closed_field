@@ -146,7 +146,7 @@ lemma mem_of_not_neg_mem (x : R) (h : -x ∉ P) : x ∈ P := by
   have := RingPreordering.mem_or_neg_mem P x
   simp_all
 
-instance IsOrdering.hasIdealSupport : HasIdealSupport P where
+instance : HasIdealSupport P where
   smul_mem_support x a ha := by
     cases RingPreordering.mem_or_neg_mem P x with
     | inl => aesop
@@ -154,13 +154,11 @@ instance IsOrdering.hasIdealSupport : HasIdealSupport P where
 
 end IsOrdering
 
-instance IsPrimeOrdering.support_isPrime [IsPrimeOrdering P] :
-    (Ideal.support P).IsPrime where
+instance [IsPrimeOrdering P] : (Ideal.support P).IsPrime where
   ne_top' h := RingPreordering.minus_one_not_mem P (by aesop : 1 ∈ Ideal.support P).2
-  mem_or_mem' := mem_or_mem
+  mem_or_mem' := IsPrimeOrdering.mem_or_mem
 
-instance IsOrdering.isPrimeOrdering
-    [IsOrdering P] [(Ideal.support P).IsPrime] : IsPrimeOrdering P where
+instance [IsOrdering P] [(Ideal.support P).IsPrime] : IsPrimeOrdering P where
   mem_or_neg_mem := RingPreordering.mem_or_neg_mem P
   mem_or_mem := Ideal.IsPrime.mem_or_mem (by assumption)
 
@@ -332,8 +330,7 @@ theorem comap_comap (P : RingPreordering C) (g : B →+* C) (f : A →+* B) :
     (P.comap g).comap f = P.comap (g.comp f) := rfl
 
 /-- The preimage of an ordering along a ring homomorphism is an ordering. -/
-instance comap.instIsOrdering (P : RingPreordering B) [IsOrdering P] (f : A →+* B) :
-    IsOrdering (comap f P) where
+instance (P : RingPreordering B) [IsOrdering P] (f : A →+* B) : IsOrdering (comap f P) where
   mem_or_neg_mem x := by have := RingPreordering.mem_or_neg_mem P (f x); aesop
 
 @[simp]
@@ -344,7 +341,7 @@ theorem AddSubgroup.mem_comap_support {P : RingPreordering B} {f : A →+* B} {x
 theorem AddSubgroup.comap_support {P : RingPreordering B} {f : A →+* B} :
     support (P.comap f) = (support P).comap f := by ext; simp
 
-instance comap_hasIdealSupport (P : RingPreordering B) [HasIdealSupport P] (f : A →+* B) :
+instance (P : RingPreordering B) [HasIdealSupport P] (f : A →+* B) :
     HasIdealSupport (P.comap f) where
   smul_mem_support x a ha := by have := smul_mem_support P (f x) (by simpa using ha); simp_all
 
@@ -357,7 +354,7 @@ theorem Ideal.comap_support {P : RingPreordering B} [HasIdealSupport P] {f : A �
     support (P.comap f) = (support P).comap f := by ext; simp
 
 /-- The preimage of a prime ordering along a ring homomorphism is a prime ordering. -/
-instance comap.instIsPrimeOrdering (P : RingPreordering B) [IsPrimeOrdering P] (f : A →+* B) :
+instance (P : RingPreordering B) [IsPrimeOrdering P] (f : A →+* B) :
     IsPrimeOrdering (comap f P) := by
   have : (Ideal.support (P.comap f)).IsPrime := by rw [Ideal.comap_support]; infer_instance
   infer_instance
@@ -389,10 +386,8 @@ theorem mem_map {f : A →+* B} {P : RingPreordering A} (hf : Function.Surjectiv
 
 /-- The image of an ordering `P` along a surjective ring homomorphism
   with kernel contained in the support of `P` is an ordering. -/
-instance map.instIsOrdering {f : A →+* B} {P : RingPreordering A} [IsOrdering P]
-    (hf : Function.Surjective f)
-    (hsupp : (RingHom.ker f : Set A) ⊆ AddSubgroup.support P) :
-    IsOrdering (map hf hsupp) where
+instance {f : A →+* B} {P : RingPreordering A} [IsOrdering P] (hf : Function.Surjective f)
+    (hsupp : (RingHom.ker f : Set A) ⊆ AddSubgroup.support P) : IsOrdering (map hf hsupp) where
   mem_or_neg_mem x := by
     obtain ⟨x', rfl⟩ := hf x
     have := RingPreordering.mem_or_neg_mem P x'
@@ -411,8 +406,7 @@ theorem AddSubgroup.map_support {f : A →+* B} {P : RingPreordering A} {hf : Fu
     {hsupp : (RingHom.ker f : Set A) ⊆ support P} :
     support (map hf hsupp) = (support P).map f := by ext; simp
 
-instance {f : A →+* B} {P : RingPreordering A} [HasIdealSupport P]
-    (hf : Function.Surjective f)
+instance {f : A →+* B} {P : RingPreordering A} [HasIdealSupport P] (hf : Function.Surjective f)
     (hsupp : (RingHom.ker f : Set A) ⊆ AddSubgroup.support P) :
     HasIdealSupport <| map hf hsupp where
   smul_mem_support x a ha := by
@@ -437,10 +431,8 @@ theorem Ideal.map_support {f : A →+* B} {P : RingPreordering A} [HasIdealSuppo
 
 /-- The image of a prime ordering `P` along a surjective ring homomorphism
   with kernel contained in the support of `P` is a prime ordering. -/
-instance {f : A →+* B} {P : RingPreordering A} [IsPrimeOrdering P]
-    (hf : Function.Surjective f)
-    (hsupp : RingHom.ker f ≤ Ideal.support P) :
-    IsPrimeOrdering <| map hf hsupp :=
+instance {f : A →+* B} {P : RingPreordering A} [IsPrimeOrdering P] (hf : Function.Surjective f)
+    (hsupp : RingHom.ker f ≤ Ideal.support P) : IsPrimeOrdering <| map hf hsupp :=
   have : (Ideal.support (map hf hsupp)).IsPrime := by
     simpa using Ideal.map_isPrime_of_surjective hf hsupp
   inferInstance
