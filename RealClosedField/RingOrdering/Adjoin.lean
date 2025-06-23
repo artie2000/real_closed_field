@@ -149,3 +149,29 @@ theorem maximal_iff_maximal_isPrimeOrdering {O : RingPreordering R} [IsPrimeOrde
    fun hO P le₁ => by aesop (add safe forward exists_le_isPrimeOrdering,
                                  safe forward le_trans,
                                  safe forward Maximal.eq_of_ge)⟩
+
+/-!
+## Comparison of orderings
+-/
+
+theorem mem_support_of_ge_of_not_mem [IsOrdering P] (Q : RingPreordering R) (h : P ≤ Q)
+    (ha : a ∈ Q) (haP : a ∉ P) : a ∈ AddSubgroup.support Q := by aesop
+
+theorem eq_of_le {P} [IsOrdering P] {Q : RingPreordering R} (hSupp : AddSubgroup.support Q = ⊥)
+    (h : P ≤ Q) : P = Q := by
+  by_contra h2
+  have ⟨x, hx, hx2⟩ : ∃ x, x ∈ Q ∧ x ∉ P :=
+    Set.exists_of_ssubset <| lt_of_le_of_ne h (by simpa using h2)
+  have : 0 ∈ P := by aesop
+  have : -x ∈ Q := by aesop
+  apply_fun (x ∈ ·) at hSupp
+  aesop
+
+theorem eq_of_le_field {F : Type*} [Field F] {P Q : RingPreordering F} [IsOrdering P]
+    (h : P ≤ Q) : P = Q := eq_of_le (by simp) h
+
+/- A preordering on a field `F` is maximal iff it is an ordering. -/
+theorem maximal_iff_isOrdering {F : Type*} [Field F] {O : RingPreordering F} :
+    IsMax O ↔ IsOrdering O :=
+  ⟨fun h => have := isPrimeOrdering_of_maximal h; inferInstance,
+   fun _ _ le => le_of_eq (eq_of_le_field le).symm⟩
