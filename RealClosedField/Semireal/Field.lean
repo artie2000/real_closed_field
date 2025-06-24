@@ -51,7 +51,7 @@ noncomputable def IsSemireal.unique_isOrderedRing
     Unique {l : LinearOrder F // IsOrderedRing F} where
   default := RingOrdering_LinearOrder_equiv_field ⟨⊥, ⟨by simpa using h⟩⟩
   uniq := fun ⟨l, hl⟩ => by
-    have : (⊥ : RingPreordering F).IsOrdering := ⟨by simpa using h⟩
+    generalize_proofs
     ext x y
     suffices x ≤ y ↔ IsSumSq (y - x) by simp [this]
     refine ⟨fun hxy => ?_, fun hxy => by linarith [IsSumSq.nonneg hxy]⟩
