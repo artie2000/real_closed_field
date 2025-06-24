@@ -172,12 +172,15 @@ In other words, a field is real if and only if the sums of squares form a preord
 \begin{corollary}
   \label{cor:unique_ord_Q}
   \uses{def:ordered_field}
+  \lean{Rat.unique_isOrderedRing}
+  \leanok
   There is a unique field ordering on $\Q$.
 \end{corollary}
 \begin{proof}
   \uses{cor:unique_ord_cond_ordered}
+  \leanok
   Let $x\in\Q$ be non-negative. Then $x=p/q$ for some integers $p\geq0$ and $q>0$, so 
-  \[x=\underbrace{\frac{1}{q^2}+\cdots+\frac{1}{q^2}}_{p\text{ times}}\]
+  \[x=\underbrace{\frac{1}{q^2}+\cdots+\frac{1}{q^2}}_{pq\text{ times}}\]
   is a sum of squares. We are done by Lemma \ref{cor:unique_ord_cond_ordered}
 \end{proof}
 

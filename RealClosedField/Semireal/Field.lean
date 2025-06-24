@@ -60,8 +60,16 @@ noncomputable def IsSemireal.unique_isOrderedRing
       simp_all
 
 noncomputable abbrev LinearOrderedField.unique_isOrderedRing
-    [LinearOrder F] [IsOrderedRing F] (h : ∀ x : F, x ≥ 0 → IsSumSq x) :
+    [LinearOrder F] [IsOrderedRing F] (h : ∀ x : F, 0 ≤ x → IsSumSq x) :
     Unique {l : LinearOrder F // IsOrderedRing F} := IsSemireal.unique_isOrderedRing <| fun x => by
-  by_cases hx : x ≥ 0
+  by_cases hx : 0 ≤ x
   · exact Or.inl <| h x hx
   · exact Or.inr <| h (-x) (by linarith)
+
+noncomputable abbrev Rat.unique_isOrderedRing :
+    Unique {l : LinearOrder ℚ // @IsOrderedRing ℚ _ (l.toPartialOrder)} :=
+  LinearOrderedField.unique_isOrderedRing <| fun x hx => by
+    rw [show x = ∑ i ∈ Finset.range (x.num.toNat * x.den), (1 / (x.den : ℚ)) ^ 2 by
+      have : (x * ↑x.den) * ↑x.den = ↑x.num.toNat * ↑x.den := by simp_all; norm_cast; simp_all
+      field_simp; ring_nf at *; assumption]
+    simp
