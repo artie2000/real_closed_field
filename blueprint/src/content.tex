@@ -255,6 +255,8 @@ Observe that, given an extension $L/K$ of ordered fields with total orders $(\le
 \begin{definition}
   \label{def:ordered_ext}
   \uses{def:ordered_field}
+  \lean{OrderedAlgebra}
+  \leanok
   An extension $L/K$ of ordered fields is ordered if the ordering on $L$ restricts to the ordering on $K$.
 \end{definition}
 
@@ -317,6 +319,8 @@ Intuitively, $X$ is infinitesimally close to $a$. When $a=0$, we often write $R(
 \begin{definition}
   \label{def:RCF}
   \uses{def:ordered_field}
+  \lean{IsRealClosed}
+  \leanok
   A real closed field is an ordered field in which every non-negative element is a square and every odd-degree polynomial has a root.
 \end{definition}
 
@@ -519,6 +523,8 @@ In summary, we have proved the following characterisation of real closed fields.
 \begin{definition}
   \label{def:real_closure}
   \uses{def:ordered_ext,def:RCF}
+  \lean{IsRealClosure}
+  \leanok
   Let $F$ be an ordered field. A real closure of $F$ is a real closed ordered algebraic extension of $F$.
 \end{definition}
 
