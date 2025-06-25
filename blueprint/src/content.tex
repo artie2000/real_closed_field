@@ -594,11 +594,13 @@ We can weaken the hypotheses even further. Here is the full Artin-Schreier theor
   Ordered fields have characteristic 0.
 \end{proof}
 
-\begin{corollary}
-  \label{cor:Q_alg_unique_fin_ind}
-  $\Q_\text{alg}$ has a finite-index subfield unique up to $\Gal(\Q_{alg}/\Q)$.
-\end{corollary}
+\begin{theorem}
+  \label{thm:Q_alg_unique_fin_ind}
+  The finite-index subfields of $\bar\Q$ are isomorphic copies of $\R_{\text{alg}}=\bar\Q\cap\R$ indexed by $\Gal(\Q_{alg}/\Q(i))$.
+\end{theorem}
 \begin{proof}
-  \uses{thm:Artin-Schreier,thm:real_closure_unique}
-  Any finite-index subfield must be real closed. Let $R$ be a real closed subfield of $\Q_\text{alg}$. Then the ordering on $R$ restricts to an ordering on $\Q$. Now, $R/\Q$ is algebraic, so $R$ is a real closure of $\Q$. Further, the field ordering on $\Q$ is unique. We are done by Lemma \ref{thm:real_closure_unique}.
+  \uses{thm:Artin-Schreier,thm:real_closure_unique,cor:unique_ord_Q}
+  Since $\R_{\text{alg}}(i)=\bar\Q$, the field $\R_{\text{alg}}$ is a finite-index subfield.
+
+  By Theorem \ref{thm:Artin-Schreier}, any finite-index subfield has a unique ordering making it real closed. Let $R$ be a real closed subfield. Then the ordering on $R$ restricts to the ordering on $\Q$ (unique by Corollary \ref{cor:unique_ord_Q}). Since $R/\Q$ is algebraic, $R$ is a real closure of $\Q$. By Lemma \ref{thm:real_closure_unique}, there is a unique $\Q$-isomorphism $\psi:\R_{\text{alg}}\cong R$. Since $\R_{\text{alg}}(i)=R(i)=\bar\Q$, $\psi$ extends uniquely to $\varphi\in\Gal(\Q_{alg}/\Q(i))$ by mapping $i\to i$. The subfield $R$ is then recovered from $\varphi\in\Gal(\Q_{alg}/\Q(i))$ by taking $\varphi^{-1}(\R_{\text{alg}})$.
 \end{proof}
