@@ -54,7 +54,7 @@ Note that we will only use that this map is well-defined and surjective, and not
   \label{def:ordered_field}
   \lean{IsOrderedRing}
   \leanok
-  An ordered field is a field with a total order on it such that $+$ and $*$ are monotone with respect to the order.
+  An ordered field is a field with a total order on it such that $+$ and $\cdot$ are monotone with respect to the order.
 \end{definition}
 
 `Monotonicity' means that, if $a\leq b$, then $a+c\leq b+c$ and, if in addition $c\geq0$, then $ac\leq bc$.
@@ -63,7 +63,7 @@ Note that we will only use that this map is well-defined and surjective, and not
   \label{def:preordering}
   \lean{RingPreordering}
   \leanok
-  A preordering on a field $F$ is a subsemiring of $F$ containing all squares but not containing $-1$.
+  A preordering on a field $F$ is a subset of $F$ closed under $+$ and $\cdot$ and containing all squares but not containing $-1$.
 \end{definition}
 
 \begin{definition}
