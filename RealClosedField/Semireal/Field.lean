@@ -40,23 +40,22 @@ lemma IsOrderedRing.mkOfIsSemireal [IsSemireal F] :
     IsOrderedRing F := .mkOfRingPreordering _
 
 theorem Field.exists_isOrderedRing_iff_isSemireal :
-    (∃ l : LinearOrder F, IsOrderedRing F) ↔ IsSemireal F :=
+    (∃ _ : LinearOrder F, IsOrderedRing F) ↔ IsSemireal F :=
   ⟨fun ⟨_, _⟩ => inferInstance, fun _ => ⟨.mkOfIsSemireal _, .mkOfIsSemireal⟩⟩
 
 lemma IsSemireal.existsUnique_isOrderedRing
     [IsSemireal F] (h : ∀ x : F, IsSumSq x ∨ IsSumSq (-x)) :
-    ∃! l : LinearOrder F, IsOrderedRing F := by
-  refine ⟨RingOrdering_LinearOrder_equiv_field (F := F) ⟨⊥, ⟨by simpa using h⟩⟩, ?_, fun l hl => ?_⟩
-  · generalize_proofs p
-    exact (RingOrdering_LinearOrder_equiv_field ⟨_, p⟩).property
-  · generalize_proofs
-    have : IsOrderedRing F := hl
+    ∃! _ : LinearOrder F, IsOrderedRing F := by
+  let l := RingOrdering_LinearOrder_equiv_field (F := F) ⟨⊥, ⟨by simpa using h⟩⟩
+  refine ⟨l.val, l.property, fun l' hl' => ?_⟩
+  · simp only [l]
+    generalize_proofs
+    have : IsOrderedRing F := hl' -- for typeclass search
     ext x y
     suffices x ≤ y ↔ IsSumSq (y - x) by simp [this]
     refine ⟨fun hxy => ?_, fun hxy => by linarith [IsSumSq.nonneg hxy]⟩
     · cases h (y - x) with | inl => assumption | inr h =>
-      have : x = y := by linarith [IsSumSq.nonneg h]
-      simp_all
+      simp_all [show x = y by linarith [IsSumSq.nonneg h]]
 
 /- TODO : move to right place -/
 lemma Equiv.Subtype.exists_congr {α β : Type*} {p : α → Prop} {q : β → Prop}
@@ -71,7 +70,7 @@ lemma Equiv.Subtype.existsUnique_congr {α β : Type*} {p : α → Prop} {q : β
 
 open RingPreordering in
 lemma IsSemireal.isSumSq_or_isSumSq_neg [IsSemireal F]
-    (h : ∃! l : LinearOrder F, IsOrderedRing F) :
+    (h : ∃! _ : LinearOrder F, IsOrderedRing F) :
     ∀ x : F, IsSumSq x ∨ IsSumSq (-x) := by
   rw [Equiv.Subtype.existsUnique_congr RingOrdering_LinearOrder_equiv_field.symm] at h
   by_contra! hc
@@ -87,11 +86,11 @@ lemma IsSemireal.isSumSq_or_isSumSq_neg [IsSemireal F]
   exact h.unique inferInstance inferInstance
 
 lemma IsSemireal.existsUnique_isOrderedRing_iff [IsSemireal F] :
-    (∃! l : LinearOrder F, IsOrderedRing F) ↔ ∀ x : F, IsSumSq x ∨ IsSumSq (-x) :=
+    (∃! _ : LinearOrder F, IsOrderedRing F) ↔ ∀ x : F, IsSumSq x ∨ IsSumSq (-x) :=
   ⟨IsSemireal.isSumSq_or_isSumSq_neg, IsSemireal.existsUnique_isOrderedRing⟩
 
 lemma LinearOrderedField.unique_isOrderedRing_iff [LinearOrder F] [IsOrderedRing F] :
-    (∃! l : LinearOrder F, IsOrderedRing F) ↔ ∀ x : F, 0 ≤ x → IsSumSq x := by
+    (∃! _ : LinearOrder F, IsOrderedRing F) ↔ ∀ x : F, 0 ≤ x → IsSumSq x := by
   rw [IsSemireal.existsUnique_isOrderedRing_iff]
   refine ⟨fun h x hx => ?_, fun h x => ?_⟩
   · cases h x with | inl => assumption | inr ssnx =>
