@@ -131,7 +131,7 @@ theorem support_eq_bot {F : Type*} [Field F] (P : RingPreordering F) :
 
 @[aesop unsafe apply]
 protected theorem eq_zero_of_mem_of_neg_mem {F : Type*} [Field F] {P : RingPreordering F}
-    {x} {h : x ∈ P} {h2 : -x ∈ P} : x = 0 := by
+    {x} (h : x ∈ P) (h2 : -x ∈ P) : x = 0 := by
   have : (x ∈ AddSubgroup.support P) ↔ (x ∈ (⊥ : AddSubgroup F)) := by rw [support_eq_bot P]
   simp_all [- support_eq_bot]
 

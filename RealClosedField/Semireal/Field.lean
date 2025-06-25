@@ -39,19 +39,18 @@ lemma IsOrderedRing.mkOfIsSemireal [IsSemireal F] :
     letI _ := LinearOrder.mkOfIsSemireal F
     IsOrderedRing F := .mkOfRingPreordering _
 
-theorem Field.nonempty_isOrderedRing_iff_isSemireal :
-    Nonempty ({l : LinearOrder F // IsOrderedRing F}) ↔ IsSemireal F :=
-  ⟨fun h => let ⟨_, _⟩ := Classical.choice h
-            letI _ := IsOrderedRing.toIsStrictOrderedRing F /- TODO : upstream global instance -/
-            inferInstance,
-   fun _ => Nonempty.intro ⟨.mkOfIsSemireal _, .mkOfIsSemireal⟩⟩
+theorem Field.exists_isOrderedRing_iff_isSemireal :
+    (∃ l : LinearOrder F, IsOrderedRing F) ↔ IsSemireal F :=
+  ⟨fun ⟨_, _⟩ => inferInstance, fun _ => ⟨.mkOfIsSemireal _, .mkOfIsSemireal⟩⟩
 
-noncomputable def IsSemireal.unique_isOrderedRing
+lemma IsSemireal.existsUnique_isOrderedRing
     [IsSemireal F] (h : ∀ x : F, IsSumSq x ∨ IsSumSq (-x)) :
-    Unique {l : LinearOrder F // IsOrderedRing F} where
-  default := RingOrdering_LinearOrder_equiv_field ⟨⊥, ⟨by simpa using h⟩⟩
-  uniq := fun ⟨l, hl⟩ => by
-    generalize_proofs
+    ∃! l : LinearOrder F, IsOrderedRing F := by
+  refine ⟨RingOrdering_LinearOrder_equiv_field (F := F) ⟨⊥, ⟨by simpa using h⟩⟩, ?_, fun l hl => ?_⟩
+  · generalize_proofs p
+    exact (RingOrdering_LinearOrder_equiv_field ⟨_, p⟩).property
+  · generalize_proofs
+    have : IsOrderedRing F := hl
     ext x y
     suffices x ≤ y ↔ IsSumSq (y - x) by simp [this]
     refine ⟨fun hxy => ?_, fun hxy => by linarith [IsSumSq.nonneg hxy]⟩
@@ -59,16 +58,52 @@ noncomputable def IsSemireal.unique_isOrderedRing
       have : x = y := by linarith [IsSumSq.nonneg h]
       simp_all
 
-noncomputable abbrev LinearOrderedField.unique_isOrderedRing
-    [LinearOrder F] [IsOrderedRing F] (h : ∀ x : F, 0 ≤ x → IsSumSq x) :
-    Unique {l : LinearOrder F // IsOrderedRing F} := IsSemireal.unique_isOrderedRing <| fun x => by
-  by_cases hx : 0 ≤ x
-  · exact Or.inl <| h x hx
-  · exact Or.inr <| h (-x) (by linarith)
+/- TODO : move to right place -/
+lemma Equiv.Subtype.exists_congr {α β : Type*} {p : α → Prop} {q : β → Prop}
+    (e : {a // p a} ≃ {b // q b}) : (∃ a, p a) ↔ ∃ b, q b := by
+  simp [← nonempty_subtype, Equiv.nonempty_congr e]
 
-noncomputable abbrev Rat.unique_isOrderedRing :
-    Unique {l : LinearOrder ℚ // @IsOrderedRing ℚ _ (l.toPartialOrder)} :=
-  LinearOrderedField.unique_isOrderedRing <| fun x hx => by
+/- TODO : move to right place -/
+lemma Equiv.Subtype.existsUnique_congr {α β : Type*} {p : α → Prop} {q : β → Prop}
+    (e : {a // p a} ≃ {b // q b}) : (∃! a, p a) ↔ ∃! b, q b := by
+  simp [← unique_subtype_iff_existsUnique, unique_iff_subsingleton_and_nonempty,
+        Equiv.nonempty_congr e, Equiv.subsingleton_congr e]
+
+open RingPreordering in
+lemma IsSemireal.isSumSq_or_isSumSq_neg [IsSemireal F]
+    (h : ∃! l : LinearOrder F, IsOrderedRing F) :
+    ∀ x : F, IsSumSq x ∨ IsSumSq (-x) := by
+  rw [Equiv.Subtype.existsUnique_congr RingOrdering_LinearOrder_equiv_field.symm] at h
+  by_contra! hc
+  rcases hc with ⟨x, hx, hnx⟩
+  have : IsSumSq (0 : F) := by aesop
+  rcases exists_le_isPrimeOrdering <| adjoin (P := ⊥) (a := x) <|
+    minus_one_not_mem_adjoin_linear (by simp_all) with ⟨O₁, hle₁, hO₁⟩
+  rcases exists_le_isPrimeOrdering <| adjoin (P := ⊥) (a := -x) <|
+    minus_one_not_mem_adjoin_linear (by simp_all)  with ⟨O₂, hle₂, hO₂⟩
+  have x_mem : x ∈ O₁ := hle₁ (by aesop)
+  apply show O₁ ≠ O₂ from fun h => show x ≠ 0 by aesop <|
+      RingPreordering.eq_zero_of_mem_of_neg_mem (show x ∈ O₂ by aesop) (hle₂ (by aesop))
+  exact h.unique inferInstance inferInstance
+
+lemma IsSemireal.existsUnique_isOrderedRing_iff [IsSemireal F] :
+    (∃! l : LinearOrder F, IsOrderedRing F) ↔ ∀ x : F, IsSumSq x ∨ IsSumSq (-x) :=
+  ⟨IsSemireal.isSumSq_or_isSumSq_neg, IsSemireal.existsUnique_isOrderedRing⟩
+
+lemma LinearOrderedField.unique_isOrderedRing_iff [LinearOrder F] [IsOrderedRing F] :
+    (∃! l : LinearOrder F, IsOrderedRing F) ↔ ∀ x : F, 0 ≤ x → IsSumSq x := by
+  rw [IsSemireal.existsUnique_isOrderedRing_iff]
+  refine ⟨fun h x hx => ?_, fun h x => ?_⟩
+  · cases h x with | inl => assumption | inr ssnx =>
+    aesop (add norm (show  x = 0 by linarith [IsSumSq.nonneg ssnx]))
+  · by_cases hx : 0 ≤ x
+    · simp [h x hx]
+    · simp [h (-x) (by linarith)]
+
+noncomputable def Rat.unique_isOrderedRing :
+    Unique {l : LinearOrder ℚ // @IsOrderedRing ℚ _ (l.toPartialOrder)} := Classical.choice <| by
+  rw [unique_subtype_iff_existsUnique, LinearOrderedField.unique_isOrderedRing_iff]
+  refine fun x hx => by
     rw [show x = ∑ i ∈ Finset.range (x.num.toNat * x.den), (1 / (x.den : ℚ)) ^ 2 by
       have : (x * ↑x.den) * ↑x.den = ↑x.num.toNat * ↑x.den := by simp_all; norm_cast; simp_all
       field_simp; ring_nf at *; assumption]
