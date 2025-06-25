@@ -496,6 +496,23 @@ Theorem \ref{thm:ord_max_imp_RCF} gives us a way to ``construct'' real closed fi
   Apply Zorn's lemma to obtain a maximal ordered subfield $R\subseteq C$; then $\bar{R}=C$. By Theorem \ref{thm:ord_max_imp_RCF}, $R$ must be real closed. By Theorem \ref{thm:FTAlg}, $C\cong R(i)$, and so $[C:R]=2$.
 \end{proof}
 
+In summary, we have proved the following characterisation of real closed fields.
+
+\begin{theorem}
+  \label{thm:RCF_tfae}
+  \uses{def:RCF,def:ordered_ext}
+  Let $R$ be an ordered field. TFAE:
+  \begin{enumerate}
+    \item $R$ is real closed.
+    \item $\bar{R}=R(i)$.
+    \item $R$ satisfies the intermediate value property for polynomials.
+    \item $R$ is maximal with respect to ordered algebraic extensions.
+  \end{enumerate}
+\end{theorem}
+\begin{proof}
+  \uses{cor:RCF_ac,lem:FTAlg_converse,lem:IVP_poly,thm:IVP_poly_imp_RCF,lem:RCF_max,cor:ord_max_imp_RCF_strong}
+\end{proof}
+
 \section{Real Closures}
 
 \begin{definition}
