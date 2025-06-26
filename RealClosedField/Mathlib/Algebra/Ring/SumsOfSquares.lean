@@ -36,6 +36,8 @@ inductive IsSumSq [Mul R] [Add R] [Zero R] : R → Prop
   | zero                                    : IsSumSq 0
   | sq_add (a : R) {s : R} (hs : IsSumSq s) : IsSumSq (a * a + s)
 
+attribute [simp] IsSumSq.zero
+
 @[deprecated (since := "2024-08-09")] alias isSumSq := IsSumSq
 
 /-- Alternative induction scheme for `IsSumSq` which uses `IsSquare`. -/

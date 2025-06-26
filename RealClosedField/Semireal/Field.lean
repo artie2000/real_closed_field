@@ -75,15 +75,14 @@ lemma IsSemireal.isSumSq_or_isSumSq_neg [IsSemireal F]
   rw [Equiv.Subtype.existsUnique_congr RingOrdering_LinearOrder_equiv_field.symm] at h
   by_contra! hc
   rcases hc with ⟨x, hx, hnx⟩
-  have : IsSumSq (0 : F) := by aesop
   rcases exists_le_isPrimeOrdering <| adjoin (P := ⊥) (a := x) <|
     minus_one_not_mem_adjoin_linear (by simp_all) with ⟨O₁, hle₁, hO₁⟩
   rcases exists_le_isPrimeOrdering <| adjoin (P := ⊥) (a := -x) <|
-    minus_one_not_mem_adjoin_linear (by simp_all)  with ⟨O₂, hle₂, hO₂⟩
+    minus_one_not_mem_adjoin_linear (by simp_all) with ⟨O₂, hle₂, hO₂⟩
   have x_mem : x ∈ O₁ := hle₁ (by aesop)
-  apply show O₁ ≠ O₂ from fun h => show x ≠ 0 by aesop <|
-      RingPreordering.eq_zero_of_mem_of_neg_mem (show x ∈ O₂ by aesop) (hle₂ (by aesop))
-  exact h.unique inferInstance inferInstance
+  exact (show O₁ ≠ O₂ from fun h => show x ≠ 0 by aesop <|
+    RingPreordering.eq_zero_of_mem_of_neg_mem (by simp_all) (hle₂ (by aesop))) <|
+      h.unique inferInstance inferInstance
 
 lemma IsSemireal.existsUnique_isOrderedRing_iff [IsSemireal F] :
     (∃! _ : LinearOrder F, IsOrderedRing F) ↔ ∀ x : F, IsSumSq x ∨ IsSumSq (-x) :=
