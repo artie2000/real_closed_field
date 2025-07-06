@@ -5,7 +5,7 @@ Authors: Florent Schaffhauser, Artie Khovanov
 -/
 import RealClosedField.RingOrdering.Basic
 import Mathlib.Algebra.Order.Ring.Cone
-import Mathlib.RingTheory.Ideal.Quotient.Operations
+import RealClosedField.Prereqs
 
 section upstream
 
@@ -118,7 +118,7 @@ theorem coe_RingOrdering_LinearOrder_equiv_symm_apply
 @[simp]
 theorem mem_RingOrdering_LinearOrder_equiv_symm_apply
     (l : LinearOrder R) (hl : @IsOrderedRing R _ l.toPartialOrder) {x} :
-    x ∈ (RingOrdering_LinearOrder_equiv.symm ⟨l, hl⟩ : Set R) ↔ x ∈ RingCone.nonneg R :=
+    x ∈ (RingOrdering_LinearOrder_equiv.symm ⟨l, hl⟩ : RingPreordering R) ↔ x ∈ RingCone.nonneg R :=
   Iff.rfl
 
 end CommRing
@@ -141,7 +141,7 @@ abbrev LinearOrder.mkOfRingOrdering_field [P.IsOrdering] [DecidablePred (· ∈ 
   .mkOfAddGroupCone (RingCone.mkOfRingPreordering_field P)
 
 open Classical in
-noncomputable def RingOrdering_LinearOrder_equiv_field :
+noncomputable def RingOrdering_IsOrderedRing_equiv_field :
     Equiv {O : RingPreordering F // O.IsOrdering}
           {l : LinearOrder F // IsOrderedRing F} where
   toFun := fun x => RingOrdering_LinearOrder_equiv ⟨x.1, x.2, by simp⟩
@@ -151,25 +151,18 @@ noncomputable def RingOrdering_LinearOrder_equiv_field :
   right_inv := fun ⟨_, _⟩ => by simp
 
 @[simp]
-theorem RingOrdering_LinearOrder_equiv_field_apply [P.IsOrdering] :
-    RingOrdering_LinearOrder_equiv_field ⟨P, inferInstance⟩ =
+theorem RingOrdering_IsOrderedRing_equiv_field_apply [P.IsOrdering] :
+    RingOrdering_IsOrderedRing_equiv_field ⟨P, inferInstance⟩ =
     RingOrdering_LinearOrder_equiv ⟨P, inferInstance, by simp⟩ := by
-  simp [RingOrdering_LinearOrder_equiv_field]
+  simp [RingOrdering_IsOrderedRing_equiv_field]
 
 @[simp]
-theorem RingOrdering_LinearOrder_equiv_field_symm_apply_coe
-    (l : LinearOrder F) (hl : @IsOrderedRing F _ l.toPartialOrder) :
-    (RingOrdering_LinearOrder_equiv_field.symm ⟨l, hl⟩ : RingPreordering F) =
+theorem RingOrdering_IsOrderedRing_equiv_field_symm_apply_coe
+    (l : LinearOrder F) (hl : IsOrderedRing F) :
+    (RingOrdering_IsOrderedRing_equiv_field.symm ⟨l, hl⟩ : RingPreordering F) =
     RingOrdering_LinearOrder_equiv.symm ⟨l, hl⟩ := rfl
 
 end Field
-
-/- TODO : move to the right place -/
-theorem Ideal.coe_map_of_surjective {R S F : Type*} [Semiring R] [Semiring S] [FunLike F R S]
-    [RingHomClass F R S] {f : F} (hf : Function.Surjective f) {I : Ideal R} :
-    map f I = f '' I := by
-  ext y
-  exact mem_map_iff_of_surjective _ hf
 
 abbrev RingCone.mkOfRingPreordering_quot {R : Type*} [CommRing R] (P : RingPreordering R)
     [P.IsOrdering] : RingCone (R ⧸ RingPreordering.Ideal.support P) := by
@@ -179,32 +172,6 @@ abbrev RingCone.mkOfRingPreordering_quot {R : Type*} [CommRing R] (P : RingPreor
       (RingPreordering.Ideal.support P) :=
     Ideal.coe_map_of_surjective Ideal.Quotient.mk_surjective
   simp_all
-
-/- TODO : move to the right place -/
-theorem Quotient.image_mk_eq_lift {α : Type*} {s : Setoid α} (A : Set α)
-    (h : ∀ x y, x ≈ y → (x ∈ A ↔ y ∈ A)) :
-    (Quotient.mk s) '' A = (Quotient.lift (· ∈ A) (by simpa)) := by
-  aesop (add unsafe forward Quotient.exists_rep)
-
-/- TODO : move to the right place -/
-@[to_additive]
-theorem QuotientGroup.mem_iff_mem_of_rel {G S : Type*} [CommGroup G]
-    [SetLike S G] [MulMemClass S G] (H : Subgroup G) {M : S} (hM : (H : Set G) ⊆ M) :
-    ∀ x y, QuotientGroup.leftRel H x y → (x ∈ M ↔ y ∈ M) := fun x y hxy => by
-  rw [QuotientGroup.leftRel_apply] at hxy
-  exact ⟨fun h => by simpa using mul_mem h <| hM hxy,
-        fun h => by simpa using mul_mem h <| hM <| inv_mem hxy⟩
-
-/- TODO : move to the right place -/
-def decidablePred_mem_map_quotient_mk
-    {R S : Type*} [CommRing R] [SetLike S R] [AddMemClass S R] (I : Ideal R)
-    {M : S} (hM : (I : Set R) ⊆ M) [DecidablePred (· ∈ M)] :
-    DecidablePred (· ∈ (Ideal.Quotient.mk I) '' M) := by
-  have : ∀ x y, I.quotientRel x y → (x ∈ M ↔ y ∈ M) :=
-    QuotientAddGroup.mem_iff_mem_of_rel _ (by simpa)
-  rw [show (· ∈ (Ideal.Quotient.mk I) '' _) = (· ∈ (Quotient.mk _) '' _) by rfl,
-      Quotient.image_mk_eq_lift _ this]
-  exact Quotient.lift.decidablePred (· ∈ M) (by simpa)
 
 abbrev PartialOrder.mkOfRingPreordering_quot {R : Type*} [CommRing R]
     (P : RingPreordering R) [P.IsPrimeOrdering] [DecidablePred (· ∈ P)] :

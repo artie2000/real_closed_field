@@ -54,10 +54,8 @@ end Subsemiring
 namespace RingPreordering
 
 variable {P a} in
-def adjoin (h : -1 ∉ Subsemiring.ringPreordering_adjoin P a) : RingPreordering R where
-  __ := Subsemiring.ringPreordering_adjoin P a
-  isSquare_mem' := by aesop
-  minus_one_not_mem' := h
+def adjoin (h : -1 ∉ Subsemiring.ringPreordering_adjoin P a) : RingPreordering R :=
+  .mkOfSubsemiring (Subsemiring.ringPreordering_adjoin P a) (fun _ => by aesop) h
 
 variable {P a} in
 @[aesop unsafe 70% apply (rule_sets := [SetLike])]

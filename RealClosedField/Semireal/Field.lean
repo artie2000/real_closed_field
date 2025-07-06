@@ -9,10 +9,6 @@ import RealClosedField.RingOrdering.Adjoin
 
 variable {F : Type*} [Field F]
 
-/- TODO : upstream global instance -/
-instance [LinearOrder F] [IsOrderedRing F] : IsStrictOrderedRing F :=
-  IsOrderedRing.toIsStrictOrderedRing F
-
 instance : RingConeClass (RingPreordering F) F where
   eq_zero_of_mem_of_neg_mem {P} {a} ha hna := by
     by_contra
@@ -29,24 +25,21 @@ instance [IsSemireal F] : IsFormallyReal F where
     by_contra
     exact IsSemireal.one_add_ne_zero (by aesop) (show 1 + s * (a⁻¹ * a⁻¹) = 0 by field_simp [h])
 
-variable (F) in
 open Classical RingPreordering in
-noncomputable abbrev LinearOrder.mkOfIsSemireal [IsSemireal F] : LinearOrder F :=
-  have := (choose_spec <| exists_le_isPrimeOrdering (⊥ : RingPreordering F)).2
-  mkOfRingOrdering_field (choose <| exists_le_isPrimeOrdering ⊥)
-
-lemma IsOrderedRing.mkOfIsSemireal [IsSemireal F] :
-    letI _ := LinearOrder.mkOfIsSemireal F
-    IsOrderedRing F := .mkOfRingPreordering _
-
 theorem Field.exists_isOrderedRing_iff_isSemireal :
-    (∃ _ : LinearOrder F, IsOrderedRing F) ↔ IsSemireal F :=
-  ⟨fun ⟨_, _⟩ => inferInstance, fun _ => ⟨.mkOfIsSemireal _, .mkOfIsSemireal⟩⟩
+    (∃ _ : LinearOrder F, IsOrderedRing F) ↔ IsSemireal F := by
+  rw [Equiv.Subtype.exists_congr RingOrdering_IsOrderedRing_equiv_field.symm]
+  refine ⟨fun _ => ⟨fun {s} _ h => ?_⟩, fun _ =>
+            letI exO := exists_le_isPrimeOrdering (⊥ : RingPreordering F)
+            letI inst := (choose_spec exO).2
+            ⟨choose exO, inferInstance⟩⟩
+  have : s = -1 := by linear_combination h
+  aesop
 
 lemma IsSemireal.existsUnique_isOrderedRing
     [IsSemireal F] (h : ∀ x : F, IsSumSq x ∨ IsSumSq (-x)) :
     ∃! _ : LinearOrder F, IsOrderedRing F := by
-  let l := RingOrdering_LinearOrder_equiv_field (F := F) ⟨⊥, ⟨by simpa using h⟩⟩
+  let l := RingOrdering_IsOrderedRing_equiv_field (F := F) ⟨⊥, ⟨by simpa using h⟩⟩
   refine ⟨l.val, l.property, fun l' hl' => ?_⟩
   · simp only [l]
     generalize_proofs
@@ -57,28 +50,17 @@ lemma IsSemireal.existsUnique_isOrderedRing
     · cases h (y - x) with | inl => assumption | inr h =>
       simp_all [show x = y by linarith [IsSumSq.nonneg h]]
 
-/- TODO : move to right place -/
-lemma Equiv.Subtype.exists_congr {α β : Type*} {p : α → Prop} {q : β → Prop}
-    (e : {a // p a} ≃ {b // q b}) : (∃ a, p a) ↔ ∃ b, q b := by
-  simp [← nonempty_subtype, Equiv.nonempty_congr e]
-
-/- TODO : move to right place -/
-lemma Equiv.Subtype.existsUnique_congr {α β : Type*} {p : α → Prop} {q : β → Prop}
-    (e : {a // p a} ≃ {b // q b}) : (∃! a, p a) ↔ ∃! b, q b := by
-  simp [← unique_subtype_iff_existsUnique, unique_iff_subsingleton_and_nonempty,
-        Equiv.nonempty_congr e, Equiv.subsingleton_congr e]
-
 open RingPreordering in
 lemma IsSemireal.isSumSq_or_isSumSq_neg [IsSemireal F]
     (h : ∃! _ : LinearOrder F, IsOrderedRing F) :
     ∀ x : F, IsSumSq x ∨ IsSumSq (-x) := by
-  rw [Equiv.Subtype.existsUnique_congr RingOrdering_LinearOrder_equiv_field.symm] at h
+  rw [Equiv.Subtype.existsUnique_congr RingOrdering_IsOrderedRing_equiv_field.symm] at h
   by_contra! hc
   rcases hc with ⟨x, hx, hnx⟩
-  rcases exists_le_isPrimeOrdering <| adjoin (P := ⊥) (a := x) <|
-    minus_one_not_mem_adjoin_linear (by simp_all) with ⟨O₁, hle₁, hO₁⟩
-  rcases exists_le_isPrimeOrdering <| adjoin (P := ⊥) (a := -x) <|
-    minus_one_not_mem_adjoin_linear (by simp_all) with ⟨O₂, hle₂, hO₂⟩
+  rcases exists_le_isPrimeOrdering <| adjoin <| minus_one_not_mem_adjoin_linear
+    (by simp_all : -x ∉ ⊥) with ⟨O₁, hle₁, hO₁⟩
+  rcases exists_le_isPrimeOrdering <| adjoin <| minus_one_not_mem_adjoin_linear
+    (by simp_all : -(-x) ∉ ⊥) with ⟨O₂, hle₂, hO₂⟩
   have x_mem : x ∈ O₁ := hle₁ (by aesop)
   exact (show O₁ ≠ O₂ from fun h => show x ≠ 0 by aesop <|
     RingPreordering.eq_zero_of_mem_of_neg_mem (by simp_all) (hle₂ (by aesop))) <|
