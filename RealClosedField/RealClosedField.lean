@@ -19,9 +19,8 @@ class IsRealClosed (R : Type*) [Field R] [LinearOrder R] [IsOrderedRing R] : Pro
 
 /- A real closure is a real closed ordered algebraic extension. -/
 class IsRealClosure (K R : Type*) [Field K] [Field R] [LinearOrder K] [LinearOrder R]
-    [IsOrderedRing K] [IsOrderedRing R] [OrderedAlgebra K R] where
-  isRealClosed : IsRealClosed K
-  isAlgebraic : Algebra.IsAlgebraic K R
+    [IsOrderedRing K] [IsOrderedRing R] [Algebra K R]
+    extends IsOrderedAlgebra K R, Algebra.IsAlgebraic K R, IsRealClosed K
 
 open Polynomial
 variable {F : Type*} [Field F] [LinearOrder F] [IsOrderedRing F] (f : F[X])

@@ -7,31 +7,6 @@ import RealClosedField.RingOrdering.Basic
 import Mathlib.Algebra.Order.Ring.Cone
 import RealClosedField.Prereqs
 
-section upstream
-
-variable {S G : Type*} [CommGroup G] [SetLike S G] (C : S) [GroupConeClass S G]
-
-/- simp can't see through abbrevs to reduce proj of class mk -/
-
-@[to_additive (attr := simp)] lemma PartialOrder.mkOfGroupCone_toLE :
-    (PartialOrder.mkOfGroupCone C).toLE = { le a b := b / a ∈ C } := rfl
-
-variable {R : Type*} [CommRing R]
-
-@[simp]
-theorem RingCone.mem_mk {carrier : Set R} {a} {b} {c} {d} {e} {x} :
-    x ∈ ({ carrier := carrier, mul_mem' := a, one_mem' := b, add_mem' := c, zero_mem' := d,
-           eq_zero_of_mem_of_neg_mem' := e } : RingCone R) ↔
-    x ∈ carrier := Iff.rfl
-
-@[simp]
-theorem RingCone.coe_set_mk {carrier : Set R} {a} {b} {c} {d} {e} :
-    ({ carrier := carrier, mul_mem' := a, one_mem' := b, add_mem' := c, zero_mem' := d,
-       eq_zero_of_mem_of_neg_mem' := e } : RingCone R) =
-    carrier := rfl
-
-end upstream
-
 section CommRing
 
 variable {R : Type*} [Nontrivial R] [CommRing R] (C : RingCone R) [IsMaxCone C]
@@ -105,8 +80,8 @@ noncomputable def RingOrdering_LinearOrder_equiv :
   right_inv := fun ⟨_, _⟩ => by ext; simp
 
 @[simp]
-theorem RingOrdering_LinearOrder_equiv_apply [P.IsOrdering] :
-    RingOrdering_LinearOrder_equiv ⟨P, inferInstance, hP⟩ = LinearOrder.mkOfRingOrdering hP :=
+theorem RingOrdering_LinearOrder_equiv_apply (hP₂ : P.IsOrdering) :
+    RingOrdering_LinearOrder_equiv ⟨P, hP₂, hP⟩ = LinearOrder.mkOfRingOrdering hP :=
   rfl
 
 @[simp]
@@ -151,9 +126,9 @@ noncomputable def RingOrdering_IsOrderedRing_equiv_field :
   right_inv := fun ⟨_, _⟩ => by simp
 
 @[simp]
-theorem RingOrdering_IsOrderedRing_equiv_field_apply [P.IsOrdering] :
-    RingOrdering_IsOrderedRing_equiv_field ⟨P, inferInstance⟩ =
-    RingOrdering_LinearOrder_equiv ⟨P, inferInstance, by simp⟩ := by
+theorem RingOrdering_IsOrderedRing_equiv_field_apply (hP : P.IsOrdering) :
+    RingOrdering_IsOrderedRing_equiv_field ⟨P, hP⟩ =
+    RingOrdering_LinearOrder_equiv ⟨P, hP, by simp⟩ := by
   simp [RingOrdering_IsOrderedRing_equiv_field]
 
 @[simp]

@@ -8,6 +8,9 @@ import Mathlib.Algebra.Order.Ring.Defs
 import RealClosedField.RingOrdering.Order
 import RealClosedField.RingOrdering.Adjoin
 import RealClosedField.Prereqs
+import Mathlib.RingTheory.Adjoin.Field
+import Mathlib.FieldTheory.KummerPolynomial
+import Mathlib.FieldTheory.KummerExtension
 
 /- An ordered R-algebra is an R-algebra whose algebra map is order-preserving. -/
 class IsOrderedAlgebra (R A : Type*) [CommSemiring R] [Semiring A] [LinearOrder R] [LinearOrder A]
@@ -33,13 +36,13 @@ variable {F K : Type*} [Field F] [LinearOrder F] [IsOrderedRing F] [Field K] [Al
 open Classical in
 open scoped algebraMap in
 noncomputable def RingOrdering_IsOrderedAlgebra_equiv_field :
-    Equiv {O : {O : RingPreordering K // O.IsOrdering} //
-            Subsemiring.map (algebraMap F K) (Subsemiring.nonneg F) ≤ O.1.toSubsemiring}
-          {l : {l : LinearOrder K // IsOrderedRing K} // let ⟨_, _⟩ := l; IsOrderedAlgebra F K} where
-  toFun := fun ⟨⟨O, hO⟩, hO₂⟩ =>
+    Equiv {O : RingPreordering K // O.IsOrdering ∧
+            Subsemiring.map (algebraMap F K) (Subsemiring.nonneg F) ≤ O.toSubsemiring}
+          {l : LinearOrder K // ∃ _ : IsOrderedRing K, IsOrderedAlgebra F K} where
+  toFun := fun ⟨O, hO, hO₂⟩ =>
     letI l := (RingOrdering_IsOrderedRing_equiv_field ⟨O, hO⟩).1
-    letI := (RingOrdering_IsOrderedRing_equiv_field ⟨O, hO⟩).2
-    ⟨RingOrdering_IsOrderedRing_equiv_field ⟨O, hO⟩, ⟨by
+    letI hl := (RingOrdering_IsOrderedRing_equiv_field ⟨O, hO⟩).2
+    ⟨l, ⟨hl, ⟨by
       rw [monotone_iff_map_nonneg]
       intro a ha
       apply_fun (fun s ↦ s.carrier : Subsemiring K → Set K) at hO₂
@@ -47,34 +50,35 @@ noncomputable def RingOrdering_IsOrderedAlgebra_equiv_field :
           Subsemiring.coe_carrier_toSubmonoid, RingPreordering.coe_toSubsemiring, Set.le_eq_subset,
           Set.image_subset_iff] at hO₂
         simpa [l] using hO₂ ha
-      · exact fun _ _ h ↦ h⟩⟩
-  invFun := fun ⟨⟨l, hl⟩, hl₂⟩ => ⟨RingOrdering_IsOrderedRing_equiv_field.symm ⟨l, hl⟩, fun x hx => by
+      · exact fun _ _ h ↦ h⟩⟩⟩
+  invFun := fun ⟨l, hl⟩ =>
+    let O := RingOrdering_IsOrderedRing_equiv_field.symm ⟨l, hl.fst⟩
+    ⟨O, O.property, fun x hx => by
+    rcases hl with ⟨hl, hl₂⟩
     have : ∀ b : F, 0 ≤ b → 0 ≤ (b : K) := fun _ h ↦ by simpa using IsOrderedAlgebra.coe_mono (A := K) h
     aesop⟩
-  left_inv := fun _ => by simp
-  right_inv := fun _ => by simp
+  left_inv := fun ⟨_, _, _⟩ => by ext; simp
+  right_inv := fun _ => by ext; simp
 
 @[simp]
-theorem RingOrdering_IsOrderedAlgebra_equiv_field_apply_coe {O : RingPreordering K} [O.IsOrdering]
-    (hO : Subsemiring.map (algebraMap F K) (Subsemiring.nonneg F) ≤ O.toSubsemiring) :
-    RingOrdering_IsOrderedAlgebra_equiv_field ⟨⟨O, inferInstance⟩, hO⟩ =
-    RingOrdering_IsOrderedRing_equiv_field ⟨O, inferInstance⟩ := rfl
+theorem RingOrdering_IsOrderedAlgebra_equiv_field_apply_coe
+    {O : RingPreordering K} (hO : O.IsOrdering)
+    (hO₂ : Subsemiring.map (algebraMap F K) (Subsemiring.nonneg F) ≤ O.toSubsemiring) :
+    (RingOrdering_IsOrderedAlgebra_equiv_field ⟨O, hO, hO₂⟩ : LinearOrder K) =
+    RingOrdering_IsOrderedRing_equiv_field ⟨O, hO⟩ := rfl
 
 @[simp]
 theorem RingOrdering_IsOrderedAlgebra_equiv_field_symm_apply_coe
     (l : LinearOrder K) (hl : IsOrderedRing K) (hl₂ : IsOrderedAlgebra F K) :
-    RingOrdering_IsOrderedAlgebra_equiv_field.symm ⟨⟨l, hl⟩, hl₂⟩ =
+    (RingOrdering_IsOrderedAlgebra_equiv_field.symm ⟨l, hl, hl₂⟩ : RingPreordering K) =
     RingOrdering_IsOrderedRing_equiv_field.symm ⟨l, hl⟩ := rfl
 
 open Classical Subsemiring in
 theorem Field.exists_isOrderedAlgebra_iff_minus_one_not_mem_sup :
     (∃ l : LinearOrder K, ∃ _ : IsOrderedRing K, IsOrderedAlgebra F K) ↔
     -1 ∉ ((Subsemiring.nonneg F).map (algebraMap F K) ⊔ Subsemiring.sumSq K) := by
-  have : (∃ l : LinearOrder K, ∃ _ : IsOrderedRing K, IsOrderedAlgebra F K) ↔
-         (∃ l : {l : LinearOrder K // IsOrderedRing K}, let ⟨_, _⟩ := l; IsOrderedAlgebra F K) := by
-    simp_all
-  rw [this, Equiv.Subtype.exists_congr RingOrdering_IsOrderedAlgebra_equiv_field.symm]
-  refine ⟨fun ⟨⟨O, hO⟩, hO₂⟩ hc => ?_, fun h => ?_⟩
+  rw [Equiv.Subtype.exists_congr RingOrdering_IsOrderedAlgebra_equiv_field.symm]
+  refine ⟨fun ⟨O, hO, hO₂⟩ hc => ?_, fun h => ?_⟩
   · suffices Subsemiring.map (algebraMap F K) (Subsemiring.nonneg F) ⊔ Subsemiring.sumSq K ≤
              O.toSubsemiring from
       RingPreordering.minus_one_not_mem _ <| this hc
@@ -83,20 +87,12 @@ theorem Field.exists_isOrderedAlgebra_iff_minus_one_not_mem_sup :
   · rcases RingPreordering.exists_le_isPrimeOrdering <| .mkOfSubsemiring
         ((Subsemiring.nonneg F).map (algebraMap F K) ⊔ Subsemiring.sumSq K) (by simp) h with
       ⟨O, hO, hO₂⟩
-    use ⟨O, inferInstance⟩
+    refine ⟨O, ⟨inferInstance, ?_⟩⟩
     intro _ hx
     simpa using hO <| le_sup_left (α := Subsemiring K) hx
 
-/- TODO : move to right place -/
 open scoped Pointwise in
-@[to_additive]
-theorem Submonoid.coe_sup {M : Type*} [CommMonoid M] (s t : Submonoid M) :
-    ↑(s ⊔ t) = (s : Set M) * (t : Set M) := by
-  ext x
-  simp [Submonoid.mem_sup, Set.mem_mul]
-
-open scoped Pointwise in
-theorem sup_closure_rewrite :
+theorem sup_map_nonneg_sumSq_eq_addSubmonoid_closure_set_mul :
     ↑(((Subsemiring.nonneg F).map (algebraMap F K) ⊔ Subsemiring.sumSq K)) =
     (AddSubmonoid.closure <| ((Subsemiring.nonneg F).map (algebraMap F K) : Set K) *
                              (Submonoid.square K : Set K) : Set K) := by
@@ -118,7 +114,7 @@ theorem Field.exists_isOrderedAlgebra_iff_minus_one_not_mem_closure_mul :
     (∃ l : LinearOrder K, ∃ _ : IsOrderedRing K, IsOrderedAlgebra F K) ↔
     -1 ∉ (AddSubmonoid.closure <|
       ((Subsemiring.nonneg F).map (algebraMap F K) : Set K) * (Submonoid.square K : Set K)) := by
-  rw [← SetLike.mem_coe, ← sup_closure_rewrite, SetLike.mem_coe,
+  rw [← SetLike.mem_coe, ← sup_map_nonneg_sumSq_eq_addSubmonoid_closure_set_mul, SetLike.mem_coe,
     Field.exists_isOrderedAlgebra_iff_minus_one_not_mem_sup]
 
 open scoped Pointwise algebraMap in
@@ -139,3 +135,46 @@ theorem Field.exists_isOrderedAlgebra_of_projection
       linarith [map_add π x y]
   intro h
   simpa using not_le_of_gt (hπ 1 (by simp)) (by simpa using ih _ h)
+
+open Polynomial in
+theorem X_sq_sub_C_irreducible_iff_not_isSquare {F : Type*} [Field F] (a : F) :
+    Irreducible (X ^ 2 - C a) ↔ ¬ IsSquare a := by
+  rw [isSquare_iff_exists_sq]
+  have := X_pow_sub_C_irreducible_iff_of_prime Nat.prime_two (a := a)
+  grind
+
+open Polynomial in
+theorem adj_sqrt_ordered {a : F} (ha : 0 ≤ a) (ha₂ : ¬ IsSquare a) :
+    letI K := AdjoinRoot (X ^ 2 - C a)
+    (∃ l : LinearOrder K, ∃ _ : IsOrderedRing K, IsOrderedAlgebra F K) := by
+  have : 0 < a := lt_of_le_of_ne ha (by aesop)
+  rw [← X_sq_sub_C_irreducible_iff_not_isSquare] at ha₂
+  have := Fact.mk ha₂
+  set B := AdjoinRoot.powerBasis <| show X ^ 2 - C a ≠ 0 by apply_fun natDegree; simp
+  have Bdim : B.dim = 2 := by simp [B]
+  have Bgen : B.gen = AdjoinRoot.root (X ^ 2 - C a) := by simp [B]
+  rcases B with ⟨α, n, B, hB⟩
+  simp only at Bdim Bgen
+  revert B
+  rw [Bdim, Bgen]
+  intro B hB
+  refine Field.exists_isOrderedAlgebra_of_projection (Basis.coord B 0) fun x hx => ?_
+  rw [← Basis.sum_repr B x]
+  simp [hB, Algebra.smul_def, -AdjoinRoot.algebraMap_eq]
+  ring_nf
+  have : AdjoinRoot.root (X ^ 2 - C a) ^ 2 - algebraMap F _ a = 0 := by
+      have := AdjoinRoot.eval₂_root (X ^ 2 - C a)
+      simp_all
+  rw [show AdjoinRoot.root (X ^ 2 - C a) ^ 2 = algebraMap F _ a by linear_combination this]
+  simp [-AdjoinRoot.algebraMap_eq, ← Algebra.smul_def, Algebra.algebraMap_eq_smul_one, pow_two]
+  rw [show _ * 2 = (2 : F) • AdjoinRoot.root (X ^ 2 - C a) by rw [mul_comm]; norm_cast; simp,
+      map_smul,
+      show 1 = B 0 by simp [hB],
+      show AdjoinRoot.root (X ^ 2 - C a) = B 1 by simp [hB]]
+  simp [← pow_two]
+  suffices h : B.repr x 0 ≠ 0 ∨ B.repr x 1 ≠ 0 by
+    cases h with
+    | inl h => linear_combination pow_two_pos_of_ne_zero h + a * (sq_nonneg <| B.repr x 1)
+    | inr h => linear_combination (sq_nonneg <| B.repr x 0) + a * (pow_two_pos_of_ne_zero h)
+  by_contra h
+  exact hx <| (Basis.forall_coord_eq_zero_iff B).mp <| fun i => by fin_cases i <;> simp_all

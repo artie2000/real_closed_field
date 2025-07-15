@@ -6,6 +6,7 @@ Authors: Artie Khovanov
 import Mathlib.Algebra.Ring.Subsemiring.Order
 import Mathlib.RingTheory.Henselian
 import Mathlib.RingTheory.Ideal.Quotient.Operations
+import Mathlib.Algebra.Order.Ring.Cone
 
 /- Lemmas that should be upstreamed to Mathlib -/
 
@@ -53,3 +54,29 @@ instance {F : Type*} [Field F] [LinearOrder F] [IsOrderedRing F] : IsStrictOrder
 @[simp]
 lemma Subsemiring.mem_nonneg {R : Type u_2} [Semiring R] [PartialOrder R] [IsOrderedRing R] {x : R} :
   x ∈ nonneg R ↔ x ≥ 0 := Iff.rfl
+
+/- simp can't see through abbrevs to reduce proj of class mk -/
+
+@[to_additive (attr := simp)]
+lemma PartialOrder.mkOfGroupCone_toLE {S G : Type*} [CommGroup G] [SetLike S G]
+    (C : S) [GroupConeClass S G] :
+    (PartialOrder.mkOfGroupCone C).toLE = { le a b := b / a ∈ C } := rfl
+
+@[simp]
+theorem RingCone.mem_mk {R : Type*} [CommRing R] {carrier : Set R} {a} {b} {c} {d} {e} {x} :
+    x ∈ ({ carrier := carrier, mul_mem' := a, one_mem' := b, add_mem' := c, zero_mem' := d,
+           eq_zero_of_mem_of_neg_mem' := e } : RingCone R) ↔
+    x ∈ carrier := Iff.rfl
+
+@[simp]
+theorem RingCone.coe_set_mk {R : Type*} [CommRing R] {carrier : Set R} {a} {b} {c} {d} {e} :
+    ({ carrier := carrier, mul_mem' := a, one_mem' := b, add_mem' := c, zero_mem' := d,
+       eq_zero_of_mem_of_neg_mem' := e } : RingCone R) =
+    carrier := rfl
+
+open scoped Pointwise in
+@[to_additive]
+theorem Submonoid.coe_sup {M : Type*} [CommMonoid M] (s t : Submonoid M) :
+    ↑(s ⊔ t) = (s : Set M) * (t : Set M) := by
+  ext x
+  simp [Submonoid.mem_sup, Set.mem_mul]
