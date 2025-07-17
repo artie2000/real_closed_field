@@ -214,3 +214,4 @@ theorem odd_deg_ordered (h_rank : Odd <| Module.finrank F K) :
   rw [Field.exists_isOrderedAlgebra_iff_minus_one_not_mem_closure_mul]
   induction h : Module.finrank F K using Nat.strong_induction_on generalizing F with | h n ih =>
     intro hc
+    sorry
