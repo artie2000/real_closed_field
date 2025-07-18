@@ -290,7 +290,7 @@ Observe that, given an extension $L/K$ of ordered fields with total orders $(\le
 \end{lemma}
 \begin{proof}
   By the primitive element theorem, $K=F(\alpha)$ for some $\alpha\in K$. Let $f$ be the minimal polynomial of $\alpha$ over $K$; then $\deg f=[K:F]$ is odd. By Lemma \ref{lem:ext_ord_cond}, we need to show that the congruence
-  \[\sum_ia_ig_i^2\equiv-1\bmod f\tag{\star}\]
+  \[\sum_ia_ig_i^2\equiv-1\bmod f\tag{$\star$}\]
   fails to hold for any non-negative $a_i\in F$ and polynomials $g_i\in R[X]$ each of degree at most $\deg f-1$. Proceed by induction on $\deg f$; if $\deg f=1$, then ($\star$) reduces to an equality of a non-negative element of $F$ with a negative one. Otherwise, suppose for a contradiction that ($\star$) holds. Without loss of generality, we may assume, for all $i$, we have $a_i\neq0$ and that $\deg g_i<\deg f$.
   
   Rearranging ($\star$), we have $\sum_ia_ig_i^2+1=hf$ for some $h\in R[X]$. Let $b_i$ be the leading coefficient of $g_i$, and let $d=\max_i\deg g_i$; note that $d<\deg f$ by construction. Since each $a_i$ is positive, the $2d$th coefficient on the left-hand side must be positive. Therefore
