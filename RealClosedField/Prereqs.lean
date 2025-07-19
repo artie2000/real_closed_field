@@ -31,7 +31,7 @@ instance {F : Type*} [Field F] [LinearOrder F] [IsOrderedRing F] : IsStrictOrder
 open scoped Pointwise in
 @[to_additive]
 theorem Submonoid.coe_sup {M : Type*} [CommMonoid M] (s t : Submonoid M) :
-    ↑(s ⊔ t) = (s : Set M) * (t : Set M) := by
+    ↑(s ⊔ t) = (s * t : Set M) := by
   ext x
   simp [Submonoid.mem_sup, Set.mem_mul]
 
