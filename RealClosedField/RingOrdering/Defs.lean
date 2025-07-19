@@ -66,16 +66,14 @@ theorem coe_toSubsemiring {P : RingPreordering R} :
   (P.toSubsemiring : Set R) = P := rfl
 
 @[simp]
-theorem mem_mk {carrier : Set R} {a} {b} {c} {d} {e} {f} {x : R} :
-    x ∈ ({ carrier := carrier, mul_mem' := a, one_mem' := b, add_mem' := c, zero_mem' := d,
-           isSquare_mem' := e,  minus_one_not_mem' := f } : RingPreordering R) ↔
-    x ∈ carrier := Iff.rfl
+theorem mem_mk {toSubsemiring : Subsemiring R}
+    (isSquare_mem) (minus_one_not_mem) {x : R} :
+    x ∈ mk toSubsemiring isSquare_mem minus_one_not_mem ↔ x ∈ toSubsemiring := .rfl
 
 @[simp]
-theorem coe_set_mk {carrier : Set R} {a} {b} {c} {d} {e} {f} :
-    ({ carrier := carrier, mul_mem' := a, one_mem' := b, add_mem' := c, zero_mem' := d,
-       isSquare_mem' := e,  minus_one_not_mem' := f } : RingPreordering R) =
-    carrier := rfl
+theorem coe_set_mk {toSubsemiring : Subsemiring R}
+    (isSquare_mem) (minus_one_not_mem) :
+    (mk toSubsemiring isSquare_mem minus_one_not_mem : Set R) = toSubsemiring := rfl
 
 section copy
 

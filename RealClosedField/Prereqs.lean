@@ -73,12 +73,14 @@ theorem Subsemiring.coe_set_mk {R : Type*} [Ring R] {toSubmonoid : Submonoid R}
     (add_mem) (zero_mem) : (mk toSubmonoid add_mem zero_mem : Set R) = toSubmonoid := rfl
 
 @[simp]
-theorem RingCone.mem_mk {R : Type*} [Ring R] {toSubsemiring : Subsemiring R} (neg_mem) {x : R} :
-    x ∈ mk toSubsemiring neg_mem ↔ x ∈ toSubsemiring := .rfl
+theorem RingCone.mem_mk {R : Type*} [Ring R] {toSubsemiring : Subsemiring R}
+    (eq_zero_of_mem_of_neg_mem) {x : R} :
+    x ∈ mk toSubsemiring eq_zero_of_mem_of_neg_mem ↔ x ∈ toSubsemiring := .rfl
 
 @[simp]
-theorem RingCone.coe_set_mk {R : Type*} [Ring R] {toSubsemiring : Subsemiring R} (neg_mem) :
-    (mk toSubsemiring neg_mem : Set R) = toSubsemiring := rfl
+theorem RingCone.coe_set_mk {R : Type*} [Ring R] {toSubsemiring : Subsemiring R}
+    (eq_zero_of_mem_of_neg_mem) :
+    (mk toSubsemiring eq_zero_of_mem_of_neg_mem : Set R) = toSubsemiring := rfl
 
 open scoped Pointwise in
 @[to_additive]
