@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
 import Mathlib.FieldTheory.KummerPolynomial
-import RealClosedField.RingOrdering.Adjoin
-import RealClosedField.RingOrdering.Order
+import RealClosedField.Algebra.Order.Ring.Ordering.Adjoin
+import RealClosedField.Algebra.Order.Ring.Ordering.Order
 
 /- An ordered R-algebra is an R-algebra whose algebra map is order-preserving. -/
 class IsOrderedAlgebra (R A : Type*) [CommSemiring R] [Semiring A] [LinearOrder R] [LinearOrder A]

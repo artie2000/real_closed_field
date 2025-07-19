@@ -3,9 +3,9 @@ Copyright (c) 2024 Florent Schaffhauser. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Florent Schaffhauser, Artie Khovanov
 -/
-import RealClosedField.RingOrdering.Basic
 import Mathlib.Algebra.Order.Ring.Cone
 import RealClosedField.Prereqs
+import RealClosedField.Algebra.Order.Ring.Ordering.Basic
 
 /-!
 

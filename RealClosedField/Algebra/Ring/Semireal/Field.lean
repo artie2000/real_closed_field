@@ -3,9 +3,9 @@ Copyright (c) 2024 Artie Khovanov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
-import RealClosedField.FormallyReal
-import RealClosedField.RingOrdering.Order
-import RealClosedField.RingOrdering.Adjoin
+import RealClosedField.Algebra.Ring.FormallyReal
+import RealClosedField.Algebra.Order.Ring.Ordering.Order
+import RealClosedField.Algebra.Order.Ring.Ordering.Adjoin
 
 variable {F : Type*} [Field F]
 
