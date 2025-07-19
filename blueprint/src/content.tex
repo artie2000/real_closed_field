@@ -131,7 +131,7 @@ In other words, a field is real if and only if the sums of squares form a preord
 \begin{lemma}
   \label{lem:preord_adj}
   \uses{def:preordering}
-  \lean{RingPreordering.minus_one_not_mem_adjoin_linear}
+  \lean{RingPreordering.neg_one_notMem_adjoin_linear}
   \leanok
   Let $P$ be a preordering on a field $F$, and suppose there is some element $a\in F$ such that $-a\notin P$. Then there is a preordering on $F$ containing $P$ and $a$.
 \end{lemma}
@@ -144,7 +144,7 @@ In other words, a field is real if and only if the sums of squares form a preord
 \begin{lemma}
   \label{lem:max_preord_is_ord}
   \uses{def:ordering}
-  \lean{RingPreordering.isPrimeOrdering_of_maximal}
+  \lean{RingPreordering.isOrdering_of_maximal}
   \leanok
   Maximal field preorderings are orderings.
 \end{lemma}
@@ -157,7 +157,7 @@ In other words, a field is real if and only if the sums of squares form a preord
 \begin{lemma}
   \label{lem:preord_ext}
   \uses{def:ordering}
-  \lean{RingPreordering.exists_le_isPrimeOrdering}
+  \lean{RingPreordering.exists_le_isOrdering}
   \leanok
   Let $P$ be a preordering on a field $F$. Then $P$ is contained in an ordering.
 \end{lemma}

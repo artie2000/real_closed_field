@@ -31,7 +31,7 @@ variable {F K : Type*} [Field F] [LinearOrder F] [IsOrderedRing F] [Field K] [Al
 open Classical in
 open scoped algebraMap in
 noncomputable def RingOrdering_IsOrderedAlgebra_equiv_field :
-    Equiv {O : RingPreordering K // O.IsOrdering ∧
+    Equiv {O : RingPreordering K // HasMemOrNegMem O ∧
             Subsemiring.map (algebraMap F K) (Subsemiring.nonneg F) ≤ O.toSubsemiring}
           {l : LinearOrder K // ∃ _ : IsOrderedRing K, IsOrderedAlgebra F K} where
   toFun := fun ⟨O, hO, hO₂⟩ =>
@@ -57,7 +57,7 @@ noncomputable def RingOrdering_IsOrderedAlgebra_equiv_field :
 
 @[simp]
 theorem RingOrdering_IsOrderedAlgebra_equiv_field_apply_coe
-    {O : RingPreordering K} (hO : O.IsOrdering)
+    {O : RingPreordering K} (hO : HasMemOrNegMem O)
     (hO₂ : Subsemiring.map (algebraMap F K) (Subsemiring.nonneg F) ≤ O.toSubsemiring) :
     (RingOrdering_IsOrderedAlgebra_equiv_field ⟨O, hO, hO₂⟩ : LinearOrder K) =
     RingOrdering_IsOrderedRing_equiv_field ⟨O, hO⟩ := rfl
@@ -69,17 +69,17 @@ theorem RingOrdering_IsOrderedAlgebra_equiv_field_symm_apply_coe
     RingOrdering_IsOrderedRing_equiv_field.symm ⟨l, hl⟩ := rfl
 
 open Classical Subsemiring in
-theorem Field.exists_isOrderedAlgebra_iff_minus_one_not_mem_sup :
+theorem Field.exists_isOrderedAlgebra_iff_neg_one_notMem_sup :
     (∃ l : LinearOrder K, ∃ _ : IsOrderedRing K, IsOrderedAlgebra F K) ↔
     -1 ∉ ((Subsemiring.nonneg F).map (algebraMap F K) ⊔ Subsemiring.sumSq K) := by
   rw [Equiv.Subtype.exists_congr RingOrdering_IsOrderedAlgebra_equiv_field.symm]
   refine ⟨fun ⟨O, hO, hO₂⟩ hc => ?_, fun h => ?_⟩
   · suffices Subsemiring.map (algebraMap F K) (Subsemiring.nonneg F) ⊔ Subsemiring.sumSq K ≤
              O.toSubsemiring from
-      RingPreordering.minus_one_not_mem _ <| this hc
+      RingPreordering.neg_one_notMem _ <| this hc
     rw [sup_le_iff]
     exact ⟨hO₂, fun _ => by aesop⟩
-  · rcases RingPreordering.exists_le_isPrimeOrdering <| .mkOfSubsemiring
+  · rcases RingPreordering.exists_le_isOrdering <| .mkOfSubsemiring
         ((Subsemiring.nonneg F).map (algebraMap F K) ⊔ Subsemiring.sumSq K) (by simp) h with
       ⟨O, hO, hO₂⟩
     refine ⟨O, ⟨inferInstance, ?_⟩⟩
@@ -105,18 +105,18 @@ theorem sup_map_nonneg_sumSq_eq_addSubmonoid_closure_set_mul :
       Subsemiring.coe_toSubmonoid]
 
 open scoped Pointwise in
-theorem Field.exists_isOrderedAlgebra_iff_minus_one_not_mem_closure_mul :
+theorem Field.exists_isOrderedAlgebra_iff_neg_one_notMem_closure_mul :
     (∃ l : LinearOrder K, ∃ _ : IsOrderedRing K, IsOrderedAlgebra F K) ↔
     -1 ∉ (AddSubmonoid.closure <|
       ((Subsemiring.nonneg F).map (algebraMap F K) : Set K) * (Submonoid.square K : Set K)) := by
   rw [← SetLike.mem_coe, ← sup_map_nonneg_sumSq_eq_addSubmonoid_closure_set_mul, SetLike.mem_coe,
-    Field.exists_isOrderedAlgebra_iff_minus_one_not_mem_sup]
+    Field.exists_isOrderedAlgebra_iff_neg_one_notMem_sup]
 
 open scoped Pointwise algebraMap in
 theorem Field.exists_isOrderedAlgebra_of_projection
     (π : K →ₗ[F] F) (hπ : ∀ x, x ≠ 0 → 0 < π (x * x)) :
     (∃ l : LinearOrder K, ∃ _ : IsOrderedRing K, IsOrderedAlgebra F K) := by
-  rw [Field.exists_isOrderedAlgebra_iff_minus_one_not_mem_closure_mul]
+  rw [Field.exists_isOrderedAlgebra_iff_neg_one_notMem_closure_mul]
   have ih : ∀ x ∈ (AddSubmonoid.closure <| ((Subsemiring.nonneg F).map (algebraMap F K) : Set K) *
       (Submonoid.square K : Set K)), 0 ≤ π x := by
     apply AddSubmonoid.closure_induction
@@ -176,7 +176,7 @@ theorem adj_sqrt_ordered {a : F} (ha : 0 ≤ a) (ha₂ : ¬ IsSquare a) :
 
 theorem odd_deg_ordered (h_rank : Odd <| Module.finrank F K) :
     (∃ l : LinearOrder K, ∃ _ : IsOrderedRing K, IsOrderedAlgebra F K) := by
-  rw [Field.exists_isOrderedAlgebra_iff_minus_one_not_mem_closure_mul]
+  rw [Field.exists_isOrderedAlgebra_iff_neg_one_notMem_closure_mul]
   induction h : Module.finrank F K using Nat.strong_induction_on generalizing F with | h n ih =>
     intro hc
     sorry

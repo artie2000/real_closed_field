@@ -98,10 +98,29 @@ theorem AlgEquiv.adjoinRootMinpolyPrimitiveElement_apply {α : E}
 
 end equivAdjoin
 
+-- PR
 attribute [simp, aesop safe] IsSumSq.zero
 
+-- PR
 @[simp, aesop safe]
 theorem IsSumSq.one {R : Type*} [AddZeroClass R] [MulOneClass R] : IsSumSq (1 : R) := by aesop
+
+--PR
+/-- Typeclass for substructures S such that S ∪ -S = G. -/
+class HasMemOrNegMem {S G : Type*} [AddCommGroup G] [SetLike S G] (C : S) : Prop where
+  mem_or_neg_mem (C) (a : G) : a ∈ C ∨ -a ∈ C
+
+--PR
+export HasMemOrNegMem (mem_or_neg_mem)
+
+--PR
+/-- Typeclass for substructures S such that S ∪ S⁻¹ = G. -/
+@[to_additive]
+class HasMemOrInvMem {S G : Type*} [CommGroup G] [SetLike S G] (C : S) : Prop where
+  mem_or_inv_mem (C) (a : G) : a ∈ C ∨ a⁻¹ ∈ C
+
+--PR
+export HasMemOrInvMem (mem_or_inv_mem)
 
 theorem Quotient.image_mk_eq_lift {α : Type*} {s : Setoid α} (A : Set α)
     (h : ∀ x y, x ≈ y → (x ∈ A ↔ y ∈ A)) :

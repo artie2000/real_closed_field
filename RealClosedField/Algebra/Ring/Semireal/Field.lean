@@ -16,8 +16,8 @@ instance : RingConeClass (RingPreordering F) F where
     aesop
 
 /- TODO : decide whether to unify these -/
-instance (O : RingPreordering F) [O.IsOrdering] : IsMaxCone O where
-  mem_or_neg_mem' := RingPreordering.mem_or_neg_mem O
+instance (O : RingPreordering F) [HasMemOrNegMem O] : IsMaxCone O where
+  mem_or_neg_mem' := mem_or_neg_mem O
 
 open Classical in
 instance [IsSemireal F] : IsFormallyReal F where
@@ -29,9 +29,9 @@ open Classical RingPreordering in
 theorem Field.exists_isOrderedRing_iff_isSemireal :
     (∃ _ : LinearOrder F, IsOrderedRing F) ↔ IsSemireal F := by
   rw [Equiv.Subtype.exists_congr RingOrdering_IsOrderedRing_equiv_field.symm]
-  refine ⟨fun ⟨O, hO⟩ => ⟨fun {s} hs h => RingPreordering.minus_one_not_mem O <| mem_of_isSumSq ?_⟩,
+  refine ⟨fun ⟨O, hO⟩ => ⟨fun {s} hs h => RingPreordering.neg_one_notMem O <| mem_of_isSumSq ?_⟩,
           fun _ =>
-            letI exO := exists_le_isPrimeOrdering (⊥ : RingPreordering F)
+            letI exO := exists_le_isOrdering (⊥ : RingPreordering F)
             letI inst := (choose_spec exO).2
             ⟨choose exO, inferInstance⟩⟩
   simp_all [show s = -1 by linear_combination h]
@@ -57,9 +57,9 @@ theorem IsSemireal.isSumSq_or_isSumSq_neg [IsSemireal F]
   rw [Equiv.Subtype.existsUnique_congr RingOrdering_IsOrderedRing_equiv_field.symm] at h
   by_contra! hc
   rcases hc with ⟨x, hx, hnx⟩
-  rcases exists_le_isPrimeOrdering <| adjoin <| minus_one_not_mem_adjoin_linear
+  rcases exists_le_isOrdering <| adjoin <| neg_one_notMem_adjoin_linear
     (by simp_all : -x ∉ ⊥) with ⟨O₁, hle₁, hO₁⟩
-  rcases exists_le_isPrimeOrdering <| adjoin <| minus_one_not_mem_adjoin_linear
+  rcases exists_le_isOrdering <| adjoin <| neg_one_notMem_adjoin_linear
     (by simp_all : -(-x) ∉ ⊥) with ⟨O₂, hle₂, hO₂⟩
   have x_mem : x ∈ O₁ := hle₁ (by aesop)
   exact (show O₁ ≠ O₂ from fun h => show x ≠ 0 by aesop <|
