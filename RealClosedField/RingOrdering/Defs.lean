@@ -10,10 +10,6 @@ import Mathlib.Algebra.Ring.Subsemiring.Basic
 import Mathlib.RingTheory.Ideal.Basic
 import Mathlib.Algebra.Group.Even
 
-/- TODO : remove this once change is merged -/
-attribute [- aesop] mul_mem add_mem
-attribute [aesop unsafe 90% (rule_sets := [SetLike])] mul_mem add_mem
-
 /-!
 ## Preorderings
 -/

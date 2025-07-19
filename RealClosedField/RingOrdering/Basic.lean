@@ -10,10 +10,6 @@ import Mathlib.Algebra.CharP.Two
 import RealClosedField.Mathlib.Algebra.Ring.Semireal.Defs
 import RealClosedField.RingOrdering.Defs
 
-/- TODO : remove this once change is merged -/
-attribute [- aesop] mul_mem add_mem
-attribute [aesop unsafe 90% apply (rule_sets := [SetLike])] mul_mem add_mem
-
 variable {R : Type*} [CommRing R] {P : RingPreordering R}
 
 /-!
@@ -340,7 +336,7 @@ variable {A B C : Type*} [CommRing A] [CommRing B] [CommRing C]
 /-- The preimage of a preordering along a ring homomorphism is a preordering. -/
 def comap (f : A →+* B) (P : RingPreordering B) : RingPreordering A where
   __ := P.toSubsemiring.comap f
-  isSquare_mem' := by aesop (add unsafe apply IsSquare.map) /- TODO : automate -/
+  isSquare_mem' := by aesop (add unsafe apply IsSquare.map) /- TODO : remove add .. once change is merged -/
   minus_one_not_mem' := by aesop
 
 @[simp]

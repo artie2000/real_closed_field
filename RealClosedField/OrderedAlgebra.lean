@@ -3,15 +3,9 @@ Copyright (c) 2025 Artie Khovanov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
-import Mathlib.Algebra.Algebra.Defs
-import Mathlib.Algebra.Order.Ring.Defs
-import RealClosedField.RingOrdering.Order
-import RealClosedField.RingOrdering.Adjoin
-import RealClosedField.Prereqs
-import Mathlib.RingTheory.Adjoin.Field
 import Mathlib.FieldTheory.KummerPolynomial
-import Mathlib.FieldTheory.KummerExtension
-import Mathlib.FieldTheory.Minpoly.IsIntegrallyClosed
+import RealClosedField.RingOrdering.Adjoin
+import RealClosedField.RingOrdering.Order
 
 /- An ordered R-algebra is an R-algebra whose algebra map is order-preserving. -/
 class IsOrderedAlgebra (R A : Type*) [CommSemiring R] [Semiring A] [LinearOrder R] [LinearOrder A]
@@ -99,7 +93,7 @@ theorem sup_map_nonneg_sumSq_eq_addSubmonoid_closure_set_mul :
                              (Submonoid.square K : Set K) : Set K) := by
   rw (occs := .pos [1])
      [← Subsemiring.closure_isSquare,
-      ← Subsemiring.closure_eq <| (Subsemiring.nonneg F).map (algebraMap F K),
+      ← Subsemiring.closure_eq <| Subsemiring.map ..,
       ← Subsemiring.closure_union,
       ← Subsemiring.closure_submonoid_closure,
       ← Submonoid.subsemiringClosure_eq_closure,
@@ -137,41 +131,12 @@ theorem Field.exists_isOrderedAlgebra_of_projection
   intro h
   simpa using not_le_of_gt (hπ 1 (by simp)) (by simpa using ih _ h)
 
-section equivAdjoin
-
-variable {F E : Type*} [Field F] [Field E] [Algebra F E] [FiniteDimensional F E]
-open scoped IntermediateField
-
-lemma Algebra.adjoin_primitiveElement_eq_top {α : E} (hα : F⟮α⟯ = ⊤) :
-    adjoin F {α} = ⊤ := by
-  rw [← IntermediateField.adjoin_simple_toSubalgebra_of_integral (_root_.IsIntegral.of_finite F _),
-      hα, IntermediateField.top_toSubalgebra]
-
-open scoped IntermediateField
-noncomputable def Field.equivAdjoinRootMinpolyPrimitiveElement {α : E} (hα : F⟮α⟯ = ⊤) :
-    AdjoinRoot (minpoly F α) ≃ₐ[F] E :=
-  (minpoly.equivAdjoin <| IsIntegral.of_finite ..).trans <|
-  (Subalgebra.equivOfEq _ _ <| Algebra.adjoin_primitiveElement_eq_top hα).trans
-  Subalgebra.topEquiv
-
-lemma foo {α : E} (hα : F⟮α⟯ = ⊤) :
-    Field.equivAdjoinRootMinpolyPrimitiveElement hα (AdjoinRoot.root _) = α := by
-  rw [Field.equivAdjoinRootMinpolyPrimitiveElement]
-  simp only [AlgEquiv.trans_apply, Subalgebra.equivOfEq_apply,
-    Subalgebra.topEquiv_apply, minpoly.equivAdjoin, AlgEquiv.ofBijective, RingEquiv.ofBijective,
-    Equiv.ofBijective]
-  simp only [RingHom.coe_coe, AlgEquiv.coe_mk, Equiv.coe_fn_mk, AdjoinRoot.Minpoly.toAdjoin_apply']
-  simp
-
-
-end equivAdjoin
-
 open Polynomial in
 theorem X_sq_sub_C_irreducible_iff_not_isSquare {F : Type*} [Field F] (a : F) :
     Irreducible (X ^ 2 - C a) ↔ ¬ IsSquare a := by
   rw [isSquare_iff_exists_sq]
   have := X_pow_sub_C_irreducible_iff_of_prime Nat.prime_two (a := a)
-  grind
+  simp [eq_comm (a := a), this]
 
 open Polynomial in
 theorem adj_sqrt_ordered {a : F} (ha : 0 ≤ a) (ha₂ : ¬ IsSquare a) :
@@ -215,3 +180,5 @@ theorem odd_deg_ordered (h_rank : Odd <| Module.finrank F K) :
   induction h : Module.finrank F K using Nat.strong_induction_on generalizing F with | h n ih =>
     intro hc
     sorry
+
+#min_imports

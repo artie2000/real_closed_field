@@ -3,10 +3,12 @@ Copyright (c) 2025 Artie Khovanov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
-import Mathlib.Algebra.Ring.Subsemiring.Order
-import Mathlib.RingTheory.Henselian
-import Mathlib.RingTheory.Ideal.Quotient.Operations
+import Mathlib.Algebra.Lie.OfAssociative
 import Mathlib.Algebra.Order.Ring.Cone
+import Mathlib.FieldTheory.Minpoly.IsIntegrallyClosed
+import Mathlib.LinearAlgebra.FreeModule.PID
+import Mathlib.RingTheory.DedekindDomain.Dvr
+import Mathlib.RingTheory.Henselian
 
 /- Lemmas that should be upstreamed to Mathlib -/
 
@@ -59,20 +61,24 @@ lemma Subsemiring.mem_nonneg {R : Type u_2} [Semiring R] [PartialOrder R] [IsOrd
 
 @[to_additive (attr := simp)]
 lemma PartialOrder.mkOfGroupCone_toLE {S G : Type*} [CommGroup G] [SetLike S G]
-    (C : S) [GroupConeClass S G] :
-    (PartialOrder.mkOfGroupCone C).toLE = { le a b := b / a ∈ C } := rfl
+    [GroupConeClass S G] (C : S) (a b : G) :
+    (mkOfGroupCone C).le a b ↔ b / a ∈ C := .rfl
 
 @[simp]
-theorem RingCone.mem_mk {R : Type*} [CommRing R] {carrier : Set R} {a} {b} {c} {d} {e} {x} :
-    x ∈ ({ carrier := carrier, mul_mem' := a, one_mem' := b, add_mem' := c, zero_mem' := d,
-           eq_zero_of_mem_of_neg_mem' := e } : RingCone R) ↔
-    x ∈ carrier := Iff.rfl
+theorem Subsemiring.mem_mk {R : Type*} [Ring R] {toSubmonoid : Submonoid R}
+    (add_mem) (zero_mem) {x : R} : x ∈ mk toSubmonoid add_mem zero_mem ↔ x ∈ toSubmonoid := .rfl
 
 @[simp]
-theorem RingCone.coe_set_mk {R : Type*} [CommRing R] {carrier : Set R} {a} {b} {c} {d} {e} :
-    ({ carrier := carrier, mul_mem' := a, one_mem' := b, add_mem' := c, zero_mem' := d,
-       eq_zero_of_mem_of_neg_mem' := e } : RingCone R) =
-    carrier := rfl
+theorem Subsemiring.coe_set_mk {R : Type*} [Ring R] {toSubmonoid : Submonoid R}
+    (add_mem) (zero_mem) : (mk toSubmonoid add_mem zero_mem : Set R) = toSubmonoid := rfl
+
+@[simp]
+theorem RingCone.mem_mk {R : Type*} [Ring R] {toSubsemiring : Subsemiring R} (neg_mem) {x : R} :
+    x ∈ mk toSubsemiring neg_mem ↔ x ∈ toSubsemiring := .rfl
+
+@[simp]
+theorem RingCone.coe_set_mk {R : Type*} [Ring R] {toSubsemiring : Subsemiring R} (neg_mem) :
+    (mk toSubsemiring neg_mem : Set R) = toSubsemiring := rfl
 
 open scoped Pointwise in
 @[to_additive]
@@ -80,3 +86,34 @@ theorem Submonoid.coe_sup {M : Type*} [CommMonoid M] (s t : Submonoid M) :
     ↑(s ⊔ t) = (s : Set M) * (t : Set M) := by
   ext x
   simp [Submonoid.mem_sup, Set.mem_mul]
+
+section equivAdjoin
+
+variable {F E : Type*} [Field F] [Field E] [Algebra F E] [FiniteDimensional F E]
+open scoped IntermediateField
+
+lemma Algebra.adjoin_primitiveElement_eq_top {α : E} (hα : F⟮α⟯ = ⊤) :
+    adjoin F {α} = ⊤ := by
+  rw [← IntermediateField.adjoin_simple_toSubalgebra_of_integral (_root_.IsIntegral.of_finite F _),
+      hα, IntermediateField.top_toSubalgebra]
+
+open scoped IntermediateField
+noncomputable def Field.equivAdjoinRootMinpolyPrimitiveElement {α : E} (hα : F⟮α⟯ = ⊤) :
+    AdjoinRoot (minpoly F α) ≃ₐ[F] E :=
+  (minpoly.equivAdjoin <| IsIntegral.of_finite ..).trans <|
+  (Subalgebra.equivOfEq _ _ <| Algebra.adjoin_primitiveElement_eq_top hα).trans
+  Subalgebra.topEquiv
+
+/- TODO : fix bad simps lemmas to match AdjoinRoot.Minpoly.toAdjoin_apply' -/
+lemma foo {α : E} (hα : F⟮α⟯ = ⊤) :
+    Field.equivAdjoinRootMinpolyPrimitiveElement hα (AdjoinRoot.root _) = α := by
+  rw [Field.equivAdjoinRootMinpolyPrimitiveElement]
+  simp only [AlgEquiv.trans_apply, Subalgebra.equivOfEq_apply,
+    Subalgebra.topEquiv_apply, minpoly.equivAdjoin, AlgEquiv.ofBijective, RingEquiv.ofBijective,
+    Equiv.ofBijective, RingHom.coe_coe, AlgEquiv.coe_mk, Equiv.coe_fn_mk,
+    AdjoinRoot.Minpoly.toAdjoin_apply']
+  simp
+
+end equivAdjoin
+
+#min_imports

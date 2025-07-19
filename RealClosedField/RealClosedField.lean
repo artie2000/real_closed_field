@@ -3,12 +3,7 @@ Copyright (c) 2025 Artie Khovanov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
-import Mathlib.Algebra.EuclideanDomain.Basic
-import Mathlib.Algebra.EuclideanDomain.Field
 import Mathlib.Algebra.Lie.OfAssociative
-import Mathlib.Algebra.Order.AbsoluteValue.Basic
-import Mathlib.RingTheory.Algebraic.Defs
-import Mathlib.RingTheory.Henselian
 import RealClosedField.OrderedAlgebra
 
 /- An ordered field is real closed if every nonegative element is a square and
