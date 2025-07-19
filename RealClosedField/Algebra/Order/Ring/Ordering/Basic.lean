@@ -38,7 +38,7 @@ theorem toSubsemiring_strictMono : StrictMono (toSubsemiring : RingPreordering R
   fun _ _ => id
 
 theorem toSubsemiring_le {P₁ P₂ : RingPreordering R} :
-    P₁.toSubsemiring ≤ P₂.toSubsemiring ↔ P₁ ≤ P₂ := Iff.rfl
+    P₁.toSubsemiring ≤ P₂.toSubsemiring ↔ P₁ ≤ P₂ := .rfl
 
 @[mono]
 theorem toSubsemiring_mono : Monotone (toSubsemiring : RingPreordering R → _) :=
@@ -81,7 +81,7 @@ def mkOfSubsemiring {R : Type*} [CommRing R] (P : Subsemiring R)
 
 @[simp]
 theorem mkOfSubsemiring_toSubsemiring : (mkOfSubsemiring P le minus).toSubsemiring = P := rfl
-@[simp] theorem mem_mkOfSubsemiring {x : R} : x ∈ mkOfSubsemiring P le minus ↔ x ∈ P := Iff.rfl
+@[simp] theorem mem_mkOfSubsemiring {x : R} : x ∈ mkOfSubsemiring P le minus ↔ x ∈ P := .rfl
 @[simp] theorem coe_mkOfSubsemiring {minus} : mkOfSubsemiring P le minus = (P : Set R) := rfl
 
 end mkOfSubsemiring
@@ -104,7 +104,7 @@ def mk' {R : Type*} [CommRing R] (P : Set R)
   zero_mem' := by simpa using sq 0
   one_mem' := by simpa using sq 1
 
-@[simp] theorem mem_mk' {x : R} : x ∈ mk' P add mul sq minus ↔ x ∈ P := Iff.rfl
+@[simp] theorem mem_mk' {x : R} : x ∈ mk' P add mul sq minus ↔ x ∈ P := .rfl
 @[simp, norm_cast] theorem coe_mk' {minus} : mk' P add mul sq minus = P := rfl
 
 end mk'
@@ -229,7 +229,7 @@ instance : Min (RingPreordering R) where
 
 @[simp]
 theorem inf_toSubsemiring : (P₁ ⊓ P₂).toSubsemiring = P₁.toSubsemiring ⊓ P₂.toSubsemiring := rfl
-@[simp] theorem mem_inf {x : R} : x ∈ P₁ ⊓ P₂ ↔ x ∈ P₁ ∧ x ∈ P₂ := Iff.rfl
+@[simp] theorem mem_inf {x : R} : x ∈ P₁ ⊓ P₂ ↔ x ∈ P₁ ∧ x ∈ P₂ := .rfl
 @[simp, norm_cast] theorem coe_inf : ↑(P₁ ⊓ P₂) = (P₁ ∩ P₂ : Set R) := rfl
 
 instance : SemilatticeInf (RingPreordering R) where
@@ -359,7 +359,7 @@ theorem coe_comap (P : RingPreordering B) {f : A →+* B} : (P.comap f : Set A) 
 
 @[simp]
 theorem mem_comap {P : RingPreordering B} {f : A →+* B} {x : A} : x ∈ P.comap f ↔ f x ∈ P :=
-  Iff.rfl
+  .rfl
 
 theorem comap_comap (P : RingPreordering C) (g : B →+* C) (f : A →+* B) :
     (P.comap g).comap f = P.comap (g.comp f) := rfl
@@ -417,7 +417,7 @@ theorem coe_map {f : A →+* B} {P : RingPreordering A} (hf : Function.Surjectiv
 @[simp]
 theorem mem_map {f : A →+* B} {P : RingPreordering A} (hf : Function.Surjective f)
     (hsupp : (RingHom.ker f : Set A) ⊆ AddSubgroup.support P) {y} :
-    y ∈ map hf hsupp ↔ ∃ x ∈ P, f x = y := Iff.rfl
+    y ∈ map hf hsupp ↔ ∃ x ∈ P, f x = y := .rfl
 
 /-- The image of an ordering `P` along a surjective ring homomorphism
   with kernel contained in the support of `P` is an ordering. -/

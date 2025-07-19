@@ -113,7 +113,7 @@ theorem coe_RingOrdering_LinearOrder_equiv_symm_apply
 theorem mem_RingOrdering_LinearOrder_equiv_symm_apply
     (l : LinearOrder R) (hl : @IsOrderedRing R _ l.toPartialOrder) {x} :
     x ∈ (RingOrdering_LinearOrder_equiv.symm ⟨l, hl⟩ : RingPreordering R) ↔ x ∈ RingCone.nonneg R :=
-  Iff.rfl
+  .rfl
 
 end CommRing
 

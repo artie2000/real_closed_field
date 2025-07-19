@@ -38,7 +38,7 @@ theorem Submonoid.coe_sup {M : Type*} [CommMonoid M] (s t : Submonoid M) :
 -- PR
 @[simp]
 lemma Subsemiring.mem_nonneg {R : Type u_2} [Semiring R] [PartialOrder R] [IsOrderedRing R] {x : R} :
-  x ∈ nonneg R ↔ x ≥ 0 := Iff.rfl
+  x ∈ nonneg R ↔ x ≥ 0 := .rfl
 
 -- PR
 @[to_additive (attr := simp)]

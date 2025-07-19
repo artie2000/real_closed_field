@@ -14,17 +14,15 @@ Let `R` be a commutative ring. A preordering on `R` is a subset closed under
 addition and multiplication that contains all squares, but not `-1`. An ordering on `R` is
 a preordering containing either `x` or `-x` for each `x` in `R`.
 
-We define ring preorderings and orderings, as well as their supports.
-The basic properties of these objects are in `Algebra.Order.Ring.Ordering.Basic`.
-
-## Ordering supports
-
 The support of a preordering `P` is the set of elements `x` such that both `x` and `-x` lie in `P`.
 The support of an ordering is always an ideal. A prime ordering is an ordering whose support is
 a prime ideal.
 
-A prime ordering `O` with support `p` induces a linear order on `R⧸p` making it
-into an ordered ring (see `Algebra.Order.Ring.Ordering.Order`).
+We define preorderings, orderings, preordering supports and prime orderings.
+
+A ring preordering can intuitively be viewed as a set of non-negative ring elements.
+Indeed, a prime ordering `O` with support `p` induces a linear order on `R⧸p` making it
+into an ordered ring, and vice versa.
 
 ## References
 
@@ -85,7 +83,7 @@ theorem toSubsemiring_eq {P₁ P₂ : RingPreordering R} :
 
 @[simp]
 theorem mem_toSubsemiring {P : RingPreordering R} {x : R} :
-  x ∈ P.toSubsemiring ↔ x ∈ P := Iff.rfl
+  x ∈ P.toSubsemiring ↔ x ∈ P := .rfl
 
 @[simp]
 theorem coe_toSubsemiring {P : RingPreordering R} :
@@ -142,7 +140,7 @@ def support : AddSubgroup R where
   add_mem' := by aesop
   neg_mem' := by aesop
 
-@[simp] lemma mem_support {x} : x ∈ support P ↔ x ∈ P ∧ -x ∈ P := Iff.rfl
+@[simp] lemma mem_support {x} : x ∈ support P ↔ x ∈ P ∧ -x ∈ P := .rfl
 @[simp, norm_cast] lemma coe_support : support P = {x : R | x ∈ P ∧ -x ∈ P} := rfl
 
 end AddSubgroup
@@ -170,7 +168,7 @@ def support : Ideal R where
   __ := AddSubgroup.support P
   smul_mem' := by simpa using smul_mem_support P
 
-@[simp] lemma mem_support {x} : x ∈ support P ↔ x ∈ P ∧ -x ∈ P := Iff.rfl
+@[simp] lemma mem_support {x} : x ∈ support P ↔ x ∈ P ∧ -x ∈ P := .rfl
 @[simp, norm_cast] lemma coe_support : support P = {x : R | x ∈ P ∧ -x ∈ P} := rfl
 
 @[simp]
