@@ -4,7 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
 import Mathlib.Algebra.Order.Ring.Cone
-import RealClosedField.Mathlib.Algebra.Ring.Semireal.Defs
+import Mathlib.Algebra.Ring.Semireal.Defs
+
+/- TODO : decide on definition / sum stuff -/
 
 class IsFormallyReal (R : Type*) [AddCommMonoid R] [Mul R] : Prop where
   eq_zero_of_mul_self_add {a s : R} (hs : IsSumSq s) (h : a * a + s = 0) : a = 0

@@ -5,9 +5,9 @@ Authors: Artie Khovanov
 -/
 import Mathlib.Algebra.Lie.OfAssociative
 import Mathlib.Algebra.Order.Ring.Cone
-import Mathlib.FieldTheory.Minpoly.IsIntegrallyClosed
-import Mathlib.LinearAlgebra.FreeModule.PID
-import Mathlib.RingTheory.DedekindDomain.Dvr
+import Mathlib.Algebra.Ring.SumsOfSquares
+import Mathlib.FieldTheory.IntermediateField.Adjoin.Algebra
+import Mathlib.RingTheory.Adjoin.Field
 import Mathlib.RingTheory.Henselian
 
 /- Lemmas that should be upstreamed to Mathlib -/
@@ -22,29 +22,6 @@ lemma Equiv.Subtype.existsUnique_congr {α β : Type*} {p : α → Prop} {q : β
     (e : {a // p a} ≃ {b // q b}) : (∃! a, p a) ↔ ∃! b, q b := by
   simp [← unique_subtype_iff_existsUnique, unique_iff_subsingleton_and_nonempty,
         Equiv.nonempty_congr e, Equiv.subsingleton_congr e]
-
-theorem Quotient.image_mk_eq_lift {α : Type*} {s : Setoid α} (A : Set α)
-    (h : ∀ x y, x ≈ y → (x ∈ A ↔ y ∈ A)) :
-    (Quotient.mk s) '' A = (Quotient.lift (· ∈ A) (by simpa)) := by
-  aesop (add unsafe forward Quotient.exists_rep)
-
-@[to_additive]
-theorem QuotientGroup.mem_iff_mem_of_rel {G S : Type*} [CommGroup G]
-    [SetLike S G] [MulMemClass S G] (H : Subgroup G) {M : S} (hM : (H : Set G) ⊆ M) :
-    ∀ x y, QuotientGroup.leftRel H x y → (x ∈ M ↔ y ∈ M) := fun x y hxy => by
-  rw [QuotientGroup.leftRel_apply] at hxy
-  exact ⟨fun h => by simpa using mul_mem h <| hM hxy,
-        fun h => by simpa using mul_mem h <| hM <| inv_mem hxy⟩
-
-def decidablePred_mem_map_quotient_mk
-    {R S : Type*} [CommRing R] [SetLike S R] [AddMemClass S R] (I : Ideal R)
-    {M : S} (hM : (I : Set R) ⊆ M) [DecidablePred (· ∈ M)] :
-    DecidablePred (· ∈ (Ideal.Quotient.mk I) '' M) := by
-  have : ∀ x y, I.quotientRel x y → (x ∈ M ↔ y ∈ M) :=
-    QuotientAddGroup.mem_iff_mem_of_rel _ (by simpa)
-  rw [show (· ∈ (Ideal.Quotient.mk I) '' _) = (· ∈ (Quotient.mk _) '' _) by rfl,
-      Quotient.image_mk_eq_lift _ this]
-  exact Quotient.lift.decidablePred (· ∈ M) (by simpa)
 
 -- PR
 instance {F : Type*} [Field F] [LinearOrder F] [IsOrderedRing F] : IsStrictOrderedRing F :=
@@ -93,31 +70,60 @@ theorem RingCone.coe_set_mk {R : Type*} [Ring R] {toSubsemiring : Subsemiring R}
 
 section equivAdjoin
 
-variable {F E : Type*} [Field F] [Field E] [Algebra F E] [FiniteDimensional F E]
+variable {F E : Type*} [Field F] [Field E] [Algebra F E]
 open scoped IntermediateField
 
-lemma Algebra.adjoin_primitiveElement_eq_top {α : E} (hα : F⟮α⟯ = ⊤) :
-    adjoin F {α} = ⊤ := by
-  rw [← IntermediateField.adjoin_simple_toSubalgebra_of_integral (_root_.IsIntegral.of_finite F _),
-      hα, IntermediateField.top_toSubalgebra]
+-- PR
+lemma Algebra.adjoin_eq_top_of_intermediateField {S : Set E} (hS : ∀ x ∈ S, IsAlgebraic F x)
+    (hS₂ : IntermediateField.adjoin F S = ⊤) : Algebra.adjoin F S = ⊤ := by
+  simp [*, ← IntermediateField.adjoin_algebraic_toSubalgebra hS]
 
-open scoped IntermediateField
-noncomputable def Field.equivAdjoinRootMinpolyPrimitiveElement {α : E} (hα : F⟮α⟯ = ⊤) :
-    AdjoinRoot (minpoly F α) ≃ₐ[F] E :=
-  (minpoly.equivAdjoin <| IsIntegral.of_finite ..).trans <|
-  (Subalgebra.equivOfEq _ _ <| Algebra.adjoin_primitiveElement_eq_top hα).trans
+-- PR
+lemma Algebra.adjoin_eq_top_of_primitive_element {α : E} (hα : IsIntegral F α)
+    (hα₂ : F⟮α⟯ = ⊤) : Algebra.adjoin F {α} = ⊤ :=
+  Algebra.adjoin_eq_top_of_intermediateField (by simpa [isAlgebraic_iff_isIntegral]) hα₂
+
+-- PR
+noncomputable def AlgEquiv.adjoinRootMinpolyPrimitiveElement {α : E}
+    (hα : IsIntegral F α) (hα₂ : F⟮α⟯ = ⊤) : AdjoinRoot (minpoly F α) ≃ₐ[F] E :=
+  (AlgEquiv.adjoinSingletonEquivAdjoinRootMinpoly F α).symm.trans <|
+  (Subalgebra.equivOfEq _ _ <| Algebra.adjoin_eq_top_of_primitive_element hα hα₂).trans
   Subalgebra.topEquiv
 
-/- TODO : fix bad simps lemmas to match AdjoinRoot.Minpoly.toAdjoin_apply' -/
-lemma foo {α : E} (hα : F⟮α⟯ = ⊤) :
-    Field.equivAdjoinRootMinpolyPrimitiveElement hα (AdjoinRoot.root _) = α := by
-  rw [Field.equivAdjoinRootMinpolyPrimitiveElement]
-  simp only [AlgEquiv.trans_apply, Subalgebra.equivOfEq_apply,
-    Subalgebra.topEquiv_apply, minpoly.equivAdjoin, AlgEquiv.ofBijective, RingEquiv.ofBijective,
-    Equiv.ofBijective, RingHom.coe_coe, AlgEquiv.coe_mk, Equiv.coe_fn_mk,
-    AdjoinRoot.Minpoly.toAdjoin_apply']
-  simp
+-- PR
+@[simp]
+theorem AlgEquiv.adjoinRootMinpolyPrimitiveElement_apply {α : E}
+    (hα : IsIntegral F α) (hα₂ : F⟮α⟯ = ⊤) (x) :
+    adjoinRootMinpolyPrimitiveElement hα hα₂ x = AdjoinRoot.Minpoly.toAdjoin F α x := rfl
 
 end equivAdjoin
+
+attribute [simp, aesop safe] IsSumSq.zero
+
+@[simp, aesop safe]
+theorem IsSumSq.one {R : Type*} [AddZeroClass R] [MulOneClass R] : IsSumSq (1 : R) := by aesop
+
+theorem Quotient.image_mk_eq_lift {α : Type*} {s : Setoid α} (A : Set α)
+    (h : ∀ x y, x ≈ y → (x ∈ A ↔ y ∈ A)) :
+    (Quotient.mk s) '' A = (Quotient.lift (· ∈ A) (by simpa)) := by
+  aesop (add unsafe forward Quotient.exists_rep)
+
+@[to_additive]
+theorem QuotientGroup.mem_iff_mem_of_rel {G S : Type*} [CommGroup G]
+    [SetLike S G] [MulMemClass S G] (H : Subgroup G) {M : S} (hM : (H : Set G) ⊆ M) :
+    ∀ x y, QuotientGroup.leftRel H x y → (x ∈ M ↔ y ∈ M) := fun x y hxy => by
+  rw [QuotientGroup.leftRel_apply] at hxy
+  exact ⟨fun h => by simpa using mul_mem h <| hM hxy,
+        fun h => by simpa using mul_mem h <| hM <| inv_mem hxy⟩
+
+def decidablePred_mem_map_quotient_mk
+    {R S : Type*} [CommRing R] [SetLike S R] [AddMemClass S R] (I : Ideal R)
+    {M : S} (hM : (I : Set R) ⊆ M) [DecidablePred (· ∈ M)] :
+    DecidablePred (· ∈ (Ideal.Quotient.mk I) '' M) := by
+  have : ∀ x y, I.quotientRel x y → (x ∈ M ↔ y ∈ M) :=
+    QuotientAddGroup.mem_iff_mem_of_rel _ (by simpa)
+  rw [show (· ∈ (Ideal.Quotient.mk I) '' _) = (· ∈ (Quotient.mk _) '' _) by rfl,
+      Quotient.image_mk_eq_lift _ this]
+  exact Quotient.lift.decidablePred (· ∈ M) (by simpa)
 
 #min_imports

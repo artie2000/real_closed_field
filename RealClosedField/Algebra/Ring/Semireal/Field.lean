@@ -29,12 +29,12 @@ open Classical RingPreordering in
 theorem Field.exists_isOrderedRing_iff_isSemireal :
     (∃ _ : LinearOrder F, IsOrderedRing F) ↔ IsSemireal F := by
   rw [Equiv.Subtype.exists_congr RingOrdering_IsOrderedRing_equiv_field.symm]
-  refine ⟨fun _ => ⟨fun {s} _ h => ?_⟩, fun _ =>
+  refine ⟨fun ⟨O, hO⟩ => ⟨fun {s} hs h => RingPreordering.minus_one_not_mem O <| mem_of_isSumSq ?_⟩,
+          fun _ =>
             letI exO := exists_le_isPrimeOrdering (⊥ : RingPreordering F)
             letI inst := (choose_spec exO).2
             ⟨choose exO, inferInstance⟩⟩
-  have : s = -1 := by linear_combination h
-  aesop
+  simp_all [show s = -1 by linear_combination h]
 
 lemma IsSemireal.existsUnique_isOrderedRing
     [IsSemireal F] (h : ∀ x : F, IsSumSq x ∨ IsSumSq (-x)) :

@@ -7,7 +7,7 @@ import Mathlib.RingTheory.Ideal.Maps
 import Mathlib.Tactic.LinearCombination
 import Mathlib.Tactic.FieldSimp
 import Mathlib.Algebra.CharP.Two
-import RealClosedField.Mathlib.Algebra.Ring.Semireal.Defs
+import Mathlib.Algebra.Ring.Semireal.Defs
 import RealClosedField.Algebra.Order.Ring.Ordering.Defs
 
 /-!
@@ -62,7 +62,7 @@ theorem Field.inv_mem {F : Type*} [Field F] {P : RingPreordering F} {a : F} (ha 
   rw [show a⁻¹ = a * (a⁻¹ * a⁻¹) by field_simp]
   aesop
 
-@[simp]
+@[aesop unsafe 80% apply (rule_sets := [SetLike])]
 theorem mem_of_isSumSq {x : R} (hx : IsSumSq x) : x ∈ P := by
   induction hx using IsSumSq.rec' <;> aesop
 
@@ -292,7 +292,7 @@ instance : Bot (RingPreordering R) where
 
 instance : OrderBot (RingPreordering R) where
   bot := ⊥
-  bot_le a ha := by simp_all
+  bot_le P a := by aesop
 
 end Bot
 
