@@ -56,12 +56,12 @@ def sumSq : RingCone T where
   eq_zero_of_mem_of_neg_mem' {x} hx hnx :=
     IsFormallyReal.eq_zero_of_add_left (by simpa using hx) (by simpa using hnx) (add_neg_cancel x)
 
-@[simp] lemma sumSq_toSubsemiring : (sumSq T).toSubsemiring = .sumSq T := rfl
+@[simp] theorem sumSq_toSubsemiring : (sumSq T).toSubsemiring = .sumSq T := rfl
 
-@[simp] lemma mem_sumSq {a : T} : a ∈ sumSq T ↔ IsSumSq a :=
+@[simp] theorem mem_sumSq {a : T} : a ∈ sumSq T ↔ IsSumSq a :=
   show a ∈ Subsemiring.sumSq T ↔ IsSumSq a by simp
 
-@[simp, norm_cast] lemma coe_sumSq : sumSq T = {x : T | IsSumSq x} :=
+@[simp, norm_cast] theorem coe_sumSq : sumSq T = {x : T | IsSumSq x} :=
   show Subsemiring.sumSq T = {x : T | IsSumSq x} by simp
 
 end RingCone

@@ -45,15 +45,15 @@ def ringPreordering_adjoin : Subsemiring R where
 
 variable {P} in
 @[aesop unsafe 70% apply (rule_sets := [SetLike])]
-lemma mem_ringPreordering_adjoin_of_mem {x : R} (hx : x ∈ P) :
+theorem mem_ringPreordering_adjoin_of_mem {x : R} (hx : x ∈ P) :
     x ∈ ringPreordering_adjoin P a := ⟨x, by aesop, 0, by aesop, by simp⟩
 
 @[aesop safe apply (rule_sets := [SetLike])]
-lemma mem_ringPreordering_adjoin : a ∈ ringPreordering_adjoin P a :=
+theorem mem_ringPreordering_adjoin : a ∈ ringPreordering_adjoin P a :=
   ⟨0, by aesop, 1, by aesop, by simp⟩
 
 @[aesop unsafe 50% apply (rule_sets := [SetLike])]
-lemma isSquare_mem_ringPreordering_adjoin {x : R} (hx : IsSquare x) :
+theorem isSquare_mem_ringPreordering_adjoin {x : R} (hx : IsSquare x) :
     x ∈ ringPreordering_adjoin P a :=
   by simpa using mem_ringPreordering_adjoin_of_mem a (by aesop)
 
@@ -71,16 +71,16 @@ def adjoin (h : -1 ∉ Subsemiring.ringPreordering_adjoin P a) : RingPreordering
 
 variable {P a} in
 @[aesop unsafe 70% apply (rule_sets := [SetLike])]
-lemma subset_adjoin' (h : -1 ∉ Subsemiring.ringPreordering_adjoin P a) {x : R} (hx : x ∈ P) :
+theorem subset_adjoin' (h : -1 ∉ Subsemiring.ringPreordering_adjoin P a) {x : R} (hx : x ∈ P) :
     x ∈ adjoin h := Subsemiring.mem_ringPreordering_adjoin_of_mem a hx
 
 variable {P a} in
-lemma subset_adjoin (h : -1 ∉ Subsemiring.ringPreordering_adjoin P a) : (P : Set R) ⊆ adjoin h :=
+theorem subset_adjoin (h : -1 ∉ Subsemiring.ringPreordering_adjoin P a) : (P : Set R) ⊆ adjoin h :=
   fun _ => by aesop
 
 variable {P a} in
 @[aesop safe 0 apply (rule_sets := [SetLike])]
-lemma mem_adjoin (h : -1 ∉ Subsemiring.ringPreordering_adjoin P a) : a ∈ adjoin h :=
+theorem mem_adjoin (h : -1 ∉ Subsemiring.ringPreordering_adjoin P a) : a ∈ adjoin h :=
   Subsemiring.mem_ringPreordering_adjoin P a
 
 /-

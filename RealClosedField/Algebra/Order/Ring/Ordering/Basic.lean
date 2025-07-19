@@ -45,11 +45,11 @@ theorem toSubsemiring_mono : Monotone (toSubsemiring : RingPreordering R → _) 
   toSubsemiring_strictMono.monotone
 
 @[aesop unsafe 80% (rule_sets := [SetLike])]
-lemma neg_mul_mem_of_mem {x y : R} (hx : x ∈ P) (hy : -y ∈ P) : -(x * y) ∈ P := by
+theorem neg_mul_mem_of_mem {x y : R} (hx : x ∈ P) (hy : -y ∈ P) : -(x * y) ∈ P := by
   simpa using mul_mem hx hy
 
 @[aesop unsafe 80% (rule_sets := [SetLike])]
-lemma neg_mul_mem_of_neg_mem {x y : R} (hx : -x ∈ P) (hy : y ∈ P) : -(x * y) ∈ P := by
+theorem neg_mul_mem_of_neg_mem {x y : R} (hx : -x ∈ P) (hy : y ∈ P) : -(x * y) ∈ P := by
   simpa using mul_mem hx hy
 
 @[aesop unsafe 90% apply (rule_sets := [SetLike])]
@@ -174,12 +174,12 @@ section IsOrdering
 variable [IsOrdering P]
 
 @[aesop unsafe 70% apply]
-lemma neg_mem_of_not_mem (x : R) (h : x ∉ P) : -x ∈ P := by
+theorem neg_mem_of_not_mem (x : R) (h : x ∉ P) : -x ∈ P := by
   have := RingPreordering.mem_or_neg_mem P x
   simp_all
 
 @[aesop unsafe 70% apply]
-lemma mem_of_not_neg_mem (x : R) (h : -x ∉ P) : x ∈ P := by
+theorem mem_of_not_neg_mem (x : R) (h : -x ∉ P) : x ∈ P := by
   have := RingPreordering.mem_or_neg_mem P x
   simp_all
 
@@ -283,12 +283,12 @@ instance : Bot (RingPreordering R) where
   bot := .mkOfSubsemiring (Subsemiring.sumSq R) (by aesop)
     (by simpa using IsSemireal.not_isSumSq_neg_one)
 
-@[simp] lemma bot_toSubsemiring : (⊥ : RingPreordering R).toSubsemiring = .sumSq R := rfl
+@[simp] theorem bot_toSubsemiring : (⊥ : RingPreordering R).toSubsemiring = .sumSq R := rfl
 
-@[simp] lemma mem_bot {a} : a ∈ (⊥ : RingPreordering R) ↔ IsSumSq a :=
+@[simp] theorem mem_bot {a} : a ∈ (⊥ : RingPreordering R) ↔ IsSumSq a :=
   show a ∈ Subsemiring.sumSq R ↔ IsSumSq a by simp
 
-@[simp, norm_cast] lemma coe_bot : (⊥ : RingPreordering R) = {x : R | IsSumSq x} :=
+@[simp, norm_cast] theorem coe_bot : (⊥ : RingPreordering R) = {x : R | IsSumSq x} :=
   show Subsemiring.sumSq R = {x : R | IsSumSq x} by simp
 
 instance : OrderBot (RingPreordering R) where

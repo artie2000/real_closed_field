@@ -13,12 +13,12 @@ import Mathlib.RingTheory.Henselian
 /- Lemmas that should be upstreamed to Mathlib -/
 
 -- PR
-lemma Equiv.Subtype.exists_congr {α β : Type*} {p : α → Prop} {q : β → Prop}
+theorem Equiv.Subtype.exists_congr {α β : Type*} {p : α → Prop} {q : β → Prop}
     (e : {a // p a} ≃ {b // q b}) : (∃ a, p a) ↔ ∃ b, q b := by
   simp [← nonempty_subtype, Equiv.nonempty_congr e]
 
 -- PR
-lemma Equiv.Subtype.existsUnique_congr {α β : Type*} {p : α → Prop} {q : β → Prop}
+theorem Equiv.Subtype.existsUnique_congr {α β : Type*} {p : α → Prop} {q : β → Prop}
     (e : {a // p a} ≃ {b // q b}) : (∃! a, p a) ↔ ∃! b, q b := by
   simp [← unique_subtype_iff_existsUnique, unique_iff_subsingleton_and_nonempty,
         Equiv.nonempty_congr e, Equiv.subsingleton_congr e]
@@ -37,12 +37,12 @@ theorem Submonoid.coe_sup {M : Type*} [CommMonoid M] (s t : Submonoid M) :
 
 -- PR
 @[simp]
-lemma Subsemiring.mem_nonneg {R : Type u_2} [Semiring R] [PartialOrder R] [IsOrderedRing R] {x : R} :
+theorem Subsemiring.mem_nonneg {R : Type u_2} [Semiring R] [PartialOrder R] [IsOrderedRing R] {x : R} :
   x ∈ nonneg R ↔ x ≥ 0 := .rfl
 
 -- PR
 @[to_additive (attr := simp)]
-lemma PartialOrder.mkOfGroupCone_toLE {S G : Type*} [CommGroup G] [SetLike S G]
+theorem PartialOrder.mkOfGroupCone_toLE {S G : Type*} [CommGroup G] [SetLike S G]
     [GroupConeClass S G] (C : S) (a b : G) :
     (mkOfGroupCone C).le a b ↔ b / a ∈ C := .rfl
 
@@ -74,12 +74,12 @@ variable {F E : Type*} [Field F] [Field E] [Algebra F E]
 open scoped IntermediateField
 
 -- PR
-lemma Algebra.adjoin_eq_top_of_intermediateField {S : Set E} (hS : ∀ x ∈ S, IsAlgebraic F x)
+theorem Algebra.adjoin_eq_top_of_intermediateField {S : Set E} (hS : ∀ x ∈ S, IsAlgebraic F x)
     (hS₂ : IntermediateField.adjoin F S = ⊤) : Algebra.adjoin F S = ⊤ := by
   simp [*, ← IntermediateField.adjoin_algebraic_toSubalgebra hS]
 
 -- PR
-lemma Algebra.adjoin_eq_top_of_primitive_element {α : E} (hα : IsIntegral F α)
+theorem Algebra.adjoin_eq_top_of_primitive_element {α : E} (hα : IsIntegral F α)
     (hα₂ : F⟮α⟯ = ⊤) : Algebra.adjoin F {α} = ⊤ :=
   Algebra.adjoin_eq_top_of_intermediateField (by simpa [isAlgebraic_iff_isIntegral]) hα₂
 

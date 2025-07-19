@@ -36,7 +36,7 @@ theorem Field.exists_isOrderedRing_iff_isSemireal :
             ⟨choose exO, inferInstance⟩⟩
   simp_all [show s = -1 by linear_combination h]
 
-lemma IsSemireal.existsUnique_isOrderedRing
+theorem IsSemireal.existsUnique_isOrderedRing
     [IsSemireal F] (h : ∀ x : F, IsSumSq x ∨ IsSumSq (-x)) :
     ∃! _ : LinearOrder F, IsOrderedRing F := by
   let l := RingOrdering_IsOrderedRing_equiv_field (F := F) ⟨⊥, ⟨by simpa using h⟩⟩
@@ -51,7 +51,7 @@ lemma IsSemireal.existsUnique_isOrderedRing
       simp_all [show x = y by linarith [IsSumSq.nonneg h]]
 
 open RingPreordering in
-lemma IsSemireal.isSumSq_or_isSumSq_neg [IsSemireal F]
+theorem IsSemireal.isSumSq_or_isSumSq_neg [IsSemireal F]
     (h : ∃! _ : LinearOrder F, IsOrderedRing F) :
     ∀ x : F, IsSumSq x ∨ IsSumSq (-x) := by
   rw [Equiv.Subtype.existsUnique_congr RingOrdering_IsOrderedRing_equiv_field.symm] at h
@@ -66,11 +66,11 @@ lemma IsSemireal.isSumSq_or_isSumSq_neg [IsSemireal F]
     RingPreordering.eq_zero_of_mem_of_neg_mem (by simp_all) (hle₂ (by aesop))) <|
       h.unique inferInstance inferInstance
 
-lemma IsSemireal.existsUnique_isOrderedRing_iff [IsSemireal F] :
+theorem IsSemireal.existsUnique_isOrderedRing_iff [IsSemireal F] :
     (∃! _ : LinearOrder F, IsOrderedRing F) ↔ ∀ x : F, IsSumSq x ∨ IsSumSq (-x) :=
   ⟨IsSemireal.isSumSq_or_isSumSq_neg, IsSemireal.existsUnique_isOrderedRing⟩
 
-lemma LinearOrderedField.unique_isOrderedRing_iff [LinearOrder F] [IsOrderedRing F] :
+theorem LinearOrderedField.unique_isOrderedRing_iff [LinearOrder F] [IsOrderedRing F] :
     (∃! _ : LinearOrder F, IsOrderedRing F) ↔ ∀ x : F, 0 ≤ x → IsSumSq x := by
   rw [IsSemireal.existsUnique_isOrderedRing_iff]
   refine ⟨fun h x hx => ?_, fun h x => ?_⟩

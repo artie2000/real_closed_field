@@ -20,7 +20,7 @@ a prime ideal.
 
 We define preorderings, orderings, preordering supports and prime orderings.
 
-A ring preordering can intuitively be viewed as a set of non-negative ring elements.
+A ring preordering can intuitively be viewed as a set of "non-negative" ring elements.
 Indeed, a prime ordering `O` with support `p` induces a linear order on `R⧸p` making it
 into an ordered ring, and vice versa.
 
@@ -140,8 +140,8 @@ def support : AddSubgroup R where
   add_mem' := by aesop
   neg_mem' := by aesop
 
-@[simp] lemma mem_support {x} : x ∈ support P ↔ x ∈ P ∧ -x ∈ P := .rfl
-@[simp, norm_cast] lemma coe_support : support P = {x : R | x ∈ P ∧ -x ∈ P} := rfl
+@[simp] theorem mem_support {x} : x ∈ support P ↔ x ∈ P ∧ -x ∈ P := .rfl
+@[simp, norm_cast] theorem coe_support : support P = {x : R | x ∈ P ∧ -x ∈ P} := rfl
 
 end AddSubgroup
 
@@ -168,11 +168,11 @@ def support : Ideal R where
   __ := AddSubgroup.support P
   smul_mem' := by simpa using smul_mem_support P
 
-@[simp] lemma mem_support {x} : x ∈ support P ↔ x ∈ P ∧ -x ∈ P := .rfl
-@[simp, norm_cast] lemma coe_support : support P = {x : R | x ∈ P ∧ -x ∈ P} := rfl
+@[simp] theorem mem_support {x} : x ∈ support P ↔ x ∈ P ∧ -x ∈ P := .rfl
+@[simp, norm_cast] theorem coe_support : support P = {x : R | x ∈ P ∧ -x ∈ P} := rfl
 
 @[simp]
-lemma support_toAddSubgroup : (support P).toAddSubgroup = AddSubgroup.support P := by ext; simp
+theorem support_toAddSubgroup : (support P).toAddSubgroup = AddSubgroup.support P := by ext; simp
 
 end Ideal
 
@@ -186,7 +186,7 @@ class IsOrdering (P : RingPreordering R) : Prop where
   protected mem_or_neg_mem (P) (x : R) : x ∈ P ∨ -x ∈ P
 
 /- protected to avoid conflict with the `AddGroupCone` version -/
-protected lemma mem_or_neg_mem (P : RingPreordering R) [IsOrdering P] : ∀ x, x ∈ P ∨ -x ∈ P :=
+protected theorem mem_or_neg_mem (P : RingPreordering R) [IsOrdering P] : ∀ x, x ∈ P ∨ -x ∈ P :=
   IsOrdering.mem_or_neg_mem P
 
 /-- A prime ordering `P` on a ring `R` is an ordering whose support is a prime ideal. -/

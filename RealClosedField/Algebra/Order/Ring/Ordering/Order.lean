@@ -41,7 +41,7 @@ abbrev RingPreordering.mkOfCone : RingPreordering R where
     | inr h => simpa using (show -y * -y ∈ C by aesop (config := { enableSimp := false }))
   minus_one_not_mem' h := one_ne_zero <| eq_zero_of_mem_of_neg_mem (one_mem C) h
 
-@[simp] lemma RingPreordering.mkOfCone_carrier :
+@[simp] theorem RingPreordering.mkOfCone_carrier :
     (RingPreordering.mkOfCone C).carrier = C := rfl
 
 /-- A maximal cone over a nontrivial commutative ring `R` is an ordering on `R`. -/
@@ -49,7 +49,7 @@ instance : (RingPreordering.mkOfCone C).IsOrdering where
   mem_or_neg_mem := mem_or_neg_mem C
 
 @[simp]
-lemma RingPreordering.mkOfCone.support :
+theorem RingPreordering.mkOfCone.support :
     AddSubgroup.support (mkOfCone C) = ⊥ := by
   aesop (add safe (eq_zero_of_mem_of_neg_mem (C := C)))
 
@@ -69,7 +69,7 @@ abbrev RingCone.mkOfRingPreordering : RingCone R where
     apply_fun (a ∈ ·) at hP
     aesop
 
-@[simp] lemma RingCone.mkOfRingPreordering_carrier :
+@[simp] theorem RingCone.mkOfRingPreordering_carrier :
     (RingCone.mkOfRingPreordering hP).carrier = P := rfl
 
 instance [P.IsOrdering] : IsMaxCone <| RingCone.mkOfRingPreordering hP where
@@ -78,7 +78,7 @@ instance [P.IsOrdering] : IsMaxCone <| RingCone.mkOfRingPreordering hP where
 abbrev PartialOrder.mkOfRingPreordering : PartialOrder R :=
   .mkOfAddGroupCone <| RingCone.mkOfRingPreordering hP
 
-lemma IsOrderedRing.mkOfRingPreordering :
+theorem IsOrderedRing.mkOfRingPreordering :
     letI _ : PartialOrder R := .mkOfRingPreordering hP
     IsOrderedRing R :=
   .mkOfCone <| RingCone.mkOfRingPreordering hP
@@ -175,7 +175,7 @@ abbrev PartialOrder.mkOfRingPreordering_quot {R : Type*} [CommRing R]
       (by aesop (add safe apply Set.sep_subset))
   .mkOfAddGroupCone <| RingCone.mkOfRingPreordering_quot P
 
-lemma IsOrderedRing.mkOfRingPreordering_quot {R : Type*} [CommRing R]
+theorem IsOrderedRing.mkOfRingPreordering_quot {R : Type*} [CommRing R]
     (P : RingPreordering R) [P.IsPrimeOrdering] [DecidablePred (· ∈ P)] :
     letI  _ : PartialOrder _ := PartialOrder.mkOfRingPreordering_quot P
     IsOrderedRing (R ⧸ (RingPreordering.Ideal.support P)) := mkOfRingPreordering _
