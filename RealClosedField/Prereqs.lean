@@ -12,20 +12,16 @@ import Mathlib.RingTheory.Henselian
 
 /- Lemmas that should be upstreamed to Mathlib -/
 
+-- PR
 lemma Equiv.Subtype.exists_congr {α β : Type*} {p : α → Prop} {q : β → Prop}
     (e : {a // p a} ≃ {b // q b}) : (∃ a, p a) ↔ ∃ b, q b := by
   simp [← nonempty_subtype, Equiv.nonempty_congr e]
 
+-- PR
 lemma Equiv.Subtype.existsUnique_congr {α β : Type*} {p : α → Prop} {q : β → Prop}
     (e : {a // p a} ≃ {b // q b}) : (∃! a, p a) ↔ ∃! b, q b := by
   simp [← unique_subtype_iff_existsUnique, unique_iff_subsingleton_and_nonempty,
         Equiv.nonempty_congr e, Equiv.subsingleton_congr e]
-
-theorem Ideal.coe_map_of_surjective {R S F : Type*} [Semiring R] [Semiring S] [FunLike F R S]
-    [RingHomClass F R S] {f : F} (hf : Function.Surjective f) {I : Ideal R} :
-    map f I = f '' I := by
-  ext y
-  exact mem_map_iff_of_surjective _ hf
 
 theorem Quotient.image_mk_eq_lift {α : Type*} {s : Setoid α} (A : Set α)
     (h : ∀ x y, x ≈ y → (x ∈ A ↔ y ∈ A)) :
@@ -50,44 +46,50 @@ def decidablePred_mem_map_quotient_mk
       Quotient.image_mk_eq_lift _ this]
   exact Quotient.lift.decidablePred (· ∈ M) (by simpa)
 
+-- PR
 instance {F : Type*} [Field F] [LinearOrder F] [IsOrderedRing F] : IsStrictOrderedRing F :=
   IsOrderedRing.toIsStrictOrderedRing F
 
-@[simp]
-lemma Subsemiring.mem_nonneg {R : Type u_2} [Semiring R] [PartialOrder R] [IsOrderedRing R] {x : R} :
-  x ∈ nonneg R ↔ x ≥ 0 := Iff.rfl
-
-/- simp can't see through abbrevs to reduce proj of class mk -/
-
-@[to_additive (attr := simp)]
-lemma PartialOrder.mkOfGroupCone_toLE {S G : Type*} [CommGroup G] [SetLike S G]
-    [GroupConeClass S G] (C : S) (a b : G) :
-    (mkOfGroupCone C).le a b ↔ b / a ∈ C := .rfl
-
-@[simp]
-theorem Subsemiring.mem_mk {R : Type*} [Ring R] {toSubmonoid : Submonoid R}
-    (add_mem) (zero_mem) {x : R} : x ∈ mk toSubmonoid add_mem zero_mem ↔ x ∈ toSubmonoid := .rfl
-
-@[simp]
-theorem Subsemiring.coe_set_mk {R : Type*} [Ring R] {toSubmonoid : Submonoid R}
-    (add_mem) (zero_mem) : (mk toSubmonoid add_mem zero_mem : Set R) = toSubmonoid := rfl
-
-@[simp]
-theorem RingCone.mem_mk {R : Type*} [Ring R] {toSubsemiring : Subsemiring R}
-    (eq_zero_of_mem_of_neg_mem) {x : R} :
-    x ∈ mk toSubsemiring eq_zero_of_mem_of_neg_mem ↔ x ∈ toSubsemiring := .rfl
-
-@[simp]
-theorem RingCone.coe_set_mk {R : Type*} [Ring R] {toSubsemiring : Subsemiring R}
-    (eq_zero_of_mem_of_neg_mem) :
-    (mk toSubsemiring eq_zero_of_mem_of_neg_mem : Set R) = toSubsemiring := rfl
-
+-- PR
 open scoped Pointwise in
 @[to_additive]
 theorem Submonoid.coe_sup {M : Type*} [CommMonoid M] (s t : Submonoid M) :
     ↑(s ⊔ t) = (s : Set M) * (t : Set M) := by
   ext x
   simp [Submonoid.mem_sup, Set.mem_mul]
+
+-- PR
+@[simp]
+lemma Subsemiring.mem_nonneg {R : Type u_2} [Semiring R] [PartialOrder R] [IsOrderedRing R] {x : R} :
+  x ∈ nonneg R ↔ x ≥ 0 := Iff.rfl
+
+-- PR
+@[to_additive (attr := simp)]
+lemma PartialOrder.mkOfGroupCone_toLE {S G : Type*} [CommGroup G] [SetLike S G]
+    [GroupConeClass S G] (C : S) (a b : G) :
+    (mkOfGroupCone C).le a b ↔ b / a ∈ C := .rfl
+
+-- PR
+@[simp]
+theorem Subsemiring.mem_mk {R : Type*} [Ring R] {toSubmonoid : Submonoid R}
+    (add_mem) (zero_mem) {x : R} : x ∈ mk toSubmonoid add_mem zero_mem ↔ x ∈ toSubmonoid := .rfl
+
+-- PR
+@[simp]
+theorem Subsemiring.coe_set_mk {R : Type*} [Ring R] {toSubmonoid : Submonoid R}
+    (add_mem) (zero_mem) : (mk toSubmonoid add_mem zero_mem : Set R) = toSubmonoid := rfl
+
+-- PR
+@[simp]
+theorem RingCone.mem_mk {R : Type*} [Ring R] {toSubsemiring : Subsemiring R}
+    (eq_zero_of_mem_of_neg_mem) {x : R} :
+    x ∈ mk toSubsemiring eq_zero_of_mem_of_neg_mem ↔ x ∈ toSubsemiring := .rfl
+
+-- PR
+@[simp]
+theorem RingCone.coe_set_mk {R : Type*} [Ring R] {toSubsemiring : Subsemiring R}
+    (eq_zero_of_mem_of_neg_mem) :
+    (mk toSubsemiring eq_zero_of_mem_of_neg_mem : Set R) = toSubsemiring := rfl
 
 section equivAdjoin
 

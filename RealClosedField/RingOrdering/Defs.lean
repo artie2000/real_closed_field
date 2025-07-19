@@ -3,12 +3,34 @@ Copyright (c) 2024 Florent Schaffhauser. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Florent Schaffhauser, Artie Khovanov
 -/
-
-/- TODO : add proper doc headers inc. source -/
-
 import Mathlib.Algebra.Ring.Subsemiring.Basic
 import Mathlib.RingTheory.Ideal.Basic
 import Mathlib.Algebra.Group.Even
+
+/-!
+# Ring orderings
+
+Let `R` be a commutative ring. A preordering on `R` is a subset closed under
+addition and multiplication that contains all squares, but not `-1`. An ordering on `R` is
+a preordering containing either `x` or `-x` for each `x` in `R`.
+
+We define ring preorderings and orderings, as well as their supports.
+The basic properties of these objects are in `Algebra.Order.Ring.Ordering.Basic`.
+
+## Ordering supports
+
+The support of a preordering `P` is the set of elements `x` such that both `x` and `-x` lie in `P`.
+The support of an ordering is always an ideal. A prime ordering is an ordering whose support is
+a prime ideal.
+
+A prime ordering `O` with support `p` induces a linear order on `R⧸p` making it
+into an ordered ring (see `Algebra.Order.Ring.Ordering.Order`).
+
+## References
+
+* [Lam, An Introduction to Real Algebra][Lam1984] -- TODO : add this reference to references.bib
+
+-/
 
 /-!
 ## Preorderings

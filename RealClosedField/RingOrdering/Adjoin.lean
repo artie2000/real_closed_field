@@ -7,6 +7,21 @@ import RealClosedField.RingOrdering.Basic
 import Mathlib.Order.Zorn
 
 /-!
+
+Let `R` be a commutative ring, and let `P` be a preordering on `R`. If `a ∉ P`, then we can extend
+`P` to a preordering containing either `a` or `-a`.
+Moreover, we can always extend `P` to a prime ordering on `R`.
+
+We also prove various sufficient conditions to be able to extend `P` to `a`,
+and that all orderings on a field are maximal as preorderings.
+
+## References
+
+* [Lam, An Introduction to Real Algebra][Lam1984]
+
+-/
+
+/-!
 ## Adjoining an element to a preordering
 -/
 
@@ -121,7 +136,7 @@ theorem exists_lt (hp : a ∉ P) (hn : -a ∉ P) :
   · exact ⟨Q, lt_of_le_of_ne le <| Ne.symm (ne_of_mem_of_not_mem' p_mem hp)⟩
   · exact ⟨Q, lt_of_le_of_ne le <| Ne.symm (ne_of_mem_of_not_mem' n_mem hn)⟩
 
-/- A preordering on `R` that is maximal with respect to inclusion is a prime ordering. -/
+/- A maximal preordering on `R` is a prime ordering. -/
 theorem isPrimeOrdering_of_maximal {O : RingPreordering R} (max : IsMax O) :
     IsPrimeOrdering O := isPrimeOrdering_iff.mpr <| fun a b h => by
   cases not_mem_adjoin_or h with

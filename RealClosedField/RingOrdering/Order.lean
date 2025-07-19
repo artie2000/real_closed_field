@@ -7,6 +7,24 @@ import RealClosedField.RingOrdering.Basic
 import Mathlib.Algebra.Order.Ring.Cone
 import RealClosedField.Prereqs
 
+/-!
+
+We demonstrate the equivalence of prime orderings on a commutative ring `R` and
+linear ordered quotient domains of `R`. We also specialise to the case where `R` is a field.
+
+## Main results
+
+TODO : come up with the right names
+-- equivalence between support-0 orderings and linear ordered ring
+-- equivalence between orderings on field and linear ordered field
+-- equivalence between prime orderings and ordered quotient domains
+
+## References
+
+* [Lam, An Introduction to Real Algebra][Lam1984]
+
+-/
+
 section CommRing
 
 variable {R : Type*} [Nontrivial R] [CommRing R] (C : RingCone R) [IsMaxCone C]
@@ -160,3 +178,5 @@ lemma IsOrderedRing.mkOfRingPreordering_quot {R : Type*} [CommRing R]
     (P : RingPreordering R) [P.IsPrimeOrdering] [DecidablePred (· ∈ P)] :
     letI  _ : PartialOrder _ := PartialOrder.mkOfRingPreordering_quot P
     IsOrderedRing (R ⧸ (RingPreordering.Ideal.support P)) := mkOfRingPreordering _
+
+/- TODO : full equivalence between ring orderings and linear ordered quotient domains -/

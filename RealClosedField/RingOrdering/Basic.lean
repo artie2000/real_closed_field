@@ -10,6 +10,20 @@ import Mathlib.Algebra.CharP.Two
 import RealClosedField.Mathlib.Algebra.Ring.Semireal.Defs
 import RealClosedField.RingOrdering.Defs
 
+/-!
+
+We prove basic properties of (pre)orderings on rings and their supports,
+and define standard operations on them.
+
+Note that the "preordering closure" of a set does not exist in general. The theory of
+extending preorderings is given in `Algebra.Order.Ring.Ordering.Adjoin`.
+
+## References
+
+* [Lam, An Introduction to Real Algebra][Lam1984]
+
+-/
+
 variable {R : Type*} [CommRing R] {P : RingPreordering R}
 
 /-!
@@ -29,20 +43,20 @@ theorem toSubsemiring_le {P₁ P₂ : RingPreordering R} :
 theorem toSubsemiring_mono : Monotone (toSubsemiring : RingPreordering R → _) :=
   toSubsemiring_strictMono.monotone
 
-@[aesop safe 2 apply (rule_sets := [SetLike])]
+@[aesop unsafe 80% (rule_sets := [SetLike])]
 lemma neg_mul_mem_of_mem {x y : R} (hx : x ∈ P) (hy : -y ∈ P) : -(x * y) ∈ P := by
   simpa using mul_mem hx hy
 
-@[aesop safe 2 apply (rule_sets := [SetLike])]
+@[aesop unsafe 80% (rule_sets := [SetLike])]
 lemma neg_mul_mem_of_neg_mem {x y : R} (hx : -x ∈ P) (hy : y ∈ P) : -(x * y) ∈ P := by
   simpa using mul_mem hx hy
 
-@[aesop safe apply (rule_sets := [SetLike])]
+@[aesop unsafe 90% apply (rule_sets := [SetLike])]
 theorem inv_mem {a : Rˣ} (ha : ↑a ∈ P) : ↑a⁻¹ ∈ P := by
   rw [show (↑a⁻¹ : R) = a * (a⁻¹ * a⁻¹) by simp]
   aesop (config := { enableSimp := false })
 
-@[aesop safe apply (rule_sets := [SetLike])]
+@[aesop unsafe 90% apply (rule_sets := [SetLike])]
 theorem Field.inv_mem {F : Type*} [Field F] {P : RingPreordering F} {a : F} (ha : a ∈ P) :
     a⁻¹ ∈ P := by
   rw [show a⁻¹ = a * (a⁻¹ * a⁻¹) by field_simp]
@@ -144,7 +158,7 @@ theorem support_eq_bot {F : Type*} [Field F] (P : RingPreordering F) :
   rw [show -1 = -x * x⁻¹ by field_simp [show x ≠ 0 by simp_all]]
   aesop (erase simp neg_mul)
 
-@[aesop unsafe apply]
+@[aesop unsafe 90% apply]
 protected theorem eq_zero_of_mem_of_neg_mem {F : Type*} [Field F] {P : RingPreordering F}
     {x} (h : x ∈ P) (h2 : -x ∈ P) : x = 0 := by
   have : (x ∈ AddSubgroup.support P) ↔ (x ∈ (⊥ : AddSubgroup F)) := by rw [support_eq_bot P]
@@ -158,12 +172,12 @@ section IsOrdering
 
 variable [IsOrdering P]
 
-@[aesop unsafe apply]
+@[aesop unsafe 70% apply]
 lemma neg_mem_of_not_mem (x : R) (h : x ∉ P) : -x ∈ P := by
   have := RingPreordering.mem_or_neg_mem P x
   simp_all
 
-@[aesop unsafe apply]
+@[aesop unsafe 70% apply]
 lemma mem_of_not_neg_mem (x : R) (h : -x ∉ P) : x ∈ P := by
   have := RingPreordering.mem_or_neg_mem P x
   simp_all
@@ -261,6 +275,27 @@ theorem le_sInf {P} (hP : ∀ Q ∈ S, P ≤ Q) : P ≤ sInf hS := by
 
 end sInf
 
+section Bot
+variable [IsSemireal R]
+
+instance : Bot (RingPreordering R) where
+  bot := .mkOfSubsemiring (Subsemiring.sumSq R) (by aesop)
+    (by simpa using IsSemireal.not_isSumSq_neg_one)
+
+@[simp] lemma bot_toSubsemiring : (⊥ : RingPreordering R).toSubsemiring = .sumSq R := rfl
+
+@[simp] lemma mem_bot {a} : a ∈ (⊥ : RingPreordering R) ↔ IsSumSq a :=
+  show a ∈ Subsemiring.sumSq R ↔ IsSumSq a by simp
+
+@[simp, norm_cast] lemma coe_bot : (⊥ : RingPreordering R) = {x : R | IsSumSq x} :=
+  show Subsemiring.sumSq R = {x : R | IsSumSq x} by simp
+
+instance : OrderBot (RingPreordering R) where
+  bot := ⊥
+  bot_le a ha := by simp_all
+
+end Bot
+
 section sSup
 variable {S : Set (RingPreordering R)} {hS : S.Nonempty} {hSd : DirectedOn (· ≤ ·) S}
 
@@ -305,27 +340,6 @@ end sSup
 theorem nonempty_chain_bddAbove {S : Set (RingPreordering R)}
     (hS : S.Nonempty) (hSc : IsChain (· ≤ ·) S) : BddAbove S :=
   ⟨sSup hS <| IsChain.directedOn hSc, fun _ => le_sSup hS <| IsChain.directedOn hSc⟩
-
-section Bot
-variable [IsSemireal R]
-
-instance : Bot (RingPreordering R) where
-  bot := .mkOfSubsemiring (Subsemiring.sumSq R) (by aesop)
-    (by simpa using IsSemireal.not_isSumSq_neg_one)
-
-@[simp] lemma bot_toSubsemiring : (⊥ : RingPreordering R).toSubsemiring = .sumSq R := rfl
-
-@[simp] lemma mem_sumSqIn {a} : a ∈ (⊥ : RingPreordering R) ↔ IsSumSq a :=
-  show a ∈ Subsemiring.sumSq R ↔ IsSumSq a by simp
-
-@[simp, norm_cast] lemma coe_sumSqIn : (⊥ : RingPreordering R) = {x : R | IsSumSq x} :=
-  show Subsemiring.sumSq R = {x : R | IsSumSq x} by simp
-
-instance : OrderBot (RingPreordering R) where
-  bot := ⊥
-  bot_le a ha := by simp_all
-
-end Bot
 
 variable {A B C : Type*} [CommRing A] [CommRing B] [CommRing C]
 
@@ -442,10 +456,15 @@ theorem Ideal.mem_map_support {f : A →+* B} {P : RingPreordering A} [HasIdealS
     {hsupp : RingHom.ker f ≤ support P} {x : B} :
     x ∈ support (map hf hsupp) ↔ ∃ y ∈ support P, f y = x := by simp [support]
 
+theorem _root_.Ideal.coe_map_of_surjective {R S F : Type*} [Semiring R] [Semiring S] [FunLike F R S]
+    [RingHomClass F R S] {f : F} (hf : Function.Surjective f) {I : Ideal R} :
+    Ideal.map f I = f '' I := by
+  ext y
+  exact Ideal.mem_map_iff_of_surjective _ hf
+
 @[simp]
 theorem Ideal.map_support {f : A →+* B} {P : RingPreordering A} [HasIdealSupport P]
-    {hf : Function.Surjective f}
-    {hsupp : RingHom.ker f ≤ support P} :
+    {hf : Function.Surjective f} {hsupp : RingHom.ker f ≤ support P} :
     support (map hf hsupp) = (support P).map f := by
   ext; simp [Ideal.mem_map_iff_of_surjective f hf]
 
