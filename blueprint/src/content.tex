@@ -467,30 +467,16 @@ In fact, the converses to Lemmas \ref{lem:RCF_max} and \ref{lem:IVP_poly} also h
 \begin{theorem}
   \label{thm:ord_max_imp_RCF}
   \uses{def:RCF}
-  Let $R$ be an ordered field maximal with respect to algebraic extensions by ordered fields. Then $R$ is real closed.
+  Let $R$ be an ordered field maximal with respect to ordered algebraic extensions. Then $R$ is real closed.
 \end{theorem}
 \begin{proof}
   \uses{thm:ord_iff_real,cor:ext_ord_to_adj_sqrt,lem:odd_deg_red_imp_root,lem:ext_ord_odd_deg}
-  By Theorem \ref{thm:ord_iff_real}, $R$ is maximal with respect to algebraic extensions by \textit{real} fields.
+  Let $a\in R$ be non-negative. By Lemma \ref{cor:ext_ord_to_adj_sqrt}, there is an ordering making $R[\sqrt{a}]/R$ an ordered extension. By maximality, $R[\sqrt{a}]\cong R$, and so $a$ is a square in $R$.
 
-  Let $a\in R$ be non-negative. By Lemma \ref{cor:ext_ord_to_adj_sqrt}, $R[\sqrt{a}]$ is real. By maximality, $R[\sqrt{a}]\cong R$, and so $a$ is a square in $R$.
-
-  By Lemma \ref{lem:odd_deg_red_imp_root}, it suffices to show that irreducible odd-degree polynomials over $R$ are linear. Let $f\in R[X]$ be such a polynomial, and consider the odd-degree field extension $R_f=R[X]/(f)$. By Lemma \ref{lem:ext_ord_odd_deg}, $R_f$ is real; by maximality, $R_f\cong R$, and therefore $\deg f=[R_f:R]=1$.
+  By Lemma \ref{lem:odd_deg_red_imp_root}, it suffices to show that irreducible odd-degree polynomials over $R$ are linear. Let $f\in R[X]$ be such a polynomial, and consider the odd-degree field extension $R_f=R[X]/(f)$. By Lemma \ref{lem:ext_ord_odd_deg}, there is an ordering making $R_f/R$ an ordered extension; by maximality, $R_f\cong R$, and therefore $\deg f=[R_f:R]=1$.
 \end{proof}
 
-There is a subtlety here: we used the weaker form of maximality, disallowing algebraic extensions of $R$ by ordered fields with incompatible orders. In fact, such extensions cannot exist.
-
-\begin{corollary}
-  \label{cor:ord_max_imp_RCF_strong}
-  \uses{def:RCF,def:ordered_ext}
-  Let $R$ be an ordered field maximal with respect to ordered algebraic extensions. Then $R$ is real closed.
-\end{corollary}
-\begin{proof}
-  \uses{cor:ext_ord_to_adj_sqrt,cor:unique_ord_cond_ordered,thm:ord_max_imp_RCF}
-  Let $a\in R$ be non-negative. By Lemmas \ref{cor:ext_ord_to_adj_sqrt}, there is an ordering on $R(\sqrt{a})$ making $R(\sqrt{a})/R$ into an ordered extension. By maximality, $R(\sqrt{a})\cong R$, and so $a$ is a square in $R$. By Corollary \ref{cor:unique_ord_cond_ordered}, $R$ is ordered uniquely.
-
-  Let $K/R$ be an algebraic extension by an ordered field. The ordering on $K$ restricts to some field ordering on $R$; by uniqueness, this is \textit{the} ordering on $R$, and so the extension is ordered. By assumption, therefore, $R$ is maximal with respect to algebraic extensions by ordered fields. We are done by Theorem \ref{thm:ord_max_imp_RCF}.
-\end{proof}
+In particular, an ordered field maximal with respect to algebraic extensions by ordered fields is real closed.
 
 Theorem \ref{thm:ord_max_imp_RCF} gives us a way to ``construct'' real closed fields.
 
@@ -520,7 +506,7 @@ In summary, we have proved the following characterisation of real closed fields.
   \end{enumerate}
 \end{theorem}
 \begin{proof}
-  \uses{cor:RCF_ac,lem:FTAlg_converse,lem:IVP_poly,thm:IVP_poly_imp_RCF,lem:RCF_max,cor:ord_max_imp_RCF_strong}
+  \uses{cor:RCF_ac,lem:FTAlg_converse,lem:IVP_poly,thm:IVP_poly_imp_RCF,lem:RCF_max,thm:}
 \end{proof}
 
 \section{Real Closures}
@@ -539,8 +525,8 @@ In summary, we have proved the following characterisation of real closed fields.
   Let $F$ be an ordered field. Then $F$ has a real closure.
 \end{lemma}
 \begin{proof}
-  \uses{cor:ord_max_imp_RCF_strong}
-  Apply Zorn's lemma to ordered algebraic extensions of $F$. We are done by Corollary \ref{cor:ord_max_imp_RCF_strong}.
+  \uses{thm:ord_max_imp_RCF}
+  Apply Zorn's lemma to ordered algebraic extensions of $F$. We are done by Corollary \ref{thm:ord_max_imp_RCF}.
 \end{proof}
 
 Just like with the algebraic closure, it makes sense to talk of \textit{the} real closure of an ordered field. Proving this uniqueness result requires a method of root-counting in real fields known as Sturm's theorem.
