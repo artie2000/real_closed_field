@@ -9,7 +9,7 @@ import RealClosedField.Algebra.Order.Ring.Ordering.Basic
 
 /-!
 
-We demonstrate the equivalence of prime orderings on a commutative ring `R` and
+We demonstrate the equivalence of orderings on a commutative ring `R` and
 linear ordered quotient domains of `R`. We also specialise to the case where `R` is a field.
 
 ## Main results
@@ -17,7 +17,7 @@ linear ordered quotient domains of `R`. We also specialise to the case where `R`
 TODO : come up with the right names
 -- equivalence between support-0 orderings and linear ordered ring
 -- equivalence between orderings on field and linear ordered field
--- equivalence between prime orderings and ordered quotient domains
+-- equivalence between orderings and linear ordered quotient domain
 
 ## References
 
@@ -53,8 +53,6 @@ theorem RingPreordering.mkOfCone.support :
   aesop (add safe (eq_zero_of_mem_of_neg_mem (C := C)))
 
 end CommRing
-
-/- TODO : decide what to do about the maximality typeclasses -/
 
 section CommRing
 
@@ -121,7 +119,7 @@ section Field
 variable {F : Type*} [Field F] (P : RingPreordering F)
 
 abbrev RingCone.mkOfRingPreordering_field : RingCone F :=
-  mkOfRingPreordering <| RingPreordering.support_eq_bot P
+  mkOfRingPreordering <| RingPreordering.supportAddSubgroup_eq_bot P
 
 instance [HasMemOrNegMem P] : IsMaxCone <| RingCone.mkOfRingPreordering_field P where
   mem_or_neg_mem' := mem_or_neg_mem P
@@ -160,6 +158,8 @@ end Field
 abbrev RingCone.mkOfRingPreordering_quot {R : Type*} [CommRing R] (P : RingPreordering R)
     [HasMemOrNegMem P] : RingCone (R ⧸ RingPreordering.support P) := by
   refine mkOfRingPreordering (P := P.map Ideal.Quotient.mk_surjective (by simp)) ?_
+  ext x
+  simp only [↓RingPreordering.mem_map_supportAddSubgroup, AddSubgroup.mem_bot]
   apply_fun SetLike.coe using SetLike.coe_injective
   have : _ = (Ideal.Quotient.mk (RingPreordering.support P)) ''
       (RingPreordering.support P) :=

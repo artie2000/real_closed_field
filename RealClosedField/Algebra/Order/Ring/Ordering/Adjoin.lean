@@ -10,10 +10,10 @@ import RealClosedField.Algebra.Order.Ring.Ordering.Basic
 
 Let `R` be a commutative ring, and let `P` be a preordering on `R`. If `a ∉ P`, then we can extend
 `P` to a preordering containing either `a` or `-a`.
-Moreover, we can always extend `P` to a prime ordering on `R`.
+Moreover, we can always extend `P` to an ordering on `R`.
 
 We also prove various sufficient conditions to be able to extend `P` to `a`,
-and that all orderings on a field are maximal as preorderings.
+and that all orderings on a field are maximal preorderings.
 
 ## References
 
@@ -69,8 +69,8 @@ def adjoin (h : -1 ∉ Subsemiring.ringPreordering_adjoin P a) : RingPreordering
   .mkOfSubsemiring (Subsemiring.ringPreordering_adjoin P a) (fun _ => by aesop) h
 
 variable {P a} in
-@[aesop unsafe 70% apply (rule_sets := [SetLike])]
-theorem subset_adjoin' (h : -1 ∉ Subsemiring.ringPreordering_adjoin P a) {x : R} (hx : x ∈ P) :
+@[aesop unsafe 90% apply (rule_sets := [SetLike])]
+theorem mem_adjoin_of_mem (h : -1 ∉ Subsemiring.ringPreordering_adjoin P a) {x : R} (hx : x ∈ P) :
     x ∈ adjoin h := Subsemiring.mem_ringPreordering_adjoin_of_mem a hx
 
 variable {P a} in
@@ -78,7 +78,7 @@ theorem subset_adjoin (h : -1 ∉ Subsemiring.ringPreordering_adjoin P a) : (P :
   fun _ => by aesop
 
 variable {P a} in
-@[aesop safe 0 apply (rule_sets := [SetLike])]
+@[aesop safe apply (rule_sets := [SetLike])]
 theorem mem_adjoin (h : -1 ∉ Subsemiring.ringPreordering_adjoin P a) : a ∈ adjoin h :=
   Subsemiring.mem_ringPreordering_adjoin P a
 
@@ -87,7 +87,7 @@ theorem mem_adjoin (h : -1 ∉ Subsemiring.ringPreordering_adjoin P a) : a ∈ a
 -/
 
 variable {P} in
-theorem not_mem_adjoin_or {x y : R} (h : -(x * y) ∈ P) :
+theorem neg_one_notMem_adjoin_or_of_neg_mul_mem {x y : R} (h : -(x * y) ∈ P) :
     -1 ∉ Subsemiring.ringPreordering_adjoin P x ∨ -1 ∉ Subsemiring.ringPreordering_adjoin P y := by
   by_contra
   apply RingPreordering.neg_one_notMem P
@@ -97,11 +97,11 @@ theorem not_mem_adjoin_or {x y : R} (h : -(x * y) ∈ P) :
     linear_combination (t₁ + 1) * eqx - 1 * x * s₂ * eqy]
   aesop (config := { enableSimp := false })
 
-theorem not_mem_adjoin_or' :
+theorem neg_one_notMem_adjoin_or :
     -1 ∉ Subsemiring.ringPreordering_adjoin P a ∨ -1 ∉ Subsemiring.ringPreordering_adjoin P (-a) :=
-  not_mem_adjoin_or (by aesop : -(a * (-a)) ∈ P)
+  neg_one_notMem_adjoin_or_of_neg_mul_mem (by aesop : -(a * (-a)) ∈ P)
 
-theorem neg_one_notMem_ringPreordering_adjoin
+theorem neg_one_notMem_adjoin
     (h : ∀ x y, x ∈ P → y ∈ P → x + (1 + y) * a + 1 ≠ 0) :
     -1 ∉ Subsemiring.ringPreordering_adjoin P a := fun contr => by
   have ⟨x, hx, y, hy, eqn⟩ : -1 * (1 + a) ∈ Subsemiring.ringPreordering_adjoin P a :=
@@ -112,7 +112,7 @@ theorem neg_one_notMem_ringPreordering_adjoin
 If `F` is a field, `P` is a preordering on `F`, and `a` is an element of `P` such that `-a ∉ P`,
 then `-1` is not of the form `x + a * y` with `x` and `y` in `P`.
 -/
-theorem neg_one_notMem_adjoin_linear
+theorem neg_one_notMem_ringPreordering_adjoin_of_neg_notMem
     {F : Type*} [Field F] {P : RingPreordering F} {a : F}
     (ha : -a ∉ P) : -1 ∉ Subsemiring.ringPreordering_adjoin P a := fun ⟨x, hx, y, hy, eqn⟩ =>
   ha <| by
@@ -121,12 +121,12 @@ theorem neg_one_notMem_adjoin_linear
   aesop
 
 /-!
-### Existence of prime orderings
+### Existence of orderings
 -/
 
 theorem exists_le :
     ∃ Q : RingPreordering R, P ≤ Q ∧ (a ∈ Q ∨ -a ∈ Q) := by
-  cases not_mem_adjoin_or' P a with
+  cases neg_one_notMem_adjoin_or P a with
   | inl h => exact ⟨adjoin h, subset_adjoin _, by aesop⟩
   | inr h => exact ⟨adjoin h, subset_adjoin _, by aesop⟩
 
@@ -136,14 +136,14 @@ theorem exists_lt (hp : a ∉ P) (hn : -a ∉ P) :
   · exact ⟨Q, lt_of_le_of_ne le <| Ne.symm (ne_of_mem_of_not_mem' p_mem hp)⟩
   · exact ⟨Q, lt_of_le_of_ne le <| Ne.symm (ne_of_mem_of_not_mem' n_mem hn)⟩
 
-/- A maximal preordering on `R` is a prime ordering. -/
+/- A maximal preordering on `R` is an ordering. -/
 theorem isOrdering_of_maximal {O : RingPreordering R} (max : IsMax O) :
     IsOrdering O := isOrdering_iff.mpr <| fun a b h => by
-  cases not_mem_adjoin_or h with
+  cases neg_one_notMem_adjoin_or_of_neg_mul_mem h with
   | inl h => exact Or.inl <| max (subset_adjoin h) (mem_adjoin h)
   | inr h => exact Or.inr <| max (subset_adjoin h) (mem_adjoin h)
 
-/- Every preordering on `R` extends to a prime ordering. -/
+/- Every preordering on `R` extends to an ordering. -/
 theorem exists_le_isOrdering :
     ∃ O : RingPreordering R, P ≤ O ∧ IsOrdering O := by
   have ⟨_, _, hO⟩ : ∃ O, P ≤ O ∧ IsMax O := by
@@ -151,7 +151,7 @@ theorem exists_le_isOrdering :
     simp_all [← bddAbove_def, nonempty_chain_bddAbove (Set.nonempty_of_mem hQ) hc]
   exact ⟨_, by assumption, isOrdering_of_maximal hO⟩
 
-/- A prime ordering on `R` is maximal among preorderings iff it is maximal among prime orderings. -/
+/- An ordering on `R` is maximal among preorderings iff it is maximal among orderings. -/
 theorem maximal_iff_maximal_isOrdering {O : RingPreordering R} [IsOrdering O] :
     IsMax O ↔ Maximal IsOrdering O :=
   ⟨fun h => Maximal.mono (by simpa using h) (fun _ _ => trivial) inferInstance,
@@ -163,11 +163,11 @@ theorem maximal_iff_maximal_isOrdering {O : RingPreordering R} [IsOrdering O] :
 ### Comparison of orderings
 -/
 
-theorem mem_support_of_ge_of_not_mem [HasMemOrNegMem P] (Q : RingPreordering R) (h : P ≤ Q)
+theorem mem_support_of_ge_of_notMem [HasMemOrNegMem P] (Q : RingPreordering R) (h : P ≤ Q)
     (ha : a ∈ Q) (haP : a ∉ P) : a ∈ supportAddSubgroup Q := by aesop
 
-theorem eq_of_le {P} [HasMemOrNegMem P] {Q : RingPreordering R} (hSupp : supportAddSubgroup Q = ⊥)
-    (h : P ≤ Q) : P = Q := by
+theorem eq_of_le_of_supportAddSubgroup_eq_bot {P} [HasMemOrNegMem P] {Q : RingPreordering R}
+    (hSupp : supportAddSubgroup Q = ⊥) (h : P ≤ Q) : P = Q := by
   by_contra h2
   have ⟨x, hx, hx2⟩ : ∃ x, x ∈ Q ∧ x ∉ P :=
     Set.exists_of_ssubset <| lt_of_le_of_ne h (by simpa using h2)
@@ -176,11 +176,11 @@ theorem eq_of_le {P} [HasMemOrNegMem P] {Q : RingPreordering R} (hSupp : support
   apply_fun (x ∈ ·) at hSupp
   aesop
 
-theorem eq_of_le_field {F : Type*} [Field F] {P Q : RingPreordering F} [HasMemOrNegMem P]
-    (h : P ≤ Q) : P = Q := eq_of_le (by simp) h
+theorem eq_of_le {F : Type*} [Field F] {P Q : RingPreordering F} [IsOrdering P]
+    (h : P ≤ Q) : P = Q := eq_of_le_of_supportAddSubgroup_eq_bot (by simp) h
 
 /- A preordering on a field `F` is maximal iff it is an ordering. -/
 theorem maximal_iff_hasMemOrNegMem {F : Type*} [Field F] {O : RingPreordering F} :
-    IsMax O ↔ HasMemOrNegMem O :=
+    IsMax O ↔ IsOrdering O :=
   ⟨fun h => have := isOrdering_of_maximal h; inferInstance,
-   fun _ _ le => le_of_eq (eq_of_le_field le).symm⟩
+   fun _ _ le => le_of_eq (eq_of_le le).symm⟩

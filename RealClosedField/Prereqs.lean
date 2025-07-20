@@ -28,19 +28,6 @@ instance {F : Type*} [Field F] [LinearOrder F] [IsOrderedRing F] : IsStrictOrder
   IsOrderedRing.toIsStrictOrderedRing F
 
 -- PR
-open scoped Pointwise in
-@[to_additive]
-theorem Submonoid.coe_sup {M : Type*} [CommMonoid M] (s t : Submonoid M) :
-    ↑(s ⊔ t) = (s * t : Set M) := by
-  ext x
-  simp [Submonoid.mem_sup, Set.mem_mul]
-
--- PR
-@[simp]
-theorem Subsemiring.mem_nonneg {R : Type u_2} [Semiring R] [PartialOrder R] [IsOrderedRing R] {x : R} :
-  x ∈ nonneg R ↔ x ≥ 0 := .rfl
-
--- PR
 @[to_additive (attr := simp)]
 theorem PartialOrder.mkOfGroupCone_toLE {S G : Type*} [CommGroup G] [SetLike S G]
     [GroupConeClass S G] (C : S) (a b : G) :
@@ -98,13 +85,6 @@ theorem AlgEquiv.adjoinRootMinpolyPrimitiveElement_apply {α : E}
 
 end equivAdjoin
 
--- PR
-attribute [simp, aesop safe] IsSumSq.zero
-
--- PR
-@[simp, aesop safe]
-theorem IsSumSq.one {R : Type*} [AddZeroClass R] [MulOneClass R] : IsSumSq (1 : R) := by aesop
-
 --PR
 /-- Typeclass for substructures S such that S ∪ -S = G. -/
 class HasMemOrNegMem {S G : Type*} [AddCommGroup G] [SetLike S G] (C : S) : Prop where
@@ -121,6 +101,12 @@ class HasMemOrInvMem {S G : Type*} [CommGroup G] [SetLike S G] (C : S) : Prop wh
 
 --PR
 export HasMemOrInvMem (mem_or_inv_mem)
+
+theorem Ideal.coe_map_of_surjective {R S F : Type*} [Semiring R] [Semiring S] [FunLike F R S]
+    [RingHomClass F R S] {f : F} (hf : Function.Surjective f) {I : Ideal R} :
+    Ideal.map f I = f '' I := by
+  ext y
+  exact Ideal.mem_map_iff_of_surjective _ hf
 
 theorem Quotient.image_mk_eq_lift {α : Type*} {s : Setoid α} (A : Set α)
     (h : ∀ x y, x ≈ y → (x ∈ A ↔ y ∈ A)) :
