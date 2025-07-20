@@ -159,12 +159,8 @@ abbrev RingCone.mkOfRingPreordering_quot {R : Type*} [CommRing R] (P : RingPreor
     [HasMemOrNegMem P] : RingCone (R ⧸ RingPreordering.support P) := by
   refine mkOfRingPreordering (P := P.map Ideal.Quotient.mk_surjective (by simp)) ?_
   ext x
-  simp only [↓RingPreordering.mem_map_supportAddSubgroup, AddSubgroup.mem_bot]
-  apply_fun SetLike.coe using SetLike.coe_injective
-  have : _ = (Ideal.Quotient.mk (RingPreordering.support P)) ''
-      (RingPreordering.support P) :=
-    Ideal.coe_map_of_surjective Ideal.Quotient.mk_surjective
-  simp_all
+  simpa using show _ ↔ x ∈ Ideal.map _ P.support from
+    (Ideal.mem_map_iff_of_surjective _ Ideal.Quotient.mk_surjective).symm
 
 abbrev PartialOrder.mkOfRingPreordering_quot {R : Type*} [CommRing R]
     (P : RingPreordering R) [P.IsOrdering] [DecidablePred (· ∈ P)] :

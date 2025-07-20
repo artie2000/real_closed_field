@@ -102,12 +102,6 @@ class HasMemOrInvMem {S G : Type*} [CommGroup G] [SetLike S G] (C : S) : Prop wh
 --PR
 export HasMemOrInvMem (mem_or_inv_mem)
 
-theorem Ideal.coe_map_of_surjective {R S F : Type*} [Semiring R] [Semiring S] [FunLike F R S]
-    [RingHomClass F R S] {f : F} (hf : Function.Surjective f) {I : Ideal R} :
-    Ideal.map f I = f '' I := by
-  ext y
-  exact Ideal.mem_map_iff_of_surjective _ hf
-
 theorem Quotient.image_mk_eq_lift {α : Type*} {s : Setoid α} (A : Set α)
     (h : ∀ x y, x ≈ y → (x ∈ A ↔ y ∈ A)) :
     (Quotient.mk s) '' A = (Quotient.lift (· ∈ A) (by simpa)) := by

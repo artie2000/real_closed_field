@@ -422,7 +422,7 @@ instance {f : A →+* B} {P : RingPreordering A} [HasMemOrNegMem P] (hf : Functi
     have := mem_or_neg_mem P x'
     aesop
 
-@[simp]
+@[simp↓]
 theorem mem_map_supportAddSubgroup {f : A →+* B} {P : RingPreordering A}
     {hf : Function.Surjective f} {hsupp : (RingHom.ker f : Set A) ⊆ supportAddSubgroup P} {x : B} :
     x ∈ supportAddSubgroup (map hf hsupp) ↔ ∃ y ∈ supportAddSubgroup P, f y = x := by

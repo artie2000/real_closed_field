@@ -15,10 +15,6 @@ instance : RingConeClass (RingPreordering F) F where
     have : a⁻¹ * -a ∈ P := by aesop (config := { enableSimp := False })
     aesop
 
-/- TODO : decide whether to unify these -/
-instance (O : RingPreordering F) [HasMemOrNegMem O] : IsMaxCone O where
-  mem_or_neg_mem' := mem_or_neg_mem O
-
 open Classical in
 instance [IsSemireal F] : IsFormallyReal F where
   eq_zero_of_mul_self_add {a} {s} hs h := by
@@ -57,9 +53,9 @@ theorem IsSemireal.isSumSq_or_isSumSq_neg [IsSemireal F]
   rw [Equiv.Subtype.existsUnique_congr RingOrdering_IsOrderedRing_equiv_field.symm] at h
   by_contra! hc
   rcases hc with ⟨x, hx, hnx⟩
-  rcases exists_le_isOrdering <| adjoin <| neg_one_notMem_adjoin_linear
+  rcases exists_le_isOrdering <| adjoin <| neg_one_notMem_ringPreordering_adjoin_of_neg_notMem
     (by simp_all : -x ∉ ⊥) with ⟨O₁, hle₁, hO₁⟩
-  rcases exists_le_isOrdering <| adjoin <| neg_one_notMem_adjoin_linear
+  rcases exists_le_isOrdering <| adjoin <| neg_one_notMem_ringPreordering_adjoin_of_neg_notMem
     (by simp_all : -(-x) ∉ ⊥) with ⟨O₂, hle₂, hO₂⟩
   have x_mem : x ∈ O₁ := hle₁ (by aesop)
   exact (show O₁ ≠ O₂ from fun h => show x ≠ 0 by aesop <|
