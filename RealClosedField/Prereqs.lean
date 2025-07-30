@@ -27,34 +27,6 @@ theorem Equiv.Subtype.existsUnique_congr {α β : Type*} {p : α → Prop} {q : 
 instance {F : Type*} [Field F] [LinearOrder F] [IsOrderedRing F] : IsStrictOrderedRing F :=
   IsOrderedRing.toIsStrictOrderedRing F
 
--- PR
-@[to_additive (attr := simp)]
-theorem PartialOrder.mkOfGroupCone_toLE {S G : Type*} [CommGroup G] [SetLike S G]
-    [GroupConeClass S G] (C : S) (a b : G) :
-    (mkOfGroupCone C).le a b ↔ b / a ∈ C := .rfl
-
--- PR
-@[simp]
-theorem Subsemiring.mem_mk {R : Type*} [Ring R] {toSubmonoid : Submonoid R}
-    (add_mem) (zero_mem) {x : R} : x ∈ mk toSubmonoid add_mem zero_mem ↔ x ∈ toSubmonoid := .rfl
-
--- PR
-@[simp]
-theorem Subsemiring.coe_set_mk {R : Type*} [Ring R] {toSubmonoid : Submonoid R}
-    (add_mem) (zero_mem) : (mk toSubmonoid add_mem zero_mem : Set R) = toSubmonoid := rfl
-
--- PR
-@[simp]
-theorem RingCone.mem_mk {R : Type*} [Ring R] {toSubsemiring : Subsemiring R}
-    (eq_zero_of_mem_of_neg_mem) {x : R} :
-    x ∈ mk toSubsemiring eq_zero_of_mem_of_neg_mem ↔ x ∈ toSubsemiring := .rfl
-
--- PR
-@[simp]
-theorem RingCone.coe_set_mk {R : Type*} [Ring R] {toSubsemiring : Subsemiring R}
-    (eq_zero_of_mem_of_neg_mem) :
-    (mk toSubsemiring eq_zero_of_mem_of_neg_mem : Set R) = toSubsemiring := rfl
-
 section equivAdjoin
 
 variable {F E : Type*} [Field F] [Field E] [Algebra F E]
@@ -101,6 +73,21 @@ class HasMemOrInvMem {S G : Type*} [CommGroup G] [SetLike S G] (C : S) : Prop wh
 
 --PR
 export HasMemOrInvMem (mem_or_inv_mem)
+
+namespace Subsemiring
+
+variable {R S : Type*} [NonUnitalNonAssocSemiring R] [HasDistribNeg R]
+  [SetLike S R] [NonUnitalSubsemiringClass S R] {s : S}
+
+@[aesop unsafe 80% (rule_sets := [SetLike])]
+theorem neg_mul_mem {x y : R} (hx : -x ∈ s) (hy : y ∈ s) : -(x * y) ∈ s := by
+  simpa using mul_mem hx hy
+
+@[aesop unsafe 80% (rule_sets := [SetLike])]
+theorem mul_neg_mem {x y : R} (hx : x ∈ s) (hy : -y ∈ s) : -(x * y) ∈ s := by
+  simpa using mul_mem hx hy
+
+end Subsemiring
 
 theorem Quotient.image_mk_eq_lift {α : Type*} {s : Setoid α} (A : Set α)
     (h : ∀ x y, x ≈ y → (x ∈ A ↔ y ∈ A)) :

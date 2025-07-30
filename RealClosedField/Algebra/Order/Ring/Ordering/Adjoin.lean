@@ -138,22 +138,22 @@ theorem exists_lt (hp : a ∉ P) (hn : -a ∉ P) :
 
 /- A maximal preordering on `R` is an ordering. -/
 theorem isOrdering_of_maximal {O : RingPreordering R} (max : IsMax O) :
-    IsOrdering O := isOrdering_iff.mpr <| fun a b h => by
+    O.IsOrdering := isOrdering_iff.mpr <| fun a b h => by
   cases neg_one_notMem_adjoin_or_of_neg_mul_mem h with
   | inl h => exact Or.inl <| max (subset_adjoin h) (mem_adjoin h)
   | inr h => exact Or.inr <| max (subset_adjoin h) (mem_adjoin h)
 
 /- Every preordering on `R` extends to an ordering. -/
 theorem exists_le_isOrdering :
-    ∃ O : RingPreordering R, P ≤ O ∧ IsOrdering O := by
+    ∃ O : RingPreordering R, P ≤ O ∧ O.IsOrdering := by
   have ⟨_, _, hO⟩ : ∃ O, P ≤ O ∧ IsMax O := by
     refine zorn_le_nonempty_Ici₀ _ (fun _ _ hc _ hQ => ?_) _ le_rfl
     simp_all [← bddAbove_def, nonempty_chain_bddAbove (Set.nonempty_of_mem hQ) hc]
   exact ⟨_, by assumption, isOrdering_of_maximal hO⟩
 
 /- An ordering on `R` is maximal among preorderings iff it is maximal among orderings. -/
-theorem maximal_iff_maximal_isOrdering {O : RingPreordering R} [IsOrdering O] :
-    IsMax O ↔ Maximal IsOrdering O :=
+theorem maximal_iff_maximal_isOrdering {O : RingPreordering R} [O.IsOrdering] :
+    IsMax O ↔ Maximal RingPreordering.IsOrdering O :=
   ⟨fun h => Maximal.mono (by simpa using h) (fun _ _ => trivial) inferInstance,
    fun hO P le₁ => by aesop (add safe forward exists_le_isOrdering,
                                  safe forward le_trans,
@@ -164,10 +164,10 @@ theorem maximal_iff_maximal_isOrdering {O : RingPreordering R} [IsOrdering O] :
 -/
 
 theorem mem_support_of_ge_of_notMem [HasMemOrNegMem P] (Q : RingPreordering R) (h : P ≤ Q)
-    (ha : a ∈ Q) (haP : a ∉ P) : a ∈ supportAddSubgroup Q := by aesop
+    (ha : a ∈ Q) (haP : a ∉ P) : a ∈ Q.supportAddSubgroup := by aesop
 
 theorem eq_of_le_of_supportAddSubgroup_eq_bot {P} [HasMemOrNegMem P] {Q : RingPreordering R}
-    (hSupp : supportAddSubgroup Q = ⊥) (h : P ≤ Q) : P = Q := by
+    (hSupp : Q.supportAddSubgroup = ⊥) (h : P ≤ Q) : P = Q := by
   by_contra h2
   have ⟨x, hx, hx2⟩ : ∃ x, x ∈ Q ∧ x ∉ P :=
     Set.exists_of_ssubset <| lt_of_le_of_ne h (by simpa using h2)
@@ -176,11 +176,11 @@ theorem eq_of_le_of_supportAddSubgroup_eq_bot {P} [HasMemOrNegMem P] {Q : RingPr
   apply_fun (x ∈ ·) at hSupp
   aesop
 
-theorem eq_of_le {F : Type*} [Field F] {P Q : RingPreordering F} [IsOrdering P]
+theorem eq_of_le {F : Type*} [Field F] {P Q : RingPreordering F} [P.IsOrdering]
     (h : P ≤ Q) : P = Q := eq_of_le_of_supportAddSubgroup_eq_bot (by simp) h
 
 /- A preordering on a field `F` is maximal iff it is an ordering. -/
 theorem maximal_iff_hasMemOrNegMem {F : Type*} [Field F] {O : RingPreordering F} :
-    IsMax O ↔ IsOrdering O :=
+    IsMax O ↔ O.IsOrdering :=
   ⟨fun h => have := isOrdering_of_maximal h; inferInstance,
    fun _ _ le => le_of_eq (eq_of_le le).symm⟩

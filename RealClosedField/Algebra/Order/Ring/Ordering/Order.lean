@@ -40,24 +40,29 @@ abbrev RingPreordering.mkOfCone : RingPreordering R where
     | inr h => simpa using (show -y * -y ∈ C by aesop (config := { enableSimp := false }))
   neg_one_notMem' h := one_ne_zero <| eq_zero_of_mem_of_neg_mem (one_mem C) h
 
-@[simp] theorem RingPreordering.mkOfCone_carrier :
-    (RingPreordering.mkOfCone C).carrier = C := rfl
+@[simp] theorem RingPreordering.mkOfCone_carrier : (RingPreordering.mkOfCone C).carrier = C := rfl
 
-/-- A maximal cone over a nontrivial commutative ring `R` is an ordering on `R`. -/
 instance : HasMemOrNegMem (RingPreordering.mkOfCone C) where
   mem_or_neg_mem := mem_or_neg_mem C
 
 @[simp]
-theorem RingPreordering.mkOfCone.support :
+theorem RingPreordering.mkOfCone.supportAddSubgroup_eq_bot :
     supportAddSubgroup (mkOfCone C) = ⊥ := by
   aesop (add safe (eq_zero_of_mem_of_neg_mem (C := C)))
+
+instance : RingPreordering.HasIdealSupport (RingPreordering.mkOfCone C) where
+  smul_mem_support := by simp
+
+@[simp]
+theorem RingPreordering.mkOfCone.support : (mkOfCone C).support = ⊥ := by
+  apply_fun Submodule.toAddSubgroup using Submodule.toAddSubgroup_injective
+  simp
 
 end CommRing
 
 section CommRing
 
-variable {R : Type*} [CommRing R] {P : RingPreordering R}
-    (hP : RingPreordering.supportAddSubgroup P = ⊥)
+variable {R : Type*} [CommRing R] {P : RingPreordering R} (hP : P.supportAddSubgroup = ⊥)
 
 abbrev RingCone.mkOfRingPreordering : RingCone R where
   __ := P.toSubsemiring
@@ -88,7 +93,7 @@ variable [Nontrivial R]
 
 open Classical
 noncomputable def RingOrdering_LinearOrder_equiv :
-    Equiv {O : RingPreordering R // HasMemOrNegMem O ∧ RingPreordering.supportAddSubgroup O = ⊥}
+    Equiv {O : RingPreordering R // HasMemOrNegMem O ∧ O.supportAddSubgroup = ⊥}
           {l : LinearOrder R // IsOrderedRing R} where
   toFun := fun ⟨_, _, hO⟩ => ⟨.mkOfRingOrdering hO, .mkOfRingPreordering hO⟩
   invFun := fun ⟨_, _⟩ => ⟨.mkOfCone <| .nonneg R, inferInstance, by simp⟩
@@ -121,19 +126,19 @@ variable {F : Type*} [Field F] (P : RingPreordering F)
 abbrev RingCone.mkOfRingPreordering_field : RingCone F :=
   mkOfRingPreordering <| RingPreordering.supportAddSubgroup_eq_bot P
 
-instance [HasMemOrNegMem P] : IsMaxCone <| RingCone.mkOfRingPreordering_field P where
+instance [P.IsOrdering] : IsMaxCone <| RingCone.mkOfRingPreordering_field P where
   mem_or_neg_mem' := mem_or_neg_mem P
 
 abbrev PartialOrder.mkOfRingPreordering_field : PartialOrder F :=
   .mkOfAddGroupCone <| RingCone.mkOfRingPreordering_field P
 
-abbrev LinearOrder.mkOfRingOrdering_field [HasMemOrNegMem P] [DecidablePred (· ∈ P)] :
+abbrev LinearOrder.mkOfRingOrdering_field [P.IsOrdering] [DecidablePred (· ∈ P)] :
     LinearOrder F :=
   .mkOfAddGroupCone (RingCone.mkOfRingPreordering_field P)
 
 open Classical in
 noncomputable def RingOrdering_IsOrderedRing_equiv_field :
-    Equiv {O : RingPreordering F // HasMemOrNegMem O}
+    Equiv {O : RingPreordering F // O.IsOrdering}
           {l : LinearOrder F // IsOrderedRing F} where
   toFun := fun x => RingOrdering_LinearOrder_equiv ⟨x.1, x.2, by simp⟩
   invFun := fun y => ⟨(RingOrdering_LinearOrder_equiv.symm ⟨y.1, y.2⟩).1,
@@ -142,7 +147,7 @@ noncomputable def RingOrdering_IsOrderedRing_equiv_field :
   right_inv := fun ⟨_, _⟩ => by simp
 
 @[simp]
-theorem RingOrdering_IsOrderedRing_equiv_field_apply (hP : HasMemOrNegMem P) :
+theorem RingOrdering_IsOrderedRing_equiv_field_apply (hP : P.IsOrdering) :
     RingOrdering_IsOrderedRing_equiv_field ⟨P, hP⟩ =
     RingOrdering_LinearOrder_equiv ⟨P, hP, by simp⟩ := by
   simp [RingOrdering_IsOrderedRing_equiv_field]
@@ -156,7 +161,7 @@ theorem RingOrdering_IsOrderedRing_equiv_field_symm_apply_coe
 end Field
 
 abbrev RingCone.mkOfRingPreordering_quot {R : Type*} [CommRing R] (P : RingPreordering R)
-    [HasMemOrNegMem P] : RingCone (R ⧸ RingPreordering.support P) := by
+    [HasMemOrNegMem P] : RingCone (R ⧸ RingPreordering.P.support) := by
   refine mkOfRingPreordering (P := P.map Ideal.Quotient.mk_surjective (by simp)) ?_
   ext x
   simpa using show _ ↔ x ∈ Ideal.map _ P.support from
@@ -164,15 +169,15 @@ abbrev RingCone.mkOfRingPreordering_quot {R : Type*} [CommRing R] (P : RingPreor
 
 abbrev PartialOrder.mkOfRingPreordering_quot {R : Type*} [CommRing R]
     (P : RingPreordering R) [P.IsOrdering] [DecidablePred (· ∈ P)] :
-    PartialOrder (R ⧸ (RingPreordering.support P)) :=
-  have : DecidablePred (· ∈ (Ideal.Quotient.mk (RingPreordering.support P) '' P)) := by
-    simpa using decidablePred_mem_map_quotient_mk (RingPreordering.support P)
+    PartialOrder (R ⧸ (RingPreordering.P.support)) :=
+  have : DecidablePred (· ∈ (Ideal.Quotient.mk (RingPreordering.P.support) '' P)) := by
+    simpa using decidablePred_mem_map_quotient_mk (RingPreordering.P.support)
       (by aesop (add safe apply Set.sep_subset))
   .mkOfAddGroupCone <| RingCone.mkOfRingPreordering_quot P
 
 theorem IsOrderedRing.mkOfRingPreordering_quot {R : Type*} [CommRing R]
     (P : RingPreordering R) [P.IsOrdering] [DecidablePred (· ∈ P)] :
     letI  _ : PartialOrder _ := PartialOrder.mkOfRingPreordering_quot P
-    IsOrderedRing (R ⧸ (RingPreordering.support P)) := mkOfRingPreordering _
+    IsOrderedRing (R ⧸ (RingPreordering.P.support)) := mkOfRingPreordering _
 
 /- TODO : full equivalence between ring orderings and linear ordered quotient domains -/
