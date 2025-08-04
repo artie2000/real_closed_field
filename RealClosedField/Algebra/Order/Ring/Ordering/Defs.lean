@@ -138,18 +138,6 @@ def supportAddSubgroup : AddSubgroup R where
 theorem mem_supportAddSubgroup {x} : x ∈ P.supportAddSubgroup ↔ x ∈ P ∧ -x ∈ P := .rfl
 theorem coe_supportAddSubgroup : P.supportAddSubgroup = (P : Set R) ∩ -(P : Set R) := rfl
 
-@[aesop unsafe 70%]
-theorem mem_of_mem_supportAddSubgroup {x} (hx : x ∈ P.supportAddSubgroup) : x ∈ P := by
-  simp_all [supportAddSubgroup]
-
-@[aesop unsafe 70%]
-theorem neg_mem_of_mem_supportAddSubgroup {x} (hx : x ∈ P.supportAddSubgroup) : -x ∈ P := by
-  simp_all [supportAddSubgroup]
-
-theorem mem_supportAddSubgroup_of_mem_of_neg_mem {x} (hx : x ∈ P) (hnx : -x ∈ P) :
-    x ∈ P.supportAddSubgroup := by
-  simp_all [supportAddSubgroup]
-
 end supportAddSubgroup
 
 /-- Typeclass to track whether the support of a preordering forms an ideal. -/
@@ -167,8 +155,8 @@ theorem hasIdealSupport_iff :
 instance [HasMemOrNegMem P] : P.HasIdealSupport where
   smul_mem_support x a ha := by
     cases mem_or_neg_mem P x with
-    | inl hx => simpa using ⟨by simpa using mul_mem hx ha.1, by simpa using mul_mem hx ha.2⟩
-    | inr hx => simpa using ⟨by simpa using mul_mem hx ha.2, by simpa using mul_mem hx ha.1⟩
+    | inl hx => exact ⟨by simpa using mul_mem hx ha.1, by simpa using mul_mem hx ha.2⟩
+    | inr hx => exact ⟨by simpa using mul_mem hx ha.2, by simpa using mul_mem hx ha.1⟩
 
 section support
 
@@ -183,11 +171,15 @@ def support : Ideal R where
   __ := P.supportAddSubgroup
   smul_mem' := by simpa using smul_mem_support P
 
-@[simp] theorem mem_support {x} : x ∈ P.support ↔ x ∈ P ∧ -x ∈ P := .rfl
-@[simp, norm_cast] theorem coe_support : P.support = {x : R | x ∈ P ∧ -x ∈ P} := rfl
+theorem mem_support {x} : x ∈ P.support ↔ x ∈ P ∧ -x ∈ P := .rfl
+theorem coe_support : P.support = (P : Set R) ∩ -(P : Set R) := rfl
 
-@[simp]
-theorem support_toAddSubgroup : (P.support).toAddSubgroup = P.supportAddSubgroup := by ext; simp
+@[simp] theorem support_toAddSubgroup : (P.support).toAddSubgroup = P.supportAddSubgroup := rfl
+
+theorem mem_supportAddSubgroup_iff_mem_support {x} :
+    x ∈ P.supportAddSubgroup ↔ x ∈ P.support := .rfl
+
+theorem coe_supportAddSubgroup_eq_coe_support : (P.supportAddSubgroup : Set R) = P.support := rfl
 
 end support
 

@@ -79,10 +79,13 @@ namespace Subsemiring
 variable {R S : Type*} [NonUnitalNonAssocSemiring R] [HasDistribNeg R]
   [SetLike S R] [NonUnitalSubsemiringClass S R] {s : S}
 
+-- PR
 @[aesop unsafe 80% (rule_sets := [SetLike])]
 theorem neg_mul_mem {x y : R} (hx : -x ∈ s) (hy : y ∈ s) : -(x * y) ∈ s := by
   simpa using mul_mem hx hy
 
+
+-- PR
 @[aesop unsafe 80% (rule_sets := [SetLike])]
 theorem mul_neg_mem {x y : R} (hx : x ∈ s) (hy : -y ∈ s) : -(x * y) ∈ s := by
   simpa using mul_mem hx hy

@@ -48,7 +48,7 @@ instance : HasMemOrNegMem (RingPreordering.mkOfCone C) where
 @[simp]
 theorem RingPreordering.mkOfCone.supportAddSubgroup_eq_bot :
     supportAddSubgroup (mkOfCone C) = ⊥ := by
-  aesop (add safe (eq_zero_of_mem_of_neg_mem (C := C)))
+  aesop (add safe (eq_zero_of_mem_of_neg_mem (C := C)), simp mem_supportAddSubgroup)
 
 instance : RingPreordering.HasIdealSupport (RingPreordering.mkOfCone C) where
   smul_mem_support := by simp
@@ -69,7 +69,7 @@ abbrev RingCone.mkOfRingPreordering : RingCone R where
   carrier := P
   eq_zero_of_mem_of_neg_mem' {a} := by
     apply_fun (a ∈ ·) at hP
-    aesop
+    aesop (add simp RingPreordering.mem_supportAddSubgroup)
 
 @[simp] theorem RingCone.mkOfRingPreordering_carrier :
     (RingCone.mkOfRingPreordering hP).carrier = P := rfl

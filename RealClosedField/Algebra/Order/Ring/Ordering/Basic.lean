@@ -107,15 +107,16 @@ section neq_top
 
 variable (P)
 
-theorem one_notMem_supportAddSubgroup : 1 ∉ P.supportAddSubgroup := by aesop
+theorem one_notMem_supportAddSubgroup : 1 ∉ P.supportAddSubgroup := by
+  aesop (add simp mem_supportAddSubgroup)
 
 theorem supportAddSubgroup_neq_top : P.supportAddSubgroup ≠ ⊤ :=
-  fun _ => one_notMem_supportAddSubgroup P (by aesop)
+  Ne.symm <| ne_of_mem_of_not_mem' trivial (one_notMem_supportAddSubgroup P)
 
 theorem one_notMem_support [P.HasIdealSupport] : 1 ∉ P.support := one_notMem_supportAddSubgroup P
 
 theorem support_neq_top [P.HasIdealSupport] : P.support ≠ ⊤ :=
-  fun _ => one_notMem_support P (by aesop)
+  Ne.symm <| ne_of_mem_of_not_mem' trivial (one_notMem_support P)
 
 end neq_top
 
@@ -123,13 +124,13 @@ namespace HasIdealSupport
 
 theorem smul_mem [P.HasIdealSupport]
   (x : R) {a : R} (h₁a : a ∈ P) (h₂a : -a ∈ P) : x * a ∈ P := by
-  have := smul_mem_support P
-  simp_all
+  rw [hasIdealSupport_iff] at ‹P.HasIdealSupport›
+  simp [*]
 
 theorem neg_smul_mem [P.HasIdealSupport]
   (x : R) {a : R} (h₁a : a ∈ P) (h₂a : -a ∈ P) : -(x * a) ∈ P := by
-  have := smul_mem_support P
-  simp_all
+  rw [hasIdealSupport_iff] at ‹P.HasIdealSupport›
+  simp [*]
 
 end HasIdealSupport
 
@@ -156,12 +157,13 @@ protected theorem eq_zero_of_mem_of_neg_mem {x} (h : x ∈ P) (h2 : -x ∈ P) : 
   field_simp at mem
   exact RingPreordering.neg_one_notMem P mem
 
-@[simp] theorem supportAddSubgroup_eq_bot : P.supportAddSubgroup = ⊥ := by ext; aesop
+@[simp] theorem supportAddSubgroup_eq_bot : P.supportAddSubgroup = ⊥ := by
+  ext; aesop (add simp mem_supportAddSubgroup)
 
 instance : P.HasIdealSupport where
   smul_mem_support := by simp
 
-@[simp] theorem support_eq_bot : P.support = ⊥ := by ext; aesop
+@[simp] theorem support_eq_bot : P.support = ⊥ := by ext; aesop (add simp mem_support)
 
 instance : P.support.IsPrime := by simpa using Ideal.bot_prime
 
@@ -189,18 +191,18 @@ theorem isOrdering_iff :
   · by_contra
     have : a * b ∈ P := by simpa using mul_mem (by aesop : -a ∈ P) (by aesop : -b ∈ P)
     have : a ∈ P.support ∨ b ∈ P.support :=
-      Ideal.IsPrime.mem_or_mem inferInstance (by simp_all)
-    simp_all
+      Ideal.IsPrime.mem_or_mem inferInstance (by simp_all [mem_support])
+    simp_all [mem_support]
   · exact {(⟨by aesop⟩ : HasMemOrNegMem _) with
       mem_or_mem := fun {x y} hxy => by
         by_contra
         cases (by aesop : x ∈ P ∨ -x ∈ P) with
         | inl =>  have := h (-x) y
                   have := h (-x) (-y)
-                  simp_all
+                  simp_all [mem_support]
         | inr =>  have := h x y
                   have := h x (-y)
-                  simp_all }
+                  simp_all [mem_support] }
 
 /-! ## Order operations -/
 
@@ -215,6 +217,19 @@ instance : Min (RingPreordering R) where
 theorem inf_toSubsemiring : (P₁ ⊓ P₂).toSubsemiring = P₁.toSubsemiring ⊓ P₂.toSubsemiring := rfl
 @[simp] theorem mem_inf {x : R} : x ∈ P₁ ⊓ P₂ ↔ x ∈ P₁ ∧ x ∈ P₂ := .rfl
 @[simp, norm_cast] theorem coe_inf : ↑(P₁ ⊓ P₂) = (P₁ ∩ P₂ : Set R) := rfl
+
+@[simp]
+theorem supportAddSubgroup_inf :
+    (P₁ ⊓ P₂).supportAddSubgroup = P₁.supportAddSubgroup ⊓ P₂.supportAddSubgroup := by
+  ext
+  simp only [mem_supportAddSubgroup, mem_inf, AddSubgroup.mem_inf]
+  tauto
+
+instance [P₁.HasIdealSupport] [P₂.HasIdealSupport] : (P₁ ⊓ P₂).HasIdealSupport := sorry
+
+@[simp]
+theorem support_inf [P₁.HasIdealSupport] [P₂.HasIdealSupport] :
+    (P₁ ⊓ P₂).support = P₁.support ⊓ P₂.support := sorry
 
 instance : SemilatticeInf (RingPreordering R) where
   inf := (· ⊓ ·)
@@ -247,6 +262,8 @@ theorem coe_sInf : (sInf hS : Set R) = ⋂ P ∈ S, P := by
 theorem mem_sInf {x : R} : x ∈ sInf hS ↔ ∀ p ∈ S, x ∈ p := by
   rw [show x ∈ sInf hS ↔ x ∈ (sInf hS : Set R) by simp [-coe_sInf]]
   simp_all
+
+/- TODO : support sInf -/
 
 variable (hS) in
 theorem sInf_le {P} (hP : P ∈ S) : sInf hS ≤ P := by
@@ -310,6 +327,8 @@ theorem mem_sSup {x : R} : x ∈ sSup hS hSd ↔ ∃ p ∈ S, x ∈ p := by
   rw [show x ∈ sSup hS hSd ↔ x ∈ (sSup hS hSd : Set R) by simp [-coe_sSup]]
   simp_all
 
+/- TODO : support sSup -/
+
 variable (hS) (hSd) in
 theorem le_sSup {P} (hP : P ∈ S) : P ≤ sSup hS hSd := by
   rw [← SetLike.coe_subset_coe]
@@ -353,7 +372,8 @@ instance (P : RingPreordering B) [HasMemOrNegMem P] (f : A →+* B) : HasMemOrNe
 
 @[simp]
 theorem mem_comap_supportAddSubgroup {P : RingPreordering B} {f : A →+* B} {x : A} :
-    x ∈ supportAddSubgroup (P.comap f) ↔ f x ∈ P.supportAddSubgroup := by simp
+    x ∈ supportAddSubgroup (P.comap f) ↔ f x ∈ P.supportAddSubgroup := by
+  simp [mem_supportAddSubgroup]
 
 @[simp]
 theorem comap_supportAddSubgroup {P : RingPreordering B} {f : A →+* B} :
@@ -365,7 +385,7 @@ instance (P : RingPreordering B) [P.HasIdealSupport] (f : A →+* B) :
 
 @[simp]
 theorem mem_comap_support {P : RingPreordering B} [P.HasIdealSupport] {f : A →+* B} {x : A} :
-    x ∈ (P.comap f).support ↔ f x ∈ P.support := by simp
+    x ∈ (P.comap f).support ↔ f x ∈ P.support := mem_comap_supportAddSubgroup
 
 @[simp]
 theorem comap_support {P : RingPreordering B} [P.HasIdealSupport] {f : A →+* B} :
@@ -409,13 +429,13 @@ instance {f : A →+* B} {P : RingPreordering A} [HasMemOrNegMem P] (hf : Functi
     have := mem_or_neg_mem P x'
     aesop
 
-@[simp↓]
+@[simp]
 theorem mem_map_supportAddSubgroup {f : A →+* B} {P : RingPreordering A}
     {hf : Function.Surjective f} {hsupp : (RingHom.ker f : Set A) ⊆ P.supportAddSubgroup} {x : B} :
     x ∈ supportAddSubgroup (map hf hsupp) ↔ ∃ y ∈ P.supportAddSubgroup, f y = x := by
-  refine ⟨fun ⟨⟨a, ⟨ha₁, ha₂⟩⟩, ⟨b, ⟨hb₁, hb₂⟩⟩⟩ => ?_, by aesop⟩
+  refine ⟨fun ⟨⟨a, ⟨ha₁, ha₂⟩⟩, ⟨b, ⟨hb₁, hb₂⟩⟩⟩ => ?_, by aesop (add simp mem_supportAddSubgroup)⟩
   have : -(a + b) + b ∈ P := by exact add_mem (hsupp (show f (a + b) = 0 by simp_all)).2 hb₁
-  aesop
+  aesop (add simp mem_supportAddSubgroup)
 
 @[simp]
 theorem map_supportAddSubgroup {f : A →+* B} {P : RingPreordering A} {hf : Function.Surjective f}
@@ -432,11 +452,11 @@ instance {f : A →+* B} {P : RingPreordering A} [P.HasIdealSupport] (hf : Funct
     have := smul_mem_support P x' ha'
     aesop
 
-@[simp↓]
+@[simp]
 theorem mem_map_support {f : A →+* B} {P : RingPreordering A} [P.HasIdealSupport]
     {hf : Function.Surjective f}
     {hsupp : RingHom.ker f ≤ P.support} {x : B} :
-    x ∈ (map hf hsupp).support ↔ ∃ y ∈ P.support, f y = x := by simp [support]
+    x ∈ (map hf hsupp).support ↔ ∃ y ∈ P.support, f y = x := mem_map_supportAddSubgroup
 
 @[simp]
 theorem map_support {f : A →+* B} {P : RingPreordering A} [P.HasIdealSupport]

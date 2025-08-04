@@ -164,7 +164,8 @@ theorem maximal_iff_maximal_isOrdering {O : RingPreordering R} [O.IsOrdering] :
 -/
 
 theorem mem_support_of_ge_of_notMem [HasMemOrNegMem P] (Q : RingPreordering R) (h : P ≤ Q)
-    (ha : a ∈ Q) (haP : a ∉ P) : a ∈ Q.supportAddSubgroup := by aesop
+    (ha : a ∈ Q) (haP : a ∉ P) : a ∈ Q.supportAddSubgroup := by
+  aesop (add simp mem_supportAddSubgroup)
 
 theorem eq_of_le_of_supportAddSubgroup_eq_bot {P} [HasMemOrNegMem P] {Q : RingPreordering R}
     (hSupp : Q.supportAddSubgroup = ⊥) (h : P ≤ Q) : P = Q := by
@@ -174,7 +175,7 @@ theorem eq_of_le_of_supportAddSubgroup_eq_bot {P} [HasMemOrNegMem P] {Q : RingPr
   have : 0 ∈ P := by aesop
   have : -x ∈ Q := by aesop
   apply_fun (x ∈ ·) at hSupp
-  aesop
+  aesop (add simp mem_supportAddSubgroup)
 
 theorem eq_of_le {F : Type*} [Field F] {P Q : RingPreordering F} [P.IsOrdering]
     (h : P ≤ Q) : P = Q := eq_of_le_of_supportAddSubgroup_eq_bot (by simp) h
