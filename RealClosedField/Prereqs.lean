@@ -12,12 +12,12 @@ import Mathlib.RingTheory.Henselian
 
 /- Lemmas that should be upstreamed to Mathlib -/
 
--- PR
+-- merged
 theorem Equiv.Subtype.exists_congr {α β : Type*} {p : α → Prop} {q : β → Prop}
     (e : {a // p a} ≃ {b // q b}) : (∃ a, p a) ↔ ∃ b, q b := by
   simp [← nonempty_subtype, Equiv.nonempty_congr e]
 
--- PR
+-- merged
 theorem Equiv.Subtype.existsUnique_congr {α β : Type*} {p : α → Prop} {q : β → Prop}
     (e : {a // p a} ≃ {b // q b}) : (∃! a, p a) ↔ ∃! b, q b := by
   simp [← unique_subtype_iff_existsUnique, unique_iff_subsingleton_and_nonempty,

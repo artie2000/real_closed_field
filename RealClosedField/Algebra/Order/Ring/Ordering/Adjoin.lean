@@ -163,25 +163,32 @@ theorem maximal_iff_maximal_isOrdering {O : RingPreordering R} [O.IsOrdering] :
 ### Comparison of orderings
 -/
 
-theorem mem_support_of_ge_of_notMem [HasMemOrNegMem P] (Q : RingPreordering R) (h : P ≤ Q)
-    (ha : a ∈ Q) (haP : a ∉ P) : a ∈ Q.supportAddSubgroup := by
-  aesop (add simp mem_supportAddSubgroup)
+variable {P a}
+
+def HasMemOrNegMem_of_ge [HasMemOrNegMem P] {Q : RingPreordering R}
+    (h : P ≤ Q) : HasMemOrNegMem Q where
+  mem_or_neg_mem a := have := mem_or_neg_mem P a; by aesop
+
+theorem mem_support_of_ge_of_notMem [HasMemOrNegMem P] {Q : RingPreordering R}
+    (h : P ≤ Q) (ha : a ∈ Q) (haP : a ∉ P) :
+    let := HasMemOrNegMem_of_ge h
+    a ∈ Q.support := by
+  aesop (add simp mem_support)
 
 theorem eq_of_le_of_supportAddSubgroup_eq_bot {P} [HasMemOrNegMem P] {Q : RingPreordering R}
-    (hSupp : Q.supportAddSubgroup = ⊥) (h : P ≤ Q) : P = Q := by
+    (h : P ≤ Q) (hSupp : let := HasMemOrNegMem_of_ge h; Q.support = ⊥) : P = Q := by
   by_contra h2
   have ⟨x, hx, hx2⟩ : ∃ x, x ∈ Q ∧ x ∉ P :=
     Set.exists_of_ssubset <| lt_of_le_of_ne h (by simpa using h2)
-  have : 0 ∈ P := by aesop
   have : -x ∈ Q := by aesop
   apply_fun (x ∈ ·) at hSupp
-  aesop (add simp mem_supportAddSubgroup)
+  aesop (add simp mem_support)
 
-theorem eq_of_le {F : Type*} [Field F] {P Q : RingPreordering F} [P.IsOrdering]
-    (h : P ≤ Q) : P = Q := eq_of_le_of_supportAddSubgroup_eq_bot (by simp) h
+theorem eq_of_le {F : Type*} [Field F] {P Q : RingPreordering F} [P.IsOrdering] (h : P ≤ Q) :
+    P = Q := eq_of_le_of_supportAddSubgroup_eq_bot h (support_eq_bot Q)
 
 /- A preordering on a field `F` is maximal iff it is an ordering. -/
 theorem maximal_iff_hasMemOrNegMem {F : Type*} [Field F] {O : RingPreordering F} :
-    IsMax O ↔ O.IsOrdering :=
-  ⟨fun h => have := isOrdering_of_maximal h; inferInstance,
-   fun _ _ le => le_of_eq (eq_of_le le).symm⟩
+    IsMax O ↔ O.IsOrdering where
+  mp h := have := isOrdering_of_maximal h; inferInstance
+  mpr _ _ le := le_of_eq (eq_of_le le).symm

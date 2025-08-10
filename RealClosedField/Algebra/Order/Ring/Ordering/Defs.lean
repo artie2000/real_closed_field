@@ -174,12 +174,13 @@ def support : Ideal R where
 theorem mem_support {x} : x ∈ P.support ↔ x ∈ P ∧ -x ∈ P := .rfl
 theorem coe_support : P.support = (P : Set R) ∩ -(P : Set R) := rfl
 
-@[simp] theorem support_toAddSubgroup : (P.support).toAddSubgroup = P.supportAddSubgroup := rfl
+@[simp] theorem supportAddSubgroup_eq : P.supportAddSubgroup = (P.support).toAddSubgroup := rfl
 
 theorem mem_supportAddSubgroup_iff_mem_support {x} :
     x ∈ P.supportAddSubgroup ↔ x ∈ P.support := .rfl
 
-theorem coe_supportAddSubgroup_eq_coe_support : (P.supportAddSubgroup : Set R) = P.support := rfl
+theorem coe_supportAddSubgroup_eq_coe_support :
+    (P.supportAddSubgroup : Set R) = P.support := rfl
 
 end support
 

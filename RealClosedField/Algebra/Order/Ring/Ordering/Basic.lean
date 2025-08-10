@@ -110,13 +110,15 @@ variable (P)
 theorem one_notMem_supportAddSubgroup : 1 ∉ P.supportAddSubgroup := by
   aesop (add simp mem_supportAddSubgroup)
 
+theorem one_notMem_support [P.HasIdealSupport] : 1 ∉ P.support := by
+  simpa using one_notMem_supportAddSubgroup P
+
 theorem supportAddSubgroup_neq_top : P.supportAddSubgroup ≠ ⊤ :=
   Ne.symm <| ne_of_mem_of_not_mem' trivial (one_notMem_supportAddSubgroup P)
 
-theorem one_notMem_support [P.HasIdealSupport] : 1 ∉ P.support := one_notMem_supportAddSubgroup P
-
-theorem support_neq_top [P.HasIdealSupport] : P.support ≠ ⊤ :=
-  Ne.symm <| ne_of_mem_of_not_mem' trivial (one_notMem_support P)
+theorem support_neq_top [P.HasIdealSupport] : P.support ≠ ⊤ := by
+  apply_fun Submodule.toAddSubgroup
+  simpa using supportAddSubgroup_neq_top P
 
 end neq_top
 
@@ -157,13 +159,15 @@ protected theorem eq_zero_of_mem_of_neg_mem {x} (h : x ∈ P) (h2 : -x ∈ P) : 
   field_simp at mem
   exact RingPreordering.neg_one_notMem P mem
 
-@[simp] theorem supportAddSubgroup_eq_bot : P.supportAddSubgroup = ⊥ := by
+theorem supportAddSubgroup_eq_bot : P.supportAddSubgroup = ⊥ := by
   ext; aesop (add simp mem_supportAddSubgroup)
 
 instance : P.HasIdealSupport where
-  smul_mem_support := by simp
+  smul_mem_support := by simp [supportAddSubgroup_eq_bot]
 
-@[simp] theorem support_eq_bot : P.support = ⊥ := by ext; aesop (add simp mem_support)
+@[simp] theorem support_eq_bot : P.support = ⊥ := by
+  apply_fun Submodule.toAddSubgroup using Submodule.toAddSubgroup_injective
+  simpa using supportAddSubgroup_eq_bot P
 
 instance : P.support.IsPrime := by simpa using Ideal.bot_prime
 
@@ -229,7 +233,9 @@ instance [P₁.HasIdealSupport] [P₂.HasIdealSupport] : (P₁ ⊓ P₂).HasIdea
 
 @[simp]
 theorem support_inf [P₁.HasIdealSupport] [P₂.HasIdealSupport] :
-    (P₁ ⊓ P₂).support = P₁.support ⊓ P₂.support := sorry
+    (P₁ ⊓ P₂).support = P₁.support ⊓ P₂.support := by
+  apply_fun Submodule.toAddSubgroup using Submodule.toAddSubgroup_injective
+  simpa [-Submodule.toAddSubgroup_inj] using supportAddSubgroup_inf (P₁ := P₁) (P₂ := P₂)
 
 instance : SemilatticeInf (RingPreordering R) where
   inf := (· ⊓ ·)
@@ -385,7 +391,8 @@ instance (P : RingPreordering B) [P.HasIdealSupport] (f : A →+* B) :
 
 @[simp]
 theorem mem_comap_support {P : RingPreordering B} [P.HasIdealSupport] {f : A →+* B} {x : A} :
-    x ∈ (P.comap f).support ↔ f x ∈ P.support := mem_comap_supportAddSubgroup
+    x ∈ (P.comap f).support ↔ f x ∈ P.support := by
+  simpa using mem_comap_supportAddSubgroup (P := P)
 
 @[simp]
 theorem comap_support {P : RingPreordering B} [P.HasIdealSupport] {f : A →+* B} :
@@ -456,7 +463,8 @@ instance {f : A →+* B} {P : RingPreordering A} [P.HasIdealSupport] (hf : Funct
 theorem mem_map_support {f : A →+* B} {P : RingPreordering A} [P.HasIdealSupport]
     {hf : Function.Surjective f}
     {hsupp : RingHom.ker f ≤ P.support} {x : B} :
-    x ∈ (map hf hsupp).support ↔ ∃ y ∈ P.support, f y = x := mem_map_supportAddSubgroup
+    x ∈ (map hf hsupp).support ↔ ∃ y ∈ P.support, f y = x := by
+  simpa using mem_map_supportAddSubgroup
 
 @[simp]
 theorem map_support {f : A →+* B} {P : RingPreordering A} [P.HasIdealSupport]
