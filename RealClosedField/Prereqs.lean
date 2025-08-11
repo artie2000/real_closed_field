@@ -12,17 +12,6 @@ import Mathlib.RingTheory.Henselian
 
 /- Lemmas that should be upstreamed to Mathlib -/
 
--- merged
-theorem Equiv.Subtype.exists_congr {α β : Type*} {p : α → Prop} {q : β → Prop}
-    (e : {a // p a} ≃ {b // q b}) : (∃ a, p a) ↔ ∃ b, q b := by
-  simp [← nonempty_subtype, Equiv.nonempty_congr e]
-
--- merged
-theorem Equiv.Subtype.existsUnique_congr {α β : Type*} {p : α → Prop} {q : β → Prop}
-    (e : {a // p a} ≃ {b // q b}) : (∃! a, p a) ↔ ∃! b, q b := by
-  simp [← unique_subtype_iff_existsUnique, unique_iff_subsingleton_and_nonempty,
-        Equiv.nonempty_congr e, Equiv.subsingleton_congr e]
-
 -- PR
 instance {F : Type*} [Field F] [LinearOrder F] [IsOrderedRing F] : IsStrictOrderedRing F :=
   IsOrderedRing.toIsStrictOrderedRing F

@@ -113,12 +113,12 @@ theorem one_notMem_supportAddSubgroup : 1 ∉ P.supportAddSubgroup := by
 theorem one_notMem_support [P.HasIdealSupport] : 1 ∉ P.support := by
   simpa using one_notMem_supportAddSubgroup P
 
-theorem supportAddSubgroup_neq_top : P.supportAddSubgroup ≠ ⊤ :=
+theorem supportAddSubgroup_ne_top : P.supportAddSubgroup ≠ ⊤ :=
   Ne.symm <| ne_of_mem_of_not_mem' trivial (one_notMem_supportAddSubgroup P)
 
-theorem support_neq_top [P.HasIdealSupport] : P.support ≠ ⊤ := by
+theorem support_ne_top [P.HasIdealSupport] : P.support ≠ ⊤ := by
   apply_fun Submodule.toAddSubgroup
-  simpa using supportAddSubgroup_neq_top P
+  simpa using supportAddSubgroup_ne_top P
 
 end neq_top
 
@@ -354,8 +354,6 @@ theorem nonempty_chain_bddAbove {S : Set (RingPreordering R)}
 variable {A B C : Type*} [CommRing A] [CommRing B] [CommRing C]
 
 /-! ## comap -/
-
-/- TODO : generalise bundled "→+*" to class instances -/
 
 /-- The preimage of a preordering along a ring homomorphism is a preordering. -/
 def comap (f : A →+* B) (P : RingPreordering B) : RingPreordering A where

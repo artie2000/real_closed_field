@@ -45,6 +45,8 @@ structure RingPreordering extends Subsemiring R where
   mem_of_isSquare' {x : R} (hx : IsSquare x) : x ∈ carrier := by aesop
   neg_one_notMem' : -1 ∉ carrier := by aesop
 
+initialize_simps_projections RingPreordering (carrier → coe, as_prefix coe)
+
 namespace RingPreordering
 
 attribute [coe] toSubsemiring
@@ -65,10 +67,10 @@ variable {R}
 protected theorem mem_of_isSquare (P : RingPreordering R) {x : R} (hx : IsSquare x) : x ∈ P :=
   RingPreordering.mem_of_isSquare' _ hx
 
-@[simp, aesop safe (rule_sets := [SetLike])]
+@[simp]
 protected theorem mul_self_mem (P : RingPreordering R) (x : R) : x * x ∈ P := by aesop
 
-@[simp, aesop safe (rule_sets := [SetLike])]
+@[simp]
 protected theorem pow_two_mem (P : RingPreordering R) (x : R) : x ^ 2 ∈ P := by aesop
 
 @[aesop unsafe 20% forward (rule_sets := [SetLike])]
@@ -86,14 +88,14 @@ theorem toSubsemiring_inj {P₁ P₂ : RingPreordering R} :
 theorem mem_toSubsemiring {P : RingPreordering R} {x : R} : x ∈ P.toSubsemiring ↔ x ∈ P := .rfl
 
 @[simp, norm_cast]
-theorem coe_toSubsemiring {P : RingPreordering R} : (P.toSubsemiring : Set R) = P := rfl
+theorem coe_toSubsemiring (P : RingPreordering R) : (P.toSubsemiring : Set R) = P := rfl
 
 @[simp]
-theorem mem_mk {toSubsemiring : Subsemiring R} (mem_of_isSquare) (neg_one_notMem) {x : R} :
+theorem mem_mk {toSubsemiring : Subsemiring R} (mem_of_isSquare neg_one_notMem) {x : R} :
     x ∈ mk toSubsemiring mem_of_isSquare neg_one_notMem ↔ x ∈ toSubsemiring := .rfl
 
 @[simp]
-theorem coe_set_mk {toSubsemiring : Subsemiring R} (mem_of_isSquare) (neg_one_notMem) :
+theorem coe_set_mk (toSubsemiring : Subsemiring R) (mem_of_isSquare neg_one_notMem) :
     (mk toSubsemiring mem_of_isSquare neg_one_notMem : Set R) = toSubsemiring := rfl
 
 section copy
@@ -109,9 +111,8 @@ protected def copy : RingPreordering R where
   one_mem' := by aesop
   mul_mem' ha hb := by aesop
 
-@[simp, norm_cast]
-theorem coe_copy : (P.copy S hS : Set R) = S := rfl
-
+@[simp, norm_cast] theorem coe_copy : (P.copy S hS : Set R) = S := rfl
+@[simp] theorem mem_copy {x} : x ∈ P.copy S hS ↔ x ∈ S := .rfl
 theorem copy_eq : P.copy S hS = S := rfl
 
 end copy
@@ -130,33 +131,33 @@ The support of a ring preordering `P` in a commutative ring `R` is
 the set of elements `x` in `R` such that both `x` and `-x` lie in `P`.
 -/
 def supportAddSubgroup : AddSubgroup R where
-  carrier := (P : Set R) ∩ -(P : Set R)
+  carrier := P ∩ -P
   zero_mem' := by aesop
   add_mem' := by aesop
   neg_mem' := by aesop
 
 theorem mem_supportAddSubgroup {x} : x ∈ P.supportAddSubgroup ↔ x ∈ P ∧ -x ∈ P := .rfl
-theorem coe_supportAddSubgroup : P.supportAddSubgroup = (P : Set R) ∩ -(P : Set R) := rfl
+theorem coe_supportAddSubgroup : P.supportAddSubgroup = (P ∩ -P : Set R) := rfl
 
 end supportAddSubgroup
 
 /-- Typeclass to track whether the support of a preordering forms an ideal. -/
-class HasIdealSupport (P : RingPreordering R) :  Prop where
+class HasIdealSupport (P : RingPreordering R) : Prop where
   smul_mem_support (P) (x : R) {a : R} (ha : a ∈ P.supportAddSubgroup) :
     x * a ∈ P.supportAddSubgroup
 
 export HasIdealSupport (smul_mem_support)
 
 theorem hasIdealSupport_iff :
-    P.HasIdealSupport ↔ ∀ x a : R, a ∈ P → -a ∈ P → x * a ∈ P ∧ -(x * a) ∈ P :=
-  ⟨fun _ => by simpa [mem_supportAddSubgroup] using P.smul_mem_support,
-  fun _ => ⟨by simpa [mem_supportAddSubgroup]⟩⟩
+    P.HasIdealSupport ↔ ∀ x a : R, a ∈ P → -a ∈ P → x * a ∈ P ∧ -(x * a) ∈ P where
+  mp _ := by simpa [mem_supportAddSubgroup] using P.smul_mem_support
+  mpr _ := ⟨by simpa [mem_supportAddSubgroup]⟩
 
 instance [HasMemOrNegMem P] : P.HasIdealSupport where
-  smul_mem_support x a ha := by
-    cases mem_or_neg_mem P x with
-    | inl hx => exact ⟨by simpa using mul_mem hx ha.1, by simpa using mul_mem hx ha.2⟩
-    | inr hx => exact ⟨by simpa using mul_mem hx ha.2, by simpa using mul_mem hx ha.1⟩
+  smul_mem_support x a ha :=
+    match mem_or_neg_mem P x with
+    | .inl hx => ⟨by simpa using mul_mem hx ha.1, by simpa using mul_mem hx ha.2⟩
+    | .inr hx => ⟨by simpa using mul_mem hx ha.2, by simpa using mul_mem hx ha.1⟩
 
 section support
 
@@ -175,12 +176,8 @@ theorem mem_support {x} : x ∈ P.support ↔ x ∈ P ∧ -x ∈ P := .rfl
 theorem coe_support : P.support = (P : Set R) ∩ -(P : Set R) := rfl
 
 @[simp] theorem supportAddSubgroup_eq : P.supportAddSubgroup = (P.support).toAddSubgroup := rfl
-
-theorem mem_supportAddSubgroup_iff_mem_support {x} :
-    x ∈ P.supportAddSubgroup ↔ x ∈ P.support := .rfl
-
-theorem coe_supportAddSubgroup_eq_coe_support :
-    (P.supportAddSubgroup : Set R) = P.support := rfl
+theorem mem_supportAddSubgroup_iff {x} : x ∈ P.supportAddSubgroup ↔ x ∈ P.support := by simp
+theorem coe_supportAddSubgroup_eq : (P.supportAddSubgroup : Set R) = P.support := by simp
 
 end support
 
@@ -198,6 +195,6 @@ instance [P.IsOrdering] : P.support.IsPrime where
 
 instance [HasMemOrNegMem P] [P.support.IsPrime] : P.IsOrdering where
   mem_or_neg_mem := mem_or_neg_mem P
-  mem_or_mem := Ideal.IsPrime.mem_or_mem ‹_›
+  mem_or_mem := ‹P.support.IsPrime›.mem_or_mem
 
 end RingPreordering
