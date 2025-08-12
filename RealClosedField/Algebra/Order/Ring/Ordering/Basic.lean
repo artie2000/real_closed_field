@@ -151,6 +151,13 @@ theorem hasIdealSupport_of_isUnit_2 (isUnit_2 : IsUnit (2 : R)) : P.HasIdealSupp
   ring_nf at mem ⊢
   assumption
 
+theorem supportAddSubgroup_eq_bot_iff_support_eq_bot [P.HasIdealSupport] :
+    P.supportAddSubgroup = ⊥ ↔ P.support = ⊥ where
+  mp h := by
+    apply_fun Submodule.toAddSubgroup using Submodule.toAddSubgroup_injective;
+    simpa using h
+  mpr h := by simp [h]
+
 section Field
 
 variable {F : Type*} [Field F] (P : RingPreordering F)
@@ -170,8 +177,8 @@ instance : P.HasIdealSupport where
   smul_mem_support := by simp [supportAddSubgroup_eq_bot]
 
 @[simp] theorem support_eq_bot : P.support = ⊥ := by
-  apply_fun Submodule.toAddSubgroup using Submodule.toAddSubgroup_injective
-  simpa using supportAddSubgroup_eq_bot P
+  rw [← supportAddSubgroup_eq_bot_iff_support_eq_bot]
+  exact supportAddSubgroup_eq_bot P
 
 instance : P.support.IsPrime := by simpa using Ideal.bot_prime
 
