@@ -36,6 +36,7 @@
    "subDir": null,
    "scope": "leanprover-community",
    "rev": "99657ad92e23804e279f77ea6dbdeebaa1317b98",
+   "rev": "99657ad92e23804e279f77ea6dbdeebaa1317b98",
    "name": "LeanSearchClient",
    "manifestFile": "lake-manifest.json",
    "inputRev": "main",
