@@ -3,48 +3,9 @@ Copyright (c) 2025 Artie Khovanov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
-import Mathlib.Algebra.Lie.OfAssociative
-import Mathlib.Algebra.Order.Ring.Cone
-import Mathlib.Algebra.Ring.SumsOfSquares
-import Mathlib.FieldTheory.IntermediateField.Adjoin.Algebra
-import Mathlib.RingTheory.Adjoin.Field
-import Mathlib.RingTheory.Henselian
+import Mathlib.RingTheory.Ideal.Quotient.Defs
 
 /- Lemmas that should be upstreamed to Mathlib -/
-
--- PR
-instance {F : Type*} [Field F] [LinearOrder F] [IsOrderedRing F] : IsStrictOrderedRing F :=
-  IsOrderedRing.toIsStrictOrderedRing F
-
-section equivAdjoin
-
-variable {F E : Type*} [Field F] [Field E] [Algebra F E]
-open scoped IntermediateField
-
--- PR
-theorem Algebra.adjoin_eq_top_of_intermediateField {S : Set E} (hS : ∀ x ∈ S, IsAlgebraic F x)
-    (hS₂ : IntermediateField.adjoin F S = ⊤) : Algebra.adjoin F S = ⊤ := by
-  simp [*, ← IntermediateField.adjoin_algebraic_toSubalgebra hS]
-
--- PR
-theorem Algebra.adjoin_eq_top_of_primitive_element {α : E} (hα : IsIntegral F α)
-    (hα₂ : F⟮α⟯ = ⊤) : Algebra.adjoin F {α} = ⊤ :=
-  Algebra.adjoin_eq_top_of_intermediateField (by simpa [isAlgebraic_iff_isIntegral]) hα₂
-
--- PR
-noncomputable def AlgEquiv.adjoinRootMinpolyPrimitiveElement {α : E}
-    (hα : IsIntegral F α) (hα₂ : F⟮α⟯ = ⊤) : AdjoinRoot (minpoly F α) ≃ₐ[F] E :=
-  (AlgEquiv.adjoinSingletonEquivAdjoinRootMinpoly F α).symm.trans <|
-  (Subalgebra.equivOfEq _ _ <| Algebra.adjoin_eq_top_of_primitive_element hα hα₂).trans
-  Subalgebra.topEquiv
-
--- PR
-@[simp]
-theorem AlgEquiv.adjoinRootMinpolyPrimitiveElement_apply {α : E}
-    (hα : IsIntegral F α) (hα₂ : F⟮α⟯ = ⊤) (x) :
-    adjoinRootMinpolyPrimitiveElement hα hα₂ x = AdjoinRoot.Minpoly.toAdjoin F α x := rfl
-
-end equivAdjoin
 
 --PR
 /-- Typeclass for substructures S such that S ∪ -S = G. -/
@@ -62,24 +23,6 @@ class HasMemOrInvMem {S G : Type*} [CommGroup G] [SetLike S G] (C : S) : Prop wh
 
 --PR
 export HasMemOrInvMem (mem_or_inv_mem)
-
-namespace Subsemiring
-
-variable {R S : Type*} [NonUnitalNonAssocSemiring R] [HasDistribNeg R]
-  [SetLike S R] [NonUnitalSubsemiringClass S R] {s : S}
-
--- PR
-@[aesop unsafe 80% (rule_sets := [SetLike])]
-theorem neg_mul_mem {x y : R} (hx : -x ∈ s) (hy : y ∈ s) : -(x * y) ∈ s := by
-  simpa using mul_mem hx hy
-
-
--- PR
-@[aesop unsafe 80% (rule_sets := [SetLike])]
-theorem mul_neg_mem {x y : R} (hx : x ∈ s) (hy : -y ∈ s) : -(x * y) ∈ s := by
-  simpa using mul_mem hx hy
-
-end Subsemiring
 
 theorem Quotient.image_mk_eq_lift {α : Type*} {s : Setoid α} (A : Set α)
     (h : ∀ x y, x ≈ y → (x ∈ A ↔ y ∈ A)) :

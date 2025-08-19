@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Florent Schaffhauser, Artie Khovanov
 -/
 import Mathlib.Algebra.Order.Ring.Cone
+import Mathlib.RingTheory.Ideal.Quotient.Operations
 import RealClosedField.Prereqs
 import RealClosedField.Algebra.Order.Ring.Ordering.Basic
 
@@ -125,24 +126,27 @@ abbrev LinearOrder.mkOfRingOrdering_field [P.IsOrdering] [DecidablePred (· ∈ 
 open Classical in
 noncomputable def RingOrdering_IsOrderedRing_equiv_field :
     Equiv {O : RingPreordering F // O.IsOrdering}
-          {l : LinearOrder F // IsOrderedRing F} where
-  toFun := fun ⟨O, hO⟩ => ringPreorderingLinearOrderEquiv ⟨O, letI _ := hO; inferInstance, by simp⟩
-  invFun := fun l => ⟨(ringPreorderingLinearOrderEquiv.symm l).1,
-                      letI _ := (ringPreorderingLinearOrderEquiv.symm l).2.1; .mk⟩
+          {l : LinearOrder F // IsStrictOrderedRing F} where
+  toFun := fun ⟨O, hO⟩ =>
+    let ⟨l, hl⟩ := ringPreorderingLinearOrderEquiv ⟨O, letI _ := hO; inferInstance, by simp⟩
+    ⟨l, IsOrderedRing.toIsStrictOrderedRing F⟩
+  invFun := fun ⟨l, hl⟩ =>
+    let ⟨O, hO⟩ := ringPreorderingLinearOrderEquiv.symm ⟨l, inferInstance⟩
+    ⟨O, letI _ := hO.1; .mk⟩
   left_inv := fun ⟨_, _⟩ => by ext; simp
   right_inv := fun ⟨_, _⟩ => by simp
 
 @[simp]
 theorem RingOrdering_IsOrderedRing_equiv_field_apply (hP : P.IsOrdering) :
-    RingOrdering_IsOrderedRing_equiv_field ⟨P, hP⟩ =
+    (RingOrdering_IsOrderedRing_equiv_field ⟨P, hP⟩ : LinearOrder F) =
     ringPreorderingLinearOrderEquiv ⟨P, inferInstance, by simp⟩ := by
   simp [RingOrdering_IsOrderedRing_equiv_field]
 
 @[simp]
 theorem RingOrdering_IsOrderedRing_equiv_field_symm_apply_coe
-    (l : LinearOrder F) (hl : IsOrderedRing F) :
+    (l : LinearOrder F) (hl : IsStrictOrderedRing F) :
     (RingOrdering_IsOrderedRing_equiv_field.symm ⟨l, hl⟩ : RingPreordering F) =
-    ringPreorderingLinearOrderEquiv.symm ⟨l, hl⟩ := rfl
+    ringPreorderingLinearOrderEquiv.symm ⟨l, inferInstance⟩ := rfl
 
 end Field
 
@@ -173,9 +177,9 @@ noncomputable def ringPreorderingLinearOrderEquiv_quot :
     Equiv {O : RingPreordering R // HasMemOrNegMem O}
           {p : (I : Ideal R) × LinearOrder (R ⧸ I) // let ⟨I, l⟩ := p; IsOrderedRing (R ⧸ I)} where
   toFun := fun ⟨O, hO⟩ => ⟨⟨O.support, .mkOfRingPreordering_quot O⟩, .mkOfRingPreordering_quot O⟩
-  invFun := fun ⟨⟨I, l⟩, hl⟩ => ⟨sorry, inferInstance⟩ -- TODO
-  left_inv := fun ⟨_, _⟩ => by ext; simp
-  right_inv := fun ⟨_, _⟩ => by ext; simp
+  invFun := fun ⟨⟨I, l⟩, hl⟩ => ⟨sorry, sorry⟩ -- TODO
+  left_inv := fun ⟨_, _⟩ => by sorry --ext; simp
+  right_inv := fun ⟨_, _⟩ => by sorry --ext; simp
 
 /- TODO : apply and symm_apply simp lemmas -/
 
