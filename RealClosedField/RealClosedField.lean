@@ -7,22 +7,17 @@ import RealClosedField.OrderedAlgebra
 
 /- An ordered field is real closed if every nonegative element is a square and
    every odd-degree polynomial has a root. -/
-class IsRealClosed (R : Type*) [Field R] [LinearOrder R] [IsOrderedRing R] : Prop where
+class IsRealClosed (R : Type*) [Field R] [LinearOrder R] [IsStrictOrderedRing R] : Prop where
   isSquare_of_nonneg' {x : R} (hx : x ≥ 0) : IsSquare x
   exists_isRoot_of_odd_natDegree' {f : Polynomial R} (hf : Odd f.natDegree) : ∃ x, f.IsRoot x
 
 /- A real closure is a real closed ordered algebraic extension. -/
 class IsRealClosure (K R : Type*) [Field K] [Field R] [LinearOrder K] [LinearOrder R]
-    [IsOrderedRing K] [IsOrderedRing R] [Algebra K R]
+    [IsStrictOrderedRing K] [IsStrictOrderedRing R] [Algebra K R]
     extends IsOrderedAlgebra K R, Algebra.IsAlgebraic K R, IsRealClosed K
 
 open Polynomial
-variable {F : Type*} [Field F] [LinearOrder F] [IsOrderedRing F] (f : F[X])
-
-/- needed for linarith to work -/
-/- TODO : upstream global instance -/
-instance {F : Type*} [Field F] [LinearOrder F] [IsOrderedRing F] : IsStrictOrderedRing F :=
-  IsOrderedRing.toIsStrictOrderedRing F
+variable {F : Type*} [Field F] [LinearOrder F] [IsStrictOrderedRing F] (f : F[X])
 
 open Finset in
 variable {f} in
