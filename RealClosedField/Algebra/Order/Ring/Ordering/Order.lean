@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Florent Schaffhauser, Artie Khovanov
 -/
 import Mathlib.Algebra.Order.Ring.Cone
+import Mathlib.RingTheory.Ideal.Quotient.Operations
 import RealClosedField.Prereqs
 import RealClosedField.Algebra.Order.Ring.Ordering.Basic
 
@@ -173,9 +174,9 @@ noncomputable def ringPreorderingLinearOrderEquiv_quot :
     Equiv {O : RingPreordering R // HasMemOrNegMem O}
           {p : (I : Ideal R) × LinearOrder (R ⧸ I) // let ⟨I, l⟩ := p; IsOrderedRing (R ⧸ I)} where
   toFun := fun ⟨O, hO⟩ => ⟨⟨O.support, .mkOfRingPreordering_quot O⟩, .mkOfRingPreordering_quot O⟩
-  invFun := fun ⟨⟨I, l⟩, hl⟩ => ⟨sorry, inferInstance⟩ -- TODO
-  left_inv := fun ⟨_, _⟩ => by ext; simp
-  right_inv := fun ⟨_, _⟩ => by ext; simp
+  invFun := fun ⟨⟨I, l⟩, hl⟩ => ⟨sorry, sorry⟩ -- TODO
+  left_inv := fun ⟨_, _⟩ => by sorry --ext; simp
+  right_inv := fun ⟨_, _⟩ => by sorry --ext; simp
 
 /- TODO : apply and symm_apply simp lemmas -/
 
