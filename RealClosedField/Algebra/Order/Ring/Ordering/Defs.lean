@@ -17,8 +17,8 @@ addition and multiplication that contains all squares, but not `-1`.
 The support of a preordering `P` is the set of elements `x` such that both `x` and `-x` lie in `P`.
 
 An ordering `O` on `R` is a preordering such that
-(i) `O` contains either `x` or `-x` for each `x` in `R` and
-(ii) the support of `O` is a prime ideal.
+1. `O` contains either `x` or `-x` for each `x` in `R` and
+2. the support of `O` is a prime ideal.
 
 We define preorderings, supports and orderings.
 
@@ -175,16 +175,14 @@ def support : Ideal R where
 theorem mem_support {x} : x ∈ P.support ↔ x ∈ P ∧ -x ∈ P := .rfl
 theorem coe_support : P.support = (P : Set R) ∩ -(P : Set R) := rfl
 
-@[simp] theorem supportAddSubgroup_eq : P.supportAddSubgroup = (P.support).toAddSubgroup := rfl
-theorem mem_supportAddSubgroup_iff {x} : x ∈ P.supportAddSubgroup ↔ x ∈ P.support := by simp
-theorem coe_supportAddSubgroup_eq : (P.supportAddSubgroup : Set R) = P.support := by simp
+@[simp] theorem supportAddSubgroup_eq : P.supportAddSubgroup = P.support.toAddSubgroup := rfl
 
 end support
 
 /--
 An ordering `O` on a ring `R` is a preordering such that
-(i) `O` contains either `x` or `-x` for each `x` in `R` and
-(ii) the support of `O` is a prime ideal.
+1. `O` contains either `x` or `-x` for each `x` in `R` and
+2. the support of `O` is a prime ideal.
 -/
 class IsOrdering (P : RingPreordering R) extends HasMemOrNegMem P, P.support.IsPrime
 

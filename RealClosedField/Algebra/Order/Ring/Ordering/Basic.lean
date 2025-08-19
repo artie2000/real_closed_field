@@ -101,12 +101,12 @@ end mk'
 ### Supports
 -/
 
-section neq_top
+section ne_top
 
 variable (P)
 
 theorem one_notMem_supportAddSubgroup : 1 ∉ P.supportAddSubgroup :=
-  fun h => RingPreordering.neg_one_notMem P (by simpa using h.2)
+  fun h => RingPreordering.neg_one_notMem P h.2
 
 theorem one_notMem_support [P.HasIdealSupport] : 1 ∉ P.support := by
   simpa using one_notMem_supportAddSubgroup P
@@ -124,7 +124,7 @@ def IsOrdering.mk' [HasMemOrNegMem P]
   ne_top' := support_ne_top P
   mem_or_mem' := h
 
-end neq_top
+end ne_top
 
 namespace HasIdealSupport
 
@@ -202,13 +202,13 @@ end HasMemOrNegMem
 
 theorem isOrdering_iff :
     P.IsOrdering ↔ (∀ a b : R, -(a * b) ∈ P → a ∈ P ∨ b ∈ P) := by
-  refine ⟨fun prime a b h₁ => ?_, fun h => ?_⟩
+  refine ⟨fun _ a b h₁ => ?_, fun h => ?_⟩
   · by_contra
     have : a * b ∈ P := by simpa using mul_mem (by aesop : -a ∈ P) (by aesop : -b ∈ P)
     have : a ∈ P.support ∨ b ∈ P.support :=
       Ideal.IsPrime.mem_or_mem inferInstance (by simp_all [mem_support])
     simp_all [mem_support]
-  · have : HasMemOrNegMem P := ⟨by aesop⟩
+  · have : HasMemOrNegMem P := ⟨by simp [h]⟩
     refine IsOrdering.mk' P (fun {x y} hxy => ?_)
     by_contra
     cases (by aesop : x ∈ P ∨ -x ∈ P) with
@@ -236,11 +236,10 @@ theorem inf_toSubsemiring : (P₁ ⊓ P₂).toSubsemiring = P₁.toSubsemiring �
 @[simp]
 theorem supportAddSubgroup_inf :
     (P₁ ⊓ P₂).supportAddSubgroup = P₁.supportAddSubgroup ⊓ P₂.supportAddSubgroup := by
-  ext
-  simp only [mem_supportAddSubgroup, mem_inf, AddSubgroup.mem_inf]
-  tauto
+  aesop (add simp mem_supportAddSubgroup)
 
-instance [P₁.HasIdealSupport] [P₂.HasIdealSupport] : (P₁ ⊓ P₂).HasIdealSupport := sorry
+instance [P₁.HasIdealSupport] [P₂.HasIdealSupport] : (P₁ ⊓ P₂).HasIdealSupport := by
+  simp_all [hasIdealSupport_iff]
 
 @[simp]
 theorem support_inf [P₁.HasIdealSupport] [P₂.HasIdealSupport] :
@@ -280,7 +279,19 @@ theorem mem_sInf {x : R} : x ∈ sInf hS ↔ ∀ p ∈ S, x ∈ p := by
   rw [show x ∈ sInf hS ↔ x ∈ (sInf hS : Set R) by simp [-coe_sInf]]
   simp_all
 
-/- TODO : support sInf -/
+@[simp]
+theorem supportAddSubgroup_sInf :
+    (sInf hS).supportAddSubgroup = InfSet.sInf (supportAddSubgroup '' S) := by
+  aesop (add simp mem_supportAddSubgroup)
+
+theorem hasIdealSupport_sInf (h : ∀ P ∈ S, P.HasIdealSupport) : (sInf hS).HasIdealSupport := by
+  simp_all [hasIdealSupport_iff]
+
+@[simp]
+theorem support_sInf (h : ∀ P ∈ S, P.HasIdealSupport) :
+    letI _ := hasIdealSupport_sInf h
+    (sInf hS).support = InfSet.sInf {s | ∃ P, ∃ hP : P ∈ S, letI _ := h _ hP; s = P.support} := by
+  aesop (add simp mem_support)
 
 variable (hS) in
 theorem sInf_le {P} (hP : P ∈ S) : sInf hS ≤ P := by
