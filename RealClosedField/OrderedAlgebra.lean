@@ -177,10 +177,79 @@ theorem adj_sqrt_ordered {a : F} (ha : 0 ≤ a) (ha₂ : ¬ IsSquare a) :
   by_contra h
   exact hx <| (Module.Basis.forall_coord_eq_zero_iff B).mp <| fun i => by fin_cases i <;> simp_all
 
+open scoped Polynomial in
+theorem minus_one_notMem_span_nonneg_isSquare (f : F[X]) (hf₁ : Irreducible f) (hf₂ : Odd f.natDegree) :
+    ∀ g ∈ Submodule.span (Subsemiring.nonneg F) ((fun x ↦ x * x) '' {g : F[X] | g.natDegree < f.natDegree}), ¬(f ∣ g + 1) := fun g hg ↦ by
+  have g_facts :
+    ∀ f : F [X], f.natDegree > 0 → ∀ g ∈ Submodule.span (Subsemiring.nonneg F) ((fun x ↦ x * x) '' {g : F[X] | g.natDegree < f.natDegree}),
+      0 ≤ g.leadingCoeff ∧ Even g.natDegree ∧ g.natDegree < 2 * f.natDegree := fun f hf h hg ↦ by
+    induction hg using Submodule.span_induction with
+    | zero => simp [hf]
+    | mem g hg =>
+        rcases hg with ⟨r, _, rfl⟩
+        by_cases hz : r = 0
+        · simp_all
+        · simp_all only [Polynomial.natDegree_mul hz hz, Even.add_self, true_and, Set.mem_setOf_eq,
+                        Polynomial.leadingCoeff_mul]
+          exact ⟨mul_self_nonneg _, by linarith⟩
+    | smul x g _ ihg =>
+        let ⟨x, hx⟩ := x
+        rw [Submonoid.smul_def]
+        by_cases hz : x = 0
+        · simp [hf, hz]
+        · exact ⟨by simpa [Polynomial.smul_eq_C_mul] using mul_nonneg hx ihg.1,
+                by simpa [Polynomial.natDegree_smul _ hz] using ihg.2⟩
+    | add g h _ _ ihg ihh =>
+        by_cases hdeg : g.degree = h.degree
+        · by_cases hz : g + h = 0
+          · simp [hf, hz]
+          · have hz' : h ≠ 0 := fun hc ↦ by simp_all
+            have hlc : g.leadingCoeff + h.leadingCoeff ≠ 0 := fun hc ↦ by
+              simp_all [add_eq_zero_iff_of_nonneg ihg.1 ihh.1]
+            have : (g + h).degree = _ := Polynomial.degree_add_eq_of_leadingCoeff_add_ne_zero hlc
+            simp_all only [Polynomial.leadingCoeff_add_of_degree_eq hdeg hlc,
+                          Polynomial.degree_eq_natDegree hz', Polynomial.degree_eq_natDegree hz,
+                          max_self, Nat.cast_inj, and_true]
+            exact add_nonneg ihg.1 ihh.1
+        · cases lt_or_gt_of_ne hdeg with
+          | inl hdeg => simpa [Polynomial.leadingCoeff_add_of_degree_lt hdeg, Polynomial.natDegree_add_eq_right_of_degree_lt hdeg] using ihh
+          | inr hdeg => simpa [Polynomial.leadingCoeff_add_of_degree_lt' hdeg, Polynomial.natDegree_add_eq_left_of_degree_lt hdeg] using ihg
+  induction h : f.natDegree using Nat.strong_induction_on generalizing f g with | h n ih =>
+    rcases g_facts _ (Irreducible.natDegree_pos hf₁) _ hg with
+      ⟨leadingCoeff_nonneg, natDegree_even, natDegree_lt⟩
+    have : f ≠ 0 := Irreducible.ne_zero hf₁
+    intro hdiv
+    have : g ≠ 0 := fun hc ↦ Irreducible.not_dvd_one hf₁ (by simpa [hc] using hdiv)
+    have : g + 1 ≠ 0 := fun hc ↦ by
+      simp [show g = -1 by linear_combination hc] at leadingCoeff_nonneg
+      linarith
+    rcases hdiv with ⟨k, hk⟩
+    have : k ≠ 0 := fun hc ↦ by simp_all
+    have : g.natDegree = f.natDegree + k.natDegree := by
+      rw [← Polynomial.natDegree_mul ‹f ≠ 0› ‹k ≠ 0›, ← hk, ← Polynomial.C_1,
+          Polynomial.natDegree_add_C]
+    have : Odd k.natDegree := by grind
+    have : ∃ k', Irreducible k' ∧ k' ∣ k ∧ Odd k'.natDegree := sorry
+    rcases this with ⟨k', k'_irred, k'_dvd, k'_natDegree⟩
+    have := Polynomial.natDegree_le_of_dvd k'_dvd ‹k ≠ 0›
+    have : ∃ g', k' ∣ g' - g ∧
+      g' ∈ Submodule.span (↥(Subsemiring.nonneg F)) ((fun x ↦ x * x) '' {g | g.natDegree < k'.natDegree}) := sorry
+    rcases this with ⟨g', g'_div, hg'⟩
+    have : k' ∣ g' + 1 := (dvd_iff_dvd_of_dvd_sub (by simpa using g'_div)).mpr <|
+      dvd_trans k'_dvd <| dvd_iff_exists_eq_mul_left.mpr ⟨f, hk⟩
+    exact ih k'.natDegree (by linarith) k' k'_irred k'_natDegree g' hg' rfl this
+
+open scoped Pointwise in
 theorem odd_deg_ordered (h_rank : Odd <| Module.finrank F K) :
     (∃ l : LinearOrder K, ∃ _ : IsStrictOrderedRing K, IsOrderedAlgebra F K) := by
   rw [Field.exists_isOrderedAlgebra_iff_neg_one_notMem_closure_mul]
   have : FiniteDimensional F K := Module.finite_of_finrank_pos <| Odd.pos h_rank
+  rcases Field.exists_primitive_element F K with ⟨α, hα⟩
+  have isAdjRoot := IsAdjoinRoot.mkOfPrimitiveElement (IsIntegral.of_finite F α) hα
+  intro hc
+  have : -1 ∈ (AddSubmonoid.closure (((Subsemiring.nonneg F).map (algebraMap F K) : Set K) * (Submonoid.square K : Set K))).comap (isAdjRoot.map) := by
+    simpa using hc
+  simp [-AddSubmonoid.mem_comap] at this
   induction h : Module.finrank F K using Nat.strong_induction_on generalizing F with | h n ih =>
     intro hc
     rcases Field.exists_primitive_element F K with ⟨α, hα⟩
