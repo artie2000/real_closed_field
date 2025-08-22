@@ -102,7 +102,7 @@ theorem sup_map_nonneg_sumSq_eq_addSubmonoid_closure_set_mul :
   simp [Set.mem_mul, Set.mem_smul, Subsemiring.smul_def, ← Algebra.smul_def]
 
 open scoped Pointwise in
-theorem Field.exists_isOrderedAlgebra_iff_neg_one_notMem_closure_mul :
+theorem Field.exists_isOrderedAlgebra_iff_neg_one_notMem_span_nonneg_isSquare :
     (∃ l : LinearOrder K, ∃ _ : IsStrictOrderedRing K, IsOrderedAlgebra F K) ↔
     -1 ∉ Submodule.span (Subsemiring.nonneg F) {x : K | IsSquare x} := by
   rw [← SetLike.mem_coe, ← sup_map_nonneg_sumSq_eq_addSubmonoid_closure_set_mul, SetLike.mem_coe,
@@ -112,7 +112,7 @@ open scoped Pointwise algebraMap in
 theorem Field.exists_isOrderedAlgebra_of_projection
     (π : K →ₗ[F] F) (hπ : ∀ x, x ≠ 0 → 0 < π (x * x)) :
     (∃ l : LinearOrder K, ∃ _ : IsStrictOrderedRing K, IsOrderedAlgebra F K) := by
-  rw [Field.exists_isOrderedAlgebra_iff_neg_one_notMem_closure_mul]
+  rw [Field.exists_isOrderedAlgebra_iff_neg_one_notMem_span_nonneg_isSquare]
   have ih : ∀ x ∈ Submodule.span (Subsemiring.nonneg F) {x : K | IsSquare x}, 0 ≤ π x := by
     apply Submodule.closure_induction
     · simp
@@ -285,7 +285,7 @@ theorem minus_one_notMem_span_nonneg_isSquare_mod_f {f : F[X]}
 open scoped Pointwise in
 theorem odd_deg_ordered (h_rank : Odd <| Module.finrank F K) :
     (∃ l : LinearOrder K, ∃ _ : IsStrictOrderedRing K, IsOrderedAlgebra F K) := by
-  rw [Field.exists_isOrderedAlgebra_iff_neg_one_notMem_closure_mul]
+  rw [Field.exists_isOrderedAlgebra_iff_neg_one_notMem_span_nonneg_isSquare]
   have : FiniteDimensional F K := Module.finite_of_finrank_pos <| Odd.pos h_rank
   rcases Field.exists_primitive_element F K with ⟨α, hα⟩
   have int := IsIntegral.of_finite F α
