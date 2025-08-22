@@ -183,9 +183,6 @@ theorem Polynomial.exists_odd_natDegree_monic_irreducible_factor {F : Type*} [Fi
       rcases ih k.natDegree (by omega) k (by grind) rfl with ⟨l, h₁, h₂, h₃, h₄⟩
       exact ⟨l, h₁, h₂, h₃, dvd_trans h₄ (dvd_iff_exists_eq_mul_left.mpr ⟨g, hk⟩)⟩
 
-variable  {𝕜 E : Type*} [Semiring 𝕜] [PartialOrder 𝕜] [IsOrderedRing 𝕜] [AddCommMonoid E] [Module 𝕜 E]
-#synth Module (Subsemiring.nonneg 𝕜) E
-
 open scoped Polynomial in
 theorem lift_poly_span_nonneg_isSquare {f : F[X]} (hAdj : IsAdjoinRootMonic K f) {x : K}
     (hx : x ∈ Submodule.span (Subsemiring.nonneg F) ({x : K | IsSquare x})) :
@@ -202,7 +199,7 @@ theorem lift_poly_span_nonneg_isSquare {f : F[X]} (hAdj : IsAdjoinRootMonic K f)
           by simpa using Polynomial.natDegree_modByMonic_lt _ hAdj.monic f_ne_one⟩
   | smul r x hx ih =>
       rcases ih with ⟨g, rfl, hg⟩
-      exact ⟨r • g, by simp? [Subsemiring.smul_def], by aesop⟩
+      exact ⟨r • g, by simp [Subsemiring.smul_def, -Nonneg.coe_smul], by aesop⟩
   | add _ _ _ _ ihx ihy =>
       rcases ihx with ⟨g₁, rfl, hg₁⟩
       rcases ihy with ⟨g₂, rfl, hg₂⟩
