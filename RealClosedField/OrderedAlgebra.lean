@@ -3,9 +3,7 @@ Copyright (c) 2025 Artie Khovanov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
-import Mathlib.FieldTheory.KummerPolynomial
-import Mathlib.RingTheory.IsAdjoinRoot
-import Mathlib.FieldTheory.PrimitiveElement
+import Mathlib
 import RealClosedField.Algebra.Order.Ring.Ordering.Adjoin
 import RealClosedField.Algebra.Order.Ring.Ordering.Order
 
@@ -91,27 +89,22 @@ theorem Field.exists_isOrderedAlgebra_iff_neg_one_notMem_sup :
 
 open scoped Pointwise in
 theorem sup_map_nonneg_sumSq_eq_addSubmonoid_closure_set_mul :
-    ↑(((Subsemiring.nonneg F).map (algebraMap F K) ⊔ Subsemiring.sumSq K)) =
-    (AddSubmonoid.closure <| ((Subsemiring.nonneg F).map (algebraMap F K) : Set K) *
-                             (Submonoid.square K : Set K) : Set K) := by
-  rw (occs := .pos [1])
-     [← Subsemiring.closure_isSquare,
-      ← Subsemiring.closure_eq <| Subsemiring.map ..,
-      ← Subsemiring.closure_union,
-      ← Subsemiring.closure_submonoid_closure,
-      ← Submonoid.subsemiringClosure_eq_closure,
-      Submonoid.subsemiringClosure_coe,
-      ← Subsemiring.coe_toSubmonoid,
-      ← Submonoid.coe_square,
-      ← Submonoid.sup_eq_closure,
-      Submonoid.coe_sup,
-      Subsemiring.coe_toSubmonoid]
+    ↑((Subsemiring.nonneg F).map (algebraMap F K) ⊔ Subsemiring.sumSq K) =
+    (Submodule.span (Subsemiring.nonneg F) {x : K | IsSquare x} : Set K) := by
+  rw [← Subsemiring.closure_isSquare, ← Subsemiring.closure_eq <| Subsemiring.map ..,
+      ← Subsemiring.closure_union, ← Subsemiring.closure_submonoid_closure,
+      ← Submonoid.subsemiringClosure_eq_closure, Submonoid.subsemiringClosure_coe,
+      ← Submodule.coe_toAddSubmonoid, Submodule.span_eq_closure]
+  congr
+  rw [← Subsemiring.coe_toSubmonoid, ← Submonoid.coe_square, ← Submonoid.sup_eq_closure,
+      Submonoid.coe_sup, Subsemiring.coe_toSubmonoid]
+  ext x
+  simp [Set.mem_mul, Set.mem_smul, Subsemiring.smul_def, ← Algebra.smul_def]
 
 open scoped Pointwise in
 theorem Field.exists_isOrderedAlgebra_iff_neg_one_notMem_closure_mul :
     (∃ l : LinearOrder K, ∃ _ : IsStrictOrderedRing K, IsOrderedAlgebra F K) ↔
-    -1 ∉ (AddSubmonoid.closure <|
-      ((Subsemiring.nonneg F).map (algebraMap F K) : Set K) * (Submonoid.square K : Set K)) := by
+    -1 ∉ Submodule.span (Subsemiring.nonneg F) {x : K | IsSquare x} := by
   rw [← SetLike.mem_coe, ← sup_map_nonneg_sumSq_eq_addSubmonoid_closure_set_mul, SetLike.mem_coe,
     Field.exists_isOrderedAlgebra_iff_neg_one_notMem_sup]
 
@@ -120,17 +113,15 @@ theorem Field.exists_isOrderedAlgebra_of_projection
     (π : K →ₗ[F] F) (hπ : ∀ x, x ≠ 0 → 0 < π (x * x)) :
     (∃ l : LinearOrder K, ∃ _ : IsStrictOrderedRing K, IsOrderedAlgebra F K) := by
   rw [Field.exists_isOrderedAlgebra_iff_neg_one_notMem_closure_mul]
-  have ih : ∀ x ∈ (AddSubmonoid.closure <| ((Subsemiring.nonneg F).map (algebraMap F K) : Set K) *
-      (Submonoid.square K : Set K)), 0 ≤ π x := by
-    apply AddSubmonoid.closure_induction
-    · intro x hx
-      rcases Set.mem_mul.mp hx with ⟨_, ⟨c, hc, rfl⟩, _, ⟨d, rfl⟩, rfl⟩
+  have ih : ∀ x ∈ Submodule.span (Subsemiring.nonneg F) {x : K | IsSquare x}, 0 ≤ π x := by
+    apply Submodule.closure_induction
+    · simp
+    · intro x y _ _ _ _
+      linarith [map_add π x y]
+    · rintro ⟨r, hr⟩ x ⟨d, rfl⟩
       by_cases hd : d = 0
       · simp [hd]
-      · simpa [← Algebra.smul_def] using (mul_nonneg_iff_of_pos_right (hπ d hd)).mpr hc
-    · simp
-    · intro x y hx hy ihx ihy
-      linarith [map_add π x y]
+      · simpa using (mul_nonneg_iff_of_pos_right (hπ d hd)).mpr hr
   intro h
   simpa using not_le_of_gt (hπ 1 (by simp)) (by simpa using ih _ h)
 
@@ -178,10 +169,55 @@ theorem adj_sqrt_ordered {a : F} (ha : 0 ≤ a) (ha₂ : ¬ IsSquare a) :
   exact hx <| (Module.Basis.forall_coord_eq_zero_iff B).mp <| fun i => by fin_cases i <;> simp_all
 
 open scoped Polynomial in
-theorem minus_one_notMem_span_nonneg_isSquare (f : F[X]) (hf₁ : Irreducible f) (hf₂ : Odd f.natDegree) :
-    ∀ g ∈ Submodule.span (Subsemiring.nonneg F) ((fun x ↦ x * x) '' {g : F[X] | g.natDegree < f.natDegree}), ¬(f ∣ g + 1) := fun g hg ↦ by
+theorem Polynomial.exists_odd_natDegree_monic_irreducible_factor {F : Type*} [Field F] (f : F[X])
+    (hf : Odd f.natDegree) : ∃ g : F[X], (Odd g.natDegree) ∧ g.Monic ∧ Irreducible g ∧ g ∣ f := by
+  induction h : f.natDegree using Nat.strong_induction_on generalizing f with | h n ih =>
+    have hu : ¬IsUnit f := Polynomial.not_isUnit_of_natDegree_pos _ (Odd.pos hf)
+    rcases Polynomial.exists_monic_irreducible_factor f hu with ⟨g, g_monic, g_irred, g_div⟩
+    by_cases g_deg : Odd g.natDegree
+    · exact ⟨g, g_deg, g_monic, g_irred, g_div⟩
+    · rcases g_div with ⟨k, hk⟩
+      have : f.natDegree = g.natDegree + k.natDegree := by
+        simpa [hk] using Polynomial.natDegree_mul (g_irred.ne_zero) (fun _ ↦ by simp_all)
+      have := Irreducible.natDegree_pos g_irred
+      rcases ih k.natDegree (by omega) k (by grind) rfl with ⟨l, h₁, h₂, h₃, h₄⟩
+      exact ⟨l, h₁, h₂, h₃, dvd_trans h₄ (dvd_iff_exists_eq_mul_left.mpr ⟨g, hk⟩)⟩
+
+variable  {𝕜 E : Type*} [Semiring 𝕜] [PartialOrder 𝕜] [IsOrderedRing 𝕜] [AddCommMonoid E] [Module 𝕜 E]
+#synth Module (Subsemiring.nonneg 𝕜) E
+
+open scoped Polynomial in
+theorem lift_poly_span_nonneg_isSquare {f : F[X]} (hAdj : IsAdjoinRootMonic K f) {x : K}
+    (hx : x ∈ Submodule.span (Subsemiring.nonneg F) ({x : K | IsSquare x})) :
+    ∃ g, hAdj.map g = x ∧
+      g ∈ Submodule.span (Subsemiring.nonneg F)
+            ((fun x ↦ x * x) '' {g : F[X] | g.natDegree < f.natDegree}) := by
+  have f_ne_one : f ≠ 1 := fun hc ↦ by aesop (add safe forward hAdj.deg_ne_zero)
+  induction hx using Submodule.span_induction with
+  | zero => exact ⟨0, by simp⟩
+  | mem x hx =>
+      rcases hx with ⟨y, rfl⟩
+      refine ⟨hAdj.modByMonicHom y * hAdj.modByMonicHom y, by simp, Submodule.mem_span_of_mem ?_⟩
+      exact ⟨hAdj.modByMonicHom y,
+          by simpa using Polynomial.natDegree_modByMonic_lt _ hAdj.monic f_ne_one⟩
+  | smul r x hx ih =>
+      rcases ih with ⟨g, rfl, hg⟩
+      exact ⟨r • g, by simp? [Subsemiring.smul_def], by aesop⟩
+  | add _ _ _ _ ihx ihy =>
+      rcases ihx with ⟨g₁, rfl, hg₁⟩
+      rcases ihy with ⟨g₂, rfl, hg₂⟩
+      exact ⟨g₁ + g₂, by aesop⟩
+
+open scoped Polynomial in
+theorem minus_one_notMem_span_nonneg_isSquare_mod_f {f : F[X]}
+    (hf₁ : f.Monic) (hf₂ : Irreducible f) (hf₃ : Odd f.natDegree) {g : F[X]}
+    (hg : g ∈ Submodule.span (Subsemiring.nonneg F)
+                ((fun x ↦ x * x) '' {g : F[X] | g.natDegree < f.natDegree})) :
+    ¬(f ∣ g + 1) := by
   have g_facts :
-    ∀ f : F [X], f.natDegree > 0 → ∀ g ∈ Submodule.span (Subsemiring.nonneg F) ((fun x ↦ x * x) '' {g : F[X] | g.natDegree < f.natDegree}),
+    ∀ f : F [X], f.natDegree > 0 →
+                 ∀ g ∈ Submodule.span (Subsemiring.nonneg F)
+                         ((fun x ↦ x * x) '' {g : F[X] | g.natDegree < f.natDegree}),
       0 ≤ g.leadingCoeff ∧ Even g.natDegree ∧ g.natDegree < 2 * f.natDegree := fun f hf h hg ↦ by
     induction hg using Submodule.span_induction with
     | zero => simp [hf]
@@ -193,8 +229,8 @@ theorem minus_one_notMem_span_nonneg_isSquare (f : F[X]) (hf₁ : Irreducible f)
                         Polynomial.leadingCoeff_mul]
           exact ⟨mul_self_nonneg _, by linarith⟩
     | smul x g _ ihg =>
-        let ⟨x, hx⟩ := x
-        rw [Submonoid.smul_def]
+        rcases x with ⟨x, hx⟩
+        rw [Subsemiring.smul_def]
         by_cases hz : x = 0
         · simp [hf, hz]
         · exact ⟨by simpa [Polynomial.smul_eq_C_mul] using mul_nonneg hx ihg.1,
@@ -212,32 +248,42 @@ theorem minus_one_notMem_span_nonneg_isSquare (f : F[X]) (hf₁ : Irreducible f)
                           max_self, Nat.cast_inj, and_true]
             exact add_nonneg ihg.1 ihh.1
         · cases lt_or_gt_of_ne hdeg with
-          | inl hdeg => simpa [Polynomial.leadingCoeff_add_of_degree_lt hdeg, Polynomial.natDegree_add_eq_right_of_degree_lt hdeg] using ihh
-          | inr hdeg => simpa [Polynomial.leadingCoeff_add_of_degree_lt' hdeg, Polynomial.natDegree_add_eq_left_of_degree_lt hdeg] using ihg
+          | inl hdeg => simpa [Polynomial.leadingCoeff_add_of_degree_lt hdeg,
+                               Polynomial.natDegree_add_eq_right_of_degree_lt hdeg] using ihh
+          | inr hdeg => simpa [Polynomial.leadingCoeff_add_of_degree_lt' hdeg,
+                               Polynomial.natDegree_add_eq_left_of_degree_lt hdeg] using ihg
   induction h : f.natDegree using Nat.strong_induction_on generalizing f g with | h n ih =>
-    rcases g_facts _ (Irreducible.natDegree_pos hf₁) _ hg with
+    rcases g_facts _ (Irreducible.natDegree_pos hf₂) _ hg with
       ⟨leadingCoeff_nonneg, natDegree_even, natDegree_lt⟩
-    have : f ≠ 0 := Irreducible.ne_zero hf₁
+    have : f ≠ 0 := Irreducible.ne_zero hf₂
     intro hdiv
-    have : g ≠ 0 := fun hc ↦ Irreducible.not_dvd_one hf₁ (by simpa [hc] using hdiv)
     have : g + 1 ≠ 0 := fun hc ↦ by
       simp [show g = -1 by linear_combination hc] at leadingCoeff_nonneg
       linarith
     rcases hdiv with ⟨k, hk⟩
-    have : k ≠ 0 := fun hc ↦ by simp_all
+    have : k ≠ 0 := fun _ ↦ by simp_all
     have : g.natDegree = f.natDegree + k.natDegree := by
       rw [← Polynomial.natDegree_mul ‹f ≠ 0› ‹k ≠ 0›, ← hk, ← Polynomial.C_1,
           Polynomial.natDegree_add_C]
-    have : Odd k.natDegree := by grind
-    have : ∃ k', Irreducible k' ∧ k' ∣ k ∧ Odd k'.natDegree := sorry
-    rcases this with ⟨k', k'_irred, k'_dvd, k'_natDegree⟩
-    have := Polynomial.natDegree_le_of_dvd k'_dvd ‹k ≠ 0›
-    have : ∃ g', k' ∣ g' - g ∧
-      g' ∈ Submodule.span (↥(Subsemiring.nonneg F)) ((fun x ↦ x * x) '' {g | g.natDegree < k'.natDegree}) := sorry
-    rcases this with ⟨g', g'_div, hg'⟩
-    have : k' ∣ g' + 1 := (dvd_iff_dvd_of_dvd_sub (by simpa using g'_div)).mpr <|
-      dvd_trans k'_dvd <| dvd_iff_exists_eq_mul_left.mpr ⟨f, hk⟩
-    exact ih k'.natDegree (by linarith) k' k'_irred k'_natDegree g' hg' rfl this
+    rcases Polynomial.exists_odd_natDegree_monic_irreducible_factor k (by grind) with
+      ⟨k', k'_deg, k'_Monic, k'_irred, k'_dvd⟩
+    have : Fact (Irreducible k') := Fact.mk k'_irred
+    have : (AdjoinRoot.mk k') g ∈ Submodule.span (Subsemiring.nonneg F) {x | IsSquare x} := by
+      let mkₐ := (AdjoinRoot.mkₐ k').toLinearMap.restrictScalars (Subsemiring.nonneg F)
+      have : ⇑mkₐ '' ((fun x ↦ x * x) '' {g | g.natDegree < f.natDegree}) ⊆ {x | IsSquare x} :=
+        fun x hx ↦ by
+          simp only [Set.mem_image, Set.mem_setOf_eq, exists_exists_and_eq_and] at hx
+          rcases hx with ⟨r, hr, rfl⟩
+          simp [mkₐ]
+      have := Submodule.span_mono (R := Subsemiring.nonneg F) this
+      rw [← Submodule.map_span] at this
+      exact Set.mem_of_subset_of_mem this ⟨g, hg, rfl⟩
+    rcases lift_poly_span_nonneg_isSquare (AdjoinRoot.isAdjoinRootMonic _ k'_Monic) this with
+      ⟨g', hg'_map, hg'_mem⟩
+    exact ih k'.natDegree (by linarith [Polynomial.natDegree_le_of_dvd k'_dvd ‹k ≠ 0›])
+      ‹_› ‹_› ‹_› hg'_mem rfl <|
+      (dvd_iff_dvd_of_dvd_sub <| by simpa [AdjoinRoot.isAdjoinRoot_map_eq_mkₐ] using hg'_map).mpr <|
+        dvd_trans k'_dvd <| dvd_iff_exists_eq_mul_left.mpr ⟨f, hk⟩
 
 open scoped Pointwise in
 theorem odd_deg_ordered (h_rank : Odd <| Module.finrank F K) :
@@ -245,15 +291,13 @@ theorem odd_deg_ordered (h_rank : Odd <| Module.finrank F K) :
   rw [Field.exists_isOrderedAlgebra_iff_neg_one_notMem_closure_mul]
   have : FiniteDimensional F K := Module.finite_of_finrank_pos <| Odd.pos h_rank
   rcases Field.exists_primitive_element F K with ⟨α, hα⟩
-  have isAdjRoot := IsAdjoinRoot.mkOfPrimitiveElement (IsIntegral.of_finite F α) hα
+  have int := IsIntegral.of_finite F α
+  have hAdj := IsAdjoinRootMonic.mkOfPrimitiveElement int hα
   intro hc
-  have : -1 ∈ (AddSubmonoid.closure (((Subsemiring.nonneg F).map (algebraMap F K) : Set K) * (Submonoid.square K : Set K))).comap (isAdjRoot.map) := by
-    simpa using hc
-  simp [-AddSubmonoid.mem_comap] at this
-  induction h : Module.finrank F K using Nat.strong_induction_on generalizing F with | h n ih =>
-    intro hc
-    rcases Field.exists_primitive_element F K with ⟨α, hα⟩
-    have := IsAdjoinRoot.mkOfPrimitiveElement (IsIntegral.of_finite F α) hα
-    sorry
+  rcases lift_poly_span_nonneg_isSquare hAdj (x := -1) hc with ⟨g, hg_map, hg_mem⟩
+  apply minus_one_notMem_span_nonneg_isSquare_mod_f hAdj.monic (minpoly.irreducible int)
+          (by simpa [← hAdj.finrank] using h_rank) hg_mem
+  rw [← hAdj.map_eq_zero_iff]
+  simp [hg_map]
 
 #min_imports
