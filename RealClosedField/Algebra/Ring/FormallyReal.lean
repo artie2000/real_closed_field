@@ -5,7 +5,6 @@ Authors: Artie Khovanov
 -/
 import Mathlib.Algebra.Order.Ring.Cone
 import Mathlib.Algebra.Ring.Semireal.Defs
-import Mathlib
 
 variable {R : Type*}
 
@@ -13,8 +12,8 @@ variable (R) in
 class IsFormallyReal [AddCommMonoid R] [Mul R] : Prop where
   eq_zero_of_sum_eq_zero : ∀ {s : Multiset R}, (s.map (fun a ↦ a * a)).sum = 0 → ∀ a ∈ s, a = 0
 
-theorem IsFormallyReal.eq_zero_of_mul_self [AddCommMonoid R] [Mul R] [IsFormallyReal R]
-    {a : R} : a * a = 0 → a = 0 := by simpa using IsFormallyReal.eq_zero_of_sum_eq_zero (s := {a})
+theorem IsFormallyReal.eq_zero_of_mul_self [AddCommMonoid R] [Mul R] [IsFormallyReal R] {a : R} :
+  a * a = 0 → a = 0 := by simpa using IsFormallyReal.eq_zero_of_sum_eq_zero (s := {a})
 
 theorem AddSubmonoid.closure_eq_image_multiset_sum {M : Type*} [AddCommMonoid M] (s : Set M) :
     ↑(closure s) = Multiset.sum '' {m : Multiset M | ∀ x ∈ m, x ∈ s} := by
@@ -64,9 +63,9 @@ instance [NonAssocSemiring R] [Nontrivial R] [IsFormallyReal R] : IsSemireal R w
   one_add_ne_zero hs h_contr := by
     simpa using IsFormallyReal.eq_zero_of_add_right IsSumSq.one hs h_contr
 
-instance [Ring R] [LinearOrder R] [IsStrictOrderedRing R] : IsFormallyReal R where
-  eq_zero_of_sum_eq_zero {a} {s} hs h := mul_self_eq_zero.mp <| le_antisymm
-    (by simpa [eq_neg_of_add_eq_zero_left h] using IsSumSq.nonneg hs) (mul_self_nonneg a)
+instance [Ring R] [LinearOrder R] [IsStrictOrderedRing R] : IsFormallyReal R :=
+  isFormallyReal_of_eq_zero_of_mul_self_of_eq_zero_of_add R mul_self_eq_zero.mp <|
+    fun hs₁ hs₂ h ↦ ((add_eq_zero_iff_of_nonneg (IsSumSq.nonneg hs₁) (IsSumSq.nonneg hs₂)).mp h).1
 
 namespace RingCone
 variable {T : Type*} [CommRing T] [IsFormallyReal T]
@@ -90,5 +89,3 @@ def sumSq : RingCone T where
   show Subsemiring.sumSq T = {x : T | IsSumSq x} by simp
 
 end RingCone
-
-#min_imports
