@@ -479,7 +479,7 @@ In fact, the converses to Lemmas \ref{lem:RCF_max} and \ref{lem:IVP_poly} also h
   Let $R$ be an ordered field maximal with respect to ordered algebraic extensions. Then $R$ is real closed.
 \end{theorem}
 \begin{proof}
-  \uses{thm:ord_iff_real,cor:ext_ord_to_adj_sqrt,lem:odd_deg_red_imp_root,lem:ext_ord_odd_deg}
+  \uses{cor:ext_ord_to_adj_sqrt,lem:odd_deg_red_imp_root,lem:ext_ord_odd_deg}
   Let $a\in R$ be non-negative. By Lemma \ref{cor:ext_ord_to_adj_sqrt}, there is an ordering making $R[\sqrt{a}]/R$ an ordered extension. By maximality, $R[\sqrt{a}]\cong R$, and so $a$ is a square in $R$.
 
   By Lemma \ref{lem:odd_deg_red_imp_root}, it suffices to show that irreducible odd-degree polynomials over $R$ are linear. Let $f\in R[X]$ be such a polynomial, and consider the odd-degree field extension $R_f=R[X]/(f)$. By Lemma \ref{lem:ext_ord_odd_deg}, there is an ordering making $R_f/R$ an ordered extension; by maximality, $R_f\cong R$, and therefore $\deg f=[R_f:R]=1$.
@@ -667,11 +667,11 @@ We can weaken the hypotheses even further. Here is the full Artin-Schreier theor
 
 \begin{theorem}
   \label{thm:Q_alg_unique_fin_ind}
-  The finite-index subfields of $\bar{\Q}$ are isomorphic copies of $\R_{\text{alg}}=\bar{\Q}\cap\R$ indexed by $\Gal(\Q_{alg}/\Q(i))$.
+  The finite-index subfields of $\bar{\Q}$ are isomorphic copies of $\Q_{\text{alg}}=\bar{\Q}\cap\R$ indexed by $\Gal(\Q_{\text{alg}}/\Q(i))$.
 \end{theorem}
 \begin{proof}
   \uses{thm:Artin-Schreier,thm:real_closure_unique,cor:unique_ord_Q}
-  Since $\R_{\text{alg}}(i)=\bar{\Q}$, the field $\R_{\text{alg}}$ is a finite-index subfield.
+  Since $\Q_{\text{alg}}(i)=\bar{\Q}$, the field $\Q_{\text{alg}}$ is a finite-index subfield.
 
   By Theorem \ref{thm:Artin-Schreier}, any finite-index subfield has a unique ordering making it real closed. Let $R$ be a real closed subfield. Then the ordering on $R$ restricts to the ordering on $\Q$ (unique by Corollary \ref{cor:unique_ord_Q}). Since $R/\Q$ is algebraic, $R$ is a real closure of $\Q$. By Lemma \ref{thm:real_closure_unique}, there is a unique $\Q$-isomorphism $\psi:\R_{\text{alg}}\cong R$. Since $\R_{\text{alg}}(i)=R(i)=\bar{\Q}$, $\psi$ extends uniquely to $\varphi\in\Gal(\Q_{alg}/\Q(i))$ by mapping $i\to i$. The subfield $R$ is then recovered from $\varphi\in\Gal(\Q_{alg}/\Q(i))$ by taking $\varphi^{-1}(\R_{\text{alg}})$.
 \end{proof}

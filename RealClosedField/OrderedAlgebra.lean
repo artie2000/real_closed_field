@@ -30,7 +30,7 @@ variable {F K : Type*} [Field F] [LinearOrder F] [IsStrictOrderedRing F] [Field 
 
 open Classical in
 open scoped algebraMap in
-noncomputable def RingOrdering_IsOrderedAlgebra_equiv_field :
+noncomputable def ringOrderingOrderedAlgebraEquivField :
     Equiv {O : RingPreordering K // O.IsOrdering ∧
             Subsemiring.map (algebraMap F K) (Subsemiring.nonneg F) ≤ O.toSubsemiring}
           {l : LinearOrder K // ∃ _ : IsStrictOrderedRing K, IsOrderedAlgebra F K} where
@@ -57,23 +57,23 @@ noncomputable def RingOrdering_IsOrderedAlgebra_equiv_field :
   right_inv := fun _ => by ext; simp
 
 @[simp]
-theorem RingOrdering_IsOrderedAlgebra_equiv_field_apply_coe
+theorem ringOrderingOrderedAlgebraEquivField_apply_coe
     {O : RingPreordering K} (hO : O.IsOrdering)
     (hO₂ : Subsemiring.map (algebraMap F K) (Subsemiring.nonneg F) ≤ O.toSubsemiring) :
-    (RingOrdering_IsOrderedAlgebra_equiv_field ⟨O, hO, hO₂⟩ : LinearOrder K) =
+    (ringOrderingOrderedAlgebraEquivField ⟨O, hO, hO₂⟩ : LinearOrder K) =
     ringOrderingLinearOrderEquivField ⟨O, hO⟩ := rfl
 
 @[simp]
-theorem RingOrdering_IsOrderedAlgebra_equiv_field_symm_apply_coe
+theorem ringOrderingOrderedAlgebraEquivField_symm_apply_coe
     (l : LinearOrder K) (hl : IsStrictOrderedRing K) (hl₂ : IsOrderedAlgebra F K) :
-    (RingOrdering_IsOrderedAlgebra_equiv_field.symm ⟨l, hl, hl₂⟩ : RingPreordering K) =
+    (ringOrderingOrderedAlgebraEquivField.symm ⟨l, hl, hl₂⟩ : RingPreordering K) =
     ringOrderingLinearOrderEquivField.symm ⟨l, hl⟩ := rfl
 
 open Classical Subsemiring in
 theorem Field.exists_isOrderedAlgebra_iff_neg_one_notMem_sup :
     (∃ l : LinearOrder K, ∃ _ : IsStrictOrderedRing K, IsOrderedAlgebra F K) ↔
     -1 ∉ ((Subsemiring.nonneg F).map (algebraMap F K) ⊔ Subsemiring.sumSq K) := by
-  rw [Equiv.exists_subtype_congr RingOrdering_IsOrderedAlgebra_equiv_field.symm]
+  rw [Equiv.exists_subtype_congr ringOrderingOrderedAlgebraEquivField.symm]
   refine ⟨fun ⟨O, hO, hO₂⟩ hc => ?_, fun h => ?_⟩
   · suffices Subsemiring.map (algebraMap F K) (Subsemiring.nonneg F) ⊔ Subsemiring.sumSq K ≤
              O.toSubsemiring from
