@@ -35,8 +35,8 @@ noncomputable def RingOrdering_IsOrderedAlgebra_equiv_field :
             Subsemiring.map (algebraMap F K) (Subsemiring.nonneg F) ≤ O.toSubsemiring}
           {l : LinearOrder K // ∃ _ : IsStrictOrderedRing K, IsOrderedAlgebra F K} where
   toFun := fun ⟨O, hO, hO₂⟩ =>
-    letI l := (RingOrdering_IsOrderedRing_equiv_field ⟨O, hO⟩).1
-    letI hl := (RingOrdering_IsOrderedRing_equiv_field ⟨O, hO⟩).2
+    letI l := (ringOrderingLinearOrderEquivField ⟨O, hO⟩).1
+    letI hl := (ringOrderingLinearOrderEquivField ⟨O, hO⟩).2
     ⟨l, ⟨inferInstance, ⟨by
       rw [monotone_iff_map_nonneg]
       intro a ha
@@ -47,7 +47,7 @@ noncomputable def RingOrdering_IsOrderedAlgebra_equiv_field :
         simpa [l] using hO₂ ha
       · exact fun _ _ h ↦ h⟩⟩⟩
   invFun := fun ⟨l, hl⟩ =>
-    let O := RingOrdering_IsOrderedRing_equiv_field.symm ⟨l, hl.fst⟩
+    let O := ringOrderingLinearOrderEquivField.symm ⟨l, hl.fst⟩
     ⟨O, O.property, fun x hx => by
     rcases hl with ⟨hl, hl₂⟩
     have : ∀ b : F, 0 ≤ b → 0 ≤ (b : K) := fun _ h ↦ by
@@ -61,13 +61,13 @@ theorem RingOrdering_IsOrderedAlgebra_equiv_field_apply_coe
     {O : RingPreordering K} (hO : O.IsOrdering)
     (hO₂ : Subsemiring.map (algebraMap F K) (Subsemiring.nonneg F) ≤ O.toSubsemiring) :
     (RingOrdering_IsOrderedAlgebra_equiv_field ⟨O, hO, hO₂⟩ : LinearOrder K) =
-    RingOrdering_IsOrderedRing_equiv_field ⟨O, hO⟩ := rfl
+    ringOrderingLinearOrderEquivField ⟨O, hO⟩ := rfl
 
 @[simp]
 theorem RingOrdering_IsOrderedAlgebra_equiv_field_symm_apply_coe
     (l : LinearOrder K) (hl : IsStrictOrderedRing K) (hl₂ : IsOrderedAlgebra F K) :
     (RingOrdering_IsOrderedAlgebra_equiv_field.symm ⟨l, hl, hl₂⟩ : RingPreordering K) =
-    RingOrdering_IsOrderedRing_equiv_field.symm ⟨l, hl⟩ := rfl
+    ringOrderingLinearOrderEquivField.symm ⟨l, hl⟩ := rfl
 
 open Classical Subsemiring in
 theorem Field.exists_isOrderedAlgebra_iff_neg_one_notMem_sup :

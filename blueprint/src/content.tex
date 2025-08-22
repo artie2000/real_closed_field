@@ -54,7 +54,7 @@ Note that we will only use that this map is well-defined and surjective, and not
 
 \begin{definition}
   \label{def:ordered_field}
-  \lean{IsOrderedRing}
+  \lean{IsStrictOrderedRing}
   \leanok
   An ordered field is a field with a total order on it such that $+$ and $\cdot$ are monotone with respect to the order.
 \end{definition}
@@ -105,7 +105,7 @@ It is an easy check from the axioms of an ordered field that orderings deserve t
 \begin{lemma}
   \label{lem:linord_fieldord_bij}
   \uses{def:ordering,def:ordered_field}
-  \lean{RingOrdering_IsOrderedRing_equiv_field}
+  \lean{ringOrderingLinearOrderEquivField}
   \leanok
   Linear orders on a field $F$ making $F$ into an ordered field correspond bijectively with orderings on $F$ via the map $(\leq)\to\{x\geq0\}$.
 \end{lemma}
@@ -131,7 +131,7 @@ In other words, a field is real if and only if the sums of squares form a preord
 \begin{lemma}
   \label{lem:preord_adj}
   \uses{def:preordering}
-  \lean{RingPreordering.neg_one_notMem_adjoin_linear}
+  \lean{RingPreordering.neg_one_notMem_adjoin_of_neg_notMem}
   \leanok
   Let $P$ be a preordering on a field $F$, and suppose there is some element $a\in F$ such that $-a\notin P$. Then there is a preordering on $F$ containing $P$ and $a$.
 \end{lemma}
@@ -170,7 +170,7 @@ In other words, a field is real if and only if the sums of squares form a preord
 \begin{theorem}
   \label{thm:ord_iff_real}
   \uses{def:ordered_field, def:semireal}
-  \lean{Field.exists_isOrderedRing_iff_isSemireal}
+  \lean{Field.exists_isStrictOrderedRing_iff_isSemireal}
   \leanok
   A field can be ordered if and only if it is real.
 \end{theorem}
@@ -183,7 +183,7 @@ In other words, a field is real if and only if the sums of squares form a preord
 \begin{lemma}
   \label{lem:ord_max}
   \uses{def:ordering}
-  \lean{RingPreordering.eq_of_le_field}
+  \lean{RingPreordering.eq_of_le}
   \leanok
   Field orderings are maximal as preorderings.
 \end{lemma}
@@ -196,7 +196,7 @@ In other words, a field is real if and only if the sums of squares form a preord
 \begin{lemma}
   \label{lem:unique_ord_cond}
   \uses{def:ordered_field, def:semireal}
-  \lean{IsSemireal.existsUnique_isOrderedRing}
+  \lean{IsSemireal.existsUnique_isStrictOrderedRing}
   \leanok
   Let $F$ be a real field. There is a unique ordering on $F$ if and only if, for each $a\in F$, either $a$ or $-a$ is a sum of squares.
 \end{lemma}
@@ -211,7 +211,7 @@ In other words, a field is real if and only if the sums of squares form a preord
 \begin{corollary}
   \label{cor:unique_ord_cond_ordered}
   \uses{def:ordered_field}
-  \lean{LinearOrderedField.unique_isOrderedRing_iff}
+  \lean{LinearOrderedField.unique_isStrictOrderedRing_iff}
   \leanok
   Let $F$ be an ordered field. Then $F$ has a unique field ordering if and only if every non-negative element is a sum of squares.
 \end{corollary}
@@ -223,7 +223,7 @@ In other words, a field is real if and only if the sums of squares form a preord
 \begin{corollary}
   \label{cor:unique_ord_Q}
   \uses{def:ordered_field}
-  \lean{Rat.unique_isOrderedRing}
+  \lean{Rat.unique_isStrictOrderedRing}
   \leanok
   There is a unique field ordering on $\Q$.
 \end{corollary}
@@ -545,6 +545,10 @@ Just like with the algebraic closure, it makes sense to talk of \textit{the} rea
   \uses{def:real_closure}
   Let $F$ be an ordered field, and let $f$ be a polynomial over $F$. Then $f$ has the same number of roots in any real closure of $F$.
 \end{theorem}
+\begin{proof}
+  TODO : decide on the generality of the statement of Sturm's Theorem
+\end{proof}
+
 
 \begin{lemma}
   \label{lem:closure_emb_ext_unordered}

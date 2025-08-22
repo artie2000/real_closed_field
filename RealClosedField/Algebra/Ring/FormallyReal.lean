@@ -53,11 +53,23 @@ theorem isFormallyReal_of_eq_zero_of_mul_self_of_eq_zero_of_add [AddCommMonoid R
   eq_zero_of_sum_eq_zero {s} := by
     induction s using Multiset.induction with
     | empty => simp
-    | cons a s hs =>
+    | cons a m hm =>
         simp only [Multiset.map_cons, Multiset.sum_cons, Multiset.mem_cons, forall_eq_or_imp]
         intro h
         have := ha (by simp) (by rw [isSumSq_iff_mem_range_linearCombination]; simp) h
-        exact ⟨hz this, hs (by simpa [this] using h)⟩
+        exact ⟨hz this, hm (by simpa [this] using h)⟩
+
+variable (R) in
+theorem isFormallyReal_of_eq_zero_of_eq_zero_of_add_mul_self [NonUnitalNonAssocSemiring R]
+    (h : ∀ {s a : R}, IsSumSq s → a * a + s = 0 → a = 0) : IsFormallyReal R where
+  eq_zero_of_sum_eq_zero {s} := by
+    induction s using Multiset.induction with
+    | empty => simp
+    | cons a m hm =>
+        simp only [Multiset.map_cons, Multiset.sum_cons, Multiset.mem_cons, forall_eq_or_imp]
+        intro has
+        have := h (by rw [isSumSq_iff_mem_range_linearCombination]; simp) has
+        exact ⟨this, hm (by simpa [this] using has)⟩
 
 instance [NonAssocSemiring R] [Nontrivial R] [IsFormallyReal R] : IsSemireal R where
   one_add_ne_zero hs h_contr := by

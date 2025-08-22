@@ -16,26 +16,26 @@ instance : RingConeClass (RingPreordering F) F where
     aesop
 
 open Classical in
-instance [IsSemireal F] : IsFormallyReal F where
-  eq_zero_of_mul_self_add {a} {s} hs h := by
+def IsSemireal.isFormallyReal [IsSemireal F] : IsFormallyReal F :=
+  isFormallyReal_of_eq_zero_of_eq_zero_of_add_mul_self F <| fun {s} {a} _ h ↦ by
     by_contra
     exact IsSemireal.one_add_ne_zero (by aesop) (show 1 + s * (a⁻¹ * a⁻¹) = 0 by field_simp [h])
 
 open Classical RingPreordering in
-theorem Field.exists_isOrderedRing_iff_isSemireal :
+theorem Field.exists_isStrictOrderedRing_iff_isSemireal :
     (∃ _ : LinearOrder F, IsStrictOrderedRing F) ↔ IsSemireal F := by
-  rw [Equiv.exists_subtype_congr RingOrdering_IsOrderedRing_equiv_field.symm]
-  refine ⟨fun ⟨O, hO⟩ => ⟨fun {s} hs h => RingPreordering.neg_one_notMem O <| mem_of_isSumSq ?_⟩,
+  rw [Equiv.exists_subtype_congr ringOrderingLinearOrderEquivField.symm]
+  exact ⟨fun ⟨O, hO⟩ => ⟨fun {s} hs h => RingPreordering.neg_one_notMem O <|
+            mem_of_isSumSq (by simp_all [show s = -1 by linear_combination h])⟩,
           fun _ =>
             letI exO := exists_le_isOrdering (⊥ : RingPreordering F)
             letI inst := (choose_spec exO).2
             ⟨choose exO, inferInstance⟩⟩
-  simp_all [show s = -1 by linear_combination h]
 
-theorem IsSemireal.existsUnique_isOrderedRing
+theorem IsSemireal.existsUnique_isStrictOrderedRing
     [IsSemireal F] (h : ∀ x : F, IsSumSq x ∨ IsSumSq (-x)) :
     ∃! _ : LinearOrder F, IsStrictOrderedRing F := by
-  let l := RingOrdering_IsOrderedRing_equiv_field (F := F)
+  let l := ringOrderingLinearOrderEquivField (F := F)
     ⟨⊥, { toHasMemOrNegMem := ⟨by simpa using h⟩, toIsPrime := inferInstance }⟩
   refine ⟨l.val, l.property, fun l' hl' => ?_⟩
   · simp only [l]
@@ -51,7 +51,7 @@ open RingPreordering in
 theorem IsSemireal.isSumSq_or_isSumSq_neg [IsSemireal F]
     (h : ∃! _ : LinearOrder F, IsStrictOrderedRing F) :
     ∀ x : F, IsSumSq x ∨ IsSumSq (-x) := by
-  rw [Equiv.existsUnique_subtype_congr RingOrdering_IsOrderedRing_equiv_field.symm] at h
+  rw [Equiv.existsUnique_subtype_congr ringOrderingLinearOrderEquivField.symm] at h
   by_contra! hc
   rcases hc with ⟨x, hx, hnx⟩
   rcases exists_le_isOrdering <| adjoin <| neg_one_notMem_adjoin_of_neg_notMem
@@ -63,13 +63,13 @@ theorem IsSemireal.isSumSq_or_isSumSq_neg [IsSemireal F]
     RingPreordering.eq_zero_of_mem_of_neg_mem (by simp_all) (hle₂ (by aesop))) <|
       h.unique inferInstance inferInstance
 
-theorem IsSemireal.existsUnique_isOrderedRing_iff [IsSemireal F] :
+theorem IsSemireal.existsUnique_isStrictOrderedRing_iff [IsSemireal F] :
     (∃! _ : LinearOrder F, IsStrictOrderedRing F) ↔ ∀ x : F, IsSumSq x ∨ IsSumSq (-x) :=
-  ⟨IsSemireal.isSumSq_or_isSumSq_neg, IsSemireal.existsUnique_isOrderedRing⟩
+  ⟨IsSemireal.isSumSq_or_isSumSq_neg, IsSemireal.existsUnique_isStrictOrderedRing⟩
 
-theorem LinearOrderedField.unique_isOrderedRing_iff [LinearOrder F] [IsStrictOrderedRing F] :
+theorem LinearOrderedField.unique_isStrictOrderedRing_iff [LinearOrder F] [IsStrictOrderedRing F] :
     (∃! _ : LinearOrder F, IsStrictOrderedRing F) ↔ ∀ x : F, 0 ≤ x → IsSumSq x := by
-  rw [IsSemireal.existsUnique_isOrderedRing_iff]
+  rw [IsSemireal.existsUnique_isStrictOrderedRing_iff]
   refine ⟨fun h x hx => ?_, fun h x => ?_⟩
   · cases h x with | inl => assumption | inr ssnx =>
     aesop (add norm (show  x = 0 by linarith [IsSumSq.nonneg ssnx]))
@@ -77,10 +77,10 @@ theorem LinearOrderedField.unique_isOrderedRing_iff [LinearOrder F] [IsStrictOrd
     · simp [h x hx]
     · simp [h (-x) (by linarith)]
 
-noncomputable def Rat.unique_isOrderedRing :
+noncomputable def Rat.unique_isStrictOrderedRing :
     Unique {l : LinearOrder ℚ // @IsStrictOrderedRing ℚ _ (l.toPartialOrder)} :=
   Classical.choice <| by
-  rw [unique_subtype_iff_existsUnique, LinearOrderedField.unique_isOrderedRing_iff]
+  rw [unique_subtype_iff_existsUnique, LinearOrderedField.unique_isStrictOrderedRing_iff]
   refine fun x hx => by
     rw [show x = ∑ i ∈ Finset.range (x.num.toNat * x.den), (1 / (x.den : ℚ)) ^ 2 by
       have : (x * ↑x.den) * ↑x.den = ↑x.num.toNat * ↑x.den := by simp_all; norm_cast; simp_all

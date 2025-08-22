@@ -124,7 +124,7 @@ abbrev LinearOrder.mkOfRingOrdering_field [P.IsOrdering] [DecidablePred (· ∈ 
   .mkOfAddGroupCone (RingCone.mkOfRingPreordering_field P)
 
 open Classical in
-noncomputable def RingOrdering_IsOrderedRing_equiv_field :
+noncomputable def ringOrderingLinearOrderEquivField :
     Equiv {O : RingPreordering F // O.IsOrdering}
           {l : LinearOrder F // IsStrictOrderedRing F} where
   toFun := fun ⟨O, hO⟩ =>
@@ -137,15 +137,15 @@ noncomputable def RingOrdering_IsOrderedRing_equiv_field :
   right_inv := fun ⟨_, _⟩ => by simp
 
 @[simp]
-theorem RingOrdering_IsOrderedRing_equiv_field_apply (hP : P.IsOrdering) :
-    (RingOrdering_IsOrderedRing_equiv_field ⟨P, hP⟩ : LinearOrder F) =
+theorem ringOrderingLinearOrderEquivField_apply (hP : P.IsOrdering) :
+    (ringOrderingLinearOrderEquivField ⟨P, hP⟩ : LinearOrder F) =
     ringPreorderingLinearOrderEquiv ⟨P, inferInstance, by simp⟩ := by
-  simp [RingOrdering_IsOrderedRing_equiv_field]
+  simp [ringOrderingLinearOrderEquivField]
 
 @[simp]
-theorem RingOrdering_IsOrderedRing_equiv_field_symm_apply_coe
+theorem ringOrderingLinearOrderEquivField_symm_apply_coe
     (l : LinearOrder F) (hl : IsStrictOrderedRing F) :
-    (RingOrdering_IsOrderedRing_equiv_field.symm ⟨l, hl⟩ : RingPreordering F) =
+    (ringOrderingLinearOrderEquivField.symm ⟨l, hl⟩ : RingPreordering F) =
     ringPreorderingLinearOrderEquiv.symm ⟨l, inferInstance⟩ := rfl
 
 end Field
