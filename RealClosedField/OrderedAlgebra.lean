@@ -299,8 +299,6 @@ theorem odd_deg_ordered (h_rank : Odd <| Module.finrank F K) :
   rw [← hAdj.map_eq_zero_iff]
   simp [hg_map]
 
-variable {F : Type*} [Field F]
-
 open scoped Polynomial in
 theorem odd_natDegree_has_root_of_odd_natDegree_reducible {F : Type*} [Field F]
     (h : ∀ f : F[X], Odd f.natDegree → f.natDegree ≠ 1 → ¬(Irreducible f))
