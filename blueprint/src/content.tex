@@ -353,7 +353,7 @@ Intuitively, $X$ is infinitesimally close to $a$. When $a=0$, we often write $R(
 \end{lemma}
 \begin{proof}
   \uses{cor:unique_ord_cond_ordered}
-  Follows directly from \ref{cor:unique_ord_cond_ordered}.
+  Follows directly from Corollary \ref{cor:unique_ord_cond_ordered}.
 \end{proof}
 
 Fix a real closed field $R$. In what follows, all algebraic extensions are given up to $R$-isomorphism, as is conventional. Observe that, since $-1$ is not a square in $R$, $R(i)/R$ is a quadratic extension. We show that this is the \textbf{only} nontrivial algebraic extension of $R$.
@@ -632,13 +632,13 @@ We didn't actually need to assume the ordering on $R$ in Lemma \ref{lem:FTAlg_co
   Suppose $R$ is a field whose only nontrivial algebraic extension is $R(i)$. Then there is a unique field ordering on $R$, and moreover $R$ with this ordering is real closed.
 \end{lemma}
 \begin{proof}
-  \uses{thm:ord_iff_real,lem:FTAlg_converse,cor:unique_ord_cond_ordered,lem:sumsq_is_sq}
-  We are very nearly done by Theorem \ref{thm:ord_iff_real}, Lemma \ref{lem:FTAlg_converse}, and Corollary \ref{cor:unique_ord_cond_ordered}; it remains to show that $R$ is real.
+  \uses{thm:ord_iff_real,lem:FTAlg_converse,lem:RCF_ord_unique,lem:sumsq_is_sq}
+  We are very nearly done by Theorem \ref{thm:ord_iff_real}, Lemma \ref{lem:FTAlg_converse}, and Corollary \ref{lem:RCF_ord_unique}; it remains to show that $R$ is real.
 
-  We have $\bar{R}\cong R(i)$. Since $R(i)\not\cong R$, $-1$ is not a square in $R$. Since, every element of $R(i)$ is a square, Lemma \ref{lem:sumsq_is_sq} says that $-1$ is not a sum of squares in $R$.
+  We have $\bar{R}\cong R(i)$. Since $R(i)/R$ is nontrivial, $-1$ is not a square in $R$. Since every element of $R(i)$ is a square, Lemma \ref{lem:sumsq_is_sq} says that $-1$ is not a sum of squares in $R$.
 \end{proof}
 
-In fact, we can go further. The following is a weak form of the Artin-Schreier theorem; removing the condition on characteristic is possible, but requires some more involved algebra.
+In fact, we can go further. The following is a weak form of the Artin-Schreier theorem. Removing the condition on characteristic is possible, but requires some more involved algebra.
 
 \begin{theorem}
   \label{thm:Artin-Schreier_weak}
