@@ -101,6 +101,13 @@ end mk'
 ### Supports
 -/
 
+theorem supportAddSubgroup_mono {Q : RingPreordering R} (h : P ≤ Q) :
+    P.supportAddSubgroup ≤ Q.supportAddSubgroup :=
+  fun _ ↦ by aesop (add simp mem_supportAddSubgroup)
+
+theorem support_mono {Q : RingPreordering R} [P.HasIdealSupport] [Q.HasIdealSupport] (h : P ≤ Q) :
+    P.support ≤ Q.support := fun _ ↦ by aesop (add simp mem_support)
+
 section ne_top
 
 variable (P)
@@ -355,7 +362,54 @@ theorem mem_sSup {x : R} : x ∈ sSup hS hSd ↔ ∃ p ∈ S, x ∈ p := by
   rw [show x ∈ sSup hS hSd ↔ x ∈ (sSup hS hSd : Set R) by simp [-coe_sSup]]
   simp_all
 
-/- TODO : support sSup -/
+include hSd in
+variable (hSd) in
+theorem directedOn_image_supportAddSubgroup :
+    DirectedOn (fun x1 x2 ↦ x1 ≤ x2) (supportAddSubgroup '' S) := by
+  rw [directedOn_image]
+  intro x hx y hy
+  rcases hSd x hx y hy with ⟨z, _⟩
+  refine ⟨z, by aesop (add safe apply supportAddSubgroup_mono)⟩
+
+@[simp]
+theorem supportAddSubgroup_sSup :
+    (sSup hS hSd).supportAddSubgroup = SupSet.sSup (supportAddSubgroup '' S) := by
+  ext x
+  rw [AddSubgroup.mem_sSup_of_directedOn (by simp_all) (directedOn_image_supportAddSubgroup hSd)]
+  · simp only [mem_supportAddSubgroup, mem_sSup, Set.mem_image, exists_exists_and_eq_and]
+    refine ⟨?_, by aesop⟩
+    rintro ⟨⟨_, hs₁, _⟩, ⟨_, hs₂, _⟩⟩
+    rcases hSd _ hs₁ _ hs₂ with ⟨s, hs⟩
+    exact ⟨s, by aesop⟩
+
+theorem hasIdealSupport_sSup (h : ∀ P ∈ S, P.HasIdealSupport) : (sSup hS hSd).HasIdealSupport := by
+  simp_rw [hasIdealSupport_iff, mem_sSup] at *
+  rintro x a ⟨P, hP, hP'⟩ ⟨Q, hQ, hQ'⟩
+  rcases hSd _ hP _ hQ with ⟨R, hR, hPR, hQR⟩
+  have := h _ hR x a (hPR hP') (hQR hQ')
+  aesop
+
+@[simp]
+theorem support_sSup  (h : ∀ P ∈ S, P.HasIdealSupport) :
+    letI _ : (sSup hS hSd).HasIdealSupport := hasIdealSupport_sSup h
+    (sSup hS hSd).support = SupSet.sSup {s | ∃ P, ∃ hP : P ∈ S, letI _ := h _ hP; s = P.support} := by
+  generalize_proofs
+  ext x
+  have := supportAddSubgroup_sSup (hS := hS) (hSd := hSd)
+  apply_fun (x ∈ ·) at this
+  simp only [supportAddSubgroup_eq, Submodule.mem_toAddSubgroup] at this
+  rw [this,
+      AddSubgroup.mem_sSup_of_directedOn (by simp_all) (directedOn_image_supportAddSubgroup hSd)]
+  rw [Submodule.mem_sSup_of_directed]
+  · aesop
+  · rcases hS with ⟨P, hP⟩
+    exact ⟨let _ := h P hP; P.support, by aesop⟩
+  · rintro _ ⟨x, hx, rfl⟩ _ ⟨y, hy, rfl⟩
+    rcases hSd _ hx _ hy with ⟨z, hz, _, _⟩
+    let _ := h _ hx
+    let _ := h _ hy
+    let _ := h _ hz
+    exact ⟨z.support, by aesop (add safe apply support_mono)⟩
 
 variable (hS) (hSd) in
 theorem le_sSup {P} (hP : P ∈ S) : P ≤ sSup hS hSd := by
@@ -380,8 +434,7 @@ variable {A B C : Type*} [CommRing A] [CommRing B] [CommRing C]
 /-- The preimage of a preordering along a ring homomorphism is a preordering. -/
 def comap (f : A →+* B) (P : RingPreordering B) : RingPreordering A where
   __ := P.toSubsemiring.comap f
-  mem_of_isSquare' := by aesop (add unsafe apply IsSquare.map) /- TODO : remove add .. once change is merged -/
-  neg_one_notMem' := by aesop
+  mem_of_isSquare' := by aesop
 
 @[simp]
 theorem coe_comap (P : RingPreordering B) {f : A →+* B} : (P.comap f : Set A) = f ⁻¹' P := rfl
