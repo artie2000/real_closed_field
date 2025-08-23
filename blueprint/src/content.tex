@@ -8,7 +8,7 @@
 
 We follow \cite{Lam1984} for the material on field orderings and the algebraic criterion for field orderability. For the material on real closed fields, we synthesise material from \cite{Bochnak1998}, \cite{Knebusch2022}, \cite{Jacobson2012I} and \cite{Jacobson2012II} as convenient. 
 
-Note that the meaning of the notation $F(\sqrt{a})$ depends on whether $a$ is a square in $F$. We take care to write this only in the non-trivial case. The same applies to $F(i)$.
+Note that the meaning of the notation $F(\sqrt{a})$ depends on whether $a$ is a square in $F$. We take care to write only in the non-trivial case. The same applies to $F(i)$.
 
 \section{Preliminaries}
 
@@ -31,18 +31,18 @@ Note that the meaning of the notation $F(\sqrt{a})$ depends on whether $a$ is a 
 \begin{lemma}
   \label{lem:deg_2_classify}
   Let $K$ be a field with $\ch K\neq2$. Then there is a bijection between the quadratic extensions of $K$ (up to $K$-isomorphism) and the set
-  \[\left(\frac{K^*}{{(K^*)^2}}\right)\setminus\{1\cdot(K^*)^2\}\]
+  \[\left(\frac{K^*}{{(K^*)^2}}\right)\setminus\{1\cdot(K^*)^2\},\]
   given by the map $x(K^*)^2\to K(\sqrt{x})$.
 \end{lemma}
 \begin{proof}
-  Consider the map $\Phi:x\to K(\sqrt{x})$ from $K^*$. We will show it fully respects the relation $x(K^*)^2=y(K^*)^2$; then $\Phi$ descends to a injective map out of the quotient $K^*/(K^*)^2$. In particular, if $x\notin(K^*)^2$, then $\Phi(x)=K(\sqrt{x})$ is not $K$-isomorphic to $K$, and is therefore a quadratic extension of $K$.
+  Consider the map $\Phi:x\to K(\sqrt{x})$ from the set of non-squares $K^*\setminus(K^*)^2$. We will show it fully respects the relation $x(K^*)^2=y(K^*)^2$; then $\Phi$ descends to a injective map out of the quotient $(K^*/(K^*)^2)\setminus\{1\cdot(K^*)^2\}$.
 
-  Indeed, if $x(K^*)^2=y(K^*)^2$, then $x=a^2y$ for some $a\in K$, and so $K(\sqrt{x})\cong_K K(\sqrt{y})$ via $\sqrt{x}\to a\sqrt{y}$. Conversely, if $\varphi:K(\sqrt{x})\to K(\sqrt{y})$ is a $K$-isomorphism, then $\varphi(\sqrt{x})=a+b\sqrt{y}$ for some $a,b\in K$, and so $x=a^2+yb^2+2ab\sqrt{y}$. Comparing coefficients in the $K$-basis $\{1,\sqrt{y}\}$, either $a=0$ or $b=0$. Therefore, either $x=a^2y$ and so $x(K^*)^2=y(K^*)^2$, or $x=a^2$, in which case $K(\sqrt{y})\cong_K K(\sqrt{x})\cong_K K$; that is, $x,y\in(K^*)^2$.
+  Indeed, if $x(K^*)^2=y(K^*)^2$, then $x=a^2y$ for some $a\in K$, and so $K(\sqrt{x})\cong_K K(\sqrt{y})$ via $\sqrt{x}\to a\sqrt{y}$. Conversely, if $\varphi:K(\sqrt{x})\to K(\sqrt{y})$ is a $K$-isomorphism, then $\varphi(\sqrt{x})=a+b\sqrt{y}$ for some $a,b\in K$, and so $x=a^2+yb^2+2ab\sqrt{y}$. Comparing coefficients in the $K$-basis $\{1,\sqrt{y}\}$, either $a=0$ or $b=0$. Since $x$ is not a square, we must have $x=a^2y$, and so $x(K^*)^2=y(K^*)^2$.
 
   It remains to show all quadratic extensions of $K$ are $K$-isomorphic to some $L\in\im\Phi$. Fix a quadratic extension $L/K$, and let $\{1,\alpha\}$ be a $K$-basis for $L$; then $\alpha^2=a\alpha+b$ for some $a,b\in K$. Let $\beta=2\alpha-a$. Since $\ch K\neq 2$, $\alpha=(\beta+a)/2$, and so $L=K+\beta K=K(\beta)$. Now, we compute $\beta^2=a^2+4b$. Therefore $L\cong_K\Phi(a^2+4b)$ via $\beta\to\sqrt{a^2+4b}$.
 \end{proof}
 
-Note that we will only use that this map is well-defined and surjective, and not that it is injective (which was the most annoying part to show).
+Note that we will only use that this map is well-defined and surjective, and not that it is injective.
 
 \begin{lemma}
   \label{lem:sumsq_is_sq}
@@ -114,7 +114,7 @@ It is an easy check from the axioms of an ordered field that orderings deserve t
 \begin{proof}
   \uses{lem:preord_antisymm}
   \leanok
-  The only nontrivial check is antisymmetry, which holds by Lemma \ref{preord_antisymm}.
+  The only nontrivial check is antisymmetry, which holds by Lemma \ref{lem:preord_antisymm}.
 \end{proof}
 
 From now on, we will refer to the total order on an ordered field and its corresponding field ordering structure interchangeably.
@@ -277,7 +277,7 @@ Observe that, given an extension $L/K$ of ordered fields with total orders $(\le
   \uses{lem:ext_ord_cond}
   \leanok
   Consider the sum $\sum_i x_i\alpha_i^2$ for some $\alpha_i\in K$ and $x_i\in F_{\geq0}$. By $F$-linearity, we compute
-  \[\pi(\sum_i x_i\alpha_i^2)=\sum_i x_i\pi(\alpha_i)^2\geq0.\]
+  \[\pi(\sum_i x_i\alpha_i^2)=\sum_i x_i\pi(\alpha_i^2)\geq0.\]
   Since $\pi(-1)=-1<0$, we are done by Lemma \ref{lem:ext_ord_cond}.
 \end{proof}
 
