@@ -523,7 +523,7 @@ In summary, we have proved the following characterisation of real closed fields.
   \end{enumerate}
 \end{theorem}
 \begin{proof}
-  \uses{cor:RCF_ac,lem:FTAlg_converse,lem:IVP_poly,thm:IVP_poly_imp_RCF,lem:RCF_max,thm:}
+  \uses{cor:RCF_ac,lem:FTAlg_converse,lem:IVP_poly,thm:IVP_poly_imp_RCF,lem:RCF_max,thm:ord_max_imp_RCF}
 \end{proof}
 
 \section{Real Closures}
@@ -579,7 +579,7 @@ Just like with the algebraic closure, it makes sense to talk of \textit{the} rea
   
   By the primitive element theorem, $K=F(\alpha)$ for some $\alpha\in K$. Let $f$ be the minimal polynomial of $\alpha$ over $F$, and let $\alpha_1<\cdots<\alpha_m$ be the roots of $f$ in $R'$, with $\alpha=\alpha_k$. By Theorem \ref{thm:Sturm}, $f$ also has $m$ roots in $R$; let them be $\beta_1<\cdots<\beta_m$. Since non-negative elements of $R'$ are squares, and $x_1,\dots,x_{m-1}\in R'$ such that $\alpha_{j+1}-\alpha_j=x_j^2$, and let $L=K(\alpha_1,\dots,\alpha_m,r,x_1,\dots,x_{m-1})\leq R'$. Now, suppose we have a $K$-homomorphism $\psi:L\to R$. Each $\psi(\alpha_j)$ is equal to a different $\beta_i$. Then $\psi(\alpha_{j+1})-\psi(\alpha_j)=\psi(x_j)^2\geq0$, so $\psi(\alpha_1)<\cdots<\psi(\alpha_m)$, and so $\psi(\alpha_j)=\beta_j$ for all $j$.
 
-  By Lemma \ref{lem:closure_emb_ext_unordered}, there is in fact an $F$-homomorphism $\varphi:L\to R$. We will show that $\varphi$ is order-preserving. Indeed, fix a non-negative element $x\in L$. As before, find $r\in R'$ such that $x=r^2$, and let $M=L(r)\leq R'$. Apply Lemma $\ref{lem:closure_emb_ext_unordered}$ again to obtain an $L$-homomorphism $\psi:M\to R$; then $\varphi(x)=\psi(x)=\psi(r)^2\geq0$. Therefore $\varphi$ maps non-negative elements to non-negative elements, and so is order-preserving. Then $\varphi|_K$ is the map we want. Note that $\varphi(\alpha)=\beta_k$.
+  By Lemma \ref{lem:closure_emb_ext_unordered}, there is in fact an $F$-homomorphism $\varphi:L\to R$. We will show that $\varphi$ is order-preserving. Indeed, fix a non-negative element $x\in L$. As before, find $r\in R'$ such that $x=r^2$, and let $M=L(r)\leq R'$. Apply Lemma \ref{lem:closure_emb_ext_unordered} again to obtain an $L$-homomorphism $\psi:M\to R$; then $\varphi(x)=\psi(x)=\psi(r)^2\geq0$. Therefore $\varphi$ maps non-negative elements to non-negative elements, and so is order-preserving. Then $\varphi|_K$ is the map we want. Note that $\varphi(\alpha)=\beta_k$.
 
   To see uniqueness, let $\tilde\varphi:K\to R$ be an order-preserving $F$-homomorphism; by existence, $\tilde\varphi$ extends to a an order-preserving $K$-homomorphism $\tilde\psi:L\to R$. Then $\tilde\varphi(\alpha)=\tilde\psi(\alpha_k)=\beta_k=\varphi(\alpha)$, and so $\tilde\varphi=\varphi$.
 \end{proof}
