@@ -23,15 +23,13 @@ theorem AddSubmonoid.closure_eq_image_multiset_sum {M : Type*} [AddCommMonoid M]
   exact AddSubmonoid.multiset_sum_mem _ _ (by aesop)
 
 theorem isSumSq_iff_mem_range_linearCombination [AddCommMonoid R] [Mul R] {x} :
-    IsSumSq x ↔
-    ∃ s : Multiset R, (s.map (fun a ↦ a * a)).sum = x := by
+    IsSumSq x ↔ ∃ s : Multiset R, (s.map (fun a ↦ a * a)).sum = x := by
   rw [← AddSubmonoid.mem_sumSq, ← AddSubmonoid.closure_isSquare, ← SetLike.mem_coe,
       AddSubmonoid.closure_eq_image_multiset_sum, Set.mem_image]
   refine ⟨fun h => ?_, fun ⟨m, hm⟩ => ⟨Multiset.map (fun a ↦ a * a) m, by simp [hm]⟩⟩
   rcases h with ⟨m, hm, rfl⟩
   choose! sqrt hsqrt using hm
-  have hsqrt' : ∀ x ∈ m, sqrt x * sqrt x = x := by grind only
-  exact ⟨m.map sqrt, by simp [Multiset.map_congr _ hsqrt']⟩
+  exact ⟨m.map sqrt, by simp [← Multiset.map_congr _ hsqrt]⟩
 
 theorem IsFormallyReal.eq_zero_of_add_right [NonUnitalNonAssocSemiring R] [IsFormallyReal R]
     {s₁ s₂ : R} (hs₁ : IsSumSq s₁) (hs₂ : IsSumSq s₂) (h : s₁ + s₂ = 0) : s₁ = 0 := by

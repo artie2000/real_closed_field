@@ -49,9 +49,12 @@ Note that we will only use that this map is well-defined and surjective, and not
 
 \begin{lemma}
   \label{lem:sumsq_is_sq}
+  \lean{isSumSq_of_isSquare}
+  \leanok
   Let $F$ be a field in which $-1$ is not a square, and suppose every element of $F(i)$ is a square. Then sums of squares in $F$ are squares in $F$.
 \end{lemma}
 \begin{proof}
+  \leanok
   Given $a,b\in F$, find $c,d\in F$ such that $a+bi=(c+di)^2$ in $F(i)$. Then $a=c^2-d^2$ and $b=2cd$, so $a^2+b^2=(c^2+d^2)^2$ is a square in $F$. By induction, every sum of squares in $F$ is a square in $F$.
 \end{proof}
 

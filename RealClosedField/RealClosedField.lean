@@ -8,7 +8,7 @@ import RealClosedField.OrderedAlgebra
 /- An ordered field is real closed if every nonegative element is a square and
    every odd-degree polynomial has a root. -/
 class IsRealClosed (R : Type*) [Field R] [LinearOrder R] [IsStrictOrderedRing R] : Prop where
-  isSquare_of_nonneg' {x : R} (hx : x ≥ 0) : IsSquare x
+  isSquare_of_nonneg' {x : R} (hx : 0 ≤ x) : IsSquare x
   exists_isRoot_of_odd_natDegree' {f : Polynomial R} (hf : Odd f.natDegree) : ∃ x, f.IsRoot x
 
 /- A real closure is a real closed ordered algebraic extension. -/

@@ -41,10 +41,7 @@ noncomputable def ringOrderingOrderedAlgebraEquivField :
       rw [monotone_iff_map_nonneg]
       intro a ha
       apply_fun (fun s ↦ s.carrier : Subsemiring K → Set K) at hO₂
-      · simp only [Subsemiring.map_toSubmonoid, Subsemiring.coe_nonneg,
-          Subsemiring.coe_carrier_toSubmonoid, RingPreordering.coe_toSubsemiring, Set.le_eq_subset,
-          Set.image_subset_iff] at hO₂
-        simpa [l] using hO₂ ha
+      · simpa [l] using (show Set.Ici (0 : F) ⊆ _ by simpa using hO₂) ha
       · exact fun _ _ h ↦ h⟩⟩⟩
   invFun := fun ⟨l, hl⟩ =>
     let O := ringOrderingLinearOrderEquivField.symm ⟨l, hl.fst⟩
@@ -128,9 +125,55 @@ theorem Field.exists_isOrderedAlgebra_of_projection
 open Polynomial in
 theorem X_sq_sub_C_irreducible_iff_not_isSquare {F : Type*} [Field F] (a : F) :
     Irreducible (X ^ 2 - C a) ↔ ¬ IsSquare a := by
-  rw [isSquare_iff_exists_sq]
-  have := X_pow_sub_C_irreducible_iff_of_prime Nat.prime_two (a := a)
-  simp [eq_comm (a := a), this]
+  rw [isSquare_iff_exists_sq, X_pow_sub_C_irreducible_iff_of_prime Nat.prime_two]
+  grind only
+
+open Polynomial in
+theorem isSumSq_of_isSquare {F : Type*} [Field F] (hF : ¬ (IsSquare (-1 : F)))
+    (h : ∀ x : AdjoinRoot (X ^ 2 + 1 : F[X]), IsSquare x)
+    (a : F) (ha : IsSumSq a) : IsSquare a := by
+  rw [← X_sq_sub_C_irreducible_iff_not_isSquare] at hF
+  have := Fact.mk hF
+  have nz : (X ^ 2 + 1 : F[X]) ≠ 0 := fun _ ↦ by simp_all
+  set B := AdjoinRoot.powerBasis nz
+  have Bdim : B.dim = 2 := by simp [B, -map_one, ← C_1]
+  have Bgen : B.gen = AdjoinRoot.root (X ^ 2 + 1) := by simp [B]
+  rcases B with ⟨α, n, B, hB⟩
+  simp only at Bdim Bgen
+  revert B
+  rw [Bdim]
+  intro B hB
+  have α_sq : α ^ 2 = -1 := by
+    rw [Bgen]
+    have : AdjoinRoot.root (X ^ 2 + 1 : F[X]) ^ 2 + 1 = 0 := by
+      have := AdjoinRoot.eval₂_root (X ^ 2 + 1 : F[X])
+      simpa
+    linear_combination this
+  rw [← AddSubmonoid.mem_sumSq, ← AddSubmonoid.closure_isSquare] at ha
+  induction ha using AddSubmonoid.closure_induction with
+  | zero => simp
+  | mem a ha => exact ha
+  | add _ _ _ _ iha ihb =>
+      rcases iha with ⟨a, rfl⟩
+      rcases ihb with ⟨b, rfl⟩
+      rcases h (a • B 0 + b • B 1) with ⟨x, hx⟩
+      rw [← Module.Basis.sum_repr B x] at hx
+      have basis_expand : a • B 0 + b • B 1 =
+             ((B.repr x) 0 ^ 2 - (B.repr x) 1 ^ 2) • B 0 + (2 * (B.repr x) 0 * (B.repr x) 1) • B 1 := by
+        rw [hx]
+        simp [hB, Algebra.smul_def, - AdjoinRoot.algebraMap_eq]
+        ring_nf
+        simp [α_sq, - AdjoinRoot.algebraMap_eq, Algebra.algebraMap_eq_smul_one]
+        rw [show α * 2 = 2 • α by simp [mul_comm]]
+        module
+      rw [show a = (B.repr x) 0 ^ 2 - (B.repr x) 1 ^ 2 by
+            apply_fun B.coord 0 at basis_expand
+            simpa using basis_expand,
+          show b = 2 * (B.repr x) 0 * (B.repr x) 1 by
+        apply_fun B.coord 1 at basis_expand
+        simpa using basis_expand]
+      use (B.repr x) 0 ^ 2 + (B.repr x) 1 ^ 2
+      ring
 
 open Polynomial in
 theorem adj_sqrt_ordered {a : F} (ha : 0 ≤ a) (ha₂ : ¬ IsSquare a) :
