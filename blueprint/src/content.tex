@@ -14,9 +14,12 @@ Note that the meaning of the notation $F(\sqrt{a})$ depends on whether $a$ is a 
 
 \begin{lemma}
   \label{lem:odd_deg_red_imp_root}
+  \lean{odd_natDegree_has_root_of_odd_natDegree_reducible}
+  \leanok
   Let $F$ be a field, and suppose all nonlinear odd-degree polynomials over $F$ are reducible. Then every odd-degree polynomial over $F$ has a root.
 \end{lemma}
 \begin{proof}
+  \leanok
   Fix an odd-degree polynomial $f$ over $F$, and proceed by induction on $\deg f$. If $\deg f=1$, then $f$ has a root in $F$. Otherwise, $f$ is reducible by assumption; write $f=gh$ where $\deg g,\deg h>0$. Since $\deg f=\deg g+\deg h$, wlog $\deg g$ is odd. Since $\deg g<\deg f$, the factor $g$ has a root in $F$ by induction, and therefore so does $f$.
 \end{proof}
 

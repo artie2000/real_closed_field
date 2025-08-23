@@ -250,6 +250,7 @@ theorem minus_one_notMem_span_nonneg_isSquare_mod_f {f : F[X]}
           | inr hdeg => simpa [Polynomial.leadingCoeff_add_of_degree_lt' hdeg,
                                Polynomial.natDegree_add_eq_left_of_degree_lt hdeg] using ihg
   induction h : f.natDegree using Nat.strong_induction_on generalizing f g with | h n ih =>
+    rcases h with rfl
     rcases g_facts _ (Irreducible.natDegree_pos hf₂) _ hg with
       ⟨leadingCoeff_nonneg, natDegree_even, natDegree_lt⟩
     have : f ≠ 0 := Irreducible.ne_zero hf₂
@@ -296,5 +297,37 @@ theorem odd_deg_ordered (h_rank : Odd <| Module.finrank F K) :
           (by simpa [← hAdj.finrank] using h_rank) hg_mem
   rw [← hAdj.map_eq_zero_iff]
   simp [hg_map]
+
+variable {F : Type*} [Field F]
+
+open scoped Polynomial in
+theorem odd_natDegree_has_root_of_odd_natDegree_reducible {F : Type*} [Field F]
+    (h : ∀ f : F[X], Odd f.natDegree → f.natDegree ≠ 1 → ¬(Irreducible f))
+    (f : F[X]) (hf : Odd f.natDegree) : f.roots ≠ 0 := by
+  induction hdeg : f.natDegree using Nat.strong_induction_on generalizing f with | h n ih =>
+    rcases hdeg with rfl
+    have : f ≠ 0 := fun _ ↦ by simp_all
+    by_cases hdeg1 : f.natDegree = 1
+    · rw [Polynomial.eq_X_add_C_of_degree_eq_one
+            (show f.degree = 1 by simpa [Polynomial.degree_eq_natDegree ‹f ≠ 0›] using hdeg1),
+          Polynomial.roots_C_mul_X_add_C _ (by simp [‹f ≠ 0›])]
+      simp
+    · rcases (by simpa [h _ hf hdeg1] using
+          irreducible_or_factor (Polynomial.not_isUnit_of_natDegree_pos f (Odd.pos hf))) with
+        ⟨a, ha, b, hb, hfab⟩
+      have : a ≠ 0 := fun _ ↦ by simp_all
+      have : b ≠ 0 := fun _ ↦ by simp_all
+      have hsum : f.natDegree = a.natDegree + b.natDegree := by
+        simpa [hfab] using Polynomial.natDegree_mul ‹_› ‹_›
+      have hodd : Odd a.natDegree ∨ Odd b.natDegree := by grind
+      wlog h : Odd a.natDegree generalizing a b
+      · exact this b ‹_› a ‹_› (by simpa [mul_comm] using hfab) ‹_› ‹_›
+          (by simpa [add_comm] using hsum) (by simp_all) (by simpa [h] using hodd)
+      · have : b.natDegree ≠ 0 := fun hc ↦ by
+          rw [Polynomial.isUnit_iff_degree_eq_zero, Polynomial.degree_eq_natDegree ‹_›] at hb
+          exact hb (by simpa using hc)
+        intro hc
+        exact ih a.natDegree (by omega) _ h rfl <| by
+          simpa [hc, Multiset.le_zero] using Polynomial.roots.le_of_dvd ‹f ≠ 0› (by simp [hfab])
 
 #min_imports
