@@ -282,10 +282,13 @@ Observe that, given an extension $L/K$ of ordered fields with total orders $(\le
 \begin{corollary}
   \label{cor:ext_ord_to_adj_sqrt}
   \uses{def:ordered_ext}
-  Let $F$ be a ordered field, and let $a\in F$ be non-negative. Then there is a field ordering on $F(\sqrt{a})$ making $F(\sqrt{a})/F$ ordered.
+  \lean{adj_sqrt_ordered}
+  \leanok
+  Let $F$ be a ordered field, and suppose $a\in F$ is non-negative (and not a square). Then there is a field ordering on $F(\sqrt{a})$ making $F(\sqrt{a})/F$ ordered.
 \end{corollary}
 \begin{proof}
   \uses{lem:ext_ord_functional_suff}
+  \leanok
   Let $\pi:F(\sqrt{a})\to F$ be the projection induced by the $F$-basis $\{1,\sqrt{a}\}$. For $x,y\in F$, we have $\pi((x+y\sqrt{a})^2)=x^2+ay^2\geq0$. We are done by Lemma \ref{lem:ext_ord_functional_suff}.
 \end{proof}
 
@@ -411,7 +414,7 @@ The converse to Theorem \ref{thm:FTAlg} is much easier.
 \end{lemma}
 \begin{proof}
   \uses{lem:odd_deg_red_imp_root}
-  Let $a\in R$ be non-negative, and consider the polynomial $f=X^2-a$. If $f$ is irreducible, then $R(\sqrt{a})\cong R(i)$. Suppose $i$ maps to $x+y\sqrt{a}$ for some $x,y\in R$; then $-1=x^2+ay^2+2xy\sqrt{a}$. Comparing coefficients, $-1=x^2+ay^2\geq0$.$_\#$ Therefore $f$ is reducible, and so $a$ is a square in $R$.
+  Let $a\in R$ be non-negative. If $a$ is not a square, then $R(\sqrt{a})\cong R(i)$. Suppose $i$ maps to $x+y\sqrt{a}$ for some $x,y\in R$; then $-1=x^2+ay^2+2xy\sqrt{a}$. Comparing coefficients, $-1=x^2+ay^2\geq0$.$_\#$ Therefore $a$ is a square in $R$.
 
   Now, fix a nonlinear odd-degree polynomial $f\in R[X]$. Then $R[X]/(f)$ cannot be a field since $R$ has no nontrivial odd-degree extensions, and so $f$ must be reducible. We are done by Lemma \ref{lem:odd_deg_red_imp_root}.
 \end{proof}
@@ -480,7 +483,7 @@ In fact, the converses to Lemmas \ref{lem:RCF_max} and \ref{lem:IVP_poly} also h
 \end{theorem}
 \begin{proof}
   \uses{cor:ext_ord_to_adj_sqrt,lem:odd_deg_red_imp_root,lem:ext_ord_odd_deg}
-  Let $a\in R$ be non-negative. By Lemma \ref{cor:ext_ord_to_adj_sqrt}, there is an ordering making $R[\sqrt{a}]/R$ an ordered extension. By maximality, $R[\sqrt{a}]\cong R$, and so $a$ is a square in $R$.
+  Let $a\in R$ be non-negative, and suppose $a$ is not a square. By Lemma \ref{cor:ext_ord_to_adj_sqrt}, there is an ordering making the nontrivial extension $R(\sqrt{a})/R$ ordered, contradicting maximality.$\_#$ Therefore $a$ is a square in $R$.
 
   By Lemma \ref{lem:odd_deg_red_imp_root}, it suffices to show that irreducible odd-degree polynomials over $R$ are linear. Let $f\in R[X]$ be such a polynomial, and consider the odd-degree field extension $R_f=R[X]/(f)$. By Lemma \ref{lem:ext_ord_odd_deg}, there is an ordering making $R_f/R$ an ordered extension; by maximality, $R_f\cong R$, and therefore $\deg f=[R_f:R]=1$.
 \end{proof}
