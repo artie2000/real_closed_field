@@ -167,6 +167,7 @@ theorem adj_sqrt_ordered {a : F} (ha : 0 ≤ a) (ha₂ : ¬ IsSquare a) :
     | inr h => linear_combination (sq_nonneg <| B.repr x 0) + a * (pow_two_pos_of_ne_zero h)
   by_contra h
   exact hx <| (Module.Basis.forall_coord_eq_zero_iff B).mp <| fun i => by fin_cases i <;> simp_all
+  -- TODO : attempt to clean up computations using `module` tactic
 
 open scoped Polynomial in
 theorem Polynomial.exists_odd_natDegree_monic_irreducible_factor {F : Type*} [Field F] (f : F[X])
