@@ -237,7 +237,7 @@ In other words, a field is real if and only if the sums of squares form a preord
   \leanok
   Let $x\in\Q$ be non-negative. Then $x=p/q$ for some integers $p\geq0$ and $q>0$, so 
   \[x=\underbrace{\frac{1}{q^2}+\cdots+\frac{1}{q^2}}_{pq\text{ times}}\]
-  is a sum of squares. We are done by Lemma \ref{cor:unique_ord_cond_ordered}.
+  is a sum of squares. We are done by Corollary \ref{cor:unique_ord_cond_ordered}.
 \end{proof}
 
 Note that real fields have characteristic 0; in particular, their algebraic extensions are separable.
@@ -488,7 +488,7 @@ In fact, the converses to Lemmas \ref{lem:RCF_max} and \ref{lem:IVP_poly} also h
 \end{theorem}
 \begin{proof}
   \uses{cor:ext_ord_to_adj_sqrt,lem:odd_deg_red_imp_root,lem:ext_ord_odd_deg}
-  Let $a\in R$ be non-negative, and suppose $a$ is not a square. By Lemma \ref{cor:ext_ord_to_adj_sqrt}, there is an ordering making the nontrivial extension $R(\sqrt{a})/R$ ordered, contradicting maximality.$_\#$ Therefore $a$ is a square in $R$.
+  Let $a\in R$ be non-negative, and suppose $a$ is not a square. By Corollary \ref{cor:ext_ord_to_adj_sqrt}, there is an ordering making the nontrivial extension $R(\sqrt{a})/R$ ordered, contradicting maximality.$_\#$ Therefore $a$ is a square in $R$.
 
   By Lemma \ref{lem:odd_deg_red_imp_root}, it suffices to show that irreducible odd-degree polynomials over $R$ are linear. Let $f\in R[X]$ be such a polynomial, and consider the odd-degree field extension $R_f=R[X]/(f)$. By Lemma \ref{lem:ext_ord_odd_deg}, there is an ordering making $R_f/R$ an ordered extension; by maximality, $R_f\cong R$, and therefore $\deg f=[R_f:R]=1$.
 \end{proof}
@@ -543,7 +543,7 @@ In summary, we have proved the following characterisation of real closed fields.
 \end{lemma}
 \begin{proof}
   \uses{thm:ord_max_imp_RCF}
-  Apply Zorn's lemma to ordered algebraic extensions of $F$. We are done by Corollary \ref{thm:ord_max_imp_RCF}.
+  Apply Zorn's lemma to ordered algebraic extensions of $F$. We are done by Theorem \ref{thm:ord_max_imp_RCF}.
 \end{proof}
 
 Just like with the algebraic closure, it makes sense to talk of \textit{the} real closure of an ordered field. Proving this uniqueness result requires a method of root-counting in real fields known as Sturm's theorem.
@@ -681,7 +681,7 @@ We can weaken the hypotheses even further. Here is the full Artin-Schreier theor
   \uses{thm:Artin-Schreier,thm:real_closure_unique,cor:unique_ord_Q}
   Since $\Q_{\text{alg}}(i)=\bar{\Q}$, the field $\Q_{\text{alg}}$ is a finite-index subfield.
 
-  By Theorem \ref{thm:Artin-Schreier}, any finite-index subfield has a unique ordering making it real closed. Let $R$ be a real closed subfield. Then the ordering on $R$ restricts to the ordering on $\Q$ (unique by Corollary \ref{cor:unique_ord_Q}). Since $R/\Q$ is algebraic, $R$ is a real closure of $\Q$. By Lemma \ref{thm:real_closure_unique}, there is a unique $\Q$-isomorphism $\psi:\R_{\text{alg}}\cong R$. Since $\R_{\text{alg}}(i)=R(i)=\bar{\Q}$, $\psi$ extends uniquely to $\varphi\in\Gal(\Q_{alg}/\Q(i))$ by mapping $i\to i$. The subfield $R$ is then recovered from $\varphi\in\Gal(\Q_{alg}/\Q(i))$ by taking $\varphi^{-1}(\R_{\text{alg}})$.
+  By Theorem \ref{thm:Artin-Schreier}, any finite-index subfield has a unique ordering making it real closed. Let $R$ be a real closed subfield. Then the ordering on $R$ restricts to the ordering on $\Q$ (unique by Corollary \ref{cor:unique_ord_Q}). Since $R/\Q$ is algebraic, $R$ is a real closure of $\Q$. By Theorem \ref{thm:real_closure_unique}, there is a unique $\Q$-isomorphism $\psi:\Q_{\text{alg}}\cong R$. Since $\Q_{\text{alg}}(i)=R(i)=\bar{\Q}$, $\psi$ extends uniquely to $\varphi\in\Gal(\Q_{alg}/\Q(i))$ by mapping $i\to i$. The subfield $R$ is then recovered from $\varphi\in\Gal(\Q_{alg}/\Q(i))$ by taking $\varphi^{-1}(\Q_{\text{alg}})$.
 \end{proof}
 
 \bibliographystyle{plain}
