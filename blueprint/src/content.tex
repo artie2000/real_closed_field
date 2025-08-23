@@ -44,7 +44,7 @@ Note that we will only use that this map is well-defined and surjective, and not
 
 \begin{lemma}
   \label{lem:sumsq_is_sq}
-  Let $F$ be a field, and suppose every element of $F(i)$ is a square. Then sums of squares in $F$ are squares in $F$.
+  Let $F$ be a field in which $-1$ is not a square, and suppose every element of $F(i)$ is a square. Then sums of squares in $F$ are squares in $F$.
 \end{lemma}
 \begin{proof}
   Given $a,b\in F$, find $c,d\in F$ such that $a+bi=(c+di)^2$ in $F(i)$. Then $a=c^2-d^2$ and $b=2cd$, so $a^2+b^2=(c^2+d^2)^2$ is a square in $F$. By induction, every sum of squares in $F$ is a square in $F$.
@@ -512,7 +512,7 @@ In summary, we have proved the following characterisation of real closed fields.
   Let $R$ be an ordered field. TFAE:
   \begin{enumerate}
     \item $R$ is real closed.
-    \item $\bar{R}=R(i)$.
+    \item $\bar{R}=R(i)$ (and $-1$ is not a square in $R$).
     \item $R$ satisfies the intermediate value property for polynomials.
     \item $R$ is maximal with respect to ordered algebraic extensions.
   \end{enumerate}
@@ -644,7 +644,7 @@ In fact, we can go further. The following is a weak form of the Artin-Schreier t
   \uses{lem:FTAlg_converse_strong,lem:deg_2_classify}
   By Lemma \ref{lem:FTAlg_converse_strong}, it suffices to show that $\bar{R}\cong R(i)$.
 
-  By Lemma \ref{lem:deg_2_classify}, $\bar{R}\cong R(\sqrt{a})$ for some non-square $a\in R$. Since $R(\sqrt{a})$ is algebraically closed, $\sqrt{a}$ is a square in $R(\sqrt{a})$; find $x,y\in R$ such that $\sqrt{a}=(x+y\sqrt{a})^2$. Expanding and comparing coefficients, $x^2+y^2a=0$ and $2xy=1$. Rearranging, $a=-(4x^4)=-1\cdot(2x^2)^2$. By Lemma \ref{lem:deg_2_classify}, $R(i)\cong R(\sqrt{a})=\bar{R}$.
+  By Lemma \ref{lem:deg_2_classify}, $\bar{R}\cong R(\sqrt{a})$ for some non-square $a\in R$. Since $R(\sqrt{a})$ is algebraically closed, $\sqrt{a}$ is a square in $R(\sqrt{a})$; find $x,y\in R$ such that $\sqrt{a}=(x+y\sqrt{a})^2$. Expanding and comparing coefficients, $x^2+y^2a=0$ and $2xy=1$. Rearranging, $a=-(4x^4)=-1\cdot(2x^2)^2$. In particular, $-1$ is not a square. By Lemma \ref{lem:deg_2_classify}, $R(i)\cong R(\sqrt{a})=\bar{R}$.
 \end{proof}
 
 We can weaken the hypotheses even further. Here is the full Artin-Schreier theorem.
