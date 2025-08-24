@@ -5,7 +5,7 @@ Authors: Artie Khovanov
 -/
 import Mathlib.RingTheory.Ideal.Quotient.Defs
 
-/- Lemmas that should be upstreamed to Mathlib -/
+/- Lemmas that should be upstreamed to Mathlib. Limited since it's for use with RingPreordering. -/
 
 --PR
 /-- Typeclass for substructures S such that S ∪ -S = G. -/

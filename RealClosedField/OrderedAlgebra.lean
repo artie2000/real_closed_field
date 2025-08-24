@@ -3,90 +3,11 @@ Copyright (c) 2025 Artie Khovanov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
-import Mathlib
+import RealClosedField.PrereqsAll
 import RealClosedField.Algebra.Order.Ring.Ordering.Adjoin
 import RealClosedField.Algebra.Order.Ring.Ordering.Order
 
-open Polynomial in
-theorem X_sq_sub_C_irreducible_iff_not_isSquare {F : Type*} [Field F] (a : F) :
-    Irreducible (X ^ 2 - C a) ↔ ¬ IsSquare a := by
-  rw [isSquare_iff_exists_sq, X_pow_sub_C_irreducible_iff_of_prime Nat.prime_two]
-  grind only
-
-namespace AdjoinRoot.Quadratic
-
-open _root_.Polynomial
-
-set_option quotPrecheck false in
-scoped notation3 "|" K "[√" a "]" => AdjoinRoot (X ^ 2 - C a : K[X])
-
-set_option quotPrecheck false in
-scoped notation3 "√" a => root (X ^ 2 - C a)
-
-variable {K : Type*} [Field K] {a : K} (ha : ¬ IsSquare a)
-
-@[simp]
-theorem sq_root : (√a) ^ 2 = of _ a := by
-  suffices (√a) ^ 2 - of _ a = 0 by
-    linear_combination this
-  have := eval₂_root (X ^ 2 - C a)
-  simpa
-
-noncomputable def basis : Module.Basis (Fin 2) K |K[√a] :=
-  have nz : X ^ 2 - C a ≠ 0 := fun _ ↦ by simp_all [← X_sq_sub_C_irreducible_iff_not_isSquare]
-  (powerBasis nz).basis.reindex <| finCongr <|
-    show (powerBasis nz).dim = 2 by simp
-
-include ha in
-theorem isQuadraticExtension : Algebra.IsQuadraticExtension K |K[√a] where
-  finrank_eq_two' := by simp [Module.finrank_eq_nat_card_basis (basis ha)]
-
-@[simp]
-theorem coe_basis (i : Fin 2) :
-  basis ha i = (√a) ^ (i : ℕ) := by
-    simp [-powerBasis_dim, basis]
-
-theorem basis_0 : basis ha 0 = 1 := by simp
-
-theorem basis_1 : basis ha 1 = √a := by simp
-
-@[simp]
-theorem repr_1 : (basis ha).repr 1 = Finsupp.single 0 1 := by
-  rw [← basis_0, Module.Basis.repr_self]
-
-@[simp]
-theorem repr_root : (basis ha).repr (√a) = Finsupp.single 1 1 := by
-  rw [← basis_1, Module.Basis.repr_self]
-
-/- TODO : repr for (of _ x), dealing with (of _ x) * ?_, etc -/
-/- idea : normalise to (of _ x) + (of _ y) * √a and project to x,y from there -/
-
-theorem self_eq_basis (x) :
-    x = of _ ((basis ha).repr x 0) + of _ ((basis ha).repr x 1) * √a := by
-  nth_rw 1 [← (basis ha).sum_repr x]
-  simp [Algebra.smul_def]
-
-theorem mul_self_eq_basis (x) :
-    x * x = ((basis ha).repr x 0 ^ 2 + a * (basis ha).repr x 1 ^ 2) • basis ha 0 +
-            (2 * (basis ha).repr x 0 * (basis ha).repr x 1) • basis ha 1 := by
-  nth_rw 1 2 [self_eq_basis ha x]
-  simp only [Algebra.smul_def, Fin.isValue, coe_basis, Fin.coe_ofNat_eq_mod, Nat.zero_mod, pow_zero,
-    algebraMap_eq, map_add, map_pow, map_mul, mul_one, Nat.mod_succ, pow_one]
-  ring_nf
-  simp only [← algebraMap_eq, Algebra.algebraMap_eq_smul_one, Fin.isValue, Algebra.mul_smul_comm,
-    mul_one, Algebra.smul_mul_assoc, one_mul, sq_root, add_left_inj]
-  rw [show _ * (2 : AdjoinRoot _) = 2 • AdjoinRoot.root _ by simp [mul_comm]]
-  module
-
-@[simp]
-theorem repr_basis_mul_self (x) : (basis ha).repr (x * x) =
-    fun₀
-    | 0 => (basis ha).repr x 0 ^ 2 + a * (basis ha).repr x 1 ^ 2
-    | 1 => 2 * (basis ha).repr x 0 * (basis ha).repr x 1 := by
-  rw [mul_self_eq_basis ha]
-  ext i; fin_cases i <;> simp [-coe_basis]
-
-end AdjoinRoot.Quadratic
+attribute [-simp] AdjoinRoot.algebraMap_eq
 
 /- An ordered R-algebra is an R-algebra whose algebra map is order-preserving. -/
 class IsOrderedAlgebra (R A : Type*) [CommSemiring R] [Semiring A] [LinearOrder R] [LinearOrder A]
@@ -214,7 +135,7 @@ theorem isSumSq_of_isSquare {K : Type*} [Field K] (hK : ¬ (IsSquare (-1 : K)))
   | add _ _ _ _ iha ihb =>
       rcases iha with ⟨a, rfl⟩
       rcases ihb with ⟨b, rfl⟩
-      rcases h (a • 1 + b • (√-1)) with ⟨x, hx⟩
+      rcases h (algebraMap _ _ a + algebraMap _ _ b * (√-1)) with ⟨x, hx⟩ -- TODO : change to coercions once `AdjoinRoot.of` is removed
       rw [(basis hK).ext_elem_iff] at hx
       use (basis hK).repr x 0 ^ 2 + (basis hK).repr x 1 ^ 2
       rw [(by simpa using hx 0 : a = _), (by simpa using hx 1 : b = _)]
@@ -227,15 +148,14 @@ theorem adj_sqrt_ordered {a : F} (ha : 0 ≤ a) (ha₂ : ¬ IsSquare a) :
     simpa [← X_sq_sub_C_irreducible_iff_not_isSquare] using ha₂
   have : 0 < a := lt_of_le_of_ne ha (by aesop)
   refine Field.exists_isOrderedAlgebra_of_projection ((basis ha₂).coord 0) fun x hx => ?_
-  simp only [Fin.isValue, Module.Basis.coord_apply, repr_basis_mul_self, Finsupp.single_add,
-    Finsupp.single_mul, Finsupp.coe_update, Finsupp.coe_add, ne_eq, zero_ne_one, not_false_eq_true,
-    Function.update_of_ne, Pi.add_apply, Finsupp.single_eq_same, Finsupp.mul_apply]
+  suffices 0 < ((basis ha₂).repr x) 0 * ((basis ha₂).repr x) 0 +
+                 a * ((basis ha₂).repr x) 1 * ((basis ha₂).repr x) 1 by simpa
   suffices h : (basis ha₂).repr x 0 ≠ 0 ∨ (basis ha₂).repr x 1 ≠ 0 by
     cases h with
     | inl h =>
-      linear_combination pow_two_pos_of_ne_zero h + a * (sq_nonneg <| (basis ha₂).repr x 1)
+      linear_combination mul_self_pos.mpr h + a * (mul_self_nonneg <| (basis ha₂).repr x 1)
     | inr h =>
-      linear_combination (sq_nonneg <| (basis ha₂).repr x 0) + a * (pow_two_pos_of_ne_zero h)
+      linear_combination (mul_self_nonneg <| (basis ha₂).repr x 0) + a * mul_self_pos.mpr h
   by_contra h
   exact hx <| (basis ha₂).forall_coord_eq_zero_iff.mp <| fun i ↦ by fin_cases i <;> simp_all
 
