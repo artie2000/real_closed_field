@@ -7,6 +7,87 @@ import Mathlib
 import RealClosedField.Algebra.Order.Ring.Ordering.Adjoin
 import RealClosedField.Algebra.Order.Ring.Ordering.Order
 
+open Polynomial in
+theorem X_sq_sub_C_irreducible_iff_not_isSquare {F : Type*} [Field F] (a : F) :
+    Irreducible (X ^ 2 - C a) ↔ ¬ IsSquare a := by
+  rw [isSquare_iff_exists_sq, X_pow_sub_C_irreducible_iff_of_prime Nat.prime_two]
+  grind only
+
+namespace AdjoinRoot.Quadratic
+
+open _root_.Polynomial
+
+set_option quotPrecheck false in
+scoped notation3 "|" K "[√" a "]" => AdjoinRoot (X ^ 2 - C a : K[X])
+
+set_option quotPrecheck false in
+scoped notation3 "√" a => root (X ^ 2 - C a)
+
+variable {K : Type*} [Field K] {a : K} (ha : ¬ IsSquare a)
+
+@[simp]
+theorem sq_root : (√a) ^ 2 = of _ a := by
+  suffices (√a) ^ 2 - of _ a = 0 by
+    linear_combination this
+  have := eval₂_root (X ^ 2 - C a)
+  simpa
+
+noncomputable def basis : Module.Basis (Fin 2) K |K[√a] :=
+  have nz : X ^ 2 - C a ≠ 0 := fun _ ↦ by simp_all [← X_sq_sub_C_irreducible_iff_not_isSquare]
+  (powerBasis nz).basis.reindex <| finCongr <|
+    show (powerBasis nz).dim = 2 by simp
+
+include ha in
+theorem isQuadraticExtension : Algebra.IsQuadraticExtension K |K[√a] where
+  finrank_eq_two' := by simp [Module.finrank_eq_nat_card_basis (basis ha)]
+
+@[simp]
+theorem coe_basis (i : Fin 2) :
+  basis ha i = (√a) ^ (i : ℕ) := by
+    simp [-powerBasis_dim, basis]
+
+theorem basis_0 : basis ha 0 = 1 := by simp
+
+theorem basis_1 : basis ha 1 = √a := by simp
+
+@[simp]
+theorem repr_1 : (basis ha).repr 1 = Finsupp.single 0 1 := by
+  rw [← basis_0, Module.Basis.repr_self]
+
+@[simp]
+theorem repr_root : (basis ha).repr (√a) = Finsupp.single 1 1 := by
+  rw [← basis_1, Module.Basis.repr_self]
+
+/- TODO : repr for (of _ x), dealing with (of _ x) * ?_, etc -/
+/- idea : normalise to (of _ x) + (of _ y) * √a and project to x,y from there -/
+
+theorem self_eq_basis (x) :
+    x = of _ ((basis ha).repr x 0) + of _ ((basis ha).repr x 1) * √a := by
+  nth_rw 1 [← (basis ha).sum_repr x]
+  simp [Algebra.smul_def]
+
+theorem mul_self_eq_basis (x) :
+    x * x = ((basis ha).repr x 0 ^ 2 + a * (basis ha).repr x 1 ^ 2) • basis ha 0 +
+            (2 * (basis ha).repr x 0 * (basis ha).repr x 1) • basis ha 1 := by
+  nth_rw 1 2 [self_eq_basis ha x]
+  simp only [Algebra.smul_def, Fin.isValue, coe_basis, Fin.coe_ofNat_eq_mod, Nat.zero_mod, pow_zero,
+    algebraMap_eq, map_add, map_pow, map_mul, mul_one, Nat.mod_succ, pow_one]
+  ring_nf
+  simp only [← algebraMap_eq, Algebra.algebraMap_eq_smul_one, Fin.isValue, Algebra.mul_smul_comm,
+    mul_one, Algebra.smul_mul_assoc, one_mul, sq_root, add_left_inj]
+  rw [show _ * (2 : AdjoinRoot _) = 2 • AdjoinRoot.root _ by simp [mul_comm]]
+  module
+
+@[simp]
+theorem repr_basis_mul_self (x) : (basis ha).repr (x * x) =
+    fun₀
+    | 0 => (basis ha).repr x 0 ^ 2 + a * (basis ha).repr x 1 ^ 2
+    | 1 => 2 * (basis ha).repr x 0 * (basis ha).repr x 1 := by
+  rw [mul_self_eq_basis ha]
+  ext i; fin_cases i <;> simp [-coe_basis]
+
+end AdjoinRoot.Quadratic
+
 /- An ordered R-algebra is an R-algebra whose algebra map is order-preserving. -/
 class IsOrderedAlgebra (R A : Type*) [CommSemiring R] [Semiring A] [LinearOrder R] [LinearOrder A]
     [IsOrderedRing R] [IsOrderedRing A] [Algebra R A] : Prop where
@@ -122,33 +203,10 @@ theorem Field.exists_isOrderedAlgebra_of_projection
   intro h
   simpa using not_le_of_gt (hπ 1 (by simp)) (by simpa using ih _ h)
 
-open Polynomial in
-theorem X_sq_sub_C_irreducible_iff_not_isSquare {F : Type*} [Field F] (a : F) :
-    Irreducible (X ^ 2 - C a) ↔ ¬ IsSquare a := by
-  rw [isSquare_iff_exists_sq, X_pow_sub_C_irreducible_iff_of_prime Nat.prime_two]
-  grind only
-
-open Polynomial in
-theorem isSumSq_of_isSquare {F : Type*} [Field F] (hF : ¬ (IsSquare (-1 : F)))
-    (h : ∀ x : AdjoinRoot (X ^ 2 + 1 : F[X]), IsSquare x)
-    (a : F) (ha : IsSumSq a) : IsSquare a := by
-  rw [← X_sq_sub_C_irreducible_iff_not_isSquare] at hF
-  have := Fact.mk hF
-  have nz : (X ^ 2 + 1 : F[X]) ≠ 0 := fun _ ↦ by simp_all
-  set B := AdjoinRoot.powerBasis nz
-  have Bdim : B.dim = 2 := by simp [B, -map_one, ← C_1]
-  have Bgen : B.gen = AdjoinRoot.root (X ^ 2 + 1) := by simp [B]
-  rcases B with ⟨α, n, B, hB⟩
-  simp only at Bdim Bgen
-  revert B
-  rw [Bdim]
-  intro B hB
-  have α_sq : α ^ 2 = -1 := by
-    rw [Bgen]
-    have : AdjoinRoot.root (X ^ 2 + 1 : F[X]) ^ 2 + 1 = 0 := by
-      have := AdjoinRoot.eval₂_root (X ^ 2 + 1 : F[X])
-      simpa
-    linear_combination this
+open Polynomial AdjoinRoot.Quadratic in
+theorem isSumSq_of_isSquare {K : Type*} [Field K] (hK : ¬ (IsSquare (-1 : K)))
+    (h : ∀ x : |K[√-1], IsSquare x)
+    (a : K) (ha : IsSumSq a) : IsSquare a := by
   rw [← AddSubmonoid.mem_sumSq, ← AddSubmonoid.closure_isSquare] at ha
   induction ha using AddSubmonoid.closure_induction with
   | zero => simp
@@ -156,61 +214,30 @@ theorem isSumSq_of_isSquare {F : Type*} [Field F] (hF : ¬ (IsSquare (-1 : F)))
   | add _ _ _ _ iha ihb =>
       rcases iha with ⟨a, rfl⟩
       rcases ihb with ⟨b, rfl⟩
-      rcases h (a • B 0 + b • B 1) with ⟨x, hx⟩
-      rw [← Module.Basis.sum_repr B x] at hx
-      have basis_expand : a • B 0 + b • B 1 =
-             ((B.repr x) 0 ^ 2 - (B.repr x) 1 ^ 2) • B 0 + (2 * (B.repr x) 0 * (B.repr x) 1) • B 1 := by
-        rw [hx]
-        simp [hB, Algebra.smul_def, - AdjoinRoot.algebraMap_eq]
-        ring_nf
-        simp [α_sq, - AdjoinRoot.algebraMap_eq, Algebra.algebraMap_eq_smul_one]
-        rw [show α * 2 = 2 • α by simp [mul_comm]]
-        module
-      rw [show a = (B.repr x) 0 ^ 2 - (B.repr x) 1 ^ 2 by
-            apply_fun B.coord 0 at basis_expand
-            simpa using basis_expand,
-          show b = 2 * (B.repr x) 0 * (B.repr x) 1 by
-        apply_fun B.coord 1 at basis_expand
-        simpa using basis_expand]
-      use (B.repr x) 0 ^ 2 + (B.repr x) 1 ^ 2
+      rcases h (a • 1 + b • (√-1)) with ⟨x, hx⟩
+      rw [(basis hK).ext_elem_iff] at hx
+      use (basis hK).repr x 0 ^ 2 + (basis hK).repr x 1 ^ 2
+      rw [(by simpa using hx 0 : a = _), (by simpa using hx 1 : b = _)]
       ring
 
-open Polynomial in
+open Polynomial AdjoinRoot.Quadratic in
 theorem adj_sqrt_ordered {a : F} (ha : 0 ≤ a) (ha₂ : ¬ IsSquare a) :
-    letI K := AdjoinRoot (X ^ 2 - C a)
-    (∃ l : LinearOrder K, ∃ _ : IsStrictOrderedRing K, IsOrderedAlgebra F K) := by
+    (∃ l : LinearOrder |F[√a], ∃ _ : IsStrictOrderedRing |F[√a], IsOrderedAlgebra F |F[√a]) := by
+  have : Fact (Irreducible (X ^ 2 - C a)) := Fact.mk <| by
+    simpa [← X_sq_sub_C_irreducible_iff_not_isSquare] using ha₂
   have : 0 < a := lt_of_le_of_ne ha (by aesop)
-  rw [← X_sq_sub_C_irreducible_iff_not_isSquare] at ha₂
-  have := Fact.mk ha₂
-  set B := AdjoinRoot.powerBasis <| show X ^ 2 - C a ≠ 0 by apply_fun natDegree; simp
-  have Bdim : B.dim = 2 := by simp [B]
-  have Bgen : B.gen = AdjoinRoot.root (X ^ 2 - C a) := by simp [B]
-  rcases B with ⟨α, n, B, hB⟩
-  simp only at Bdim Bgen
-  revert B
-  rw [Bdim, Bgen]
-  intro B hB
-  refine Field.exists_isOrderedAlgebra_of_projection (Module.Basis.coord B 0) fun x hx => ?_
-  rw [← Module.Basis.sum_repr B x]
-  simp [hB, Algebra.smul_def, -AdjoinRoot.algebraMap_eq]
-  ring_nf
-  have : AdjoinRoot.root (X ^ 2 - C a) ^ 2 - algebraMap F _ a = 0 := by
-      have := AdjoinRoot.eval₂_root (X ^ 2 - C a)
-      simp_all
-  rw [show AdjoinRoot.root (X ^ 2 - C a) ^ 2 = algebraMap F _ a by linear_combination this]
-  simp [-AdjoinRoot.algebraMap_eq, Algebra.algebraMap_eq_smul_one, pow_two]
-  rw [show _ * 2 = (2 : F) • AdjoinRoot.root (X ^ 2 - C a) by rw [mul_comm]; norm_cast; simp,
-      map_smul,
-      show 1 = B 0 by simp [hB],
-      show AdjoinRoot.root (X ^ 2 - C a) = B 1 by simp [hB]]
-  simp [← pow_two]
-  suffices h : B.repr x 0 ≠ 0 ∨ B.repr x 1 ≠ 0 by
+  refine Field.exists_isOrderedAlgebra_of_projection ((basis ha₂).coord 0) fun x hx => ?_
+  simp only [Fin.isValue, Module.Basis.coord_apply, repr_basis_mul_self, Finsupp.single_add,
+    Finsupp.single_mul, Finsupp.coe_update, Finsupp.coe_add, ne_eq, zero_ne_one, not_false_eq_true,
+    Function.update_of_ne, Pi.add_apply, Finsupp.single_eq_same, Finsupp.mul_apply]
+  suffices h : (basis ha₂).repr x 0 ≠ 0 ∨ (basis ha₂).repr x 1 ≠ 0 by
     cases h with
-    | inl h => linear_combination pow_two_pos_of_ne_zero h + a * (sq_nonneg <| B.repr x 1)
-    | inr h => linear_combination (sq_nonneg <| B.repr x 0) + a * (pow_two_pos_of_ne_zero h)
+    | inl h =>
+      linear_combination pow_two_pos_of_ne_zero h + a * (sq_nonneg <| (basis ha₂).repr x 1)
+    | inr h =>
+      linear_combination (sq_nonneg <| (basis ha₂).repr x 0) + a * (pow_two_pos_of_ne_zero h)
   by_contra h
-  exact hx <| (Module.Basis.forall_coord_eq_zero_iff B).mp <| fun i => by fin_cases i <;> simp_all
-  -- TODO : attempt to clean up computations using `module` tactic
+  exact hx <| (basis ha₂).forall_coord_eq_zero_iff.mp <| fun i ↦ by fin_cases i <;> simp_all
 
 open scoped Polynomial in
 theorem Polynomial.exists_odd_natDegree_monic_irreducible_factor {F : Type*} [Field F] (f : F[X])
@@ -227,6 +254,7 @@ theorem Polynomial.exists_odd_natDegree_monic_irreducible_factor {F : Type*} [Fi
       rcases ih k.natDegree (by omega) k (by grind) rfl with ⟨l, h₁, h₂, h₃, h₄⟩
       exact ⟨l, h₁, h₂, h₃, dvd_trans h₄ (dvd_iff_exists_eq_mul_left.mpr ⟨g, hk⟩)⟩
 
+-- TODO : generalise this and make it less cursed
 open scoped Polynomial in
 theorem lift_poly_span_nonneg_isSquare {f : F[X]} (hAdj : IsAdjoinRootMonic K f) {x : K}
     (hx : x ∈ Submodule.span (Subsemiring.nonneg F) ({x : K | IsSquare x})) :
@@ -345,12 +373,13 @@ theorem odd_deg_ordered (h_rank : Odd <| Module.finrank F K) :
 open scoped Polynomial in
 theorem odd_natDegree_has_root_of_odd_natDegree_reducible {F : Type*} [Field F]
     (h : ∀ f : F[X], Odd f.natDegree → f.natDegree ≠ 1 → ¬(Irreducible f))
-    (f : F[X]) (hf : Odd f.natDegree) : f.roots ≠ 0 := by
+    (f : F[X]) (hf : Odd f.natDegree) : ∃ x, f.IsRoot x := by
   induction hdeg : f.natDegree using Nat.strong_induction_on generalizing f with | h n ih =>
     rcases hdeg with rfl
     have : f ≠ 0 := fun _ ↦ by simp_all
     by_cases hdeg1 : f.natDegree = 1
-    · rw [Polynomial.eq_X_add_C_of_degree_eq_one
+    · simp_rw [← Polynomial.mem_roots ‹f ≠ 0›]
+      rw [Polynomial.eq_X_add_C_of_degree_eq_one
             (show f.degree = 1 by simpa [Polynomial.degree_eq_natDegree ‹f ≠ 0›] using hdeg1),
           Polynomial.roots_C_mul_X_add_C _ (by simp [‹f ≠ 0›])]
       simp
@@ -368,8 +397,7 @@ theorem odd_natDegree_has_root_of_odd_natDegree_reducible {F : Type*} [Field F]
       · have : b.natDegree ≠ 0 := fun hc ↦ by
           rw [Polynomial.isUnit_iff_degree_eq_zero, Polynomial.degree_eq_natDegree ‹_›] at hb
           exact hb (by simpa using hc)
-        intro hc
-        exact ih a.natDegree (by omega) _ h rfl <| by
-          simpa [hc, Multiset.le_zero] using Polynomial.roots.le_of_dvd ‹f ≠ 0› (by simp [hfab])
+        rcases ih a.natDegree (by omega) _ h rfl with ⟨r, hr⟩
+        exact ⟨r, Polynomial.IsRoot.dvd hr (by simp [hfab])⟩
 
 #min_imports
