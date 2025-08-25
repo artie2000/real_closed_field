@@ -3,7 +3,7 @@ Copyright (c) 2025 Artie Khovanov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
-import RealClosedField.PrereqsAll
+import RealClosedField.Prereqs
 import RealClosedField.Algebra.Order.Ring.Ordering.Adjoin
 import RealClosedField.Algebra.Order.Ring.Ordering.Order
 
@@ -159,21 +159,6 @@ theorem adj_sqrt_ordered {a : F} (ha : 0 ≤ a) (ha₂ : ¬ IsSquare a) :
   by_contra h
   exact hx <| (basis ha₂).forall_coord_eq_zero_iff.mp <| fun i ↦ by fin_cases i <;> simp_all
 
-open scoped Polynomial in
-theorem Polynomial.exists_odd_natDegree_monic_irreducible_factor {F : Type*} [Field F] (f : F[X])
-    (hf : Odd f.natDegree) : ∃ g : F[X], (Odd g.natDegree) ∧ g.Monic ∧ Irreducible g ∧ g ∣ f := by
-  induction h : f.natDegree using Nat.strong_induction_on generalizing f with | h n ih =>
-    have hu : ¬IsUnit f := Polynomial.not_isUnit_of_natDegree_pos _ (Odd.pos hf)
-    rcases Polynomial.exists_monic_irreducible_factor f hu with ⟨g, g_monic, g_irred, g_div⟩
-    by_cases g_deg : Odd g.natDegree
-    · exact ⟨g, g_deg, g_monic, g_irred, g_div⟩
-    · rcases g_div with ⟨k, hk⟩
-      have : f.natDegree = g.natDegree + k.natDegree := by
-        simpa [hk] using Polynomial.natDegree_mul (g_irred.ne_zero) (fun _ ↦ by simp_all)
-      have := Irreducible.natDegree_pos g_irred
-      rcases ih k.natDegree (by omega) k (by grind) rfl with ⟨l, h₁, h₂, h₃, h₄⟩
-      exact ⟨l, h₁, h₂, h₃, dvd_trans h₄ (dvd_iff_exists_eq_mul_left.mpr ⟨g, hk⟩)⟩
-
 -- TODO : generalise this and make it less cursed
 open scoped Polynomial in
 theorem lift_poly_span_nonneg_isSquare {f : F[X]} (hAdj : IsAdjoinRootMonic K f) {x : K}
@@ -255,7 +240,7 @@ theorem minus_one_notMem_span_nonneg_isSquare_mod_f {f : F[X]}
     have : g.natDegree = f.natDegree + k.natDegree := by
       rw [← Polynomial.natDegree_mul ‹f ≠ 0› ‹k ≠ 0›, ← hk, ← Polynomial.C_1,
           Polynomial.natDegree_add_C]
-    rcases Polynomial.exists_odd_natDegree_monic_irreducible_factor k (by grind) with
+    rcases Polynomial.exists_odd_natDegree_monic_irreducible_factor (f := k) (by grind) with
       ⟨k', k'_deg, k'_Monic, k'_irred, k'_dvd⟩
     have : Fact (Irreducible k') := Fact.mk k'_irred
     have : (AdjoinRoot.mk k') g ∈ Submodule.span (Subsemiring.nonneg F) {x | IsSquare x} := by
@@ -289,35 +274,5 @@ theorem odd_deg_ordered (h_rank : Odd <| Module.finrank F K) :
           (by simpa [← hAdj.finrank] using h_rank) hg_mem
   rw [← hAdj.map_eq_zero_iff]
   simp [hg_map]
-
-open scoped Polynomial in
-theorem odd_natDegree_has_root_of_odd_natDegree_reducible {F : Type*} [Field F]
-    (h : ∀ f : F[X], Odd f.natDegree → f.natDegree ≠ 1 → ¬(Irreducible f))
-    (f : F[X]) (hf : Odd f.natDegree) : ∃ x, f.IsRoot x := by
-  induction hdeg : f.natDegree using Nat.strong_induction_on generalizing f with | h n ih =>
-    rcases hdeg with rfl
-    have : f ≠ 0 := fun _ ↦ by simp_all
-    by_cases hdeg1 : f.natDegree = 1
-    · simp_rw [← Polynomial.mem_roots ‹f ≠ 0›]
-      rw [Polynomial.eq_X_add_C_of_degree_eq_one
-            (show f.degree = 1 by simpa [Polynomial.degree_eq_natDegree ‹f ≠ 0›] using hdeg1),
-          Polynomial.roots_C_mul_X_add_C _ (by simp [‹f ≠ 0›])]
-      simp
-    · rcases (by simpa [h _ hf hdeg1] using
-          irreducible_or_factor (Polynomial.not_isUnit_of_natDegree_pos f (Odd.pos hf))) with
-        ⟨a, ha, b, hb, hfab⟩
-      have : a ≠ 0 := fun _ ↦ by simp_all
-      have : b ≠ 0 := fun _ ↦ by simp_all
-      have hsum : f.natDegree = a.natDegree + b.natDegree := by
-        simpa [hfab] using Polynomial.natDegree_mul ‹_› ‹_›
-      have hodd : Odd a.natDegree ∨ Odd b.natDegree := by grind
-      wlog h : Odd a.natDegree generalizing a b
-      · exact this b ‹_› a ‹_› (by simpa [mul_comm] using hfab) ‹_› ‹_›
-          (by simpa [add_comm] using hsum) (by simp_all) (by simpa [h] using hodd)
-      · have : b.natDegree ≠ 0 := fun hc ↦ by
-          rw [Polynomial.isUnit_iff_degree_eq_zero, Polynomial.degree_eq_natDegree ‹_›] at hb
-          exact hb (by simpa using hc)
-        rcases ih a.natDegree (by omega) _ h rfl with ⟨r, hr⟩
-        exact ⟨r, Polynomial.IsRoot.dvd hr (by simp [hfab])⟩
 
 #min_imports

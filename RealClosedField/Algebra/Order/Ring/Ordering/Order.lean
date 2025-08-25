@@ -5,7 +5,7 @@ Authors: Florent Schaffhauser, Artie Khovanov
 -/
 import Mathlib.Algebra.Order.Ring.Cone
 import Mathlib.RingTheory.Ideal.Quotient.Operations
-import RealClosedField.Prereqs
+import Mathlib.RingTheory.Ideal.Quotient.Defs
 import RealClosedField.Algebra.Order.Ring.Ordering.Basic
 
 /-!
@@ -26,16 +26,40 @@ TODO : come up with the right names
 
 -/
 
+-- TODO : upstream following 3 lemmas to Mathlib / gneeralise as needed
+
+theorem Quotient.image_mk_eq_lift {α : Type*} {s : Setoid α} (A : Set α)
+    (h : ∀ x y, x ≈ y → (x ∈ A ↔ y ∈ A)) :
+    (Quotient.mk s) '' A = (Quotient.lift (· ∈ A) (by simpa)) := by
+  aesop (add unsafe forward Quotient.exists_rep)
+
+@[to_additive]
+theorem QuotientGroup.mem_iff_mem_of_rel {G S : Type*} [CommGroup G]
+    [SetLike S G] [MulMemClass S G] (H : Subgroup G) {M : S} (hM : (H : Set G) ⊆ M) :
+    ∀ x y, QuotientGroup.leftRel H x y → (x ∈ M ↔ y ∈ M) := fun x y hxy => by
+  rw [QuotientGroup.leftRel_apply] at hxy
+  exact ⟨fun h => by simpa using mul_mem h <| hM hxy,
+        fun h => by simpa using mul_mem h <| hM <| inv_mem hxy⟩
+
+def decidablePred_mem_map_quotient_mk
+    {R S : Type*} [CommRing R] [SetLike S R] [AddMemClass S R] (I : Ideal R)
+    {M : S} (hM : (I : Set R) ⊆ M) [DecidablePred (· ∈ M)] :
+    DecidablePred (· ∈ (Ideal.Quotient.mk I) '' M) := by
+  have : ∀ x y, I.quotientRel x y → (x ∈ M ↔ y ∈ M) :=
+    QuotientAddGroup.mem_iff_mem_of_rel _ (by simpa)
+  rw [show (· ∈ (Ideal.Quotient.mk I) '' _) = (· ∈ (Quotient.mk _) '' _) by rfl,
+      Quotient.image_mk_eq_lift _ this]
+  exact Quotient.lift.decidablePred (· ∈ M) (by simpa)
+
 section CommRing
 
-variable {R : Type*} [Nontrivial R] [CommRing R] (C : RingCone R) [IsMaxCone C]
+variable {R : Type*} [Nontrivial R] [CommRing R] (C : RingCone R) [HasMemOrNegMem C]
 
 abbrev RingPreordering.mkOfCone : RingPreordering R where
   __ := C.toSubsemiring
   carrier := C
   mem_of_isSquare' x := by
     rcases x with ⟨y, rfl⟩
-    have := mem_or_neg_mem C
     cases mem_or_neg_mem C y with
     | inl h  => aesop
     | inr h => simpa using (show -y * -y ∈ C by aesop (config := { enableSimp := false }))
@@ -61,8 +85,8 @@ abbrev RingCone.mkOfRingPreordering : RingCone R where
     apply_fun (a ∈ ·) at hP
     aesop (add simp RingPreordering.mem_supportAddSubgroup)
 
-instance [HasMemOrNegMem P] : IsMaxCone <| RingCone.mkOfRingPreordering hP where
-  mem_or_neg_mem' := mem_or_neg_mem P
+instance [HasMemOrNegMem P] : HasMemOrNegMem <| RingCone.mkOfRingPreordering hP where
+  mem_or_neg_mem := mem_or_neg_mem P
 
 abbrev PartialOrder.mkOfRingPreordering : PartialOrder R :=
   .mkOfAddGroupCone <| RingCone.mkOfRingPreordering hP
@@ -113,8 +137,8 @@ variable {F : Type*} [Field F] (P : RingPreordering F)
 abbrev RingCone.mkOfRingPreordering_field : RingCone F :=
   mkOfRingPreordering <| RingPreordering.supportAddSubgroup_eq_bot P
 
-instance [P.IsOrdering] : IsMaxCone <| RingCone.mkOfRingPreordering_field P where
-  mem_or_neg_mem' := mem_or_neg_mem P
+instance [P.IsOrdering] : HasMemOrNegMem <| RingCone.mkOfRingPreordering_field P where
+  mem_or_neg_mem := mem_or_neg_mem P
 
 abbrev PartialOrder.mkOfRingPreordering_field : PartialOrder F :=
   .mkOfAddGroupCone <| RingCone.mkOfRingPreordering_field P
