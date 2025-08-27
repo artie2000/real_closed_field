@@ -59,21 +59,8 @@ theorem Field.inv_mem {F : Type*} [Field F] {P : RingPreordering F} {a : F} (ha 
 theorem mem_of_isSumSq {x : R} (hx : IsSumSq x) : x ∈ P := by
   induction hx using IsSumSq.rec' <;> aesop
 
-section mkOfSubsemiring
-
-variable {R : Type*} [CommRing R] {P : Subsemiring R}
-  {le : Subsemiring.sumSq R ≤ P} {minus : -1 ∉ P}
-
-variable (P le minus) in
-/- Construct a preordering from a subsemiring. -/
-def mkOfSubsemiring : RingPreordering R where toSubsemiring := P
-
-@[simp]
-theorem mkOfSubsemiring_toSubsemiring : (mkOfSubsemiring P le minus).toSubsemiring = P := rfl
-@[simp] theorem mem_mkOfSubsemiring {x : R} : x ∈ mkOfSubsemiring P le minus ↔ x ∈ P := .rfl
-@[simp] theorem coe_mkOfSubsemiring : mkOfSubsemiring P le minus = (P : Set R) := rfl
-
-end mkOfSubsemiring
+theorem _root_.Subsemiring.mem_of_isSquare_of_sumSq_le
+  {s : Subsemiring R} (h : Subsemiring.sumSq R ≤ s) {x : R} (hx : IsSquare x) : x ∈ s := by aesop
 
 section mk'
 
@@ -232,8 +219,7 @@ section Inf
 variable {P₁ P₂ : RingPreordering R}
 
 instance : Min (RingPreordering R) where
-  min P₁ P₂ := .mkOfSubsemiring (min P₁.toSubsemiring P₂.toSubsemiring)
-    (fun _ => by aesop) (by aesop)
+  min P₁ P₂ := { toSubsemiring := min P₁.toSubsemiring P₂.toSubsemiring }
 
 @[simp]
 theorem inf_toSubsemiring : (P₁ ⊓ P₂).toSubsemiring = P₁.toSubsemiring ⊓ P₂.toSubsemiring := rfl
@@ -316,8 +302,8 @@ section Bot
 variable [IsSemireal R]
 
 instance : Bot (RingPreordering R) where
-  bot := .mkOfSubsemiring (Subsemiring.sumSq R) (by aesop)
-    (by simpa using IsSemireal.not_isSumSq_neg_one)
+  bot := { toSubsemiring := Subsemiring.sumSq R
+           neg_one_notMem' := by simpa using IsSemireal.not_isSumSq_neg_one }
 
 @[simp] theorem bot_toSubsemiring : (⊥ : RingPreordering R).toSubsemiring = .sumSq R := rfl
 

@@ -5,6 +5,14 @@ Authors: Artie Khovanov
 -/
 import Mathlib
 
+@[aesop unsafe 70%]
+theorem mem_of_mem_sup_left {R : Type*} [Semiring R] {a b : Subsemiring R} {x : R} :
+    x ∈ a → x ∈ a ⊔ b := by gcongr; exact le_sup_left
+
+@[aesop unsafe 70%]
+theorem mem_of_mem_sup_right {R : Type*} [Semiring R] {a b : Subsemiring R} {x : R} :
+    x ∈ b → x ∈ a ⊔ b := by gcongr; exact le_sup_right
+
 /- Lemmas that should be upstreamed to Mathlib -/
 
 open Polynomial in
@@ -50,7 +58,7 @@ open _root_.Polynomial
 open scoped algebraMap
 
 variable {K L : Type*} [CommRing K] [CommRing L] [Algebra K L]
-         {a : K} (ha : ¬ IsSquare a) (hL : IsAdjoinRootMonic L (X ^ 2 - C a))
+         {a : K} (hL : IsAdjoinRootMonic L (X ^ 2 - C a))
 
 set_option quotPrecheck false in
 scoped notation "√" a => hL.root

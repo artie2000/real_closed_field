@@ -48,8 +48,8 @@ theorem mem_subsemiringClosure_insert {x} :
   mpr := by aesop
 
 variable {P a} in
-def adjoin (h : -1 ∉ Subsemiring.closure (insert a P)) : RingPreordering R :=
-  .mkOfSubsemiring (Subsemiring.closure (insert a P)) (fun _ => by aesop) h
+def adjoin (h : -1 ∉ Subsemiring.closure (insert a P)) : RingPreordering R where
+  __ := Subsemiring.closure (insert a P)
 
 variable {P a} in
 @[aesop unsafe 90% apply (rule_sets := [SetLike])]

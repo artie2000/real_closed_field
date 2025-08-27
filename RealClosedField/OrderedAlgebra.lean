@@ -79,8 +79,8 @@ theorem Field.exists_isOrderedAlgebra_iff_neg_one_notMem_sup :
       RingPreordering.neg_one_notMem _ <| this hc
     rw [sup_le_iff]
     exact ⟨hO₂, fun _ => by aesop⟩
-  · rcases RingPreordering.exists_le_isOrdering <| .mkOfSubsemiring
-        ((Subsemiring.nonneg F).map (algebraMap F K) ⊔ Subsemiring.sumSq K) (by simp) h with
+  · rcases RingPreordering.exists_le_isOrdering
+        { toSubsemiring := (Subsemiring.nonneg F).map (algebraMap F K) ⊔ Subsemiring.sumSq K } with
       ⟨O, hO, hO₂⟩
     refine ⟨O, ⟨inferInstance, ?_⟩⟩
     intro _ hx
