@@ -219,7 +219,7 @@ In other words, a field is real if and only if the sums of squares form a preord
 \begin{corollary}
   \label{cor:unique_ord_cond_ordered}
   \uses{def:ordered_field}
-  \lean{LinearOrderedField.unique_isStrictOrderedRing_iff}
+  \lean{IsStrictOrderedRing.unique_isStrictOrderedRing_iff}
   \leanok
   Let $F$ be an ordered field. Then $F$ has a unique field ordering if and only if every non-negative element is a sum of squares.
 \end{corollary}
@@ -352,9 +352,12 @@ Intuitively, $X$ is infinitesimally close to $a$. When $a=0$, we often write $R(
 \begin{lemma}
   \label{lem:RCF_ord_unique}
   \uses{def:RCF}
+  \lean{IsRealClosed.unique_isStrictOrderedRing}
+  \leanok
   The ordering on a real closed field is unique.
 \end{lemma}
 \begin{proof}
+  \leanok
   \uses{cor:unique_ord_cond_ordered}
   Follows directly from Corollary \ref{cor:unique_ord_cond_ordered}.
 \end{proof}
@@ -364,10 +367,13 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
 \begin{lemma}
   \label{lem:alg_ext_odd_deg}
   \uses{def:RCF}
-  Nontrivial algebraic extensions of $R$ have even degree.
+  \lean{IsRealClosed.even_finrank_extension}
+  \leanok
+  Nontrivial finite extensions of $R$ have even degree.
 \end{lemma}
 \begin{proof}
-  Let $K/R$ be an odd-degree algebraic extension of $R$. By the primitive element theorem, $K=R(\alpha)$ for some $\alpha\in K$. Let $f$ be the minimal polynomial of $\alpha$ over $K$. Then $f$ is irreducible, but $\deg f=[K:R]$ is odd, so $f$ has a root in $R$. Therefore, $[K:R]=\deg f=1$; that is, $K\cong R$.
+  \leanok
+  Let $K/R$ be an odd-degree extension of $R$. By the primitive element theorem, $K=R(\alpha)$ for some $\alpha\in K$. Let $f$ be the minimal polynomial of $\alpha$ over $K$. Then $f$ is irreducible, but $\deg f=[K:R]$ is odd, so $f$ has a root in $R$. Therefore, $[K:R]=\deg f=1$; that is, $K\cong R$.
 \end{proof}
 
 \begin{lemma}
@@ -395,13 +401,22 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
 \begin{theorem}
   \label{thm:FTAlg}
   \uses{def:RCF}
-  The only algebraic extensions of $R$ are $R$ itself and $R(i)$.
+  The only finite extensions of $R$ are $R$ itself and $R(i)$.
 \end{theorem}
 \begin{proof}
   \uses{lem:sylow_galois,lem:alg_ext_odd_deg,lem:ext_deg_2,lem:Ri_ext_deg_2}
-  By separability, every algebraic extension of $R$ is contained in a finite Galois extension. Since $R(i)/R$ has no intermediate fields, it suffices to show the result for finite Galois extensions.
+  By separability, every finite extension of $R$ is contained in a finite Galois extension. Since $R(i)/R$ has no intermediate fields, it suffices to show the result for finite Galois extensions.
   
   Let $K/R$ be a nontrivial Galois extension of degree $2^k\cdot a$, where $k\geq 0$ and $a\geq1$ is odd. By Lemma \ref{lem:sylow_galois} with $p=2$, there is an intermediate extension of degree $a$. By Lemma \ref{lem:alg_ext_odd_deg}, $a=1$ (and $k>0$). If $k>1$, then applying Lemma \ref{lem:sylow_galois} again yields intermediate extensions $K/L/M/R$ with $[L:M]=[M:R]=2$. By Lemma \ref{lem:ext_deg_2}, $M\cong R(i)$, contradicting Lemma \ref{lem:Ri_ext_deg_2}.$_\#$ Therefore $k=1$ and (by Lemma \ref{lem:ext_deg_2}) $K\cong R(i)$.
+\end{proof}
+
+\begin{corollary}
+  \label{cor:FTAlg_alg}
+  \uses{def:RCF}
+  The only algebraic extensions of $R$ are $R$ itself and $R(i)$.
+\end{corollary}
+\begin{proof}
+  \uses{thm:FTAlg}
 \end{proof}
 
 \begin{corollary}
@@ -410,7 +425,7 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
   $\bar{R}=R(i)$.
 \end{corollary}
 \begin{proof}
-  \uses{thm:FTAlg}
+  \uses{thm:FTAlg_alg}
 \end{proof}
 
 The converse to Theorem \ref{thm:FTAlg} is much easier.
@@ -418,7 +433,7 @@ The converse to Theorem \ref{thm:FTAlg} is much easier.
 \begin{lemma}
   \label{lem:FTAlg_converse}
   \uses{def:RCF}
-  Suppose $R$ is an ordered field whose only nontrivial algebraic extension is $R(i)$. Then $R$ is real closed.
+  Suppose $R$ is an ordered field whose only nontrivial finite extension is $R(i)$. Then $R$ is real closed.
 \end{lemma}
 \begin{proof}
   \uses{lem:odd_deg_red_imp_root}
@@ -435,8 +450,8 @@ As before, let $R$ be a real closed field. Theorem \ref{thm:FTAlg} is a powerful
   $R$ is maximal with respect to algebraic extensions by ordered fields.
 \end{lemma}
 \begin{proof}
-  \uses{thm:FTAlg}
-  Since $-1$ is a square in $R(i)$, the field $R(i)$ is not formally real and therefore cannot be ordered. We are done by Theorem \ref{thm:FTAlg}.
+  \uses{cor:FTAlg_alg}
+  Since $-1$ is a square in $R(i)$, the field $R(i)$ is not formally real and therefore cannot be ordered. We are done by Theorem \ref{cor:FTAlg_alg}.
 \end{proof}
 
 In particular, $R$ is maximal with respect to ordered algebraic extensions.
@@ -448,7 +463,7 @@ In particular, $R$ is maximal with respect to ordered algebraic extensions.
 \end{lemma}
 \begin{proof}
   \uses{thm:FTAlg}
-  Let $f\in R[X]$ be monic and irreducible. The field $R_f=R[X]/(f)$ is an algebraic extension of $R$, so it is classified by Theorem \ref{thm:FTAlg}. If $R_f\cong R$, then $\deg f=1$, so $f=X-c$ for some $c\in R$. If $R_f\cong R(i)$, let the isomorphism be $\varphi$, and suppose $\varphi(X+(f))=a+bi$ ($a,b\in R$). Note that $b\neq0$ since $\varphi^{-1}$ is constant on $R$. Rearranging, we see that $\varphi((X-a)^2+b^2+(f))=0$; that is, $(X-a)^2+b^2\in(f)$. Since this polynomial is monic and has the same degree as $f$, it must in fact be equal to $f$.
+  Let $f\in R[X]$ be monic and irreducible. The field $R_f=R[X]/(f)$ is a finite extension of $R$, so it is classified by Theorem \ref{thm:FTAlg}. If $R_f\cong R$, then $\deg f=1$, so $f=X-c$ for some $c\in R$. If $R_f\cong R(i)$, let the isomorphism be $\varphi$, and suppose $\varphi(X+(f))=a+bi$ ($a,b\in R$). Note that $b\neq0$ since $\varphi^{-1}$ is constant on $R$. Rearranging, we see that $\varphi((X-a)^2+b^2+(f))=0$; that is, $(X-a)^2+b^2\in(f)$. Since this polynomial is monic and has the same degree as $f$, it must in fact be equal to $f$.
 
   Conversely, linear polynomials over a domain are irreducible by degree, and reducible quadratics have a root. A root of $f=(X-a)^2+b^2$ with $a,b\in R$ is an element $r\in R$ satisfying $(r-a)^2=-b^2$. Since squares are non-negative, if $b\neq0$ then $f$ must be irreducible.
 \end{proof}
@@ -506,10 +521,10 @@ Theorem \ref{thm:ord_max_imp_RCF} gives us a way to ``construct'' real closed fi
   An algebraically closed field of characteristic 0 has an index-2 real closed subfield.
 \end{lemma}
 \begin{proof}
-  \uses{lem:order_fun_field, thm:ord_max_imp_RCF, thm:FTAlg}
+  \uses{lem:order_fun_field, thm:ord_max_imp_RCF, cor:RCF_ac}
   Let $C$ be an algebraically closed field of characteristic 0. Observe that the prime subfield $\Q$ can be ordered. Further, given an ordered subfield $F$ with $\bar{F}\neq C$, we can use Lemma \ref{lem:order_fun_field} to adjoin an element transcendental over $F$, obtaining a strictly bigger ordered subfield.
   
-  Apply Zorn's lemma to obtain a maximal ordered subfield $R\subseteq C$; then $\bar{R}=C$. By Theorem \ref{thm:ord_max_imp_RCF}, $R$ must be real closed. By Theorem \ref{thm:FTAlg}, $C\cong R(i)$, and so $[C:R]=2$.
+  Apply Zorn's lemma to obtain a maximal ordered subfield $R\subseteq C$; then $\bar{R}=C$. By Theorem \ref{thm:ord_max_imp_RCF}, $R$ must be real closed. By Corollary \ref{cor:RCF_ac}, $C\cong R(i)$, and so $[C:R]=2$.
 \end{proof}
 
 In summary, we have proved the following characterisation of real closed fields.

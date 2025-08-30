@@ -67,7 +67,7 @@ theorem IsSemireal.existsUnique_isStrictOrderedRing_iff [IsSemireal F] :
     (∃! _ : LinearOrder F, IsStrictOrderedRing F) ↔ ∀ x : F, IsSumSq x ∨ IsSumSq (-x) :=
   ⟨IsSemireal.isSumSq_or_isSumSq_neg, IsSemireal.existsUnique_isStrictOrderedRing⟩
 
-theorem LinearOrderedField.unique_isStrictOrderedRing_iff [LinearOrder F] [IsStrictOrderedRing F] :
+theorem IsStrictOrderedRing.unique_isStrictOrderedRing_iff [LinearOrder F] [IsStrictOrderedRing F] :
     (∃! _ : LinearOrder F, IsStrictOrderedRing F) ↔ ∀ x : F, 0 ≤ x → IsSumSq x := by
   rw [IsSemireal.existsUnique_isStrictOrderedRing_iff]
   refine ⟨fun h x hx => ?_, fun h x => ?_⟩
@@ -78,10 +78,13 @@ theorem LinearOrderedField.unique_isStrictOrderedRing_iff [LinearOrder F] [IsStr
     · simp [h (-x) (by linarith)]
 
 noncomputable def Rat.unique_isStrictOrderedRing :
-    Unique {l : LinearOrder ℚ // @IsStrictOrderedRing ℚ _ (l.toPartialOrder)} :=
-  Classical.choice <| by
-  rw [unique_subtype_iff_existsUnique, LinearOrderedField.unique_isStrictOrderedRing_iff]
-  refine fun x hx => by
+    Unique {l : LinearOrder ℚ // @IsStrictOrderedRing ℚ _ (l.toPartialOrder)} where
+  default := ⟨inferInstance, inferInstance⟩
+  uniq := by
+    suffices ∃! l : LinearOrder ℚ, @IsStrictOrderedRing ℚ _ (l.toPartialOrder) from fun ⟨l, hl⟩ ↦
+      Subtype.ext <| ExistsUnique.unique this hl inferInstance
+    rw [IsStrictOrderedRing.unique_isStrictOrderedRing_iff]
+    intro x hx
     rw [show x = ∑ i ∈ Finset.range (x.num.toNat * x.den), (1 / (x.den : ℚ)) ^ 2 by
       have : (x * ↑x.den) * ↑x.den = ↑x.num.toNat * ↑x.den := by simp_all; norm_cast; simp_all
       field_simp; ring_nf at *; assumption]

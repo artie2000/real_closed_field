@@ -70,7 +70,7 @@ theorem ringOrderingOrderedAlgebraEquivField_symm_apply_coe
 
 open Classical Subsemiring in
 theorem Field.exists_isOrderedAlgebra_iff_neg_one_notMem_sup :
-    (∃ l : LinearOrder K, ∃ _ : IsStrictOrderedRing K, IsOrderedAlgebra F K) ↔
+    (∃ _ : LinearOrder K, ∃ _ : IsStrictOrderedRing K, IsOrderedAlgebra F K) ↔
     -1 ∉ ((Subsemiring.nonneg F).map (algebraMap F K) ⊔ Subsemiring.sumSq K) := by
   rw [Equiv.exists_subtype_congr ringOrderingOrderedAlgebraEquivField.symm]
   refine ⟨fun ⟨O, hO, hO₂⟩ hc => ?_, fun h => ?_⟩
@@ -102,7 +102,7 @@ theorem sup_map_nonneg_sumSq_eq_addSubmonoid_closure_set_mul :
 
 open scoped Pointwise in
 theorem Field.exists_isOrderedAlgebra_iff_neg_one_notMem_span_nonneg_isSquare :
-    (∃ l : LinearOrder K, ∃ _ : IsStrictOrderedRing K, IsOrderedAlgebra F K) ↔
+    (∃ _ : LinearOrder K, ∃ _ : IsStrictOrderedRing K, IsOrderedAlgebra F K) ↔
     -1 ∉ Submodule.span (Subsemiring.nonneg F) {x : K | IsSquare x} := by
   rw [← SetLike.mem_coe, ← sup_map_nonneg_sumSq_eq_addSubmonoid_closure_set_mul, SetLike.mem_coe,
     Field.exists_isOrderedAlgebra_iff_neg_one_notMem_sup]
@@ -110,7 +110,7 @@ theorem Field.exists_isOrderedAlgebra_iff_neg_one_notMem_span_nonneg_isSquare :
 open scoped Pointwise algebraMap in
 theorem Field.exists_isOrderedAlgebra_of_projection
     (π : K →ₗ[F] F) (hπ : ∀ x, x ≠ 0 → 0 < π (x * x)) :
-    (∃ l : LinearOrder K, ∃ _ : IsStrictOrderedRing K, IsOrderedAlgebra F K) := by
+    (∃ _ : LinearOrder K, ∃ _ : IsStrictOrderedRing K, IsOrderedAlgebra F K) := by
   rw [Field.exists_isOrderedAlgebra_iff_neg_one_notMem_span_nonneg_isSquare]
   have ih : ∀ x ∈ Submodule.span (Subsemiring.nonneg F) {x : K | IsSquare x}, 0 ≤ π x := by
     apply Submodule.closure_induction
@@ -124,40 +124,47 @@ theorem Field.exists_isOrderedAlgebra_of_projection
   intro h
   simpa using not_le_of_gt (hπ 1 (by simp)) (by simpa using ih _ h)
 
-open Polynomial AdjoinRoot.Quadratic in
-theorem isSumSq_of_isSquare {K : Type*} [Field K] (hK : ¬ (IsSquare (-1 : K)))
-    (h : ∀ x : |K[√-1], IsSquare x)
+open Polynomial IsAdjoinRoot.Quadratic algebraMap in
+theorem isSumSq_of_isSquare {K : Type*} [Field K]
+    (h : ∀ x : AdjoinRoot (X ^ 2 - C (-1) : K[X]), IsSquare x)
     (a : K) (ha : IsSumSq a) : IsSquare a := by
   rw [← AddSubmonoid.mem_sumSq, ← AddSubmonoid.closure_isSquare] at ha
+  have hL := AdjoinRoot.isAdjoinRootMonic (X ^ 2 - C (-1) : K[X]) (by simp [Monic])
+  have hdeg : (X ^ 2 - C (-1) : K[X]).natDegree = 2 := by simp [-map_one]
+  have := hL.nontrivial (by simp)
   induction ha using AddSubmonoid.closure_induction with
   | zero => simp
   | mem a ha => exact ha
   | add _ _ _ _ iha ihb =>
       rcases iha with ⟨a, rfl⟩
       rcases ihb with ⟨b, rfl⟩
-      rcases h (algebraMap _ _ a + algebraMap _ _ b * (√-1)) with ⟨x, hx⟩ -- TODO : change to coercions once `AdjoinRoot.of` is removed
-      rw [(basis hK).ext_elem_iff] at hx
-      use (basis hK).repr x 0 ^ 2 + (basis hK).repr x 1 ^ 2
-      rw [(by simpa using hx 0 : a = _), (by simpa using hx 1 : b = _)]
+      rcases h (a + b * hL.root) with ⟨x, hx⟩
+      rw [hL.ext_elem_iff] at hx
+      use hL.coeff x 0 ^ 2 + hL.coeff x 1 ^ 2
+      rw [(by simpa [-map_one] using hx 0 : a = _), (by simpa [-map_one] using hx 1 : b = _)]
       ring
 
-open Polynomial AdjoinRoot.Quadratic in
+open Polynomial IsAdjoinRoot.Quadratic in
 theorem adj_sqrt_ordered {a : F} (ha : 0 ≤ a) (ha₂ : ¬ IsSquare a) :
-    (∃ l : LinearOrder |F[√a], ∃ _ : IsStrictOrderedRing |F[√a], IsOrderedAlgebra F |F[√a]) := by
+    ∃ _ : LinearOrder (AdjoinRoot (X ^ 2 - C a : F[X])),
+      ∃ _ : IsStrictOrderedRing (AdjoinRoot (X ^ 2 - C a : F[X])),
+        IsOrderedAlgebra F (AdjoinRoot (X ^ 2 - C a : F[X])) := by
+  have hK := AdjoinRoot.isAdjoinRootMonic (X ^ 2 - C a : F[X]) (by simp [Monic])
   have : Fact (Irreducible (X ^ 2 - C a)) := Fact.mk <| by
     simpa [← X_sq_sub_C_irreducible_iff_not_isSquare] using ha₂
   have : 0 < a := lt_of_le_of_ne ha (by aesop)
-  refine Field.exists_isOrderedAlgebra_of_projection ((basis ha₂).coord 0) fun x hx => ?_
-  suffices 0 < ((basis ha₂).repr x) 0 * ((basis ha₂).repr x) 0 +
-                 a * ((basis ha₂).repr x) 1 * ((basis ha₂).repr x) 1 by simpa
-  suffices h : (basis ha₂).repr x 0 ≠ 0 ∨ (basis ha₂).repr x 1 ≠ 0 by
+  refine Field.exists_isOrderedAlgebra_of_projection (hK.basis.coord 0) fun x hx => ?_
+  suffices 0 < hK.coeff x 0 * hK.coeff x 0 + a * hK.coeff x 1 * hK.coeff x 1 by simpa
+  suffices h : hK.coeff x 0 ≠ 0 ∨ hK.coeff x 1 ≠ 0 by
     cases h with
     | inl h =>
-      linear_combination mul_self_pos.mpr h + a * (mul_self_nonneg <| (basis ha₂).repr x 1)
+      linear_combination mul_self_pos.mpr h + a * (mul_self_nonneg <| hK.coeff x 1)
     | inr h =>
-      linear_combination (mul_self_nonneg <| (basis ha₂).repr x 0) + a * mul_self_pos.mpr h
+      linear_combination (mul_self_nonneg <| hK.coeff x 0) + a * mul_self_pos.mpr h
   by_contra h
-  exact hx <| (basis ha₂).forall_coord_eq_zero_iff.mp <| fun i ↦ by fin_cases i <;> simp_all
+  refine hx <| hK.ext_elem <| fun i hi ↦ ?_
+  have : i < 2 := by simpa using hi
+  interval_cases i <;> simp_all
 
 -- TODO : generalise this and make it less cursed
 open scoped Polynomial in
@@ -262,7 +269,7 @@ theorem minus_one_notMem_span_nonneg_isSquare_mod_f {f : F[X]}
 
 open scoped Pointwise in
 theorem odd_deg_ordered (h_rank : Odd <| Module.finrank F K) :
-    (∃ l : LinearOrder K, ∃ _ : IsStrictOrderedRing K, IsOrderedAlgebra F K) := by
+    (∃ _ : LinearOrder K, ∃ _ : IsStrictOrderedRing K, IsOrderedAlgebra F K) := by
   rw [Field.exists_isOrderedAlgebra_iff_neg_one_notMem_span_nonneg_isSquare]
   have : FiniteDimensional F K := Module.finite_of_finrank_pos <| Odd.pos h_rank
   rcases Field.exists_primitive_element F K with ⟨α, hα⟩
@@ -274,5 +281,3 @@ theorem odd_deg_ordered (h_rank : Odd <| Module.finrank F K) :
           (by simpa [← hAdj.finrank] using h_rank) hg_mem
   rw [← hAdj.map_eq_zero_iff]
   simp [hg_map]
-
-#min_imports

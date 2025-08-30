@@ -52,6 +52,48 @@ theorem repr_ofNat (n : ℕ) [Nat.AtLeastTwo n] :
 
 end PowerBasis
 
+namespace IsAdjoinRoot
+
+open _root_.Polynomial
+
+variable {R S : Type*} [CommRing R] [Ring S] [Algebra R S] (f : R[X])
+         (hf : IsAdjoinRoot S f)
+
+-- TODO : remove IsAdjoinRoot.algebraMap_apply
+
+@[simp]
+theorem map_C {x} : hf.map (C x) = algebraMap _ _ x := by rw [← algebraMap_apply]
+
+include hf in
+theorem nontrivial [IsDomain R] (h : f.degree ≠ 0) : Nontrivial S :=
+  hf.adjoinRootAlgEquiv.nontrivial_congr.mp <| AdjoinRoot.nontrivial f h
+
+end IsAdjoinRoot
+
+namespace IsAdjoinRootMonic
+
+open _root_.Polynomial
+
+variable {R S : Type*} [CommRing R] [Ring S] [Algebra R S] {f : R[X]}
+         (hf : IsAdjoinRootMonic S f)
+
+include hf in
+theorem nontrivial (h : f ≠ 1) : Nontrivial S :=
+  hf.adjoinRootAlgEquiv.nontrivial_congr.mp <| Ideal.Quotient.nontrivial <| by
+    simpa using (h <| Monic.eq_one_of_isUnit hf.monic ·)
+
+theorem coeff_ofNat [Nontrivial S] (n : ℕ) [Nat.AtLeastTwo n] :
+    hf.coeff ofNat(n) = Pi.single 0 (n : R) := by simpa using hf.coeff_algebraMap n
+
+theorem coeff_modByMonicHom : Polynomial.coeff ∘ hf.modByMonicHom = hf.coeff := by
+  simp [coeff, IsAdjoinRootMonic.liftPolyₗ]
+
+@[simp]
+theorem coeff_modByMonicHom_apply {x} : (hf.modByMonicHom x).coeff = hf.coeff x := by
+  simp [← coeff_modByMonicHom]
+
+end IsAdjoinRootMonic
+
 namespace IsAdjoinRoot.Quadratic
 
 open _root_.Polynomial
@@ -61,11 +103,7 @@ variable {K L : Type*} [CommRing K] [CommRing L] [Algebra K L]
          {a : K} (hL : IsAdjoinRootMonic L (X ^ 2 - C a))
 
 set_option quotPrecheck false in
-scoped notation "√" a => hL.root
-
--- TODO : generalise to any IsAdjoinRoot
-@[simp]
-theorem map_C {x} : hL.map (C x) = x := by rw [← algebraMap_apply]
+scoped notation "√" a => hL.root -- TODO : figure out how to use this notation elsewhere
 
 @[simp]
 theorem sq_root : (√a) ^ 2 = a := by
@@ -76,7 +114,8 @@ variable [Nontrivial K]
 
 instance : NeZero (X ^ 2 - C a).natDegree := ⟨by simp⟩
 
-instance : Nontrivial L := sorry -- obtain from quotient map
+include hL in
+theorem nontrivial : Nontrivial L := hL.nontrivial (by apply_fun natDegree; simp)
 
 include hL in
 theorem isQuadraticExtension : Algebra.IsQuadraticExtension K L where
@@ -88,18 +127,22 @@ theorem basis_0 : hL.basis 0 = 1 := by simp
 theorem basis_1 : hL.basis 1 = √a := by simp
 
 @[simp]
-theorem coeff_one : hL.coeff 1 = Pi.single 0 1 := hL.coeff_one
+theorem coeff_one : hL.coeff 1 = Pi.single 0 1 :=
+  letI _ := nontrivial hL
+  hL.coeff_one
 
 @[simp]
 theorem coeff_root : hL.coeff (√a) = Pi.single 1 1 := hL.coeff_root (by simp)
 
 @[simp]
-theorem coeff_algebraMap (x : K) : hL.coeff x = Pi.single 0 x := hL.coeff_algebraMap x
+theorem coeff_algebraMap (x : K) : hL.coeff x = Pi.single 0 x :=
+  letI _ := nontrivial hL
+  hL.coeff_algebraMap x
 
--- TODO : generalise to IsAdjoinRoot
 @[simp]
-theorem coeff_ofNat {n : ℕ} [Nat.AtLeastTwo n] :
-    hL.coeff ofNat(n) = Pi.single 0 (n : K) := by simpa using coeff_algebraMap hL n
+theorem coeff_ofNat (n : ℕ) [Nat.AtLeastTwo n] : hL.coeff ofNat(n) = Pi.single 0 (n : K) :=
+  letI _ := nontrivial hL
+  hL.coeff_ofNat n
 
 theorem self_eq_coeff (x) :
     x = hL.coeff x 0 + hL.coeff x 1 * √a := by
@@ -108,18 +151,16 @@ theorem self_eq_coeff (x) :
   simp_rw [show (X ^ 2 - C a).natDegree = 2 by simp] at hi
   interval_cases i <;> simp [← Algebra.smul_def]
 
-open Classical in
 theorem coeff_of_add_of_mul_root {x y : K} :
     hL.coeff (x + y * (√a)) = fun₀ | 0 => x | 1 => y := by
   ext i
   by_cases h : i < 2
   · interval_cases i <;> simp [← Algebra.smul_def]
-  · have : hL.coeff (x + y * (√a)) i = 0 := hL.coeff_apply_le _ i (by simpa using h)
-    rw [show hL.coeff (x + y * (√a)) i = 0 from hL.coeff_apply_le _ i (by simpa using h)]
+  · rw [show hL.coeff _ i = 0 from hL.coeff_apply_le _ i (by simpa using h)]
     simp [show 0 ≠ i ∧ i ≠ 1 by omega]
 
 @[simp]
-theorem repr_basis_mul (x y) : hL.coeff (x * y) =
+theorem coeff_mul (x y) : hL.coeff (x * y) =
     fun₀
     | 0 => hL.coeff x 0 * hL.coeff y 0 + a * hL.coeff x 1 * hL.coeff y 1
     | 1 => hL.coeff x 0 * hL.coeff y 1 + hL.coeff y 0 * hL.coeff x 1 := by
@@ -282,13 +323,11 @@ theorem eventually_neg (hdeg : Odd f.natDegree) (hf : 0 < f.leadingCoeff) :
 variable {f} in
 theorem sign_change (hdeg: Odd f.natDegree) : ∃ x y, f.eval x < 0 ∧ 0 < f.eval y := by
   wlog hf : 0 < f.leadingCoeff generalizing f with res
-  · have : f.leadingCoeff ≠ 0 := by
-      simpa using ne_of_apply_ne natDegree (Nat.ne_of_odd_add hdeg : f.natDegree ≠ 0)
-    have : 0 < (-f).leadingCoeff := by
-      simpa [-leadingCoeff_eq_zero] using lt_of_le_of_ne (by simpa using hf) this
+  · have : 0 < (-f).leadingCoeff := by linarith (config := { splitNe := true })
+      [show f.leadingCoeff ≠ 0 from fun _ ↦ by simp_all, leadingCoeff_neg f]
     rcases res (by simpa using hdeg) this with ⟨x, y, hx, hy⟩
     exact ⟨y, x, by simp_all⟩
-  · rcases eventually_pos (Nat.ne_of_odd_add hdeg) hf with ⟨x, hx⟩
+  · rcases eventually_pos (fun _ ↦ by simp_all) hf with ⟨x, hx⟩
     rcases eventually_neg hdeg hf with ⟨y, hy⟩
     exact ⟨y-1, x+1, hy _ (by linarith), hx _ (by linarith)⟩
 
