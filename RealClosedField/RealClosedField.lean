@@ -46,7 +46,7 @@ theorem even_finrank_extension (hK : Module.finrank R K ≠ 1) : Even (Module.fi
   rcases Field.exists_primitive_element R K with ⟨α, hα⟩
   have := IsAdjoinRootMonic.mkOfPrimitiveElement (Algebra.IsIntegral.isIntegral α) hα
   rw [this.finrank] at *
-  rcases exists_isRoot_of_odd_natDegree (f := minpoly R α) (by grind) with ⟨x, hx⟩
+  rcases exists_isRoot_of_odd_natDegree (Nat.not_even_iff_odd.mp hodd) with ⟨x, hx⟩
   exact hK <| Polynomial.natDegree_eq_of_degree_eq_some <|
     Polynomial.degree_eq_one_of_irreducible_of_root
       (minpoly.irreducible <| Algebra.IsIntegral.isIntegral α) hx
@@ -89,6 +89,11 @@ theorem of_IntermediateValueProperty
   isSquare_of_nonneg {x} hx := by sorry
   exists_isRoot_of_odd_natDegree {f} hf := by sorry
 
-theorem of_maximalIsOrderedAlgebra 
+theorem of_maximalIsOrderedAlgebra
+    (h : ∀ {K : Type*}, [Field K] → [LinearOrder K] → [IsOrderedRing K] →
+       [Algebra R K] → [IsOrderedAlgebra R K] → IsAdjoinRoot K (1 : R[X])) :
+    IsRealClosed R where
+  isSquare_of_nonneg {x} hx := by sorry
+  exists_isRoot_of_odd_natDegree {f} hf := by sorry
 
 end IsRealClosed
