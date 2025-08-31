@@ -5,6 +5,8 @@ Authors: Artie Khovanov
 -/
 import Mathlib
 
+/- Lemmas that should be upstreamed to Mathlib -/
+
 @[aesop unsafe 70%]
 theorem mem_of_mem_sup_left {R : Type*} [Semiring R] {a b : Subsemiring R} {x : R} :
     x ∈ a → x ∈ a ⊔ b := by gcongr; exact le_sup_left
@@ -13,7 +15,29 @@ theorem mem_of_mem_sup_left {R : Type*} [Semiring R] {a b : Subsemiring R} {x : 
 theorem mem_of_mem_sup_right {R : Type*} [Semiring R] {a b : Subsemiring R} {x : R} :
     x ∈ b → x ∈ a ⊔ b := by gcongr; exact le_sup_right
 
-/- Lemmas that should be upstreamed to Mathlib -/
+theorem Ideal.irreducible_of_isMaximal_span_singleton {R : Type*} [CommRing R] [IsDomain R] {m : R}
+    (hm : m ≠ 0) (hmax : (span {m}).IsMaximal) : Irreducible m :=
+  ((span_singleton_prime hm).mp hmax.isPrime).irreducible
+
+theorem Ideal.span_singleton_irreducible {R : Type*} [CommRing R] [IsPrincipalIdealRing R]
+    [IsDomain R] {m : R} (hm : m ≠ 0) : (span {m}).IsMaximal ↔ Irreducible m where
+  mp := irreducible_of_isMaximal_span_singleton hm
+  mpr := PrincipalIdealRing.isMaximal_of_irreducible
+
+theorem Ideal.Quotient.isField_of_irreducible {R : Type*} [CommRing R] [IsPrincipalIdealRing R]
+    {m : R} (hirr : Irreducible m) : IsField (R ⧸ span {m}) :=
+  (maximal_ideal_iff_isField_quotient _).mp (PrincipalIdealRing.isMaximal_of_irreducible hirr)
+
+theorem Ideal.Quotient.irreducible_of_isField
+    {R : Type*} [CommRing R] [IsDomain R] {m : R} (hm : m ≠ 0) (hf : IsField <| R ⧸ span {m}) :
+    Irreducible m :=
+  irreducible_of_isMaximal_span_singleton hm ((maximal_ideal_iff_isField_quotient _).mpr hf)
+
+theorem Ideal.Quotient.irreducible_iff_isField
+    {R : Type*} [CommRing R] [IsPrincipalIdealRing R] [IsDomain R] {m : R} (hm : m ≠ 0) :
+    Irreducible m ↔ IsField (R ⧸ Ideal.span {m}) where
+  mp := Ideal.Quotient.isField_of_irreducible
+  mpr := Ideal.Quotient.irreducible_of_isField hm
 
 open Polynomial in
 theorem X_sq_sub_C_irreducible_iff_not_isSquare {F : Type*} [Field F] (a : F) :
@@ -21,8 +45,7 @@ theorem X_sq_sub_C_irreducible_iff_not_isSquare {F : Type*} [Field F] (a : F) :
   rw [isSquare_iff_exists_sq, X_pow_sub_C_irreducible_iff_of_prime Nat.prime_two]
   grind only
 
--- TODO : generalise to IsAdjoinRoot
-
+-- TODO : remove AdjoinRoot.of
 attribute [-simp] AdjoinRoot.algebraMap_eq
 
 -- PRed as change to Module.Basis.repr_algebraMap
@@ -56,8 +79,7 @@ namespace IsAdjoinRoot
 
 open _root_.Polynomial
 
-variable {R S : Type*} [CommRing R] [Ring S] [Algebra R S] (f : R[X])
-         (hf : IsAdjoinRoot S f)
+variable {R S : Type*} [CommRing R] [Ring S] [Algebra R S] {f : R[X]} (hf : IsAdjoinRoot S f)
 
 -- TODO : remove IsAdjoinRoot.algebraMap_apply
 
@@ -70,12 +92,31 @@ theorem nontrivial [IsDomain R] (h : f.degree ≠ 0) : Nontrivial S :=
 
 end IsAdjoinRoot
 
+namespace IsAdjoinRoot
+
+open _root_.Polynomial
+
+variable {R F : Type*} [CommRing R] [Field F] [Algebra R F] {f : R[X]} (hf : IsAdjoinRoot F f)
+
+include hf in
+theorem ne_zero : f ≠ 0 := fun _ ↦ Polynomial.not_isField R <|
+  MulEquiv.isField (Field.toIsField F) <|
+    (RingEquiv.quotientBot _).symm.trans <|
+    (Ideal.quotientEquiv ⊥ (Ideal.span {f}) (RingEquiv.refl _) (by simpa)).trans <|
+    hf.adjoinRootAlgEquiv.toRingEquiv
+
+include hf in
+theorem irreducible [IsDomain R] : Irreducible f :=
+  Ideal.Quotient.irreducible_of_isField hf.ne_zero <|
+    hf.adjoinRootAlgEquiv.toMulEquiv.isField (Field.toIsField F)
+
+end IsAdjoinRoot
+
 namespace IsAdjoinRootMonic
 
 open _root_.Polynomial
 
-variable {R S : Type*} [CommRing R] [Ring S] [Algebra R S] {f : R[X]}
-         (hf : IsAdjoinRootMonic S f)
+variable {R S : Type*} [CommRing R] [Ring S] [Algebra R S] {f : R[X]} (hf : IsAdjoinRootMonic S f)
 
 include hf in
 theorem nontrivial (h : f ≠ 1) : Nontrivial S :=
@@ -94,6 +135,20 @@ theorem coeff_modByMonicHom_apply {x} : (hf.modByMonicHom x).coeff = hf.coeff x 
 
 end IsAdjoinRootMonic
 
+section Field.isAdjoinRootMonic
+
+variable {F E : Type*} [Field F] [Field E] [Algebra F E]
+         [FiniteDimensional F E] [Algebra.IsSeparable F E]
+
+open Polynomial
+
+variable (F E) in
+noncomputable def Field.isAdjoinRootMonic : Σ f : F[X], IsAdjoinRootMonic E f :=
+  let ⟨α, hα⟩ := Classical.indefiniteDescription _ <| Field.exists_primitive_element F E
+  ⟨_, IsAdjoinRootMonic.mkOfPrimitiveElement (Algebra.IsIntegral.isIntegral α) hα⟩
+
+end Field.isAdjoinRootMonic
+
 namespace IsAdjoinRoot.Quadratic
 
 open _root_.Polynomial
@@ -103,11 +158,11 @@ variable {K L : Type*} [CommRing K] [CommRing L] [Algebra K L]
          {a : K} (hL : IsAdjoinRootMonic L (X ^ 2 - C a))
 
 set_option quotPrecheck false in
-scoped notation "√" a => hL.root -- TODO : figure out how to use this notation elsewhere
+scoped notation "√a" => hL.root -- TODO : figure out how to use this notation elsewhere
 
 @[simp]
-theorem sq_root : (√a) ^ 2 = a := by
-  suffices (√a) ^ 2 - a = 0 by simpa [sub_eq_zero]
+theorem sq_root : √a ^ 2 = a := by
+  suffices √a ^ 2 - a = 0 by simpa [sub_eq_zero]
   simpa [-map_self] using hL.map_self
 
 variable [Nontrivial K]
@@ -132,7 +187,7 @@ theorem coeff_one : hL.coeff 1 = Pi.single 0 1 :=
   hL.coeff_one
 
 @[simp]
-theorem coeff_root : hL.coeff (√a) = Pi.single 1 1 := hL.coeff_root (by simp)
+theorem coeff_root : hL.coeff √a = Pi.single 1 1 := hL.coeff_root (by simp)
 
 @[simp]
 theorem coeff_algebraMap (x : K) : hL.coeff x = Pi.single 0 x :=

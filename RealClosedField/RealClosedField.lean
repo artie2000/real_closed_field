@@ -43,13 +43,12 @@ variable {K : Type*} [Field K] [Algebra R K] [FiniteDimensional R K]
 
 theorem even_finrank_extension (hK : Module.finrank R K ≠ 1) : Even (Module.finrank R K) := by
   by_contra hodd
-  rcases Field.exists_primitive_element R K with ⟨α, hα⟩
-  have := IsAdjoinRootMonic.mkOfPrimitiveElement (Algebra.IsIntegral.isIntegral α) hα
-  rw [this.finrank] at *
-  rcases exists_isRoot_of_odd_natDegree (Nat.not_even_iff_odd.mp hodd) with ⟨x, hx⟩
-  exact hK <| Polynomial.natDegree_eq_of_degree_eq_some <|
-    Polynomial.degree_eq_one_of_irreducible_of_root
-      (minpoly.irreducible <| Algebra.IsIntegral.isIntegral α) hx
+  rcases Field.isAdjoinRootMonic R K with ⟨f, hf⟩
+  rw [hf.finrank] at *
+  rcases exists_isRoot_of_odd_natDegree (f := f)
+    (Nat.not_even_iff_odd.mp <| by simpa using hodd) with ⟨x, hx⟩
+  exact hK <| by simpa using natDegree_eq_of_degree_eq_some <|
+    degree_eq_one_of_irreducible_of_root hf.irreducible hx
 
 noncomputable def isAdjoinRootIOfFinrankExtensionEqTwo (hK : Module.finrank R K = 2) :
     IsAdjoinRoot K (X ^ 2 + 1 : R[X]) := by sorry
@@ -58,8 +57,8 @@ theorem finrank_adjoinRoot_i_extension_neq_two
     {K : Type*} [Field K] [Algebra (AdjoinRoot (X ^ 2 - C (-1) : R[X])) K] :
     Module.finrank (AdjoinRoot (X ^ 2 - C (-1) : R[X])) K ≠ 2 := by sorry
 
-theorem finite_extension_classify :
-    Nonempty (IsAdjoinRoot K (X ^ 2 + 1 : R[X])) ∨ Nonempty (IsAdjoinRoot K (1 : R[X])) := by sorry
+noncomputable def finite_extension_classify :
+    IsAdjoinRoot K (X ^ 2 + 1 : R[X]) ⊕ IsAdjoinRoot K (1 : R[X]) := by sorry
 
 end finite_ext
 
