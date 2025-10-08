@@ -57,14 +57,14 @@ theorem finrank_adjoinRoot_i_extension_neq_two
     {K : Type*} [Field K] [Algebra (AdjoinRoot (X ^ 2 - C (-1) : R[X])) K] :
     Module.finrank (AdjoinRoot (X ^ 2 - C (-1) : R[X])) K ≠ 2 := by sorry
 
-noncomputable def finite_extension_classify :
-    IsAdjoinRoot K (X ^ 2 + 1 : R[X]) ⊕ IsAdjoinRoot K (1 : R[X]) := by sorry
+theorem finite_extension_classify :
+    Nonempty (IsAdjoinRoot K (X ^ 2 + 1 : R[X])) ∨ Module.finrank R K = 1 := by sorry
 
 end finite_ext
 
 theorem algebraic_extension_classify
     {K : Type*} [Field K] [Algebra R K] [Algebra.IsAlgebraic R K] :
-    Nonempty (IsAdjoinRoot K (X ^ 2 + 1 : R[X])) ∨ Nonempty (IsAdjoinRoot K (1 : R[X])) := by sorry
+    Nonempty (IsAdjoinRoot K (X ^ 2 + 1 : R[X])) ∨ Module.finrank R K = 1 := by sorry
 
 noncomputable def isAdjoinRootIOfIsAlgClosure
     {K : Type*} [Field K] [Algebra R K] [IsAlgClosure R K] :
@@ -75,8 +75,8 @@ end properties
 /-! # Sufficient conditions to be real closed -/
 
 theorem of_isAdjoinRoot_i_or_1_extension
-    (h : ∀ {K : Type*}, [Field K] → [Algebra R K] → [FiniteDimensional R K] →
-       (IsAdjoinRoot K (X ^ 2 + 1 : R[X]) ⊕ IsAdjoinRoot K (1 : R[X]))) :
+    (h : ∀ K, [Field K] → [Algebra R K] → [FiniteDimensional R K] →
+       Nonempty (IsAdjoinRoot K (X ^ 2 + 1 : R[X])) ∨ Module.finrank R K = 1) :
     IsRealClosed R where
   isSquare_of_nonneg {x} hx := by sorry
   exists_isRoot_of_odd_natDegree {f} hf := by sorry
@@ -85,12 +85,24 @@ theorem of_IntermediateValueProperty
     (h : ∀ (f : R[X]) (x y : R), x ≤ y → 0 ≤ f.eval x → f.eval y ≤ 0 →
        ∃ z ∈ Set.Icc x y, f.eval z = 0) :
     IsRealClosed R where
-  isSquare_of_nonneg {x} hx := by sorry
-  exists_isRoot_of_odd_natDegree {f} hf := by sorry
+  isSquare_of_nonneg {x} hx := by
+    have : x ≤ (x + 1) ^ 2 := by
+      suffices 0 ≤ 1 + x + x ^ 2 by linear_combination this
+      positivity
+    rcases h (- X ^ 2 + C x) 0 (x + 1) (by linarith) (by simpa using hx) (by simpa using this)
+      with ⟨z, _, hz⟩
+    exact ⟨z, by linear_combination (by simpa using hz : _ = (0 : R))⟩
+  exists_isRoot_of_odd_natDegree {f} hf := by
+    rcases sign_change hf with ⟨x, y, hx, hy⟩
+    wlog hxy : y ≤ x
+    · simpa using this h (f := -f) (by simpa using hf) y x
+        (by simpa using hy) (by simpa using hx) (by linarith)
+    rcases h f _ _ hxy (by linarith) (by linarith) with ⟨z, _, hz⟩
+    exact ⟨z, hz⟩
 
 theorem of_maximalIsOrderedAlgebra
-    (h : ∀ {K : Type*}, [Field K] → [LinearOrder K] → [IsOrderedRing K] →
-       [Algebra R K] → [IsOrderedAlgebra R K] → IsAdjoinRoot K (1 : R[X])) :
+    (h : ∀ K, [Field K] → [LinearOrder K] → [IsOrderedRing K] → [Algebra R K] →
+           [FiniteDimensional R K] → [IsOrderedAlgebra R K] → Module.finrank R K = 1) :
     IsRealClosed R where
   isSquare_of_nonneg {x} hx := by sorry
   exists_isRoot_of_odd_natDegree {f} hf := by sorry
