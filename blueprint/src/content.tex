@@ -379,6 +379,7 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
 \begin{lemma}
   \label{lem:ext_deg_2}
   \uses{def:RCF}
+  \lean{IsRealClosed.isAdjoinRootIOfFinrankExtensionEqTwo}
   The field $R(i)$ is the unique quadratic extension of $R$.
 \end{lemma}
 \begin{proof}
@@ -389,6 +390,7 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
 \begin{lemma}
   \label{lem:Ri_ext_deg_2}
   \uses{def:RCF}
+  \lean{IsRealClosed.finrank_adjoinRoot_i_extension_neq_two}
   There is no quadratic extension of $R(i)$.
 \end{lemma}
 \begin{proof}
@@ -401,6 +403,7 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
 \begin{theorem}
   \label{thm:FTAlg}
   \uses{def:RCF}
+  \lean{IsRealClosed.finite_extension_classify}
   The only finite extensions of $R$ are $R$ itself and $R(i)$.
 \end{theorem}
 \begin{proof}
@@ -413,6 +416,7 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
 \begin{corollary}
   \label{cor:FTAlg_alg}
   \uses{def:RCF}
+  \lean{IsRealClosed.algebraic_extension_classify}
   The only algebraic extensions of $R$ are $R$ itself and $R(i)$.
 \end{corollary}
 \begin{proof}
@@ -422,6 +426,7 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
 \begin{corollary}
   \label{cor:RCF_ac}
   \uses{def:RCF}
+  \lean{IsRealClosed.isAdjoinRootIOfIsAlgClosure}
   $\bar{R}=R(i)$.
 \end{corollary}
 \begin{proof}
@@ -433,9 +438,12 @@ The converse to Theorem \ref{thm:FTAlg} is much easier.
 \begin{lemma}
   \label{lem:FTAlg_converse}
   \uses{def:RCF}
+  \lean{IsRealClosed.of_isAdjoinRoot_i_or_1_extension}
+  \leanok
   Suppose $R$ is an ordered field whose only nontrivial finite extension is $R(i)$. Then $R$ is real closed.
 \end{lemma}
 \begin{proof}
+  \leanok
   \uses{lem:odd_deg_red_imp_root}
   Let $a\in R$ be non-negative. If $a$ is not a square, then $R(\sqrt{a})\cong R(i)$. Suppose $i$ maps to $x+y\sqrt{a}$ for some $x,y\in R$; then $-1=x^2+ay^2+2xy\sqrt{a}$. Comparing coefficients, $-1=x^2+ay^2\geq0$.$_\#$ Therefore $a$ is a square in $R$.
 
@@ -489,9 +497,12 @@ In fact, the converses to Lemmas \ref{lem:RCF_max} and \ref{lem:IVP_poly} also h
 \begin{theorem}
   \label{thm:IVP_poly_imp_RCF}
   \uses{def:RCF}
+  \lean{IsRealClosed.of_IntermediateValueProperty}
+  \leanok
   Let $R$ be an ordered field satisfying the intermediate value property for polynomials. Then $R$ is real closed.
 \end{theorem}
 \begin{proof}
+  \leanok
   Let $a\in R$ be non-negative, and consider the polynomial $f=X^2-a$. Then $f(0)=-a\leq0$, but $f(a+1)=a^2+a+1>0$. By the intermediate value property, $f$ has a root in $R$, and so $a$ is a square in $R$.
 
   Let $f$ be an odd-degree polynomial over $R$. Write $f=a_nX^n+\cdots+a_0$. We will show $f$ has a root in $R$. Replacing $f$ by $-f$ if necessary, we may assume $a_n>0$. For $x>1$, we compute
@@ -502,9 +513,12 @@ In fact, the converses to Lemmas \ref{lem:RCF_max} and \ref{lem:IVP_poly} also h
 \begin{theorem}
   \label{thm:ord_max_imp_RCF}
   \uses{def:RCF}
+  \lean{IsRealClosed.of_maximalIsOrderedAlgebra}
+  \leanok
   Let $R$ be an ordered field maximal with respect to ordered algebraic extensions. Then $R$ is real closed.
 \end{theorem}
 \begin{proof}
+  \leanok
   \uses{cor:ext_ord_to_adj_sqrt,lem:odd_deg_red_imp_root,lem:ext_ord_odd_deg}
   Let $a\in R$ be non-negative, and suppose $a$ is not a square. By Corollary \ref{cor:ext_ord_to_adj_sqrt}, there is an ordering making the nontrivial extension $R(\sqrt{a})/R$ ordered, contradicting maximality.$_\#$ Therefore $a$ is a square in $R$.
 

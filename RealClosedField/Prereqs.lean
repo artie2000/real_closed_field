@@ -45,6 +45,21 @@ theorem X_sq_sub_C_irreducible_iff_not_isSquare {F : Type*} [Field F] (a : F) :
   rw [isSquare_iff_exists_sq, X_pow_sub_C_irreducible_iff_of_prime Nat.prime_two]
   grind only
 
+@[simp]
+theorem Polynomial.natDegree_add_one {R : Type u} [Semiring R] {p : Polynomial R} :
+    (p + 1).natDegree = p.natDegree := by
+  simp [← C_1, -map_one]
+
+@[simp]
+theorem Polynomial.natDegree_one_add {R : Type u} [Semiring R] {p : Polynomial R} :
+    (1 + p).natDegree = p.natDegree := by
+  simp [← C_1, -map_one]
+
+@[simp]
+theorem Polynomial.natDegree_normalize {R : Type u} [Field R] {p : Polynomial R} [DecidableEq R] :
+    (normalize p).natDegree = p.natDegree :=
+  natDegree_eq_of_degree_eq degree_normalize
+
 -- TODO : remove AdjoinRoot.of
 attribute [-simp] AdjoinRoot.algebraMap_eq
 

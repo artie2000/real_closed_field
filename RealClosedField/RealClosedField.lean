@@ -20,7 +20,9 @@ class IsRealClosure (K R : Type*) [Field K] [Field R] [LinearOrder K] [LinearOrd
 
 namespace IsRealClosed
 
-variable {R : Type*} [Field R] [LinearOrder R] [IsStrictOrderedRing R]
+universe u
+
+variable {R : Type u} [Field R] [LinearOrder R] [IsStrictOrderedRing R]
 
 section properties
 
@@ -50,36 +52,67 @@ theorem even_finrank_extension (hK : Module.finrank R K ≠ 1) : Even (Module.fi
   exact hK <| by simpa using natDegree_eq_of_degree_eq_some <|
     degree_eq_one_of_irreducible_of_root hf.irreducible hx
 
+-- TODO : find a way to go between `X ^ 2 - C (-1)` and `X ^ 2 + 1` in `IsAdjoinRoot` (data)
 noncomputable def isAdjoinRootIOfFinrankExtensionEqTwo (hK : Module.finrank R K = 2) :
-    IsAdjoinRoot K (X ^ 2 + 1 : R[X]) := by sorry
+    IsAdjoinRoot K (X ^ 2 - C (-1) : R[X]) := by sorry
 
 theorem finrank_adjoinRoot_i_extension_neq_two
     {K : Type*} [Field K] [Algebra (AdjoinRoot (X ^ 2 - C (-1) : R[X])) K] :
     Module.finrank (AdjoinRoot (X ^ 2 - C (-1) : R[X])) K ≠ 2 := by sorry
 
 theorem finite_extension_classify :
-    Nonempty (IsAdjoinRoot K (X ^ 2 + 1 : R[X])) ∨ Module.finrank R K = 1 := by sorry
+    Nonempty (IsAdjoinRoot K (X ^ 2 - C (-1) : R[X])) ∨ Module.finrank R K = 1 := by sorry
 
 end finite_ext
 
 theorem algebraic_extension_classify
     {K : Type*} [Field K] [Algebra R K] [Algebra.IsAlgebraic R K] :
-    Nonempty (IsAdjoinRoot K (X ^ 2 + 1 : R[X])) ∨ Module.finrank R K = 1 := by sorry
+    Nonempty (IsAdjoinRoot K (X ^ 2 - C (-1) : R[X])) ∨ Module.finrank R K = 1 := by sorry
 
 noncomputable def isAdjoinRootIOfIsAlgClosure
     {K : Type*} [Field K] [Algebra R K] [IsAlgClosure R K] :
-    IsAdjoinRoot K (X ^ 2 + 1 : R[X]) := by sorry
+    IsAdjoinRoot K (X ^ 2 - C (-1) : R[X]) := by sorry
 
 end properties
 
 /-! # Sufficient conditions to be real closed -/
 
 theorem of_isAdjoinRoot_i_or_1_extension
-    (h : ∀ K, [Field K] → [Algebra R K] → [FiniteDimensional R K] →
-       Nonempty (IsAdjoinRoot K (X ^ 2 + 1 : R[X])) ∨ Module.finrank R K = 1) :
+    (h : ∀ K : Type u, [Field K] → [Algebra R K] → [FiniteDimensional R K] →
+       Nonempty (IsAdjoinRoot K (X ^ 2 - C (-1) : R[X])) ∨ Module.finrank R K = 1) :
     IsRealClosed R where
-  isSquare_of_nonneg {x} hx := by sorry
-  exists_isRoot_of_odd_natDegree {f} hf := by sorry
+  isSquare_of_nonneg {x} hx := by
+    by_contra hx₂
+    have ar := AdjoinRoot.isAdjoinRootMonic (X ^ 2 - C x) (by simp [Monic])
+    have := ar.finite
+    have : Fact (Irreducible (X ^ 2 - C x)) := Fact.mk <| by
+      simpa [← X_sq_sub_C_irreducible_iff_not_isSquare] using hx₂
+    cases h (AdjoinRoot (X ^ 2 - C x)) with
+    | inl h_ext =>
+      exact h_ext.elim <| fun ar' ↦ by
+        let ar' := IsAdjoinRootMonic.mk ar' (by simp [Monic])
+        have cal : ar.coeff (ar'.root ^ 2) 0 = ar.coeff (-1) 0 := by simp
+        simp [- IsAdjoinRoot.Quadratic.sq_root, pow_two] at cal
+        have : 0 ≤ ar.coeff ar'.root 0 ^ 2 + x * ar.coeff ar'.root 1 ^ 2 := by positivity
+        simp [pow_two] at this
+        linarith
+        -- TODO : clean this computation up
+    | inr h_ext => simp [ar.finrank] at h_ext
+    -- TODO : code reused at `of_maximalIsOrderedAlgebra`; abstract it
+  exists_isRoot_of_odd_natDegree {f} hf := by
+    refine Polynomial.has_root_of_odd_natDegree_imp_not_irreducible ?_ hf
+    intro f hf_odd hf_deg hf_irr
+    -- TODO : generalise IsAdjoinRootMonic.finrank to IsAdjoinRoot to get rid of this `normalize` and associated rewrites
+    have ar := AdjoinRoot.isAdjoinRootMonic (normalize f)
+      (Polynomial.monic_normalize hf_irr.ne_zero)
+    rw [← (show _ = f.natDegree by simpa using ar.finrank)] at *
+    rw [← Associated.irreducible_iff (normalize_associated f)] at hf_irr
+    have := Fact.mk hf_irr
+    have := Module.finite_of_finrank_pos hf_odd.pos
+    cases h <| AdjoinRoot (normalize f) with
+    | inl h_ext => exact h_ext.elim <|
+        fun ar' ↦ by simp [(IsAdjoinRootMonic.mk ar' (by simp [Monic])).finrank] at hf_odd; grind
+    | inr h_ext => exact hf_deg h_ext
 
 theorem of_IntermediateValueProperty
     (h : ∀ (f : R[X]) (x y : R), x ≤ y → 0 ≤ f.eval x → f.eval y ≤ 0 →
@@ -101,10 +134,35 @@ theorem of_IntermediateValueProperty
     exact ⟨z, hz⟩
 
 theorem of_maximalIsOrderedAlgebra
-    (h : ∀ K, [Field K] → [LinearOrder K] → [IsOrderedRing K] → [Algebra R K] →
+    (h : ∀ K : Type u, [Field K] → [LinearOrder K] → [IsOrderedRing K] → [Algebra R K] →
            [FiniteDimensional R K] → [IsOrderedAlgebra R K] → Module.finrank R K = 1) :
     IsRealClosed R where
-  isSquare_of_nonneg {x} hx := by sorry
-  exists_isRoot_of_odd_natDegree {f} hf := by sorry
+  isSquare_of_nonneg {x} hx := by
+    by_contra hx₂
+    rcases adj_sqrt_ordered hx hx₂ with ⟨_, _, _⟩
+
+    -- TODO : remove / automate / regularise this boilerplate
+    have ar := AdjoinRoot.isAdjoinRootMonic (X ^ 2 - C x) (by simp [Monic])
+    have := ar.finite
+    have : Fact (Irreducible (X ^ 2 - C x)) := Fact.mk <| by
+      simpa [← X_sq_sub_C_irreducible_iff_not_isSquare] using hx₂
+    -- end boilerplate
+
+    have := h (AdjoinRoot (X ^ 2 - C x))
+    simp [ar.finrank] at this -- TODO : find out why this works
+
+  exists_isRoot_of_odd_natDegree {f} hf := by
+    refine Polynomial.has_root_of_odd_natDegree_imp_not_irreducible ?_ hf
+    intro f hf_odd hf_deg hf_irr
+    -- TODO : generalise IsAdjoinRootMonic.finrank to IsAdjoinRoot to get rid of this `normalize` and associated rewrites
+    have ar := AdjoinRoot.isAdjoinRootMonic (normalize f)
+      (Polynomial.monic_normalize hf_irr.ne_zero)
+    rw [← (show _ = f.natDegree by simpa using ar.finrank)] at *
+    rw [← Associated.irreducible_iff (normalize_associated f)] at hf_irr
+    have := Fact.mk hf_irr
+    have := Module.finite_of_finrank_pos hf_odd.pos
+    rcases odd_deg_ordered hf_odd with ⟨_, _, _⟩
+    exact hf_deg <| h <| AdjoinRoot (normalize f)
+    -- TODO : factor out boilerplate (reused from `of_isAdjoinRoot_i_or_1_extension`)
 
 end IsRealClosed
