@@ -335,6 +335,7 @@ theorem eventually_pos (hdeg : f.natDegree ≠ 0) (hf : 0 < f.leadingCoeff) :
     _ ≥ x ^ (f.natDegree - 1) * (f.leadingCoeff * (f.natDegree * z / f.leadingCoeff) -
         f.natDegree * z) := by gcongr; exact le_max_right ..
   field_simp at this
+  ring_nf at this
   assumption
 
 open Finset in

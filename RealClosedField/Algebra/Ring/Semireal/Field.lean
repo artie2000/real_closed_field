@@ -19,7 +19,8 @@ open Classical in
 def IsSemireal.isFormallyReal [IsSemireal F] : IsFormallyReal F :=
   isFormallyReal_of_eq_zero_of_eq_zero_of_add_mul_self F <| fun {s} {a} _ h ↦ by
     by_contra
-    exact IsSemireal.one_add_ne_zero (by aesop) (show 1 + s * (a⁻¹ * a⁻¹) = 0 by field_simp [h])
+    exact IsSemireal.one_add_ne_zero (s := s * a⁻¹ ^ 2) (by aesop)
+      (by field_simp; linear_combination h)
 
 open Classical RingPreordering in
 theorem Field.exists_isStrictOrderedRing_iff_isSemireal :
@@ -86,6 +87,5 @@ noncomputable def Rat.unique_isStrictOrderedRing :
     rw [IsStrictOrderedRing.unique_isStrictOrderedRing_iff]
     intro x hx
     rw [show x = ∑ i ∈ Finset.range (x.num.toNat * x.den), (1 / (x.den : ℚ)) ^ 2 by
-      have : (x * ↑x.den) * ↑x.den = ↑x.num.toNat * ↑x.den := by simp_all; norm_cast; simp_all
-      field_simp; ring_nf at *; assumption]
+      simp; field_simp; simp; norm_cast; simpa]
     simp
