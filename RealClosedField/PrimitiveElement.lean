@@ -141,7 +141,7 @@ theorem of_ker_aeval_eq_span [IsDomain R] {g : R[X]} (hx : IsIntegral R x)
     (h : RingHom.ker (aeval x : _→ₐ[R] S) = Ideal.span {g}) : IsIntegralUnique R x := by
   have dvd : g ∣ minpoly R x := by simp [← Ideal.mem_span_singleton, ← h]
   rcases dvd with ⟨k, hk⟩
-  have hu : IsUnit g.leadingCoeff := isUnit_of_mul_eq_one _ k.leadingCoeff <| by
+  have hu : IsUnit g.leadingCoeff := IsUnit.of_mul_eq_one k.leadingCoeff <| by
     apply_fun leadingCoeff at hk
     simpa [minpoly.monic, hx] using hk.symm
   refine of_ker_aeval_eq_span_monic (g := C (↑hu.unit⁻¹ : R) * g) ?_ ?_
