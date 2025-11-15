@@ -6,6 +6,7 @@ Authors: Artie Khovanov
 import Mathlib.Algebra.Polynomial.AlgebraMap
 import Mathlib.FieldTheory.Minpoly.IsIntegrallyClosed
 import Mathlib.RingTheory.PowerBasis
+import Mathlib.Algebra.Group.Units.Defs
 
 -- relevant file: Mathlib.RingTheory.Adjoin.PowerBasis
 
@@ -90,6 +91,7 @@ theorem aeval_repr (y : S) : aeval x (repr hx y) = y := (aeval_surjective hx y).
 
 theorem repr_aeval (f : R[X]) : repr hx (aeval x f) - f ∈ RingHom.ker (aeval x) := by simp
 
+-- TODO : add version generalised to arbitrary set
 include hx in
 theorem finite_iff_isIntegral_of_adjoin_eq_top : Module.Finite R S ↔ IsIntegral R x where
   mp _ := _root_.IsIntegral.of_finite R x
@@ -106,7 +108,7 @@ end Algebra
 structure Algebra.IsIntegralUnique (R : Type*) {S : Type*}
     [CommRing R] [Ring S] [Algebra R S] (x : S) : Prop where
   is_integral : IsIntegral R x
-  ker_eq_span_minpoly : RingHom.ker (aeval x : _→ₐ[R] S) = Ideal.span {minpoly R x}
+  ker_eq_span_minpoly : RingHom.ker (aeval x : _ →ₐ[R] S) = Ideal.span {minpoly R x}
 
 namespace Algebra.IsIntegralUnique
 
@@ -133,20 +135,19 @@ theorem of_ker_aeval_eq_span_monic {g : R[X]} (hg : g.Monic)
       rw [h, eq_of_div_monic (minpoly.monic hi) hg]
       · simp [← Ideal.mem_span_singleton, ← h]
       · exact Polynomial.natDegree_le_natDegree <| minpoly.min R x hg <| by
-          simpa [← RingHom.mem_ker, h] using Ideal.mem_span_singleton_self g }
+          simp [← RingHom.mem_ker, h, Ideal.mem_span_singleton_self] }
 
 theorem of_ker_aeval_eq_span [IsDomain R] {g : R[X]} (hx : IsIntegral R x)
-    (h : RingHom.ker (aeval x : _→ₐ[R] S) = Ideal.span {g}) : IsIntegralUnique R x where
-  is_integral := hx
-  ker_eq_span_minpoly := by
-    have dvd : g ∣ minpoly R x := by simp [← Ideal.mem_span_singleton, ← h]
-    have := Polynomial.natDegree_le_of_dvd dvd (minpoly.ne_zero hx)
-    rcases dvd with ⟨k, hk⟩
-    have : IsUnit g.leadingCoeff := IsUnit.of_mul_eq_one k.leadingCoeff <| by
-      apply_fun leadingCoeff at hk
-      simpa [minpoly.monic, hx] using hk
-    have := monic_of_isUnit_leadingCoeff_inv_smul this
-    sorry
+    (h : RingHom.ker (aeval x : _→ₐ[R] S) = Ideal.span {g}) : IsIntegralUnique R x := by
+  have dvd : g ∣ minpoly R x := by simp [← Ideal.mem_span_singleton, ← h]
+  rcases dvd with ⟨k, hk⟩
+  have hu : IsUnit g.leadingCoeff := isUnit_of_mul_eq_one _ k.leadingCoeff <| by
+    apply_fun leadingCoeff at hk
+    simpa [minpoly.monic, hx] using hk.symm
+  refine of_ker_aeval_eq_span_monic (g := C (↑hu.unit⁻¹ : R) * g) ?_ ?_
+  · simpa [Units.smul_def, smul_eq_C_mul] using monic_of_isUnit_leadingCoeff_inv_smul hu
+  · simpa [h, Ideal.span_singleton_eq_span_singleton] using
+      associated_unit_mul_right _ _ (by simp [isUnit_C])
 
 theorem unique_of_degree_le_degree_minpoly (h : IsIntegralUnique R x)
     {f : R[X]} (hmo : f.Monic) (hf : aeval x f = 0)
@@ -199,7 +200,7 @@ theorem map_modByMonic (h : IsIntegral R x) (g : R[X]) :
       modByMonic_eq_sub_mul_div _ (minpoly.monic h), sub_sub_cancel_left, dvd_neg]
   exact dvd_mul_right ..
 
-variable (h : IsPrimitiveElem R x)
+variable (h : IsIntegralUnique R x)
 
 theorem modByMonic_repr_aeval (g : R[X]) :
     repr h.adjoin_eq_top (aeval x g) %ₘ minpoly R x = g %ₘ minpoly R x :=
