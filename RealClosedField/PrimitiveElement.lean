@@ -134,6 +134,9 @@ structure IsIntegralUnique : Prop where
   is_integral : IsIntegral R x
   ker_aeval : RingHom.ker (aeval x : _ →ₐ[R] S) = Ideal.span {minpoly R x}
 
+-- TODO : equivalent condition `minpoly_dvd_of_root_aeval : ∀ f : R[X], aeval x f = 0 → minpoly R x ∣ f`
+--        (whichever of this and `ker_aeval` isn't the definition)
+
 namespace IsIntegralUnique
 
 theorem of_ker_aeval_eq_span_monic {g : R[X]} (hg : g.Monic)
@@ -366,6 +369,9 @@ theorem coeff_injective : Function.Injective h.coeff := fun _ _ hyz =>
 
 end basis
 
--- TODO : particular isntances of IsPrimitiveElement
+-- TODO : particular instances of IsIntegralUnique and IsPrimitiveElement
+-- S = ↑R[x] (IsPrimitiveElement from IsIntegralUnique)
+-- R is a field (IsIntegralUnique)
+-- R int closed, S torsion free algebra and domain (IsIntegralUnique)
 
 end Algebra.IsPrimitiveElement
