@@ -13,6 +13,8 @@ import Mathlib.Algebra.Group.Units.Defs
 -- TODO : use this file to remove dependency of
 --        Mathlib.FieldTheory.Minpoly.IsIntegrallyClosed on AdjoinRoot
 
+open Polynomial algebraMap
+
 /-
 ## Lemmas about field adjoin vs ring adjoin
 -/
@@ -51,10 +53,9 @@ theorem adjoin_eq_top_iff [Algebra.IsAlgebraic F E] {S : Set E} :
 
 end IntermediateField
 
-open Polynomial algebraMap
+-- TODO : move these polynomial lemmas to the right place
 
--- TODO : move to right place
-theorem Polynomial.eq_of_div_monic{R : Type*} [Semiring R] {f g : R[X]}
+theorem Polynomial.eq_of_div_monic {R : Type*} [Semiring R] {f g : R[X]}
     (hf : f.Monic) (hg : g.Monic) (h₁ : g ∣ f) (h₂ : f.natDegree ≤ g.natDegree) : f = g := by
   nontriviality R
   rcases h₁ with ⟨k, rfl⟩
@@ -63,6 +64,36 @@ theorem Polynomial.eq_of_div_monic{R : Type*} [Semiring R] {f g : R[X]}
   rw [natDegree_mul' ‹_›] at h₂
   have : k.Monic := by simpa [leadingCoeff_mul' ‹_›, hg, Monic.def] using hf
   simp [Polynomial.eq_one_of_monic_natDegree_zero this (by omega)]
+
+@[gcongr]
+theorem Polynomial.aeval_dvd {S T : Type*} [CommSemiring S] [Semiring T] [Algebra S T]
+    {p q : Polynomial S} (a : T) : p ∣ q → aeval a p ∣ aeval a q := _root_.map_dvd (aeval a)
+
+-- TODO : replace non-primed version
+theorem Polynomial.aeval_eq_zero_of_dvd_aeval_eq_zero'
+    {S T : Type*} [CommSemiring S] [Semiring T] [Algebra S T]
+    {p q : Polynomial S} (h₁ : p ∣ q) {a : T} (h₂ : (aeval a) p = 0) :
+    (aeval a) q = 0 :=
+  zero_dvd_iff.mp (h₂ ▸ aeval_dvd _ h₁)
+
+theorem Polynomial.dvd_modByMonic_sub {R : Type*} [Ring R] (p q : R[X]) : q ∣ (p %ₘ q - p) := by
+  by_cases h : q.Monic
+  · simp [modByMonic_eq_sub_mul_div, h]
+  · simp [modByMonic_eq_of_not_monic, h]
+
+theorem Polynomial.dvd_iff_dvd_modByMonic {R : Type*} [Ring R] {p q : R[X]} :
+    q ∣ p %ₘ q ↔ q ∣ p := by
+  simpa using dvd_iff_dvd_of_dvd_sub <| dvd_modByMonic_sub p q
+
+-- TODO : replace non-primed version
+theorem Polynomial.aeval_modByMonic_eq_self_of_root'
+    {R S : Type*} [CommRing R] [Ring S] [Algebra R S] (p : R[X]) {q : R[X]} {x : S}
+    (hx : aeval x q = 0) : aeval x (p %ₘ q) = aeval x p := by
+  simpa [sub_eq_zero, hx] using aeval_dvd x <| dvd_modByMonic_sub p q
+
+theorem Polynomial.aeval_modByMonic_minpoly {R S : Type*} [CommRing R] [Ring S] [Algebra R S]
+    (p : R[X]) (x : S) : aeval x (p %ₘ minpoly R x) = aeval x p :=
+  aeval_modByMonic_eq_self_of_root' _ (minpoly.aeval ..)
 
 /-
 ## Lemmas about principal generators for an algebra
@@ -93,7 +124,6 @@ variable {x} (hx : adjoin R {x} = ⊤)
 include hx in
 theorem aeval_surjective : Function.Surjective (aeval x : R[X] →ₐ[R] S) :=
   (adjoin_eq_top_iff_aeval_surjective _).mp hx
-
 
 -- TODO : generalise to arbitrary set
 include hx in
@@ -127,27 +157,35 @@ end adjoin_eq_top
 ## Lemmas about *integral* principal generators for an algebra
 -/
 
-variable {R S : Type*} [CommRing R] [Ring S] [Algebra R S] {x : S}
+variable {x}
 
 variable (R x) in
 structure IsIntegralUnique : Prop where
-  is_integral : IsIntegral R x
-  ker_aeval : RingHom.ker (aeval x : _ →ₐ[R] S) = Ideal.span {minpoly R x}
-
--- TODO : equivalent condition `minpoly_dvd_of_root_aeval : ∀ f : R[X], aeval x f = 0 → minpoly R x ∣ f`
---        (whichever of this and `ker_aeval` isn't the definition)
+  isIntegral : IsIntegral R x
+  minpoly_dvd_of_root {f} (hf : aeval x f = 0) : minpoly R x ∣ f
 
 namespace IsIntegralUnique
 
+theorem ker_aeval (h : IsIntegralUnique R x) :
+    RingHom.ker (aeval x : _ →ₐ[R] S) = Ideal.span {minpoly R x} := by
+  ext f
+  simpa [Ideal.mem_span_singleton] using
+    ⟨h.minpoly_dvd_of_root, fun h' ↦ aeval_eq_zero_of_dvd_aeval_eq_zero' h' (minpoly.aeval R x)⟩
+
+theorem of_ker_aeval (isIntegral : IsIntegral R x)
+    (h : RingHom.ker (aeval x : _ →ₐ[R] S) = Ideal.span {minpoly R x}) : IsIntegralUnique R x where
+  isIntegral := isIntegral
+  minpoly_dvd_of_root := fun hf ↦ by
+    rw [← Ideal.mem_span_singleton, ← h, RingHom.mem_ker, hf]
+
 theorem of_ker_aeval_eq_span_monic {g : R[X]} (hg : g.Monic)
-    (h : RingHom.ker (aeval x : _→ₐ[R] S) = Ideal.span {g}) : IsIntegralUnique R x :=
+    (h : RingHom.ker (aeval x : _→ₐ[R] S) = Ideal.span {g}) : IsIntegralUnique R x := by
   have hi : IsIntegral R x := ⟨g, hg, by simpa [← h] using Ideal.mem_span_singleton_self g⟩
-  { is_integral := hi
-    ker_aeval := by
-      rw [h, eq_of_div_monic (minpoly.monic hi) hg]
-      · simp [← Ideal.mem_span_singleton, ← h]
-      · exact Polynomial.natDegree_le_natDegree <| minpoly.min R x hg <| by
-          simp [← RingHom.mem_ker, h, Ideal.mem_span_singleton_self] }
+  refine of_ker_aeval hi ?_
+  rw [h, eq_of_div_monic (minpoly.monic hi) hg]
+  · simp [← Ideal.mem_span_singleton, ← h]
+  · exact Polynomial.natDegree_le_natDegree <| minpoly.min R x hg <| by
+      simp [← RingHom.mem_ker, h, Ideal.mem_span_singleton_self]
 
 theorem of_ker_aeval_eq_span [IsDomain R] {g : R[X]} (hx : IsIntegral R x)
     (h : RingHom.ker (aeval x : _→ₐ[R] S) = Ideal.span {g}) : IsIntegralUnique R x := by
@@ -164,41 +202,43 @@ theorem of_ker_aeval_eq_span [IsDomain R] {g : R[X]} (hx : IsIntegral R x)
 theorem unique_of_degree_le_degree_minpoly (h : IsIntegralUnique R x)
     {f : R[X]} (hmo : f.Monic) (hf : aeval x f = 0)
     (fmin : f.degree ≤ (minpoly R x).degree) : f = minpoly R x :=
-  eq_of_div_monic hmo (minpoly.monic h.is_integral)
-    (by simpa [← RingHom.mem_ker, ker_aeval, Ideal.mem_span_singleton, h] using hf)
-    (Polynomial.natDegree_le_natDegree fmin)
+  eq_of_div_monic hmo (minpoly.monic h.isIntegral) (h.minpoly_dvd_of_root hf)
+    (natDegree_le_natDegree fmin)
 
 theorem minpoly_unique (h : IsIntegralUnique R x)
     {f : R[X]} (hmo : f.Monic) (hf : aeval x f = 0)
     (hmin : ∀ g : R[X], g.Monic → aeval x g = 0 → f.degree ≤ g.degree) :
     f = minpoly R x :=
   unique_of_degree_le_degree_minpoly h hmo hf <|
-    hmin (minpoly R x) (minpoly.monic h.is_integral) (minpoly.aeval R x)
+    hmin (minpoly R x) (minpoly.monic h.isIntegral) (minpoly.aeval R x)
 
 theorem of_unique_of_degree_le_degree_minpoly
-    (is_integral : IsIntegral R x)
+    (isIntegral : IsIntegral R x)
     (h : ∀ f : R[X], f.Monic → aeval x f = 0 → f.degree ≤ (minpoly R x).degree → f = minpoly R x) :
     IsIntegralUnique R x where
-  is_integral := is_integral
-  ker_aeval := by
+  isIntegral := isIntegral
+  minpoly_dvd_of_root {g} hg := by
     nontriviality R
-    symm
-    refine Submodule.span_eq_of_le _ (by simp) (fun f hf ↦ ?_)
-    have := degree_modByMonic_lt f (minpoly.monic is_integral)
-    simpa [modByMonic_eq_zero_iff_dvd (minpoly.monic is_integral),
-            ← Ideal.mem_span_singleton] using
-      h (minpoly R x + f %ₘ minpoly R x)
-      (Monic.add_of_left (minpoly.monic is_integral) ‹_›)
-      (by simp_all [Polynomial.modByMonic_eq_sub_mul_div _ (minpoly.monic is_integral)])
+    have := degree_modByMonic_lt g (minpoly.monic isIntegral)
+    simpa [modByMonic_eq_zero_iff_dvd (minpoly.monic isIntegral), ← Ideal.mem_span_singleton] using
+      h (minpoly R x + g %ₘ minpoly R x)
+      (Monic.add_of_left (minpoly.monic isIntegral) ‹_›)
+      (by simp_all [Polynomial.modByMonic_eq_sub_mul_div _ (minpoly.monic isIntegral)])
       (by rw [degree_add_eq_left_of_degree_lt ‹_›])
 
-theorem aeval_modByMonic_minpoly (h : IsIntegralUnique R x) (g : R[X]) :
-    aeval x (g %ₘ minpoly R x) = aeval x g := by
-  rw [← RingHom.sub_mem_ker_iff, h.ker_aeval, Ideal.mem_span_singleton,
-      modByMonic_eq_sub_mul_div _ (minpoly.monic h.is_integral), sub_sub_cancel_left, dvd_neg]
-  exact dvd_mul_right ..
-
 end IsIntegralUnique
+
+theorem Field.isIntegralUnique {R S : Type*} [Field R] [Ring S] [Algebra R S] {x : R}
+    (h₁ : IsIntegral R x) : IsIntegralUnique R x where
+  isIntegral := h₁
+  minpoly_dvd_of_root := minpoly.dvd R x
+
+theorem IsIntegrallyClosed.isIntegralUnique
+    {R S : Type*} [CommRing R] [CommRing S] [IsDomain R] [Algebra R S]
+    [IsDomain S] [NoZeroSMulDivisors R S] [IsIntegrallyClosed R] {x : S}
+    (h₁ : IsIntegral R x) : IsIntegralUnique R x where
+  isIntegral := h₁
+  minpoly_dvd_of_root := minpoly.isIntegrallyClosed_dvd h₁
 
 variable (R x) in
 structure IsPrimitiveElement : Prop extends IsIntegralUnique R x where
@@ -213,9 +253,7 @@ section lift
 include h in
 theorem modByMonic_reprAdjoinEqTop_aeval (g : R[X]) :
     reprAdjoinEqTop h.adjoin_eq_top (aeval x g) %ₘ minpoly R x = g %ₘ minpoly R x :=
-  modByMonic_eq_of_dvd_sub (minpoly.monic h.is_integral) <| by
-    rw [← Ideal.mem_span_singleton, ← h.ker_aeval, RingHom.sub_mem_ker_iff]
-    simp
+  modByMonic_eq_of_dvd_sub (minpoly.monic h.isIntegral) (h.minpoly_dvd_of_root (by simp))
 
 noncomputable def modByMonicHom : S →ₗ[R] R[X] where
   toFun y := reprAdjoinEqTop h.adjoin_eq_top y %ₘ minpoly R x
@@ -233,14 +271,14 @@ theorem modByMonicHom_aeval (g : R[X]) : h.modByMonicHom (aeval x g) = g %ₘ mi
 
 @[simp]
 theorem aeval_modByMonicHom (y : S) : aeval x (h.modByMonicHom y) = y := by
-  simp [modByMonicHom, h.aeval_modByMonic_minpoly, aeval_reprAdjoinEqTop, *]
+  simp [modByMonicHom, aeval_modByMonic_minpoly, aeval_reprAdjoinEqTop, *]
 
 @[simp]
 theorem modByMonicHom_root_pow {n : ℕ} (hdeg : n < natDegree (minpoly R x)) :
     h.modByMonicHom (x ^ n) = X ^ n := by
   nontriviality R
   rw (occs := [2]) [← aeval_X (R := R) x]
-  rw [← map_pow, modByMonicHom_aeval, modByMonic_eq_self_iff (minpoly.monic h.is_integral),
+  rw [← map_pow, modByMonicHom_aeval, modByMonic_eq_self_iff (minpoly.monic h.isIntegral),
       degree_X_pow]
   contrapose! hdeg
   simpa [natDegree_le_iff_degree_le] using hdeg
@@ -253,7 +291,7 @@ theorem modByMonicHom_coeff (y : S) {i : ℕ} (hi : (minpoly R x).natDegree ≤ 
     (h.modByMonicHom y).coeff i = 0 := by
   nontriviality R
   exact Polynomial.coeff_eq_zero_of_degree_lt <|
-    (degree_modByMonic_lt _ (minpoly.monic h.is_integral)).trans_le
+    (degree_modByMonic_lt _ (minpoly.monic h.isIntegral)).trans_le
       (Polynomial.degree_le_of_natDegree_le hi)
 
 end lift
@@ -279,8 +317,8 @@ noncomputable def basis : Basis (Fin (natDegree (minpoly R x))) R S := Basis.ofR
       suffices { toFinsupp := Finsupp.mapDomain Fin.val g } %ₘ minpoly R x =
                { toFinsupp := Finsupp.mapDomain Fin.val g } by
         simpa [this] using Finsupp.mapDomain_apply Fin.val_injective ..
-      rw [(Polynomial.modByMonic_eq_self_iff (minpoly.monic h.is_integral)),
-          degree_eq_natDegree (minpoly.ne_zero h.is_integral), degree_lt_iff_coeff_zero]
+      rw [(Polynomial.modByMonic_eq_self_iff (minpoly.monic h.isIntegral)),
+          degree_eq_natDegree (minpoly.ne_zero h.isIntegral), degree_lt_iff_coeff_zero]
       intro m hm
       simpa using Finsupp.mapDomain_notin_range _ _ (by simpa)
     map_add' := by simp [Finsupp.comapDomain_add_of_injective Fin.val_injective]
@@ -288,6 +326,9 @@ noncomputable def basis : Basis (Fin (natDegree (minpoly R x))) R S := Basis.ofR
 
 @[simp]
 theorem basis_apply (i) : h.basis i = x ^ (i : ℕ) := by simp [basis]
+
+include h in
+theorem free : Module.Free R S := Free.of_basis h.basis
 
 @[simps! gen dim basis]
 noncomputable def powerBasis : PowerBasis R S where
@@ -308,8 +349,10 @@ include h in
 theorem finite : Module.Finite R S := h.powerBasis.finite
 
 include h in
-theorem finrank [Nontrivial R] : Module.finrank R S = (minpoly R x).natDegree :=
+theorem finrank [Nontrivial R] : finrank R S = (minpoly R x).natDegree :=
   h.powerBasis.finrank
+
+-- TODO : encapsulate `coeff` properly behind `PowerBasis` and then prove it's equal to `modByMonic .coeff`
 
 noncomputable def coeff : S →ₗ[R] ℕ → R :=
   { toFun := Polynomial.coeff
@@ -341,7 +384,7 @@ theorem coeff_root_pow {n} (hn : n < natDegree (minpoly R x)) :
 
 @[simp]
 theorem coeff_one [Nontrivial S] : h.coeff 1 = Pi.single 0 1 := by
-  simp [← h.coeff_root_pow (minpoly.natDegree_pos h.is_integral)]
+  simp [← h.coeff_root_pow (minpoly.natDegree_pos h.isIntegral)]
 
 @[simp]
 theorem coeff_root (hdeg : 1 < natDegree (minpoly R x)) : h.coeff x = Pi.single 1 1 := by
@@ -371,7 +414,39 @@ end basis
 
 -- TODO : particular instances of IsIntegralUnique and IsPrimitiveElement
 -- S = ↑R[x] (IsPrimitiveElement from IsIntegralUnique)
--- R is a field (IsIntegralUnique)
--- R int closed, S torsion free algebra and domain (IsIntegralUnique)
+-- S/R is finite, free, generated by x (IsPrimitiveElement)
+
+theorem of_isIntegralUnique_adjoin (hx : IsIntegralUnique R x) :
+    IsPrimitiveElement R (⟨x, by aesop⟩ : ↥(adjoin R {x})) := sorry
+  --__ := h
+  --adjoin_eq_top := adjoin_self_eq_top
+
+theorem of_powerBasis [Module.Finite R S] (pb : PowerBasis R S) :
+    IsPrimitiveElement R pb.gen where
+  adjoin_eq_top := pb.adjoin_gen_eq_top
+  isIntegral := pb.isIntegral_gen
+  minpoly_dvd_of_root {f} hf := by
+    nontriviality R
+    nontriviality S
+    have : (f %ₘ minpoly R pb.gen).natDegree < pb.dim := by
+      simpa using natDegree_modByMonic_lt f
+        (minpoly.monic pb.isIntegral_gen) (minpoly.ne_one _ _)
+    rw [← modByMonic_eq_zero_iff_dvd (minpoly.monic pb.isIntegral_gen),
+        Polynomial.ext_iff_natDegree_le (n := pb.dim - 1) (by omega) (by simp)]
+    rw [← aeval_modByMonic_minpoly, ← pb.basis.forall_coord_eq_zero_iff,
+        aeval_eq_sum_range' this, Finset.sum_range, Fin.forall_iff] at hf
+    simp_rw [← pb.basis_eq_pow, pb.basis.coord_apply, map_sum, map_smul, pb.basis.repr_self] at hf
+    simpa [Finsupp.single_eq_pi_single, ← Nat.le_pred_iff_lt pb.dim_pos] using hf
+
+theorem of_free [Module.Finite R S] [Module.Free R S] (adjoin_eq_top : adjoin R {x} = ⊤) :
+    IsPrimitiveElement R x where
+  adjoin_eq_top := adjoin_eq_top
+  isIntegral := by rw [← finite_iff_isIntegral_of_adjoin_eq_top adjoin_eq_top]; assumption
+  minpoly_dvd_of_root h := by
+    nontriviality R
+    have basis := Module.Free.chooseBasis R S
+    sorry
+    -- TODO : prove that a spanning set of size `finrank R S` forms a basis, and apply to the set
+    --        `1, x, x ^ 2, ..., x ^ (d - 1)`
 
 end Algebra.IsPrimitiveElement
