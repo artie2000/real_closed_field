@@ -255,7 +255,7 @@ theorem modByMonic_reprAdjoinEqTop_aeval (g : R[X]) :
     reprAdjoinEqTop h.adjoin_eq_top (aeval x g) %ₘ minpoly R x = g %ₘ minpoly R x :=
   modByMonic_eq_of_dvd_sub (minpoly.monic h.isIntegral) (h.minpoly_dvd_of_root (by simp))
 
-noncomputable def modByMonicHom : S →ₗ[R] R[X] where
+noncomputable def repr : S →ₗ[R] R[X] where
   toFun y := reprAdjoinEqTop h.adjoin_eq_top y %ₘ minpoly R x
   map_add' y z := by
     rw (occs := [1]) [← aeval_reprAdjoinEqTop h.adjoin_eq_top y,
@@ -266,33 +266,44 @@ noncomputable def modByMonicHom : S →ₗ[R] R[X] where
         modByMonic_reprAdjoinEqTop_aeval h, ← smul_modByMonic]
 
 @[simp]
-theorem modByMonicHom_aeval (g : R[X]) : h.modByMonicHom (aeval x g) = g %ₘ minpoly R x :=
+theorem aeval_repr (y : S) : aeval x (h.repr y) = y := by
+  simp [repr, aeval_modByMonic_minpoly, aeval_reprAdjoinEqTop, *]
+
+@[simp]
+theorem repr_aeval (g : R[X]) : h.repr (aeval x g) = g %ₘ minpoly R x :=
   modByMonic_reprAdjoinEqTop_aeval h g
 
-@[simp]
-theorem aeval_modByMonicHom (y : S) : aeval x (h.modByMonicHom y) = y := by
-  simp [modByMonicHom, aeval_modByMonic_minpoly, aeval_reprAdjoinEqTop, *]
+theorem repr_aeval_eq_self_iff [Nontrivial R] (g : R[X]) :
+    h.repr (aeval x g) = g ↔ g.degree < (minpoly R x).degree := by
+  simpa using modByMonic_eq_self_iff (minpoly.monic h.isIntegral)
 
-@[simp]
-theorem modByMonicHom_root_pow {n : ℕ} (hdeg : n < natDegree (minpoly R x)) :
-    h.modByMonicHom (x ^ n) = X ^ n := by
+theorem repr_aeval_eq_self {g : R[X]} (hg : g.degree < (minpoly R x).degree) :
+    h.repr (aeval x g) = g := by
   nontriviality R
-  rw (occs := [2]) [← aeval_X (R := R) x]
-  rw [← map_pow, modByMonicHom_aeval, modByMonic_eq_self_iff (minpoly.monic h.isIntegral),
-      degree_X_pow]
-  contrapose! hdeg
-  simpa [natDegree_le_iff_degree_le] using hdeg
+  exact (h.repr_aeval_eq_self_iff _).mpr hg
 
 @[simp]
-theorem modByMonicHom_root (hdeg : 1 < natDegree (minpoly R x)) : h.modByMonicHom x = X := by
-  simpa using h.modByMonicHom_root_pow hdeg
-
-theorem modByMonicHom_coeff (y : S) {i : ℕ} (hi : (minpoly R x).natDegree ≤ i) :
-    (h.modByMonicHom y).coeff i = 0 := by
+theorem repr_root_pow {n : ℕ} (hdeg : n < natDegree (minpoly R x)) :
+    h.repr (x ^ n) = X ^ n := by
   nontriviality R
-  exact Polynomial.coeff_eq_zero_of_degree_lt <|
-    (degree_modByMonic_lt _ (minpoly.monic h.isIntegral)).trans_le
-      (Polynomial.degree_le_of_natDegree_le hi)
+  rw [← h.repr_aeval_eq_self (g := X ^ n) (by simpa using hdeg)]
+  simp
+
+@[simp]
+theorem repr_root (hdeg : 1 < natDegree (minpoly R x)) : h.repr x = X := by
+  simpa using h.repr_root_pow hdeg
+
+theorem degree_repr_le [Nontrivial R] (y : S) : (h.repr y).degree < (minpoly R x).degree :=
+  degree_modByMonic_lt _ (minpoly.monic h.isIntegral)
+
+theorem natDegree_repr_le [Nontrivial S] (y : S) :
+    (h.repr y).natDegree < (minpoly R x).natDegree := by
+  exact natDegree_modByMonic_lt _ (minpoly.monic h.isIntegral) (minpoly.ne_one R x)
+
+theorem repr_coeff (y : S) {i : ℕ} (hi : (minpoly R x).natDegree ≤ i) :
+    (h.repr y).coeff i = 0 := by
+  nontriviality R
+  exact coeff_eq_zero_of_degree_lt <| (h.degree_repr_le y).trans_le (degree_le_of_natDegree_le hi)
 
 end lift
 
@@ -300,8 +311,16 @@ section basis
 
 open Module
 
+noncomputable def coeff : S →ₗ[R] ℕ → R :=
+  { toFun := Polynomial.coeff
+    map_add' p q := funext (Polynomial.coeff_add p q)
+    map_smul' c p := funext (Polynomial.coeff_smul c p) } ∘ₗ
+  h.repr
+
+-- TODO : redefine basis in terms of coeff?
+
 noncomputable def basis : Basis (Fin (natDegree (minpoly R x))) R S := Basis.ofRepr
-  { toFun y := (h.modByMonicHom y).toFinsupp.comapDomain _ Fin.val_injective.injOn
+  { toFun y := (h.repr y).toFinsupp.comapDomain _ Fin.val_injective.injOn
     invFun g := aeval x (ofFinsupp (g.mapDomain Fin.val))
     left_inv y := by
       simp only
@@ -310,7 +329,7 @@ noncomputable def basis : Basis (Fin (natDegree (minpoly R x))) R S := Basis.ofR
       · intro i hi
         suffices i < (minpoly R x).natDegree by simpa
         contrapose! hi
-        simpa [Polynomial.toFinsupp_apply] using h.modByMonicHom_coeff y hi
+        simpa [Polynomial.toFinsupp_apply] using h.repr_coeff y hi
     right_inv g := by
       nontriviality R
       ext i
@@ -327,48 +346,35 @@ noncomputable def basis : Basis (Fin (natDegree (minpoly R x))) R S := Basis.ofR
 @[simp]
 theorem basis_apply (i) : h.basis i = x ^ (i : ℕ) := by simp [basis]
 
-include h in
-theorem free : Module.Free R S := Free.of_basis h.basis
-
-@[simps! gen dim basis]
-noncomputable def powerBasis : PowerBasis R S where
-  gen := x
-  dim := natDegree (minpoly R x)
-  basis := h.basis
-  basis_eq_pow := h.basis_apply
-
-@[simp]
-theorem basis_repr (y : S) (i : Fin (natDegree (minpoly R x))) :
-    h.basis.repr y i = (h.modByMonicHom y).coeff (i : ℕ) := by
-  simp [basis, toFinsupp_apply]
-
 theorem basis_one (hdeg : 1 < natDegree (minpoly R x)) : h.basis ⟨1, hdeg⟩ = x := by
   rw [h.basis_apply, Fin.val_mk, pow_one]
 
 include h in
-theorem finite : Module.Finite R S := h.powerBasis.finite
+theorem free : Module.Free R S := .of_basis h.basis
 
 include h in
-theorem finrank [Nontrivial R] : finrank R S = (minpoly R x).natDegree :=
-  h.powerBasis.finrank
+theorem finite : Module.Finite R S := .of_basis h.basis
 
--- TODO : encapsulate `coeff` properly behind `PowerBasis` and then prove it's equal to `modByMonic .coeff`
+include h in
+theorem finrank [Nontrivial R] : finrank R S = (minpoly R x).natDegree := by
+  rw [Module.finrank_eq_card_basis h.basis, Fintype.card_fin]
 
-noncomputable def coeff : S →ₗ[R] ℕ → R :=
-  { toFun := Polynomial.coeff
-    map_add' p q := funext (Polynomial.coeff_add p q)
-    map_smul' c p := funext (Polynomial.coeff_smul c p) } ∘ₗ
-  h.modByMonicHom
+-- TODO : figure out simp normal form for h.coeff and h.basis.repr
 
-theorem coeff_apply_lt (z : S) (i : ℕ) (hi : i < natDegree (minpoly R x)) :
-    h.coeff z i = h.basis.repr z ⟨i, hi⟩ := by simp [coeff]
+@[simp]
+theorem basis_repr (y : S) (i : Fin (natDegree (minpoly R x))) :
+    h.basis.repr y i = (h.repr y).coeff (i : ℕ) := by
+  simp [basis, toFinsupp_apply]
 
 theorem coeff_apply_coe (z : S) (i : Fin (natDegree (minpoly R x))) :
-    h.coeff z i = h.basis.repr z i := h.coeff_apply_lt ..
+    h.coeff z i = h.basis.repr z i := by simp [coeff]
+
+theorem coeff_apply_lt (z : S) (i : ℕ) (hi : i < natDegree (minpoly R x)) :
+    h.coeff z i = h.basis.repr z ⟨i, hi⟩ := h.coeff_apply_coe z ⟨i, hi⟩
 
 theorem coeff_apply_le (z : S) (i : ℕ) (hi : natDegree (minpoly R x) ≤ i) : h.coeff z i = 0 := by
   nontriviality R
-  simpa [coeff] using h.modByMonicHom_coeff z hi
+  simpa [coeff] using h.repr_coeff z hi
 
 theorem coeff_apply (z : S) (i : ℕ) :
     h.coeff z i = if hi : i < natDegree (minpoly R x) then h.basis.repr z ⟨i, hi⟩ else 0 := by
@@ -394,21 +400,28 @@ theorem coeff_root (hdeg : 1 < natDegree (minpoly R x)) : h.coeff x = Pi.single 
 theorem coeff_algebraMap [Nontrivial S] (r : R) : h.coeff (algebraMap R S r) = Pi.single 0 r := by
   ext i
   simpa [Algebra.algebraMap_eq_smul_one, Pi.smul_apply] using
-    Pi.apply_single (fun _ s => r * s) (by simp) 0 1 i
+    Pi.apply_single (fun _ s ↦ r * s) (by simp) 0 1 i
 
 theorem ext_elem ⦃y z : S⦄ (hyz : ∀ i < natDegree (minpoly R x), h.coeff y i = h.coeff z i) :
     y = z :=
   EquivLike.injective h.basis.equivFun <|
-    funext fun i => by
+    funext fun i ↦ by
       rw [Basis.equivFun_apply, ← h.coeff_apply_coe, Basis.equivFun_apply, ← h.coeff_apply_coe,
           hyz i i.prop]
 
 theorem ext_elem_iff {y z : S} :
     y = z ↔ ∀ i < natDegree (minpoly R x), h.coeff y i = h.coeff z i :=
-  ⟨fun hyz _ _=> hyz ▸ rfl, fun hyz => h.ext_elem hyz⟩
+  ⟨fun hyz _ _ ↦ hyz ▸ rfl, fun hyz ↦ h.ext_elem hyz⟩
 
-theorem coeff_injective : Function.Injective h.coeff := fun _ _ hyz =>
-  h.ext_elem fun _ _ => hyz ▸ rfl
+theorem coeff_injective : Function.Injective h.coeff := fun _ _ hyz ↦
+  h.ext_elem fun _ _ ↦ hyz ▸ rfl
+
+@[simps! gen dim basis]
+noncomputable def powerBasis : PowerBasis R S where
+  gen := x
+  dim := natDegree (minpoly R x)
+  basis := h.basis
+  basis_eq_pow := h.basis_apply
 
 end basis
 
