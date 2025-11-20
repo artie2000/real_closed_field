@@ -55,7 +55,9 @@ end IntermediateField
 
 -- TODO : move these polynomial lemmas to the right place
 
-theorem Polynomial.eq_of_div_monic {R : Type*} [Semiring R] {f g : R[X]}
+-- TODO : replace non-primed version
+theorem Polynomial.eq_of_monic_of_dvd_of_natDegree_le'
+    {R : Type*} [Semiring R] {f g : R[X]}
     (hf : f.Monic) (hg : g.Monic) (h₁ : g ∣ f) (h₂ : f.natDegree ≤ g.natDegree) : f = g := by
   nontriviality R
   rcases h₁ with ⟨k, rfl⟩
@@ -182,7 +184,7 @@ theorem of_ker_aeval_eq_span_monic {g : R[X]} (hg : g.Monic)
     (h : RingHom.ker (aeval x : _→ₐ[R] S) = Ideal.span {g}) : IsIntegralUnique R x := by
   have hi : IsIntegral R x := ⟨g, hg, by simpa [← h] using Ideal.mem_span_singleton_self g⟩
   refine of_ker_aeval hi ?_
-  rw [h, eq_of_div_monic (minpoly.monic hi) hg]
+  rw [h, eq_of_monic_of_dvd_of_natDegree_le' (minpoly.monic hi) hg]
   · simp [← Ideal.mem_span_singleton, ← h]
   · exact Polynomial.natDegree_le_natDegree <| minpoly.min R x hg <| by
       simp [← RingHom.mem_ker, h, Ideal.mem_span_singleton_self]
@@ -202,7 +204,7 @@ theorem of_ker_aeval_eq_span [IsDomain R] {g : R[X]} (hx : IsIntegral R x)
 theorem unique_of_degree_le_degree_minpoly (h : IsIntegralUnique R x)
     {f : R[X]} (hmo : f.Monic) (hf : aeval x f = 0)
     (fmin : f.degree ≤ (minpoly R x).degree) : f = minpoly R x :=
-  eq_of_div_monic hmo (minpoly.monic h.isIntegral) (h.minpoly_dvd_of_root hf)
+  eq_of_monic_of_dvd_of_natDegree_le' hmo (minpoly.monic h.isIntegral) (h.minpoly_dvd_of_root hf)
     (natDegree_le_natDegree fmin)
 
 theorem minpoly_unique (h : IsIntegralUnique R x)
@@ -319,7 +321,7 @@ noncomputable def coeff : S →ₗ[R] ℕ → R :=
 
 -- TODO : redefine basis in terms of coeff?
 
-noncomputable def basis : Basis (Fin (natDegree (minpoly R x))) R S := Basis.ofRepr
+noncomputable def basis : Basis (Fin (minpoly R x).natDegree) R S := Basis.ofRepr
   { toFun y := (h.repr y).toFinsupp.comapDomain _ Fin.val_injective.injOn
     invFun g := aeval x (ofFinsupp (g.mapDomain Fin.val))
     left_inv y := by
