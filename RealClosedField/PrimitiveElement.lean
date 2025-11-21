@@ -7,6 +7,8 @@ import Mathlib.Algebra.Polynomial.AlgebraMap
 import Mathlib.FieldTheory.Minpoly.IsIntegrallyClosed
 import Mathlib.RingTheory.PowerBasis
 import Mathlib.Algebra.Group.Units.Defs
+import Mathlib.Tactic.Order
+import Mathlib.Tactic.DepRewrite
 
 -- relevant file: Mathlib.RingTheory.Adjoin.PowerBasis
 
@@ -152,6 +154,12 @@ theorem aeval_reprAdjoinEqTop (y : S) : aeval x (reprAdjoinEqTop hx y) = y :=
 
 theorem reprAdjoinEqTop_aeval (f : R[X]) :
     reprAdjoinEqTop hx (aeval x f) - f ∈ RingHom.ker (aeval x) := by simp
+
+include hx in
+theorem algHom_ext_of_adjoin_eq_top {S' : Type*} [Semiring S'] [Algebra R S']
+    ⦃f g : S →ₐ[R] S'⦄ (h : f x = g x) : f = g := by
+  ext y
+  rw [← aeval_reprAdjoinEqTop hx y, ← aeval_algHom_apply, ← aeval_algHom_apply, h]
 
 end adjoin_eq_top
 
@@ -302,10 +310,10 @@ theorem natDegree_repr_le [Nontrivial S] (y : S) :
     (h.repr y).natDegree < (minpoly R x).natDegree := by
   exact natDegree_modByMonic_lt _ (minpoly.monic h.isIntegral) (minpoly.ne_one R x)
 
-theorem repr_coeff (y : S) {i : ℕ} (hi : (minpoly R x).natDegree ≤ i) :
+theorem repr_coeff_of_natDegree_le (y : S) {i : ℕ} (hi : (minpoly R x).natDegree ≤ i) :
     (h.repr y).coeff i = 0 := by
   nontriviality R
-  exact coeff_eq_zero_of_degree_lt <| (h.degree_repr_le y).trans_le (degree_le_of_natDegree_le hi)
+  exact coeff_eq_zero_of_degree_lt <| (by order [h.degree_repr_le y, degree_le_of_natDegree_le hi])
 
 end lift
 
@@ -314,12 +322,41 @@ section basis
 open Module
 
 noncomputable def coeff : S →ₗ[R] ℕ → R :=
-  { toFun := Polynomial.coeff
-    map_add' p q := funext (Polynomial.coeff_add p q)
-    map_smul' c p := funext (Polynomial.coeff_smul c p) } ∘ₗ
+  { toFun := Polynomial.coeff, map_add' p q := by ext; simp, map_smul' c p := by ext; simp } ∘ₗ
   h.repr
 
--- TODO : redefine basis in terms of coeff?
+theorem coeff_apply_of_natDegree_le (z : S) (i : ℕ) (hi : (minpoly R x).natDegree ≤ i) :
+    h.coeff z i = 0 := by
+  nontriviality R
+  simpa [coeff] using h.repr_coeff_of_natDegree_le z hi
+
+theorem coeff_root_pow {n} (hn : n < (minpoly R x).natDegree) :
+    h.coeff (x ^ n) = Pi.single n 1 := by
+  ext i
+  simp [coeff, hn, Pi.single_apply]
+
+theorem coeff_root (hdeg : 1 < natDegree (minpoly R x)) : h.coeff x = Pi.single 1 1 := by
+  rw [← h.coeff_root_pow hdeg, pow_one]
+
+@[simp]
+theorem coeff_one [Nontrivial S] : h.coeff 1 = Pi.single 0 1 := by
+  simp [← h.coeff_root_pow (minpoly.natDegree_pos h.isIntegral)]
+
+@[simp]
+theorem coeff_algebraMap [Nontrivial S] (r : R) : h.coeff (algebraMap R S r) = Pi.single 0 r := by
+  ext i
+  simpa [Algebra.algebraMap_eq_smul_one, Pi.smul_apply] using
+    Pi.apply_single (fun _ s ↦ r * s) (by simp) 0 1 i
+
+-- TODO : `lift` : given `y : T` such that `aeval t (minpoly R x) = 0`, construct `lift : S →ₐ[R] T`
+--        such that `lift y = s`
+--        `liftEquiv` : bijection between roots of `minpoly R x` in `T` and maps as above
+
+-- TODO : map `IsPrimitiveElement` through `R`-isomorphisms
+
+-- TODO : obtain an `R`-isomorphism between any two `IsPrimitiveElement`
+--        with "the same" minimal polynomial
+--        (in the sense that each generator is a root of the other minpoly)
 
 noncomputable def basis : Basis (Fin (minpoly R x).natDegree) R S := Basis.ofRepr
   { toFun y := (h.repr y).toFinsupp.comapDomain _ Fin.val_injective.injOn
@@ -329,16 +366,15 @@ noncomputable def basis : Basis (Fin (minpoly R x).natDegree) R S := Basis.ofRep
       rw [Finsupp.mapDomain_comapDomain _ Fin.val_injective]
       · simp
       · intro i hi
-        suffices i < (minpoly R x).natDegree by simpa
         contrapose! hi
-        simpa [Polynomial.toFinsupp_apply] using h.repr_coeff y hi
+        simpa [toFinsupp_apply] using h.repr_coeff_of_natDegree_le y (by simpa using hi)
     right_inv g := by
       nontriviality R
       ext i
       suffices { toFinsupp := Finsupp.mapDomain Fin.val g } %ₘ minpoly R x =
                { toFinsupp := Finsupp.mapDomain Fin.val g } by
         simpa [this] using Finsupp.mapDomain_apply Fin.val_injective ..
-      rw [(Polynomial.modByMonic_eq_self_iff (minpoly.monic h.isIntegral)),
+      rw [Polynomial.modByMonic_eq_self_iff (minpoly.monic h.isIntegral),
           degree_eq_natDegree (minpoly.ne_zero h.isIntegral), degree_lt_iff_coeff_zero]
       intro m hm
       simpa using Finsupp.mapDomain_notin_range _ _ (by simpa)
@@ -346,84 +382,81 @@ noncomputable def basis : Basis (Fin (minpoly R x).natDegree) R S := Basis.ofRep
     map_smul' := by simp [Finsupp.comapDomain_smul_of_injective Fin.val_injective] }
 
 @[simp]
-theorem basis_apply (i) : h.basis i = x ^ (i : ℕ) := by simp [basis]
+theorem coe_basis : ⇑h.basis = fun i : Fin (minpoly R x).natDegree => x ^ (i : ℕ) := by
+  simp [basis]
 
-theorem basis_one (hdeg : 1 < natDegree (minpoly R x)) : h.basis ⟨1, hdeg⟩ = x := by
-  rw [h.basis_apply, Fin.val_mk, pow_one]
+theorem basis_apply (i) : h.basis i = x ^ (i : ℕ) := by simp
+
+theorem root_pow_eq_basis_apply {i} (hdeg : i < (minpoly R x).natDegree) :
+    x ^ i = h.basis ⟨i, hdeg⟩ := by simp
+
+theorem root_eq_basis_one (hdeg : 1 < (minpoly R x).natDegree) : x = h.basis ⟨1, hdeg⟩ := by simp
+
+theorem one_eq_basis_zero [Nontrivial S] :
+    1 = h.basis ⟨0, minpoly.natDegree_pos h.isIntegral⟩ := by simp
 
 include h in
-theorem free : Module.Free R S := .of_basis h.basis
+theorem free : Free R S := .of_basis h.basis
 
 include h in
 theorem finite : Module.Finite R S := .of_basis h.basis
 
 include h in
-theorem finrank [Nontrivial R] : finrank R S = (minpoly R x).natDegree := by
-  rw [Module.finrank_eq_card_basis h.basis, Fintype.card_fin]
+theorem finrank_eq_natDegree [Nontrivial R] : finrank R S = (minpoly R x).natDegree := by
+  rw [finrank_eq_card_basis h.basis, Fintype.card_fin]
 
--- TODO : figure out simp normal form for h.coeff and h.basis.repr
+include h in
+theorem finrank_eq_degree [Nontrivial R] : finrank R S = (minpoly R x).degree := by
+  rw [h.finrank_eq_natDegree, degree_eq_natDegree (minpoly.ne_zero h.isIntegral)]
 
-@[simp]
-theorem basis_repr (y : S) (i : Fin (natDegree (minpoly R x))) :
-    h.basis.repr y i = (h.repr y).coeff (i : ℕ) := by
-  simp [basis, toFinsupp_apply]
-
-theorem coeff_apply_coe (z : S) (i : Fin (natDegree (minpoly R x))) :
-    h.coeff z i = h.basis.repr z i := by simp [coeff]
-
-theorem coeff_apply_lt (z : S) (i : ℕ) (hi : i < natDegree (minpoly R x)) :
-    h.coeff z i = h.basis.repr z ⟨i, hi⟩ := h.coeff_apply_coe z ⟨i, hi⟩
-
-theorem coeff_apply_le (z : S) (i : ℕ) (hi : natDegree (minpoly R x) ≤ i) : h.coeff z i = 0 := by
+set_option trace.order true
+protected theorem leftMulMatrix : Algebra.leftMulMatrix h.basis x =
+    @Matrix.of (Fin (minpoly R x).natDegree) (Fin (minpoly R x).natDegree) _ fun i j =>
+      if ↑j + 1 = (minpoly R x).natDegree then -(minpoly R x).coeff i
+      else if (i : ℕ) = j + 1 then 1
+      else 0 := by
   nontriviality R
-  simpa [coeff] using h.repr_coeff z hi
+  rw [Algebra.leftMulMatrix_apply, ← LinearEquiv.eq_symm_apply]
+  refine h.basis.ext fun k ↦ ?_
+  rw [LinearMap.toMatrix_symm, Matrix.toLin_self]
+  simp only [coe_lmul_eq_mul, coe_basis, LinearMap.mul_apply_apply, ← pow_succ', Matrix.of_apply,
+             ite_smul, neg_smul, one_smul, zero_smul, Finset.sum_ite_irrel, Finset.sum_neg_distrib]
+  split_ifs with h'
+  · rw [h', eq_neg_iff_add_eq_zero, ← minpoly.aeval R x, aeval_eq_sum_range, add_comm,
+        Finset.sum_range_succ, Finset.sum_range, coeff_natDegree,
+        (minpoly.monic h.isIntegral).leadingCoeff, one_smul]
+  · rw [Fintype.sum_eq_single ⟨k + 1, by omega⟩]
+    · simp
+    intro l hl
+    contrapose! hl
+    ext
+    simp_all
 
-theorem coeff_apply (z : S) (i : ℕ) :
+theorem basis_repr_eq_coeff (y : S) (i : Fin _) :
+    h.basis.repr y i = h.coeff y ↑i := by
+  simp [basis, coeff, toFinsupp_apply]
+
+theorem coeff_eq_basis_repr_of_lt_natDegree (z : S) (i : ℕ) (hi : i < (minpoly R x).natDegree) :
+    h.coeff z i = h.basis.repr z ⟨i, hi⟩ := by simp [basis_repr_eq_coeff]
+
+theorem coeff_eq_basis_repr (z : S) (i : ℕ) :
     h.coeff z i = if hi : i < natDegree (minpoly R x) then h.basis.repr z ⟨i, hi⟩ else 0 := by
-  grind [coeff_apply_lt, coeff_apply_le]
-
-theorem coeff_root_pow {n} (hn : n < natDegree (minpoly R x)) :
-    h.coeff (x ^ n) = Pi.single n 1 := by
-  ext i
-  rw [coeff_apply]
-  split_ifs with hi
-  · simp [*, Pi.single_apply]
-  · grind [Pi.single_eq_of_ne]
-
-@[simp]
-theorem coeff_one [Nontrivial S] : h.coeff 1 = Pi.single 0 1 := by
-  simp [← h.coeff_root_pow (minpoly.natDegree_pos h.isIntegral)]
-
-@[simp]
-theorem coeff_root (hdeg : 1 < natDegree (minpoly R x)) : h.coeff x = Pi.single 1 1 := by
-  rw [← h.coeff_root_pow hdeg, pow_one]
-
-@[simp]
-theorem coeff_algebraMap [Nontrivial S] (r : R) : h.coeff (algebraMap R S r) = Pi.single 0 r := by
-  ext i
-  simpa [Algebra.algebraMap_eq_smul_one, Pi.smul_apply] using
-    Pi.apply_single (fun _ s ↦ r * s) (by simp) 0 1 i
+  grind [coeff_apply_of_natDegree_le, coeff_eq_basis_repr_of_lt_natDegree]
 
 theorem ext_elem ⦃y z : S⦄ (hyz : ∀ i < natDegree (minpoly R x), h.coeff y i = h.coeff z i) :
-    y = z :=
-  EquivLike.injective h.basis.equivFun <|
-    funext fun i ↦ by
-      rw [Basis.equivFun_apply, ← h.coeff_apply_coe, Basis.equivFun_apply, ← h.coeff_apply_coe,
-          hyz i i.prop]
+    y = z := h.basis.equivFun.injective (by ext; simp [hyz, basis_repr_eq_coeff])
 
 theorem ext_elem_iff {y z : S} :
-    y = z ↔ ∀ i < natDegree (minpoly R x), h.coeff y i = h.coeff z i :=
-  ⟨fun hyz _ _ ↦ hyz ▸ rfl, fun hyz ↦ h.ext_elem hyz⟩
+    y = z ↔ ∀ i < natDegree (minpoly R x), h.coeff y i = h.coeff z i := ⟨by grind, (h.ext_elem ·)⟩
 
-theorem coeff_injective : Function.Injective h.coeff := fun _ _ hyz ↦
-  h.ext_elem fun _ _ ↦ hyz ▸ rfl
+theorem coeff_injective : Function.Injective h.coeff := fun _ _ hyz ↦ h.ext_elem (by simp [hyz])
 
 @[simps! gen dim basis]
 noncomputable def powerBasis : PowerBasis R S where
   gen := x
   dim := natDegree (minpoly R x)
   basis := h.basis
-  basis_eq_pow := h.basis_apply
+  basis_eq_pow := by simp
 
 end basis
 
