@@ -258,7 +258,11 @@ namespace IsPrimitiveElement
 
 variable (h : IsPrimitiveElement R x)
 
-section lift
+include h in
+theorem algHom_ext {S' : Type*} [Semiring S'] [Algebra R S'] :
+    ∀ ⦃f g : S →ₐ[R] S'⦄, f x = g x → f = g := algHom_ext_of_adjoin_eq_top h.adjoin_eq_top
+
+section repr
 
 include h in
 theorem modByMonic_reprAdjoinEqTop_aeval (g : R[X]) :
@@ -293,15 +297,24 @@ theorem repr_aeval_eq_self {g : R[X]} (hg : g.degree < (minpoly R x).degree) :
   exact (h.repr_aeval_eq_self_iff _).mpr hg
 
 @[simp]
-theorem repr_root_pow {n : ℕ} (hdeg : n < natDegree (minpoly R x)) :
+theorem repr_root_pow {n : ℕ} (hdeg : n < (minpoly R x).natDegree) :
     h.repr (x ^ n) = X ^ n := by
   nontriviality R
   rw [← h.repr_aeval_eq_self (g := X ^ n) (by simpa using hdeg)]
   simp
 
 @[simp]
-theorem repr_root (hdeg : 1 < natDegree (minpoly R x)) : h.repr x = X := by
+theorem repr_root (hdeg : 1 < (minpoly R x).natDegree) : h.repr x = X := by
   simpa using h.repr_root_pow hdeg
+
+@[simp]
+theorem repr_one [Nontrivial S] : h.repr 1 = 1 := by
+  simpa using h.repr_root_pow (minpoly.natDegree_pos h.isIntegral)
+
+@[simp]
+theorem repr_algebraMap [Nontrivial S] (r : R) :
+    h.repr (algebraMap R S r) = algebraMap R R[X] r := by
+  simp [Algebra.algebraMap_eq_smul_one, smul_eq_C_mul]
 
 theorem degree_repr_le [Nontrivial R] (y : S) : (h.repr y).degree < (minpoly R x).degree :=
   degree_modByMonic_lt _ (minpoly.monic h.isIntegral)
@@ -315,7 +328,128 @@ theorem repr_coeff_of_natDegree_le (y : S) {i : ℕ} (hi : (minpoly R x).natDegr
   nontriviality R
   exact coeff_eq_zero_of_degree_lt <| (by order [h.degree_repr_le y, degree_le_of_natDegree_le hi])
 
+end repr
+
+section lift
+
+variable {T : Type*} [Ring T] [Algebra R T] {y : T} (hy : aeval y (minpoly R x) = 0)
+
+include hy in
+lemma aeval_repr_of_eq_aeval {z : S} (f : R[X]) (hfz : z = aeval x f) :
+    aeval y (h.repr z) = aeval y f := by
+  simp [hfz, aeval_modByMonic_eq_self_of_root' _ hy]
+
+@[simps! -isSimp apply]
+noncomputable def lift : S →ₐ[R] T where
+  __ := (aeval y : R[X] →ₐ[R] T) ∘ₗ h.repr
+  map_zero' := by simp
+  map_one' := by simp [h.aeval_repr_of_eq_aeval hy 1]
+  commutes' r := by simp [h.aeval_repr_of_eq_aeval hy (C r)]
+  map_mul' a b := by simp [h.aeval_repr_of_eq_aeval hy (h.repr a * h.repr b)]
+
+@[simp]
+theorem lift_aeval (f : R[X]) : h.lift hy (aeval x f) = aeval y f := by
+  simp [lift_apply, aeval_modByMonic_eq_self_of_root' _ hy]
+
+@[simp]
+theorem lift_root : h.lift hy x = y := by simpa using h.lift_aeval hy X
+
+theorem eq_lift {φ : S →ₐ[R] T} (hφ : φ x = y) : φ = h.lift hy := h.algHom_ext (by simp [hφ])
+
+@[simps]
+noncomputable def liftEquiv : (S →ₐ[R] T) ≃ { y : T // aeval y (minpoly R x) = 0 } where
+  toFun φ := ⟨φ x, by simp⟩
+  invFun y := h.lift y.2
+  left_inv φ := (h.eq_lift _ (by simp)).symm
+  right_inv y := by simp
+
+variable {T : Type*} [CommRing T] [IsDomain T] [Algebra R T]
+
+noncomputable def liftEquivAroots :
+    (S →ₐ[R] T) ≃ { y : T // y ∈ (minpoly R x).aroots T } :=
+  h.liftEquiv.trans <| (Equiv.refl _).subtypeEquiv fun x => by
+    simp [map_monic_ne_zero (minpoly.monic h.isIntegral)]
+
+@[simp]
+theorem liftEquivAroots_apply (φ : S →ₐ[R] T) :
+    h.liftEquivAroots φ = φ x := by simp [liftEquivAroots]
+
+@[simp]
+theorem liftEquivAroots_symm_apply_apply {y : T} (hy : y ∈ (minpoly R x).aroots T) (z : S) :
+    h.liftEquivAroots.symm ⟨y, hy⟩ z = h.lift (y := y) (by simp_all) z := by simp [liftEquivAroots]
+
+noncomputable def AlgHom.fintype : Fintype (S →ₐ[R] T) :=
+  letI := Classical.decEq T
+  Fintype.ofEquiv _ h.liftEquivAroots.symm
+
 end lift
+
+section equiv
+
+variable {S' : Type*} [Ring S'] [Algebra R S'] {x' : S'} (h' : IsPrimitiveElement R x')
+
+section root
+
+variable (hx : aeval x (minpoly R x') = 0) (hx' : aeval x' (minpoly R x) = 0)
+
+@[simps! -isSimp apply]
+noncomputable def equivOfRoot : S ≃ₐ[R] S' :=
+  AlgEquiv.ofAlgHom (h.lift hx') (h'.lift hx)
+    (by ext; simp [h'.lift_apply]) (by ext; simp [h.lift_apply])
+
+@[simp]
+theorem equivOfRoot_symm : (equivOfRoot h h' hx hx').symm = equivOfRoot h' h hx' hx := by
+  ext; simp [equivOfRoot]
+
+@[simp]
+theorem equivOfRoot_aeval (f : R[X]): equivOfRoot h h' hx hx' (aeval x f) = aeval x' f := by
+  simp [equivOfRoot_apply]
+
+@[simp]
+theorem equivOfRoot_root : equivOfRoot h h' hx hx' x = x' := by simp [equivOfRoot_apply]
+
+end root
+
+section minpoly
+
+variable (hm : minpoly R x = minpoly R x')
+
+noncomputable def equiv : S ≃ₐ[R] S' :=
+  equivOfRoot h h' (by simp [← hm]) (by simp [hm])
+
+@[simp]
+theorem equiv_apply (z : S) :
+    equiv h h' hm z = equivOfRoot h h' (by simp [← hm]) (by simp [hm]) z := by simp [equiv]
+
+@[simp]
+theorem equiv_symm : (equiv h h' hm).symm = equiv h' h hm.symm := by simp [equiv]
+
+end minpoly
+
+end equiv
+
+section map
+
+variable {T : Type*} [Ring T] [Algebra R T] (φ : S ≃ₐ[R] T)
+
+noncomputable def map :
+    IsPrimitiveElement R (φ x) where
+  __ := IsIntegralUnique.of_ker_aeval_eq_span_monic (minpoly.monic h.isIntegral) <| by
+    rw [Polynomial.aeval_algEquiv, AlgHom.ker_coe, AlgHom.comp_toRingHom,
+        AlgEquiv.coe_ringHom_commutes, ← RingEquiv.toRingHom_eq_coe, RingHom.ker_equiv_comp,
+        RingHom.ker_coe_toRingHom, h.ker_aeval]
+  adjoin_eq_top := by
+    have : (adjoin R {x}).map φ.toAlgHom = ⊤ := by
+      simp [h.adjoin_eq_top, AlgHom.range_eq_top, AlgEquiv.surjective]
+    simpa [AlgHom.map_adjoin φ.toAlgHom {x}]
+
+@[simp]
+theorem equivOfRoot_map :
+  equivOfRoot h (h.map φ) (by simp) (by rw [← minpoly.algEquiv_eq φ, minpoly.aeval]) = φ := by
+    apply_fun AlgHomClass.toAlgHom using AlgEquiv.coe_algHom_injective
+    exact h.algHom_ext (by simp)
+
+end map
 
 section basis
 
@@ -347,16 +481,6 @@ theorem coeff_algebraMap [Nontrivial S] (r : R) : h.coeff (algebraMap R S r) = P
   ext i
   simpa [Algebra.algebraMap_eq_smul_one, Pi.smul_apply] using
     Pi.apply_single (fun _ s ↦ r * s) (by simp) 0 1 i
-
--- TODO : `lift` : given `y : T` such that `aeval t (minpoly R x) = 0`, construct `lift : S →ₐ[R] T`
---        such that `lift y = s`
---        `liftEquiv` : bijection between roots of `minpoly R x` in `T` and maps as above
-
--- TODO : map `IsPrimitiveElement` through `R`-isomorphisms
-
--- TODO : obtain an `R`-isomorphism between any two `IsPrimitiveElement`
---        with "the same" minimal polynomial
---        (in the sense that each generator is a root of the other minpoly)
 
 noncomputable def basis : Basis (Fin (minpoly R x).natDegree) R S := Basis.ofRepr
   { toFun y := (h.repr y).toFinsupp.comapDomain _ Fin.val_injective.injOn
