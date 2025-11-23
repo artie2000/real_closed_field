@@ -605,8 +605,7 @@ theorem _root_.Algebra.adjoin.IsPrimitiveElement (hx : IsIntegralUnique R x) :
   __ := Algebra.adjoin.isIntegralUnique hx
   adjoin_eq_top := adjoin_self_eq_top x
 
-theorem of_powerBasis [Module.Finite R S] (pb : PowerBasis R S) :
-    IsPrimitiveElement R pb.gen where
+theorem of_powerBasis [Module.Finite R S] (pb : PowerBasis R S) : IsPrimitiveElement R pb.gen where
   adjoin_eq_top := pb.adjoin_gen_eq_top
   isIntegral := pb.isIntegral_gen
   minpoly_dvd_of_root {f} hf := by
