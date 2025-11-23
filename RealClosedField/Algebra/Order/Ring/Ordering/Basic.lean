@@ -180,20 +180,20 @@ variable (hSd) in
 theorem directedOn_image_supportAddSubgroup :
     DirectedOn (fun x1 x2 ↦ x1 ≤ x2) (supportAddSubgroup '' S) := by
   rw [directedOn_image]
-  intro x hx y hy
-  rcases hSd x hx y hy with ⟨z, _⟩
-  refine ⟨z, by aesop (add safe apply supportAddSubgroup_mono)⟩
+  intro _ hx _ hy
+  rcases hSd _ hx _ hy with ⟨z, _⟩
+  exact ⟨z, by aesop (add safe apply supportAddSubgroup_mono)⟩
 
 @[simp]
 theorem supportAddSubgroup_sSup :
     (sSup hS hSd).supportAddSubgroup = SupSet.sSup (supportAddSubgroup '' S) := by
   ext x
   rw [AddSubgroup.mem_sSup_of_directedOn (by simp_all) (directedOn_image_supportAddSubgroup hSd)]
-  · simp only [mem_supportAddSubgroup, mem_sSup, Set.mem_image, exists_exists_and_eq_and]
-    refine ⟨?_, by aesop⟩
-    rintro ⟨⟨_, hs₁, _⟩, ⟨_, hs₂, _⟩⟩
-    rcases hSd _ hs₁ _ hs₂ with ⟨s, hs⟩
-    exact ⟨s, by aesop⟩
+  simp only [mem_supportAddSubgroup, mem_sSup, Set.mem_image, exists_exists_and_eq_and]
+  refine ⟨?_, by aesop⟩
+  rintro ⟨⟨_, hs₁, _⟩, ⟨_, hs₂, _⟩⟩
+  rcases hSd _ hs₁ _ hs₂ with ⟨s, hs⟩
+  exact ⟨s, by aesop⟩
 
 theorem hasIdealSupport_sSup (h : ∀ P ∈ S, P.HasIdealSupport) : (sSup hS hSd).HasIdealSupport := by
   simp_rw [hasIdealSupport_iff, mem_sSup] at *
