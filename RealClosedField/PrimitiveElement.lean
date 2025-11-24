@@ -715,9 +715,8 @@ theorem of_free [Module.Finite R S] [Module.Free R S] (adjoin_eq_top : adjoin R 
     nontriviality R
     have basis := Module.Free.chooseBasis R S
     sorry
-    -- prove that a spanning set of size `finrank R S` forms a basis, and apply to the set
-    -- `1, x, x ^ 2, ..., x ^ (d - 1)`
-    -- TODO : check this argument is actually mathematically true!
+    -- prove that a spanning set of size `finrank R S` forms a basis
+    -- prove that `1, x, x ^ 2, ..., x ^ (d - 1)` spans by using tensors to reduce to `Field R`
 
 end Algebra.IsPrimitiveElement
 
