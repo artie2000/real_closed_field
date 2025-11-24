@@ -175,6 +175,16 @@ theorem mem_sSup {x : R} : x ∈ sSup hS hSd ↔ ∃ p ∈ S, x ∈ p := by
   rw [show x ∈ sSup hS hSd ↔ x ∈ (sSup hS hSd : Set R) by simp [-coe_sSup]]
   simp_all
 
+variable (hS) (hSd) in
+theorem le_sSup {P} (hP : P ∈ S) : P ≤ sSup hS hSd := by
+  rw [← SetLike.coe_subset_coe]
+  simpa using Set.subset_biUnion_of_mem hP
+
+variable (hS) (hSd) in
+theorem sSup_le {P} (hP : ∀ Q ∈ S, Q ≤ P) : sSup hS hSd ≤ P := by
+  rw [← SetLike.coe_subset_coe]
+  simpa using Set.iUnion₂_subset hP
+
 include hSd in
 variable (hSd) in
 theorem directedOn_image_supportAddSubgroup :
@@ -208,12 +218,11 @@ theorem support_sSup  (h : ∀ P ∈ S, P.HasIdealSupport) :
     (sSup hS hSd).support = SupSet.sSup {s | ∃ P, ∃ hP : P ∈ S, letI _ := h _ hP; s = P.support} := by
   generalize_proofs
   ext x
-  have := supportAddSubgroup_sSup (hS := hS) (hSd := hSd)
-  apply_fun (x ∈ ·) at this
-  simp only [supportAddSubgroup_eq, Submodule.mem_toAddSubgroup] at this
+  have : x ∈ (sSup hS hSd).support ↔ x ∈ SupSet.sSup (supportAddSubgroup '' S) := by
+    simp [← supportAddSubgroup_sSup (hS := hS) (hSd := hSd)]
   rw [this,
-      AddSubgroup.mem_sSup_of_directedOn (by simp_all) (directedOn_image_supportAddSubgroup hSd)]
-  rw [Submodule.mem_sSup_of_directed]
+      AddSubgroup.mem_sSup_of_directedOn (by simp_all) (directedOn_image_supportAddSubgroup hSd),
+      Submodule.mem_sSup_of_directed]
   · aesop
   · rcases hS with ⟨P, hP⟩
     exact ⟨let _ := h P hP; P.support, by aesop⟩
@@ -223,16 +232,6 @@ theorem support_sSup  (h : ∀ P ∈ S, P.HasIdealSupport) :
     let _ := h _ hy
     let _ := h _ hz
     exact ⟨z.support, by aesop (add safe apply support_mono)⟩
-
-variable (hS) (hSd) in
-theorem le_sSup {P} (hP : P ∈ S) : P ≤ sSup hS hSd := by
-  rw [← SetLike.coe_subset_coe]
-  simpa using Set.subset_biUnion_of_mem hP
-
-variable (hS) (hSd) in
-theorem sSup_le {P} (hP : ∀ Q ∈ S, Q ≤ P) : sSup hS hSd ≤ P := by
-  rw [← SetLike.coe_subset_coe]
-  simpa using Set.iUnion₂_subset hP
 
 end sSup
 
@@ -297,8 +296,7 @@ def map {f : A →+* B} {P : RingPreordering A} (hf : Function.Surjective f)
   __ := P.toSubsemiring.map f
   mem_of_isSquare' hx := by
     rcases isSquare_subset_image_isSquare hf hx with ⟨x, hx, hfx⟩
-    use x
-    aesop
+    exact ⟨x, by aesop⟩
   neg_one_notMem' := fun ⟨x', hx', _⟩ => by
     have : -(x' + 1) + x' ∈ P := add_mem (hsupp (show f (x' + 1) = 0 by simp_all)).2 hx'
     aesop

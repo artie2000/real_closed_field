@@ -63,13 +63,6 @@ theorem Polynomial.natDegree_normalize {R : Type u} [Field R] {p : Polynomial R}
 -- TODO : remove AdjoinRoot.of
 attribute [-simp] AdjoinRoot.algebraMap_eq
 
--- PRed as change to Module.Basis.repr_algebraMap
-theorem Module.Basis.repr_algebraMap'
-    {R : Type*} {S : Type*} [CommRing R] [Ring S] [Algebra R S]
-    {ι : Type*} [DecidableEq ι] {B : Module.Basis ι R S} {i : ι} (hBi : B i = 1)
-    (r : R) : B.repr ((algebraMap R S) r) = Finsupp.single i r := by
-  ext j; simp [Algebra.algebraMap_eq_smul_one, ← hBi]
-
 namespace PowerBasis
 
 open scoped algebraMap
@@ -81,7 +74,7 @@ instance : NeZero pb.dim := NeZero.mk pb.dim_ne_zero
 -- TODO : rewrite proofs in IsAdjoinRoot using these
 @[simp]
 theorem repr_algebraMap (x : R) : pb.basis.repr x = Finsupp.single 0 x :=
-  Module.Basis.repr_algebraMap' (by simp : pb.basis 0 = 1) x
+  Module.Basis.repr_algebraMap (by simp : pb.basis 0 = 1) x
 
 @[simp]
 theorem repr_ofNat (n : ℕ) [Nat.AtLeastTwo n] :
