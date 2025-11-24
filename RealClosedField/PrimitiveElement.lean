@@ -319,6 +319,12 @@ theorem adjoin.isIntegralUnique (hx : IsIntegralUnique R x) :
         AlgHom.ker_coe]
     simp
 
+variable (R x) in
+@[nontriviality]
+theorem IsIntegralUnique.subsingleton [Subsingleton S] : IsIntegralUnique R x where
+  isIntegral := by simp [nontriviality]
+  minpoly_dvd_of_root := by simp [nontriviality]
+
 -- TODO : move to right place
 theorem Field.isIntegralUnique {R S : Type*} [Field R] [Ring S] [Algebra R S] {x : R}
     (h₁ : IsIntegral R x) : IsIntegralUnique R x where
@@ -665,12 +671,6 @@ theorem _root_.Algebra.adjoin.IsPrimitiveElement (hx : IsIntegralUnique R x) :
   __ := Algebra.adjoin.isIntegralUnique hx
   adjoin_eq_top := adjoin_self_eq_top x
 
-variable (R x) in
-@[nontriviality]
-theorem Algebra.IsIntegralUnique.subsingleton [Subsingleton S] : IsIntegralUnique R x where
-  isIntegral := by simp [nontriviality]
-  minpoly_dvd_of_root := by simp [nontriviality]
-
 theorem of_basis [Module.Finite R S] {n} (B : Module.Basis (Fin n) R S) {x : S}
     (hB : ∀ i, B i = x ^ (i : ℕ)) : IsPrimitiveElement R x where
   adjoin_eq_top := by
@@ -708,15 +708,14 @@ theorem of_basis [Module.Finite R S] {n} (B : Module.Basis (Fin n) R S) {x : S}
       simpa [Finsupp.single_eq_pi_single, ← Nat.le_pred_iff_lt n_pos] using hg
 
 theorem of_free [Module.Finite R S] [Module.Free R S] (adjoin_eq_top : adjoin R {x} = ⊤) :
-    IsPrimitiveElement R x where
-  adjoin_eq_top := adjoin_eq_top
-  isIntegral := by rw [← finite_iff_isIntegral_of_adjoin_eq_top adjoin_eq_top]; assumption
-  minpoly_dvd_of_root h := by
-    nontriviality R
-    have basis := Module.Free.chooseBasis R S
-    sorry
-    -- prove that a spanning set of size `finrank R S` forms a basis
-    -- prove that `1, x, x ^ 2, ..., x ^ (d - 1)` spans by using tensors to reduce to `Field R`
+    IsPrimitiveElement R x := by
+  refine of_basis
+    (Module.Basis.mk (ι := Fin (Module.finrank R S)) (v := fun i ↦ x ^ (i : ℕ)) ?_ ?_)
+    (fun i ↦ by rw [Module.Basis.coe_mk])
+  · sorry
+  · sorry
+  -- prove that a spanning set of size `finrank R S` forms a basis (general nonsense)
+  -- prove that `1, x, x ^ 2, ..., x ^ (d - 1)` spans by using tensors to reduce to `Field R`
 
 end Algebra.IsPrimitiveElement
 
