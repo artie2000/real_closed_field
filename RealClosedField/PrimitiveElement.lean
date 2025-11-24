@@ -725,6 +725,8 @@ section IsAdjoinRootMonic
 
 variable {R S : Type*} [CommRing R] [Ring S] [Algebra R S] {f : R[X]}
 
+
+-- TODO : unify definition with (`Prop`-version of) `IsAdjoinRoot` or remove `IsAdjoinRoot`
 variable (S f) in
 noncomputable def IsAdjoinRootMonic : Prop :=
   ∃ x : S, Algebra.IsPrimitiveElement R x ∧ minpoly R x = f
