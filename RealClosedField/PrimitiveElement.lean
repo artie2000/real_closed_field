@@ -186,35 +186,6 @@ namespace Algebra
 
 variable (R : Type*) {S : Type*} [CommRing R] [Ring S] [Algebra R S] (x : S)
 
--- TODO : move adjoin lemmas to right place
-
-theorem adjoin.isIntegral [Algebra.IsIntegral R S] (s : Set S) :
-    Algebra.IsIntegral R ↥(Algebra.adjoin R s) :=
-  (Subalgebra.isIntegral_iff _).mpr (fun x _ ↦ Algebra.IsIntegral.isIntegral x)
-
-@[simp]
-theorem adjoin.ker_aeval :
-    RingHom.ker (aeval ⟨x, by aesop⟩ : R[X] →ₐ[R] ↥(adjoin R {x})) = RingHom.ker (aeval x) := by
-  -- TODO : clean this proof up
-  have : RingHomClass.toRingHom (aeval x) =
-            (RingHomClass.toRingHom (Subalgebra.val (Algebra.adjoin R {x}))).comp
-            (RingHomClass.toRingHom (aeval ⟨x, by aesop⟩ : R[X] →ₐ[R] ↥(adjoin R {x}))) := by
-    ext a
-    simp
-    simp
-  rw [AlgHom.ker_coe (aeval x), this, RingHom.ker_comp_of_injective, AlgHom.ker_coe]
-  simp
-
-theorem adjoin.aeval_minpoly :
-    (aeval ⟨x, by aesop⟩ : R[X] →ₐ[R] ↥(adjoin R {x})) (minpoly R x) = 0 := by
-  rw [← RingHom.mem_ker]
-  simp
-
-variable {x} in
-theorem adjoin.isIntegral_elem (hx : IsIntegral R x) :
-    IsIntegral R (⟨x, by aesop⟩ : ↥(adjoin R {x})) :=
-  ⟨minpoly R x, minpoly.monic hx, aeval_minpoly R x⟩
-
 @[mk_iff IsGenerator.def]
 structure IsGenerator : Prop where
   adjoin_eq_top : adjoin R {x} = ⊤
@@ -283,10 +254,6 @@ end liftEquiv
 
 end IsGenerator
 
-theorem adjoin.isGenerator : IsGenerator R (⟨x, by aesop⟩ : ↥(adjoin R {x})) where
-  adjoin_eq_top := Subalgebra.map_injective (f := (adjoin R {x}).val) Subtype.val_injective
-    (by simp [Subalgebra.range_val])
-
 variable {R} in
 structure HasPrincipalKerAeval (g : R[X]) : Prop extends IsGenerator R x where
   ker_aeval : RingHom.ker (aeval (R := R) x) = Ideal.span {g}
@@ -337,13 +304,73 @@ theorem liftEquiv_apply (z : S) : h.liftEquiv ⟨y, hy⟩ z = h.lift hy z := rfl
 
 end lift
 
+section equiv
+
+variable {S' : Type*} [Ring S'] [Algebra R S'] {x' : S'} {g' : R[X]}
+
+section root
+
+variable (h' : HasPrincipalKerAeval x' g') (hx : aeval x g' = 0) (hx' : aeval x' g = 0)
+
+@[simps! -isSimp apply]
+noncomputable def equivOfRoot : S ≃ₐ[R] S' :=
+  AlgEquiv.ofAlgHom (h.lift hx') (h'.lift hx)
+    (h'.algHom_ext (by simp)) (h.algHom_ext (by simp))
+
+@[simp]
+theorem equivOfRoot_symm : (equivOfRoot h h' hx hx').symm = equivOfRoot h' h hx' hx := by
+  ext; simp [equivOfRoot]
+
+@[simp]
+theorem equivOfRoot_aeval (f : R[X]): equivOfRoot h h' hx hx' (aeval x f) = aeval x' f := by
+  simp [equivOfRoot_apply]
+
+@[simp]
+theorem equivOfRoot_root : equivOfRoot h h' hx hx' x = x' := by simp [equivOfRoot_apply]
+
+end root
+
+section minpoly
+
+variable (h' : HasPrincipalKerAeval x' g)
+
+noncomputable def equiv : S ≃ₐ[R] S' :=
+  equivOfRoot h h' h.aeval_self h'.aeval_self
+
+@[simp]
+theorem equiv_apply (z : S) :
+    equiv h h' z = equivOfRoot h h' h.aeval_self h'.aeval_self z := by simp [equiv]
+
+@[simp]
+theorem equiv_symm : (equiv h h').symm = equiv h' h := by simp [equiv]
+
+end minpoly
+
+end equiv
+
+section map
+
+variable {T : Type*} [Ring T] [Algebra R T] (φ : S ≃ₐ[R] T)
+
+noncomputable def map : HasPrincipalKerAeval (φ x) g where
+  adjoin_eq_top := by
+    have : (adjoin R {x}).map φ.toAlgHom = ⊤ := by
+      simp [h.adjoin_eq_top, AlgHom.range_eq_top, AlgEquiv.surjective]
+    simpa [AlgHom.map_adjoin φ.toAlgHom {x}]
+  ker_aeval := by
+    rw [Polynomial.aeval_algEquiv, AlgHom.ker_coe, AlgHom.comp_toRingHom,
+        AlgEquiv.coe_ringHom_commutes, ← RingEquiv.toRingHom_eq_coe, RingHom.ker_equiv_comp,
+        RingHom.ker_coe_toRingHom, h.ker_aeval]
+
+@[simp]
+theorem equivOfRoot_map :
+    equivOfRoot h (h.map φ) h.aeval_self (by simpa [aeval_algEquiv] using h.aeval_self) = φ := by
+  apply_fun AlgHomClass.toAlgHom using AlgEquiv.coe_algHom_injective
+  exact h.algHom_ext (by simp)
+
+end map
+
 end HasPrincipalKerAeval
-
-theorem adjoin.hasPrincipalKerAeval {f : R[X]} (h : RingHom.ker (aeval x) = Ideal.span {f}) :
-    HasPrincipalKerAeval (⟨x, by aesop⟩ : ↥(adjoin R {x})) f where
-  __ := isGenerator R x
-  ker_aeval := by simp [h]
-
 /-
 ## Lemmas about *integral* principal generators for an algebra
 -/
@@ -432,11 +459,6 @@ theorem of_unique_of_degree_le_degree_minpoly
     (by rw [degree_add_eq_left_of_degree_lt ‹_›])
 
 end IsIntegralUnique
-
-variable {R x} in
-theorem adjoin.isIntegralUnique (hx : IsIntegralUnique R x) :
-    IsIntegralUnique R (⟨x, by aesop⟩ : ↥(adjoin R {x})) :=
-  .of_ker_aeval_eq_span_monic (minpoly.monic hx.isIntegral) (by simp [hx.ker_aeval])
 
 -- TODO : add this attribute in Mathlib
 attribute [nontriviality] RingHom.ker_eq_top_of_subsingleton
@@ -575,41 +597,22 @@ section equiv
 
 variable {S' : Type*} [Ring S'] [Algebra R S'] {x' : S'} (h' : HasPrincipalKerAevalIntegral R x')
 
-section root
-
-variable (hx : aeval x (minpoly R x') = 0) (hx' : aeval x' (minpoly R x) = 0)
-
-@[simps! -isSimp apply]
-noncomputable def equivOfRoot : S ≃ₐ[R] S' :=
-  AlgEquiv.ofAlgHom (h.lift hx') (h'.lift hx)
-    (h'.algHom_ext (by simp)) (h.algHom_ext (by simp))
-
-@[simp]
-theorem equivOfRoot_symm : (equivOfRoot h h' hx hx').symm = equivOfRoot h' h hx' hx := by
-  ext; simp [equivOfRoot]
-
-@[simp]
-theorem equivOfRoot_aeval (f : R[X]): equivOfRoot h h' hx hx' (aeval x f) = aeval x' f := by
-  simp [equivOfRoot_apply]
-
-@[simp]
-theorem equivOfRoot_root : equivOfRoot h h' hx hx' x = x' := by simp [equivOfRoot_apply]
-
-end root
-
 section minpoly
 
 variable (hm : minpoly R x = minpoly R x')
 
 noncomputable def equiv : S ≃ₐ[R] S' :=
-  equivOfRoot h h' (by simp [← hm]) (by simp [hm])
+  HasPrincipalKerAeval.equiv h.toHasPrincipalKerAeval
+    (by simpa [hm] using h'.toHasPrincipalKerAeval)
 
 @[simp]
 theorem equiv_apply (z : S) :
-    equiv h h' hm z = equivOfRoot h h' (by simp [← hm]) (by simp [hm]) z := by simp [equiv]
+    equiv h h' hm z = HasPrincipalKerAeval.equiv h.toHasPrincipalKerAeval
+      (by simpa [hm] using h'.toHasPrincipalKerAeval) z := by
+  simp [equiv]
 
 @[simp]
-theorem equiv_symm : (equiv h h' hm).symm = equiv h' h hm.symm := by simp [equiv]
+theorem equiv_symm : (equiv h h' hm).symm = equiv h' h hm.symm := by simp [equiv, hm]
 
 end minpoly
 
@@ -620,22 +623,16 @@ section map
 variable {T : Type*} [Ring T] [Algebra R T] (φ : S ≃ₐ[R] T)
 
 noncomputable def map :
-    HasPrincipalKerAevalIntegral R (φ x) where
-  adjoin_eq_top := by
-    have : (adjoin R {x}).map φ.toAlgHom = ⊤ := by
-      simp [h.adjoin_eq_top, AlgHom.range_eq_top, AlgEquiv.surjective]
-    simpa [AlgHom.map_adjoin φ.toAlgHom {x}]
-  isIntegral := IsIntegral.map _ h.isIntegral
-  ker_aeval := by
-    rw [minpoly.algEquiv_eq, Polynomial.aeval_algEquiv, AlgHom.ker_coe, AlgHom.comp_toRingHom,
-        AlgEquiv.coe_ringHom_commutes, ← RingEquiv.toRingHom_eq_coe, RingHom.ker_equiv_comp,
-        RingHom.ker_coe_toRingHom, h.ker_aeval]
+    HasPrincipalKerAevalIntegral R (φ x) :=
+  .of_hasPrincipalKerAeval_monic (minpoly.monic h.isIntegral)
+    (HasPrincipalKerAeval.map h.toHasPrincipalKerAeval φ)
 
 @[simp]
 theorem equivOfRoot_map :
-  equivOfRoot h (h.map φ) (by simp) (by rw [← minpoly.algEquiv_eq φ, minpoly.aeval]) = φ := by
-    apply_fun AlgHomClass.toAlgHom using AlgEquiv.coe_algHom_injective
-    exact h.algHom_ext (by simp)
+    h.equivOfRoot (h.map φ).toHasPrincipalKerAeval
+    (by simp) (by rw [← minpoly.algEquiv_eq φ, minpoly.aeval]) = φ := by
+  apply_fun AlgHomClass.toAlgHom using AlgEquiv.coe_algHom_injective
+  exact h.algHom_ext (by simp)
 
 end map
 
@@ -765,13 +762,7 @@ theorem coeff_injective : Function.Injective h.coeff := fun _ _ hyz ↦ h.ext_el
 
 end basis
 
-theorem _root_.Algebra.adjoin.HasPrincipalKerAevalIntegral (hx : IsIntegralUnique R x) :
-    HasPrincipalKerAevalIntegral R (⟨x, by aesop⟩ : ↥(adjoin R {x})) :=
-  of_isIntegralUnique (Algebra.adjoin.isIntegralUnique hx) (Algebra.adjoin.isGenerator R x)
-
-
-
-theorem of_basis [Module.Finite R S] {n} (B : Module.Basis (Fin n) R S) {x : S}
+theorem of_basis [Module.Finite R S] {n} (B : Module.Basis (Fin n) R S)
     (hB : ∀ i, B i = x ^ (i : ℕ)) : HasPrincipalKerAevalIntegral R x :=
   of_isIntegralUnique (R := R) (x := x) (by
     nontriviality S
@@ -809,7 +800,7 @@ theorem of_basis [Module.Finite R S] {n} (B : Module.Basis (Fin n) R S) {x : S}
       rintro x ⟨i, rfl⟩
       aesop⟩
 
-theorem of_free [Module.Finite R S] [Module.Free R S] (adjoin_eq_top : adjoin R {x} = ⊤) :
+theorem of_free [Module.Finite R S] [Module.Free R S] (hx : IsGenerator R x) :
     HasPrincipalKerAevalIntegral R x := by
   refine of_basis
     (Module.Basis.mk (ι := Fin (Module.finrank R S)) (v := fun i ↦ x ^ (i : ℕ)) ?_ ?_)
@@ -819,7 +810,63 @@ theorem of_free [Module.Finite R S] [Module.Free R S] (adjoin_eq_top : adjoin R 
   -- prove that a spanning set of size `finrank R S` forms a basis (general nonsense)
   -- prove that `1, x, x ^ 2, ..., x ^ (d - 1)` spans by using tensors to reduce to `Field R`
 
-end Algebra.HasPrincipalKerAevalIntegral
+end HasPrincipalKerAevalIntegral
+
+-- TODO : move adjoin lemmas to somewhere like `Mathlib.RingTheory.Adjoin.PowerBasis`
+
+namespace adjoin
+
+theorem isIntegral [Algebra.IsIntegral R S] (s : Set S) :
+    Algebra.IsIntegral R ↥(Algebra.adjoin R s) :=
+  (Subalgebra.isIntegral_iff _).mpr (fun x _ ↦ Algebra.IsIntegral.isIntegral x)
+
+@[simp]
+theorem ker_aeval :
+    RingHom.ker (aeval ⟨x, by aesop⟩ : R[X] →ₐ[R] ↥(adjoin R {x})) = RingHom.ker (aeval x) := by
+  -- TODO : clean this proof up
+  have : RingHomClass.toRingHom (aeval x) =
+            (RingHomClass.toRingHom (Subalgebra.val (Algebra.adjoin R {x}))).comp
+            (RingHomClass.toRingHom (aeval ⟨x, by aesop⟩ : R[X] →ₐ[R] ↥(adjoin R {x}))) := by
+    ext a
+    simp
+    simp
+  rw [AlgHom.ker_coe (aeval x), this, RingHom.ker_comp_of_injective, AlgHom.ker_coe]
+  simp
+
+theorem aeval_minpoly :
+    (aeval ⟨x, by aesop⟩ : R[X] →ₐ[R] ↥(adjoin R {x})) (minpoly R x) = 0 := by
+  rw [← RingHom.mem_ker]
+  simp
+
+variable {R x} in
+theorem isIntegral_elem (hx : IsIntegral R x) :
+    IsIntegral R (⟨x, by aesop⟩ : ↥(adjoin R {x})) :=
+  ⟨minpoly R x, minpoly.monic hx, aeval_minpoly R x⟩
+
+theorem isGenerator : IsGenerator R (⟨x, by aesop⟩ : ↥(adjoin R {x})) where
+  adjoin_eq_top := Subalgebra.map_injective (f := (adjoin R {x}).val) Subtype.val_injective
+    (by simp [Subalgebra.range_val])
+
+variable {R x} in
+theorem hasPrincipalKerAeval {f : R[X]} (h : RingHom.ker (aeval x) = Ideal.span {f}) :
+    HasPrincipalKerAeval (⟨x, by aesop⟩ : ↥(adjoin R {x})) f where
+  __ := isGenerator R x
+  ker_aeval := by simp [h]
+
+variable {R x} in
+theorem isIntegralUnique (hx : IsIntegralUnique R x) :
+    IsIntegralUnique R (⟨x, by aesop⟩ : ↥(adjoin R {x})) :=
+  .of_ker_aeval_eq_span_monic (minpoly.monic hx.isIntegral) (by simp [hx.ker_aeval])
+
+variable {R x} in
+theorem hasPrincipalKerAevalIntegral (hx : IsIntegralUnique R x) :
+    HasPrincipalKerAevalIntegral R (⟨x, by aesop⟩ : ↥(adjoin R {x})) :=
+  .of_isIntegralUnique (Algebra.adjoin.isIntegralUnique hx) (Algebra.adjoin.isGenerator R x)
+
+
+end adjoin
+
+end Algebra
 
 section IsAdjoinRoot
 
@@ -835,6 +882,13 @@ variable {S f} (h : IsAdjoinRoot S f)
 noncomputable def root := h.exists_root.choose
 
 theorem pe : Algebra.HasPrincipalKerAeval h.root f := h.exists_root.choose_spec
+
+noncomputable def lift {T : Type*} [Ring T] [Algebra R T] {y : T} (hy : aeval y f = 0) :
+    S →ₐ[R] T := h.pe.lift (by simpa using hy)
+
+noncomputable def liftEquiv {T : Type*} [Ring T] [Algebra R T] :
+    { y : T // aeval y f = 0 } ≃ (S →ₐ[R] T) :=
+  ((Equiv.refl _).subtypeEquiv (by simp)).trans h.pe.liftEquiv
 
 end IsAdjoinRoot
 
@@ -875,13 +929,6 @@ include h in
 theorem nontrivial (hf : f ≠ 1) : Nontrivial S := by
   by_contra! hS
   exact hf (by simpa using minpoly.subsingleton R h.root)
-
-noncomputable def lift {T : Type*} [Ring T] [Algebra R T] {y : T} (hy : aeval y f = 0) :
-    S →ₐ[R] T := h.pe.lift (by simpa using hy)
-
-noncomputable def liftEquiv {T : Type*} [Ring T] [Algebra R T] :
-    { y : T // aeval y f = 0 } ≃ (S →ₐ[R] T) :=
-  ((Equiv.refl _).subtypeEquiv (by simp)).trans h.pe.liftEquiv
 
 noncomputable def liftEquivAroots {T : Type*} [CommRing T] [IsDomain T] [Algebra R T] :
     { y : T // y ∈ f.aroots T } ≃ (S →ₐ[R] T) :=
