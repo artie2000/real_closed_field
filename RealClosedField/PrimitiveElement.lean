@@ -883,12 +883,19 @@ noncomputable def root := h.exists_root.choose
 
 theorem pe : Algebra.HasPrincipalKerAeval h.root f := h.exists_root.choose_spec
 
-noncomputable def lift {T : Type*} [Ring T] [Algebra R T] {y : T} (hy : aeval y f = 0) :
-    S →ₐ[R] T := h.pe.lift (by simpa using hy)
-
 noncomputable def liftEquiv {T : Type*} [Ring T] [Algebra R T] :
     { y : T // aeval y f = 0 } ≃ (S →ₐ[R] T) :=
   ((Equiv.refl _).subtypeEquiv (by simp)).trans h.pe.liftEquiv
+
+noncomputable def lift {T : Type*} [Ring T] [Algebra R T] {y : T} (hy : aeval y f = 0) :
+    S →ₐ[R] T := h.pe.lift (by simpa using hy)
+
+noncomputable def equiv {T : Type*} [Ring T] [Algebra R T] (h' : IsAdjoinRoot T f):
+    S ≃ₐ[R] T := h.pe.equiv h'.pe
+
+noncomputable def map {T : Type*} [Ring T] [Algebra R T] (φ : S ≃ₐ[R] T) :
+    IsAdjoinRoot T f where
+  exists_root := ⟨_, by simpa using (h.pe.map φ)⟩
 
 end IsAdjoinRoot
 
@@ -924,11 +931,10 @@ include h in
 @[nontriviality]
 theorem subsingleton [Subsingleton S] : f = 1 := by simpa using minpoly.subsingleton R h.root
 
--- TODO : figure out how to use nontriviality here
 include h in
 theorem nontrivial (hf : f ≠ 1) : Nontrivial S := by
-  by_contra! hS
-  exact hf (by simpa using minpoly.subsingleton R h.root)
+  contrapose! hf
+  exact h.subsingleton
 
 noncomputable def liftEquivAroots {T : Type*} [CommRing T] [IsDomain T] [Algebra R T] :
     { y : T // y ∈ f.aroots T } ≃ (S →ₐ[R] T) :=
@@ -937,12 +943,9 @@ noncomputable def liftEquivAroots {T : Type*} [CommRing T] [IsDomain T] [Algebra
 noncomputable def fintypeAlgHom {T : Type*} [CommRing T] [IsDomain T] [Algebra R T] :
     Fintype (S →ₐ[R] T) := h.pe.fintypeAlgHom
 
-noncomputable def equiv {T : Type*} [Ring T] [Algebra R T] (h' : IsAdjoinRootMonic T f):
-    S ≃ₐ[R] T := h.pe.equiv h'.pe (by simp)
-
 noncomputable def map {T : Type*} [Ring T] [Algebra R T] (φ : S ≃ₐ[R] T) :
     IsAdjoinRootMonic T f where
-  exists_root := ⟨_, by simpa using (h.pe.map φ).toHasPrincipalKerAeval⟩
+  __ := IsAdjoinRoot.map h.toIsAdjoinRoot φ
   f_monic := h.f_monic
 
 noncomputable def basis : Module.Basis (Fin f.natDegree) R S :=
