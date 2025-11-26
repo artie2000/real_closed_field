@@ -10,6 +10,8 @@ import Mathlib.Tactic.DepRewrite
 -- TODO : ensure all material from Mathlib.RingTheory.Adjoin.PowerBasis is transferred
 -- TODO : rewrite Mathlib.FieldTheory.Minpoly.IsIntegrallyClosed to use my definitions
 
+-- TODO : check out `Mathlib.LinearAlgebra.AnnihilatingPolynomial`: can we generalise it?
+
 open Polynomial algebraMap
 
 /-
