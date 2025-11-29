@@ -250,6 +250,8 @@ theorem liftEquiv_comp_aeval : (hx.liftEquiv ⟨_, hy⟩).comp (aeval x) = aeval
 theorem liftEquiv_root : (hx.liftEquiv ⟨_, hy⟩) x = y := by
   simpa using hx.liftEquiv_aeval_apply hy X
 
+-- TODO : liftEquiv_eq without unneccesary assumption
+
 end liftEquiv
 
 end IsGenerator
@@ -297,6 +299,8 @@ theorem lift_aeval (f : R[X]) : h.lift hy (aeval x f) = aeval y f := by
 
 @[simp]
 theorem lift_root : h.lift hy x = y := by simpa using h.lift_aeval hy X
+
+-- TODO : liftEquiv_eq without unneccesary assumption
 
 @[simp]
 /- Make `lift` the preferred spelling -/
@@ -500,7 +504,7 @@ theorem of_basis [Module.Finite R S] {n} (B : Module.Basis (Fin n) R S)
     (hB : ∀ i, B i = x ^ (i : ℕ)) : HasPrincipalKerAevalIntegral R x :=
   of_isIntegralUnique (R := R) (x := x) (by
     nontriviality S
-    nontriviality R using Algebra.subsingleton R S -- TODO : make @[nontriviality]?
+    nontriviality R using Algebra.subsingleton R S
     have n_pos : 0 < n := @Fin.pos' _ B.index_nonempty
     set f := X ^ n - ∑ i : Fin n, C (B.repr (x ^ n) i) * X ^ (i : ℕ) with f_def
     have aeval_f : aeval x f = 0 := by
