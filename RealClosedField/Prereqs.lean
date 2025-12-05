@@ -128,7 +128,7 @@ variable {R S : Type*} [CommRing R] [Ring S] [Algebra R S] {f : R[X]} (hf : IsAd
 
 include hf in
 theorem nontrivial (h : f ≠ 1) : Nontrivial S :=
-  hf.adjoinRootAlgEquiv.nontrivial_congr.mp <| Ideal.Quotient.nontrivial <| by
+  hf.adjoinRootAlgEquiv.nontrivial_congr.mp <| Ideal.Quotient.nontrivial_iff.mpr <| by
     simpa using (h <| Monic.eq_one_of_isUnit hf.monic ·)
 
 theorem coeff_ofNat [Nontrivial S] (n : ℕ) [Nat.AtLeastTwo n] :
