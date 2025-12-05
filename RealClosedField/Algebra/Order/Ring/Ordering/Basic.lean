@@ -239,11 +239,11 @@ theorem supportAddSubgroup_sSup (hSd : DirectedOn (· ≤ ·) S) (hS : S.Nonempt
 
 protected theorem HasIdealSupport.sSup (hSd : DirectedOn (· ≤ ·) S) (hS : S.Nonempty)
     (h : ∀ P ∈ S, P.HasIdealSupport) : (sSup S).HasIdealSupport := by
-  simp_rw [hasIdealSupport_iff, mem_sSup_of_directedOn (hSd := hSd) (hS := hS)] at *
-  rintro x a ⟨P, hP, hP'⟩ ⟨Q, hQ, hQ'⟩
+  simp only [hasIdealSupport_iff, mem_sSup_of_directedOn, forall_exists_index, and_imp, *] at *
+  rintro x a P hP hP' Q hQ hQ'
   rcases hSd _ hP _ hQ with ⟨R, hR, hPR, hQR⟩
   have := h _ hR x a (hPR hP') (hQR hQ')
-  aesop
+  exact ⟨⟨R, hR, this.1⟩, ⟨R, hR, this.2⟩⟩
 
 @[simp]
 theorem support_sSup (hSd : DirectedOn (· ≤ ·) S) (hS : S.Nonempty)
