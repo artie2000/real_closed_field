@@ -134,9 +134,10 @@ theorem isOrdering_of_maximal {O : RingPreordering R} (max : IsMax O) :
 /- Every preordering on `R` extends to an ordering. -/
 theorem exists_le_isOrdering :
     ∃ O : RingPreordering R, P ≤ O ∧ O.IsOrdering := by
+  have := P.isSemireal
   have ⟨_, _, hO⟩ : ∃ O, P ≤ O ∧ IsMax O := by
     refine zorn_le_nonempty_Ici₀ _ (fun _ _ hc _ hQ => ?_) _ le_rfl
-    simp_all [← bddAbove_def, nonempty_chain_bddAbove (Set.nonempty_of_mem hQ) hc]
+    simp_all [← bddAbove_def, (CompletePartialOrder.lubOfDirected _ hc.directedOn).bddAbove]
   exact ⟨_, by assumption, isOrdering_of_maximal hO⟩
 
 /- An ordering on `R` is maximal among preorderings iff it is maximal among orderings. -/
