@@ -80,6 +80,7 @@ theorem _root_.nonempty_ringPreordering_iff_isSemireal :
   mpr _ := ⟨⊥⟩
 
 section Inf
+
 variable (P₁ P₂ : RingPreordering R)
 
 instance : Min (RingPreordering R) where
@@ -269,10 +270,6 @@ theorem support_sSup (hSd : DirectedOn (· ≤ ·) S) (hS : S.Nonempty)
     exact ⟨z.support, by aesop (add safe apply support_mono)⟩
 
 end sSup
-
-theorem nonempty_chain_bddAbove [IsSemireal R] (S : Set (RingPreordering R))
-    (hSc : IsChain (· ≤ ·) S) : BddAbove S :=
-  (CompletePartialOrder.lubOfDirected _ hSc.directedOn).bddAbove
 
 variable {A B C : Type*} [CommRing A] [CommRing B] [CommRing C]
 
