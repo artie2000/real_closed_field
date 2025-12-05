@@ -177,7 +177,7 @@ theorem eq_of_le {F : Type*} [Field F] {P Q : RingPreordering F} [P.IsOrdering] 
     P = Q := eq_of_le_of_supportAddSubgroup_eq_bot h (support_eq_bot Q)
 
 /- A preordering on a field `F` is maximal iff it is an ordering. -/
-theorem maximal_iff_hasMemOrNegMem {F : Type*} [Field F] {O : RingPreordering F} :
+theorem maximal_iff_isOrdering {F : Type*} [Field F] {O : RingPreordering F} :
     IsMax O ↔ O.IsOrdering where
   mp h := have := isOrdering_of_maximal h; inferInstance
   mpr _ _ le := le_of_eq (eq_of_le le).symm
