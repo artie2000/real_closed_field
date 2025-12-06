@@ -698,6 +698,10 @@ theorem coeff_algebraMap [Nontrivial S] (r : R) : h.coeff (algebraMap R S r) = P
   simpa [Algebra.algebraMap_eq_smul_one, Pi.smul_apply] using
     Pi.apply_single (fun _ s ↦ r * s) (by simp) 0 1 i
 
+@[simp]
+theorem coeff_ofNat [Nontrivial S] (n : ℕ) [Nat.AtLeastTwo n] :
+    h.coeff ofNat(n) = Pi.single 0 (n : R) := by simpa using h.coeff_algebraMap n
+
 noncomputable def basis : Basis (Fin (minpoly R x).natDegree) R S := Basis.ofRepr
   { toFun y := (h.repr y).toFinsupp.comapDomain _ Fin.val_injective.injOn
     invFun g := aeval x (ofFinsupp (g.mapDomain Fin.val))
