@@ -396,3 +396,61 @@ theorem sign_change (hdeg: Odd f.natDegree) : ∃ x y, f.eval x < 0 ∧ 0 < f.ev
     exact ⟨y-1, x+1, hy _ (by linarith), hx _ (by linarith)⟩
 
 end poly_estimate
+
+theorem Sylow.exists_subgroup_le_card_pow_prime_of_card_pow_prime
+    {G : Type*} [Group G] {m n p : ℕ} (hp : Nat.Prime p)
+    {H : Subgroup G} (hH : Nat.card H = p ^ n) (hm : m ≤ n) :
+    ∃ H' ≤ H, Nat.card H' = p ^ m := by
+  have : p ^ m ≤ Nat.card H := by
+    rw [hH]
+    gcongr
+    exact Nat.Prime.one_le hp
+  rcases Sylow.exists_subgroup_card_pow_prime_of_le_card hp (IsPGroup.of_card hH) this with ⟨H', hH'⟩
+  refine ⟨H'.map H.subtype, Subgroup.map_subtype_le .., ?_⟩
+  rw [Subgroup.card_map_of_injective (Subgroup.subtype_injective H)]
+  exact hH'
+
+theorem IsGalois.exists_intermediateField_ge_card_pow_prime_of_card_pow_prime
+    {K L : Type*} [Field K] [Field L] [Algebra K L] [FiniteDimensional K L] [IsGalois K L]
+    {m n p : ℕ} (hp : Nat.Prime p) {M : IntermediateField K L}
+    (hM : Module.finrank M L = p ^ n) (hm : m ≤ n) :
+    ∃ N ≥ M, Module.finrank N L = p ^ m := by
+  rcases Sylow.exists_subgroup_le_card_pow_prime_of_card_pow_prime (H := M.fixingSubgroup)
+    hp (by rw [IsGalois.card_fixingSubgroup_eq_finrank, hM]) hm with
+    ⟨H', hH'₁, hH'₂⟩
+  exact ⟨IntermediateField.fixedField H',
+        by simpa [IntermediateField.le_iff_le] using hH'₁,
+        by simpa [IntermediateField.finrank_fixedField_eq_card] using hH'₂⟩
+
+theorem IsGalois.exists_intermediateField_ge_card_pow_prime_mul_of_card_pow_prime_mul
+    {K L : Type*} [Field K] [Field L] [Algebra K L] [FiniteDimensional K L] [IsGalois K L]
+    {p a : ℕ} (hp : Nat.Prime p)
+    (ha : Module.finrank K L = p ^ (multiplicity p (Module.finrank K L)) * a)
+    {n m : ℕ}
+    {M : IntermediateField K L}
+    (hM : Module.finrank K M = p ^ n * a) (hm_le : n ≤ m)
+    (hm : m ≤ multiplicity p (Module.finrank K L)) :
+    ∃ N ≥ M, Module.finrank K N = p ^ m * a := by
+  by_cases haz : a = 0
+  · exact ⟨M, by simp, by simp_all⟩
+  have : p ≠ 0 := hp.ne_zero
+  have : Module.finrank (↥M) L = p ^ (multiplicity p (Module.finrank K L) - n) := by
+    have mul := Module.finrank_mul_finrank K M L
+    rw [hM, ha] at mul
+    rw [← Nat.pow_sub_mul_pow _ (Nat.le_trans hm_le hm)] at mul
+    qify at mul ⊢
+    linear_combination (norm := skip) mul / (p ^ n * a)
+    field_simp
+    ring
+  rcases IsGalois.exists_intermediateField_ge_card_pow_prime_of_card_pow_prime hp (M := M)
+    (n := multiplicity p (Module.finrank K L) - n) (m := multiplicity p (Module.finrank K L) - m)
+    this (by omega) with ⟨N, hN, hNrk⟩
+  refine ⟨N, hN, ?_⟩
+  have mul := Module.finrank_mul_finrank K N L
+  rw [hNrk] at mul
+  nth_rw 2 [ha] at mul
+  rw [← Nat.pow_sub_mul_pow _ hm] at mul
+  qify at mul ⊢
+  linear_combination (norm := skip) mul / (p ^ (multiplicity p (Module.finrank K L) - m))
+  field_simp
+  ring
