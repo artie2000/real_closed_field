@@ -9,7 +9,7 @@ import RealClosedField.Algebra.Order.Ring.Ordering.Adjoin
 
 variable {F : Type*} [Field F]
 
-instance : RingConeClass (RingPreordering F) F where
+instance : RingConeClass (IsPreordering F) F where
   eq_zero_of_mem_of_neg_mem {P} {a} ha hna := by
     by_contra
     have : a⁻¹ * -a ∈ P := by aesop (config := { enableSimp := False })
@@ -22,14 +22,14 @@ def IsSemireal.isFormallyReal [IsSemireal F] : IsFormallyReal F :=
     exact IsSemireal.one_add_ne_zero (s := s * a⁻¹ ^ 2) (by aesop)
       (by field_simp; linear_combination h)
 
-open Classical RingPreordering in
+open Classical IsPreordering in
 theorem Field.exists_isStrictOrderedRing_iff_isSemireal :
     (∃ _ : LinearOrder F, IsStrictOrderedRing F) ↔ IsSemireal F := by
   rw [Equiv.exists_subtype_congr ringOrderingLinearOrderEquivField.symm]
-  exact ⟨fun ⟨O, hO⟩ => ⟨fun {s} hs h => RingPreordering.neg_one_notMem O <|
+  exact ⟨fun ⟨O, hO⟩ => ⟨fun {s} hs h => IsPreordering.neg_one_notMem O <|
             mem_of_isSumSq (by simp_all [show s = -1 by linear_combination h])⟩,
           fun _ =>
-            letI exO := exists_le_isOrdering (⊥ : RingPreordering F)
+            letI exO := exists_le_isOrdering (⊥ : IsPreordering F)
             letI inst := (choose_spec exO).2
             ⟨choose exO, inferInstance⟩⟩
 
@@ -48,7 +48,7 @@ theorem IsSemireal.existsUnique_isStrictOrderedRing
     · cases h (y - x) with | inl => assumption | inr h =>
       simp_all [show x = y by linarith [IsSumSq.nonneg h]]
 
-open RingPreordering in
+open IsPreordering in
 theorem IsSemireal.isSumSq_or_isSumSq_neg [IsSemireal F]
     (h : ∃! _ : LinearOrder F, IsStrictOrderedRing F) :
     ∀ x : F, IsSumSq x ∨ IsSumSq (-x) := by
@@ -61,7 +61,7 @@ theorem IsSemireal.isSumSq_or_isSumSq_neg [IsSemireal F]
     (by simp_all : -(-x) ∉ ⊥) with ⟨O₂, hle₂, hO₂⟩
   have x_mem : x ∈ O₁ := hle₁ (by aesop)
   exact (show O₁ ≠ O₂ from fun h => show x ≠ 0 by aesop <|
-    RingPreordering.eq_zero_of_mem_of_neg_mem (by simp_all) (hle₂ (by aesop))) <|
+    IsPreordering.eq_zero_of_mem_of_neg_mem (by simp_all) (hle₂ (by aesop))) <|
       h.unique inferInstance inferInstance
 
 theorem IsSemireal.existsUnique_isStrictOrderedRing_iff [IsSemireal F] :

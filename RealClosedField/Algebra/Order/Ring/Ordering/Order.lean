@@ -55,7 +55,7 @@ section CommRing
 
 variable {R : Type*} [Nontrivial R] [CommRing R] (C : RingCone R) [HasMemOrNegMem C]
 
-abbrev RingPreordering.mkOfCone : RingPreordering R where
+abbrev IsPreordering.mkOfCone : IsPreordering R where
   __ := C.toSubsemiring
   carrier := C
   mem_of_isSquare' x := by
@@ -65,97 +65,97 @@ abbrev RingPreordering.mkOfCone : RingPreordering R where
     | inr h => simpa using (show -y * -y ∈ C by aesop (config := { enableSimp := false }))
   neg_one_notMem' h := one_ne_zero <| eq_zero_of_mem_of_neg_mem (one_mem C) h
 
-instance : HasMemOrNegMem (RingPreordering.mkOfCone C) where
+instance : HasMemOrNegMem (IsPreordering.mkOfCone C) where
   mem_or_neg_mem := mem_or_neg_mem C
 
 @[simp]
-theorem RingPreordering.mkOfCone.support_eq_bot : (mkOfCone C).support = ⊥ := by
+theorem IsPreordering.mkOfCone.support_eq_bot : (mkOfCone C).support = ⊥ := by
   aesop (add safe (eq_zero_of_mem_of_neg_mem (C := C)), simp mem_support)
 
 end CommRing
 
 section CommRing
 
-variable {R : Type*} [CommRing R] {P : RingPreordering R} (hP : P.supportAddSubgroup = ⊥)
+variable {R : Type*} [CommRing R] {P : IsPreordering R} (hP : P.supportAddSubgroup = ⊥)
 
-abbrev RingCone.mkOfRingPreordering : RingCone R where
+abbrev RingCone.mkOfIsPreordering : RingCone R where
   __ := P.toSubsemiring
   carrier := P
   eq_zero_of_mem_of_neg_mem' {a} := by
     apply_fun (a ∈ ·) at hP
-    aesop (add simp RingPreordering.mem_supportAddSubgroup)
+    aesop (add simp IsPreordering.mem_supportAddSubgroup)
 
-instance [HasMemOrNegMem P] : HasMemOrNegMem <| RingCone.mkOfRingPreordering hP where
+instance [HasMemOrNegMem P] : HasMemOrNegMem <| RingCone.mkOfIsPreordering hP where
   mem_or_neg_mem := mem_or_neg_mem P
 
-abbrev PartialOrder.mkOfRingPreordering : PartialOrder R :=
-  .mkOfAddGroupCone <| RingCone.mkOfRingPreordering hP
+abbrev PartialOrder.mkOfIsPreordering : PartialOrder R :=
+  .mkOfAddGroupCone <| RingCone.mkOfIsPreordering hP
 
-theorem IsOrderedRing.mkOfRingPreordering :
-    letI _ : PartialOrder R := .mkOfRingPreordering hP
+theorem IsOrderedRing.mkOfIsPreordering :
+    letI _ : PartialOrder R := .mkOfIsPreordering hP
     IsOrderedRing R :=
-  .mkOfCone <| RingCone.mkOfRingPreordering hP
+  .mkOfCone <| RingCone.mkOfIsPreordering hP
 
-abbrev LinearOrder.mkOfRingPreordering [HasMemOrNegMem P] [DecidablePred (· ∈ P)] :
+abbrev LinearOrder.mkOfIsPreordering [HasMemOrNegMem P] [DecidablePred (· ∈ P)] :
     LinearOrder R :=
-  .mkOfAddGroupCone (RingCone.mkOfRingPreordering hP)
+  .mkOfAddGroupCone (RingCone.mkOfIsPreordering hP)
 
 variable [Nontrivial R]
 
 open Classical
-noncomputable def ringPreorderingLinearOrderEquiv :
-    Equiv {O : RingPreordering R // ∃ _ : HasMemOrNegMem O, O.supportAddSubgroup = ⊥}
+noncomputable def IsPreorderingLinearOrderEquiv :
+    Equiv {O : IsPreordering R // ∃ _ : HasMemOrNegMem O, O.supportAddSubgroup = ⊥}
           {l : LinearOrder R // IsOrderedRing R} where
-  toFun := fun ⟨_, hO⟩ => ⟨letI _ := hO.1; .mkOfRingPreordering hO.2, .mkOfRingPreordering hO.2⟩
+  toFun := fun ⟨_, hO⟩ => ⟨letI _ := hO.1; .mkOfIsPreordering hO.2, .mkOfIsPreordering hO.2⟩
   invFun := fun ⟨_, _⟩ => ⟨.mkOfCone <| .nonneg R, inferInstance, by simp⟩
   left_inv := fun ⟨_, _, _⟩ => by ext; simp
   right_inv := fun ⟨_, _⟩ => by ext; simp
 
 @[simp]
-theorem ringPreorderingLinearOrderEquiv_apply (hP₂ : HasMemOrNegMem P) :
-    ringPreorderingLinearOrderEquiv ⟨P, hP₂, hP⟩ = LinearOrder.mkOfRingPreordering hP :=
+theorem IsPreorderingLinearOrderEquiv_apply (hP₂ : HasMemOrNegMem P) :
+    IsPreorderingLinearOrderEquiv ⟨P, hP₂, hP⟩ = LinearOrder.mkOfIsPreordering hP :=
   rfl
 
 @[simp]
-theorem coe_ringPreorderingLinearOrderEquiv_symm_apply
+theorem coe_IsPreorderingLinearOrderEquiv_symm_apply
     (l : LinearOrder R) (hl : @IsOrderedRing R _ l.toPartialOrder) :
-    ringPreorderingLinearOrderEquiv.symm ⟨l, hl⟩ = (RingCone.nonneg R : Set R) :=
+    IsPreorderingLinearOrderEquiv.symm ⟨l, hl⟩ = (RingCone.nonneg R : Set R) :=
   rfl
 
 @[simp]
-theorem mem_ringPreorderingLinearOrderEquiv_symm_apply
+theorem mem_IsPreorderingLinearOrderEquiv_symm_apply
     (l : LinearOrder R) (hl : @IsOrderedRing R _ l.toPartialOrder) {x} :
-    x ∈ (ringPreorderingLinearOrderEquiv.symm ⟨l, hl⟩ : RingPreordering R) ↔ x ∈ RingCone.nonneg R :=
+    x ∈ (IsPreorderingLinearOrderEquiv.symm ⟨l, hl⟩ : IsPreordering R) ↔ x ∈ RingCone.nonneg R :=
   .rfl
 
 end CommRing
 
 section Field
 
-variable {F : Type*} [Field F] (P : RingPreordering F)
+variable {F : Type*} [Field F] (P : IsPreordering F)
 
-abbrev RingCone.mkOfRingPreordering_field : RingCone F :=
-  mkOfRingPreordering <| RingPreordering.supportAddSubgroup_eq_bot P
+abbrev RingCone.mkOfIsPreordering_field : RingCone F :=
+  mkOfIsPreordering <| IsPreordering.supportAddSubgroup_eq_bot P
 
-instance [P.IsOrdering] : HasMemOrNegMem <| RingCone.mkOfRingPreordering_field P where
+instance [P.IsOrdering] : HasMemOrNegMem <| RingCone.mkOfIsPreordering_field P where
   mem_or_neg_mem := mem_or_neg_mem P
 
-abbrev PartialOrder.mkOfRingPreordering_field : PartialOrder F :=
-  .mkOfAddGroupCone <| RingCone.mkOfRingPreordering_field P
+abbrev PartialOrder.mkOfIsPreordering_field : PartialOrder F :=
+  .mkOfAddGroupCone <| RingCone.mkOfIsPreordering_field P
 
 abbrev LinearOrder.mkOfRingOrdering_field [P.IsOrdering] [DecidablePred (· ∈ P)] :
     LinearOrder F :=
-  .mkOfAddGroupCone (RingCone.mkOfRingPreordering_field P)
+  .mkOfAddGroupCone (RingCone.mkOfIsPreordering_field P)
 
 open Classical in
 noncomputable def ringOrderingLinearOrderEquivField :
-    Equiv {O : RingPreordering F // O.IsOrdering}
+    Equiv {O : IsPreordering F // O.IsOrdering}
           {l : LinearOrder F // IsStrictOrderedRing F} where
   toFun := fun ⟨O, hO⟩ =>
-    let ⟨l, hl⟩ := ringPreorderingLinearOrderEquiv ⟨O, letI _ := hO; inferInstance, by simp⟩
+    let ⟨l, hl⟩ := IsPreorderingLinearOrderEquiv ⟨O, letI _ := hO; inferInstance, by simp⟩
     ⟨l, IsOrderedRing.toIsStrictOrderedRing F⟩
   invFun := fun ⟨l, hl⟩ =>
-    let ⟨O, hO⟩ := ringPreorderingLinearOrderEquiv.symm ⟨l, inferInstance⟩
+    let ⟨O, hO⟩ := IsPreorderingLinearOrderEquiv.symm ⟨l, inferInstance⟩
     ⟨O, letI _ := hO.1; .mk⟩
   left_inv := fun ⟨_, _⟩ => by ext; simp
   right_inv := fun ⟨_, _⟩ => by simp
@@ -163,44 +163,44 @@ noncomputable def ringOrderingLinearOrderEquivField :
 @[simp]
 theorem ringOrderingLinearOrderEquivField_apply (hP : P.IsOrdering) :
     (ringOrderingLinearOrderEquivField ⟨P, hP⟩ : LinearOrder F) =
-    ringPreorderingLinearOrderEquiv ⟨P, inferInstance, by simp⟩ := by
+    IsPreorderingLinearOrderEquiv ⟨P, inferInstance, by simp⟩ := by
   simp [ringOrderingLinearOrderEquivField]
 
 @[simp]
 theorem ringOrderingLinearOrderEquivField_symm_apply_coe
     (l : LinearOrder F) (hl : IsStrictOrderedRing F) :
-    (ringOrderingLinearOrderEquivField.symm ⟨l, hl⟩ : RingPreordering F) =
-    ringPreorderingLinearOrderEquiv.symm ⟨l, inferInstance⟩ := rfl
+    (ringOrderingLinearOrderEquivField.symm ⟨l, hl⟩ : IsPreordering F) =
+    IsPreorderingLinearOrderEquiv.symm ⟨l, inferInstance⟩ := rfl
 
 end Field
 
 section Quot
 
-variable {R : Type*} [CommRing R] (P : RingPreordering R)
+variable {R : Type*} [CommRing R] (P : IsPreordering R)
 
-abbrev RingCone.mkOfRingPreordering_quot [HasMemOrNegMem P] : RingCone (R ⧸ P.support) := by
-  refine mkOfRingPreordering (P := P.map Ideal.Quotient.mk_surjective (by simp)) (by simp)
+abbrev RingCone.mkOfIsPreordering_quot [HasMemOrNegMem P] : RingCone (R ⧸ P.support) := by
+  refine mkOfIsPreordering (P := P.map Ideal.Quotient.mk_surjective (by simp)) (by simp)
 
-abbrev PartialOrder.mkOfRingPreordering_quot [HasMemOrNegMem P] :
+abbrev PartialOrder.mkOfIsPreordering_quot [HasMemOrNegMem P] :
     PartialOrder (R ⧸ (P.support)) :=
-  .mkOfAddGroupCone <| RingCone.mkOfRingPreordering_quot P
+  .mkOfAddGroupCone <| RingCone.mkOfIsPreordering_quot P
 
-theorem IsOrderedRing.mkOfRingPreordering_quot [HasMemOrNegMem P] :
-    letI  _ : PartialOrder _ := PartialOrder.mkOfRingPreordering_quot P
-    IsOrderedRing (R ⧸ (P.support)) := mkOfRingPreordering _
+theorem IsOrderedRing.mkOfIsPreordering_quot [HasMemOrNegMem P] :
+    letI  _ : PartialOrder _ := PartialOrder.mkOfIsPreordering_quot P
+    IsOrderedRing (R ⧸ (P.support)) := mkOfIsPreordering _
 
-abbrev LinearOrder.mkOfRingPreordering_quot [HasMemOrNegMem P] [DecidablePred (· ∈ P)] :
+abbrev LinearOrder.mkOfIsPreordering_quot [HasMemOrNegMem P] [DecidablePred (· ∈ P)] :
     LinearOrder (R ⧸ (P.support)) :=
-  have : DecidablePred (· ∈ RingCone.mkOfRingPreordering_quot P) := by
+  have : DecidablePred (· ∈ RingCone.mkOfIsPreordering_quot P) := by
     simpa using decidablePred_mem_map_quotient_mk (P.support)
-                  (by simp [RingPreordering.coe_support])
-  .mkOfAddGroupCone (RingCone.mkOfRingPreordering_quot P)
+                  (by simp [IsPreordering.coe_support])
+  .mkOfAddGroupCone (RingCone.mkOfIsPreordering_quot P)
 
 open Classical
-noncomputable def ringPreorderingLinearOrderEquiv_quot :
-    Equiv {O : RingPreordering R // HasMemOrNegMem O}
+noncomputable def IsPreorderingLinearOrderEquiv_quot :
+    Equiv {O : IsPreordering R // HasMemOrNegMem O}
           {p : (I : Ideal R) × LinearOrder (R ⧸ I) // let ⟨I, l⟩ := p; IsOrderedRing (R ⧸ I)} where
-  toFun := fun ⟨O, hO⟩ => ⟨⟨O.support, .mkOfRingPreordering_quot O⟩, .mkOfRingPreordering_quot O⟩
+  toFun := fun ⟨O, hO⟩ => ⟨⟨O.support, .mkOfIsPreordering_quot O⟩, .mkOfIsPreordering_quot O⟩
   invFun := fun ⟨⟨I, l⟩, hl⟩ => ⟨sorry, sorry⟩ -- TODO
   left_inv := fun ⟨_, _⟩ => by sorry --ext; simp
   right_inv := fun ⟨_, _⟩ => by sorry --ext; simp

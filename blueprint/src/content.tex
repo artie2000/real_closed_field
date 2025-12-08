@@ -71,7 +71,7 @@ Note that we will only use that this map is well-defined and surjective, and not
 
 \begin{definition}
   \label{def:preordering}
-  \lean{RingPreordering}
+  \lean{IsPreordering}
   \leanok
   A preordering on a field $F$ is a subset of $F$ closed under $+$ and $\cdot$ and containing all squares but not containing $-1$.
 \end{definition}
@@ -79,7 +79,7 @@ Note that we will only use that this map is well-defined and surjective, and not
 \begin{definition}
   \label{def:ordering}
   \uses{def:preordering}
-  \lean{RingPreordering.IsOrdering}
+  \lean{IsPreordering.IsOrdering}
   \leanok
   An ordering on a field $F$ is a preordering $P\subset F$ such that $P\cup -P=F$.
 \end{definition}
@@ -89,7 +89,7 @@ It is an easy check from the axioms of an ordered field that orderings deserve t
 \begin{lemma}
   \label{lem:preord_inv}
   \uses{def:preordering}
-  \lean{RingPreordering.inv_mem}
+  \lean{IsPreordering.inv_mem}
   \leanok
   Preorderings are closed under multiplicative inverses.
 \end{lemma}
@@ -101,7 +101,7 @@ It is an easy check from the axioms of an ordered field that orderings deserve t
 \begin{lemma}
   \label{lem:preord_antisymm}
   \uses{def:preordering}
-  \lean{RingPreordering.eq_zero_of_mem_of_neg_mem}
+  \lean{IsPreordering.eq_zero_of_mem_of_neg_mem}
   \leanok
   Let $P$ be a preordering on a field $F$. If $x,-x\in P$, then $x=0$.
 \end{lemma}
@@ -139,7 +139,7 @@ In other words, a field is real if and only if the sums of squares form a preord
 \begin{lemma}
   \label{lem:preord_adj}
   \uses{def:preordering}
-  \lean{RingPreordering.neg_one_notMem_adjoin_of_neg_notMem}
+  \lean{IsPreordering.neg_one_notMem_adjoin_of_neg_notMem}
   \leanok
   Let $P$ be a preordering on a field $F$, and suppose there is some element $a\in F$ such that $-a\notin P$. Then there is a preordering on $F$ containing $P$ and $a$.
 \end{lemma}
@@ -152,7 +152,7 @@ In other words, a field is real if and only if the sums of squares form a preord
 \begin{lemma}
   \label{lem:max_preord_is_ord}
   \uses{def:ordering}
-  \lean{RingPreordering.isOrdering_of_maximal}
+  \lean{IsPreordering.isOrdering_of_maximal}
   \leanok
   Maximal field preorderings are orderings.
 \end{lemma}
@@ -165,7 +165,7 @@ In other words, a field is real if and only if the sums of squares form a preord
 \begin{lemma}
   \label{lem:preord_ext}
   \uses{def:ordering}
-  \lean{RingPreordering.exists_le_isOrdering}
+  \lean{IsPreordering.exists_le_isOrdering}
   \leanok
   Let $P$ be a preordering on a field $F$. Then $P$ is contained in an ordering.
 \end{lemma}
@@ -191,7 +191,7 @@ In other words, a field is real if and only if the sums of squares form a preord
 \begin{lemma}
   \label{lem:ord_max}
   \uses{def:ordering}
-  \lean{RingPreordering.eq_of_le}
+  \lean{IsPreordering.eq_of_le}
   \leanok
   Field orderings are maximal as preorderings.
 \end{lemma}

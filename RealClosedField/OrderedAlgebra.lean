@@ -33,7 +33,7 @@ variable {F K : Type*} [Field F] [LinearOrder F] [IsStrictOrderedRing F] [Field 
 open Classical in
 open scoped algebraMap in
 noncomputable def ringOrderingOrderedAlgebraEquivField :
-    Equiv {O : RingPreordering K // O.IsOrdering ∧
+    Equiv {O : IsPreordering K // O.IsOrdering ∧
             Subsemiring.map (algebraMap F K) (Subsemiring.nonneg F) ≤ O.toSubsemiring}
           {l : LinearOrder K // ∃ _ : IsStrictOrderedRing K, IsOrderedAlgebra F K} where
   toFun := fun ⟨O, hO, hO₂⟩ =>
@@ -57,7 +57,7 @@ noncomputable def ringOrderingOrderedAlgebraEquivField :
 
 @[simp]
 theorem ringOrderingOrderedAlgebraEquivField_apply_coe
-    {O : RingPreordering K} (hO : O.IsOrdering)
+    {O : IsPreordering K} (hO : O.IsOrdering)
     (hO₂ : Subsemiring.map (algebraMap F K) (Subsemiring.nonneg F) ≤ O.toSubsemiring) :
     (ringOrderingOrderedAlgebraEquivField ⟨O, hO, hO₂⟩ : LinearOrder K) =
     ringOrderingLinearOrderEquivField ⟨O, hO⟩ := rfl
@@ -65,7 +65,7 @@ theorem ringOrderingOrderedAlgebraEquivField_apply_coe
 @[simp]
 theorem ringOrderingOrderedAlgebraEquivField_symm_apply_coe
     (l : LinearOrder K) (hl : IsStrictOrderedRing K) (hl₂ : IsOrderedAlgebra F K) :
-    (ringOrderingOrderedAlgebraEquivField.symm ⟨l, hl, hl₂⟩ : RingPreordering K) =
+    (ringOrderingOrderedAlgebraEquivField.symm ⟨l, hl, hl₂⟩ : IsPreordering K) =
     ringOrderingLinearOrderEquivField.symm ⟨l, hl⟩ := rfl
 
 open Classical Subsemiring in
@@ -76,10 +76,10 @@ theorem Field.exists_isOrderedAlgebra_iff_neg_one_notMem_sup :
   refine ⟨fun ⟨O, hO, hO₂⟩ hc => ?_, fun h => ?_⟩
   · suffices Subsemiring.map (algebraMap F K) (Subsemiring.nonneg F) ⊔ Subsemiring.sumSq K ≤
              O.toSubsemiring from
-      RingPreordering.neg_one_notMem _ <| this hc
+      IsPreordering.neg_one_notMem _ <| this hc
     rw [sup_le_iff]
     exact ⟨hO₂, fun _ => by aesop⟩
-  · rcases RingPreordering.exists_le_isOrdering
+  · rcases IsPreordering.exists_le_isOrdering
         { toSubsemiring := (Subsemiring.nonneg F).map (algebraMap F K) ⊔ Subsemiring.sumSq K } with
       ⟨O, hO, hO₂⟩
     refine ⟨O, ⟨inferInstance, ?_⟩⟩
