@@ -4,9 +4,9 @@ Copyright (c) 2024 Florent Schaffhauser. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Florent Schaffhauser, Artie Khovanov
 -/
-import Mathlib.Algebra.Field.IsField
 import RealClosedField.Algebra.Order.Ring.Ordering.Defs
 import RealClosedField.Algebra.Ring.Semireal.Defs
+import Mathlib.Order.CompletePartialOrder
 import Mathlib.RingTheory.Ideal.Maps
 import Mathlib.Tactic.FieldSimp
 import Mathlib.Tactic.LinearCombination
@@ -272,32 +272,35 @@ theorem directedOn_image_supportAddSubgroup {S : Set (Subsemiring R)} (hSd : Dir
 theorem supportAddSubgroup_sSup :
     (sSup S).supportAddSubgroup = SupSet.sSup (supportAddSubgroup '' S) := by
   ext x
-  rw [AddSubgroup.mem_sSup_of_directedOn (by simp_all) (directedOn_image_supportAddSubgroup hSd)]
-  simp only [mem_supportAddSubgroup, mem_sSup, Set.mem_image, exists_exists_and_eq_and]
+  rw [AddSubgroup.mem_sSup_of_directedOn (by simp_all)
+       (.mono_comp (fun _ _ h ↦ supportAddSubgroup_mono h) hSd)]
+  simp only [mem_supportAddSubgroup, mem_sSup_of_directedOn, Set.mem_image,
+    exists_exists_and_eq_and, hSd, hS]
   refine ⟨?_, by aesop⟩
   rintro ⟨⟨_, hs₁, _⟩, ⟨_, hs₂, _⟩⟩
   rcases hSd _ hs₁ _ hs₂ with ⟨s, hs⟩
   exact ⟨s, by aesop⟩
 
-variable {S} in
-theorem hasIdealSupport_sSup (h : ∀ P ∈ S, P.HasIdealSupport) : (sSup S).HasIdealSupport := by
-  simp_rw [hasIdealSupport_iff, mem_sSup] at *
-  rintro x a ⟨P, hP, hP'⟩ ⟨Q, hQ, hQ'⟩
+protected theorem HasIdealSupport.sSup (h : ∀ P ∈ S, P.HasIdealSupport) :
+    (sSup S).HasIdealSupport := by
+  simp only [hasIdealSupport_iff, mem_sSup_of_directedOn, forall_exists_index, and_imp, *] at *
+  rintro x a P hP hP' Q hQ hQ'
   rcases hSd _ hP _ hQ with ⟨R, hR, hPR, hQR⟩
   have := h _ hR x a (hPR hP') (hQR hQ')
-  aesop
+  exact ⟨⟨R, hR, this.1⟩, ⟨R, hR, this.2⟩⟩
 
 variable {S} in
 @[simp]
 theorem support_sSup  (h : ∀ P ∈ S, P.HasIdealSupport) :
-    letI _ : (sSup S).HasIdealSupport := hasIdealSupport_sSup h
+    letI _ : (sSup S).HasIdealSupport := HasIdealSupport.sSup h
     (sSup S).support = SupSet.sSup {s | ∃ P, ∃ hP : P ∈ S, letI _ := h _ hP; s = P.support} := by
   generalize_proofs
   ext x
   have : x ∈ (sSup S).support ↔ x ∈ SupSet.sSup (supportAddSubgroup '' S) := by
     simp [← supportAddSubgroup_sSup (hS := hS) (hSd := hSd)]
   rw [this,
-      AddSubgroup.mem_sSup_of_directedOn (by simp_all) (directedOn_image_supportAddSubgroup hSd),
+      AddSubgroup.mem_sSup_of_directedOn (by simp_all)
+        (.mono_comp (fun _ _ h ↦ supportAddSubgroup_mono h) hSd),
       Submodule.mem_sSup_of_directed]
   · aesop
   · rcases hS with ⟨P, hP⟩
