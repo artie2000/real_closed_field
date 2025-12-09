@@ -105,8 +105,8 @@ end support
 /-- A preordering on a ring `R` is a subsemiring of `R` containing all squares,
 but not containing `-1`. -/
 class IsPreordering {R : Type*} [i : CommRing R] (S : Subsemiring R) : Prop where
-  mem_of_isSquare [i] (S) {x} (hx : IsSquare x) : x ∈ S := by aesop
-  neg_one_notMem [i] (S) : -1 ∉ S := by aesop
+  mem_of_isSquare (S) {x} (hx : IsSquare x) : x ∈ S := by aesop
+  neg_one_notMem (S) : -1 ∉ S := by aesop
 
 export IsPreordering (mem_of_isSquare)
 export IsPreordering (neg_one_notMem)

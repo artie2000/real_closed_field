@@ -54,7 +54,7 @@ theorem HasIdealSupport.neg_smul_mem [P.HasIdealSupport]
     (x : R) {a : R} (h₁a : a ∈ P) (h₂a : -a ∈ P) : -(x * a) ∈ P := by
   grind [hasIdealSupport_iff]
 
--- TODO : figuer out namespacing (for dot notation)
+-- TODO : figure out namespacing (for dot notation)
 
 namespace IsPreordering
 
@@ -71,10 +71,6 @@ theorem inv_mem {F : Type*} [Field F] (P : Subsemiring F) [P.IsPreordering] {a :
   have mem : a * (a⁻¹ * a⁻¹) ∈ P := by aesop
   field_simp at mem
   simp_all
-
-@[aesop unsafe 80% apply (rule_sets := [SetLike])]
-theorem mem_of_isSumSq {x : R} (hx : IsSumSq x) : x ∈ P := by
-  induction hx using IsSumSq.rec' <;> aesop
 
 section mk'
 
@@ -119,12 +115,6 @@ theorem support_ne_top [P.HasIdealSupport] : P.support ≠ ⊤ := by
   apply_fun Submodule.toAddSubgroup
   simpa using supportAddSubgroup_ne_top P
 
-/-- Constructor for IsOrdering that doesn't require `ne_top'`. -/
-theorem IsOrdering.mk' [HasMemOrNegMem P]
-    (h : ∀ {x y}, x * y ∈ P.support → x ∈ P.support ∨ y ∈ P.support) : P.IsOrdering where
-  ne_top' := support_ne_top P
-  mem_or_mem' := h
-
 end ne_top
 
 theorem hasIdealSupport_of_isUnit_two (h : IsUnit (2 : R)) : P.HasIdealSupport := by
@@ -166,7 +156,16 @@ instance : P.support.IsPrime := by simpa using Ideal.bot_prime
 
 end Field
 
-theorem isOrdering_iff :
+end IsPreordering
+
+/-- Constructor for IsOrdering that doesn't require `ne_top'`. -/
+theorem IsOrdering.mk' [P.IsPreordering] [HasMemOrNegMem P]
+    (h : ∀ {x y}, x * y ∈ P.support → x ∈ P.support ∨ y ∈ P.support) : P.IsOrdering where
+  ne_top' := IsPreordering.support_ne_top P
+  mem_or_mem' := h
+
+variable {P} in
+theorem isOrdering_iff [P.IsPreordering] :
     P.IsOrdering ↔ ∀ a b : R, -(a * b) ∈ P → a ∈ P ∨ b ∈ P := by
   refine ⟨fun _ a b _ => ?_, fun h => ?_⟩
   · by_contra
@@ -183,14 +182,15 @@ theorem isOrdering_iff :
     have := h x (-y)
     cases (by aesop : x ∈ P ∨ -x ∈ P) <;> simp_all [mem_support]
 
-end IsPreordering
-
 /-! ## Order operations -/
+
+theorem IsPreordering.of_le [P.IsPreordering] {Q : Subsemiring R} (hPQ : P ≤ Q) (hQ : -1 ∉ Q) :
+    Q.IsPreordering where
 
 instance [IsSemireal R] : (sumSq R).IsPreordering where
   neg_one_notMem := by simpa using IsSemireal.not_isSumSq_neg_one
 
-theorem _root_.isSemireal_ofIsPreordering [P.IsPreordering] : IsSemireal R :=
+theorem isSemireal_ofIsPreordering [P.IsPreordering] : IsSemireal R :=
   .of_not_isSumSq_neg_one (P.neg_one_notMem <| P.mem_of_isSumSq ·)
 
 theorem _root_.exists_isPreordering_iff_isSemireal :
