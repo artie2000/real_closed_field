@@ -35,9 +35,9 @@ into an ordered ring, and vice versa.
 #### Preorderings
 -/
 
-variable {R : Type*} [CommRing R] (S : Subsemiring R)
+variable {R : Type*} [CommRing R] (S : AddSubmonoid R)
 
-namespace Subsemiring
+namespace AddSubmonoid
 
 /-!
 #### Support
@@ -63,7 +63,7 @@ theorem coe_supportAddSubgroup : S.supportAddSubgroup = (S ∩ -S : Set R) := rf
 end supportAddSubgroup
 
 /-- Typeclass to track whether the support of a subsemiring forms an ideal. -/
-class HasIdealSupport (S : Subsemiring R) : Prop where
+class HasIdealSupport (S : AddSubmonoid R) : Prop where
   smul_mem_support (S) (x : R) {a : R} (ha : a ∈ S.supportAddSubgroup) :
     x * a ∈ S.supportAddSubgroup
 
@@ -73,12 +73,6 @@ theorem hasIdealSupport_iff :
     S.HasIdealSupport ↔ ∀ x a : R, a ∈ S → -a ∈ S → x * a ∈ S ∧ -(x * a) ∈ S where
   mp _ := by simpa [mem_supportAddSubgroup] using S.smul_mem_support
   mpr _ := ⟨by simpa [mem_supportAddSubgroup]⟩
-
-instance [HasMemOrNegMem S] : S.HasIdealSupport where
-  smul_mem_support x a ha :=
-    match mem_or_neg_mem S x with
-    | .inl hx => ⟨by simpa using mul_mem hx ha.1, by simpa using mul_mem hx ha.2⟩
-    | .inr hx => ⟨by simpa using mul_mem hx ha.2, by simpa using mul_mem hx ha.1⟩
 
 section support
 
@@ -102,9 +96,21 @@ theorem supportAddSubgroup_eq : S.supportAddSubgroup = S.support.toAddSubgroup :
 
 end support
 
+end AddSubmonoid
+
+namespace Subsemiring
+
+variable (S : Subsemiring R)
+
+instance [HasMemOrNegMem S] : S.HasIdealSupport where
+  smul_mem_support x a ha :=
+    match mem_or_neg_mem S x with
+    | .inl hx => ⟨by simpa using mul_mem hx ha.1, by simpa using mul_mem hx ha.2⟩
+    | .inr hx => ⟨by simpa using mul_mem hx ha.2, by simpa using mul_mem hx ha.1⟩
+
 /-- A preordering on a ring `R` is a subsemiring of `R` containing all squares,
 but not containing `-1`. -/
-class IsPreordering {R : Type*} [i : CommRing R] (S : Subsemiring R) : Prop where
+class IsPreordering (S : Subsemiring R) : Prop where
   mem_of_isSquare (S) {x} (hx : IsSquare x) : x ∈ S := by aesop
   neg_one_notMem (S) : -1 ∉ S := by aesop
 

@@ -27,7 +27,7 @@ extending preorderings is given in `Algebra.Order.Ring.Ordering.Adjoin`.
 
 variable {R : Type*} [CommRing R] (P : Subsemiring R)
 
--- TODO : separate out the parts that don't need `IsPreordering`
+-- TODO : separate out the parts that don't need `IsPreordering` or `Subsemiring`
 
 /-!
 ### Preorderings
