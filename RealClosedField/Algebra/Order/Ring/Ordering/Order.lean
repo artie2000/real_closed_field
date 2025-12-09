@@ -55,21 +55,16 @@ section CommRing
 
 variable {R : Type*} [Nontrivial R] [CommRing R] (C : RingCone R) [HasMemOrNegMem C]
 
-abbrev IsPreordering.mkOfCone : IsPreordering R where
-  __ := C.toSubsemiring
-  carrier := C
-  mem_of_isSquare' x := by
+abbrev RingCone.isPreordering : C.IsPreordering where
+  mem_of_isSquare x := by
     rcases x with ⟨y, rfl⟩
     cases mem_or_neg_mem C y with
     | inl h  => aesop
     | inr h => simpa using (show -y * -y ∈ C by aesop (config := { enableSimp := false }))
-  neg_one_notMem' h := one_ne_zero <| eq_zero_of_mem_of_neg_mem (one_mem C) h
-
-instance : HasMemOrNegMem (IsPreordering.mkOfCone C) where
-  mem_or_neg_mem := mem_or_neg_mem C
+  neg_one_notMem h := one_ne_zero <| eq_zero_of_mem_of_neg_mem (one_mem C) h
 
 @[simp]
-theorem IsPreordering.mkOfCone.support_eq_bot : (mkOfCone C).support = ⊥ := by
+theorem IsPreordering.mkOfCone.support_eq_bot : C.support = ⊥ := by
   aesop (add safe (eq_zero_of_mem_of_neg_mem (C := C)), simp mem_support)
 
 end CommRing

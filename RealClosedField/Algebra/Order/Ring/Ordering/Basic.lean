@@ -25,26 +25,24 @@ extending preorderings is given in `Algebra.Order.Ring.Ordering.Adjoin`.
 
 -/
 
-variable {R : Type*} [CommRing R] (P : Subsemiring R)
+variable {S R : Type*} [CommRing R] [SetLike S R] (P : S)
 
--- TODO : separate out the parts that don't need `IsPreordering` or `Subsemiring`
+-- TODO : separate out the parts that don't need `IsPreordering` or `SubsemiringClass`
 
 /-!
 ### Preorderings
 -/
 
-namespace Subsemiring
+namespace AddSubmonoid
 
-/-!
-### Supports
--/
+variable [AddSubmonoidClass S R]
 
-theorem supportAddSubgroup_mono {P Q : Subsemiring R} (h : P ≤ Q) :
-    P.supportAddSubgroup ≤ Q.supportAddSubgroup :=
+theorem supportAddSubgroup_mono {P Q : S} (h : P ≤ Q) :
+    supportAddSubgroup P ≤ supportAddSubgroup Q :=
   fun _ ↦ by aesop (add simp mem_supportAddSubgroup)
 
-theorem support_mono {P Q : Subsemiring R} [P.HasIdealSupport] [Q.HasIdealSupport] (h : P ≤ Q) :
-    P.support ≤ Q.support := fun _ ↦ by aesop (add simp mem_support)
+theorem support_mono {P Q : S} [HasIdealSupport P] [HasIdealSupport Q] (h : P ≤ Q) :
+    support P ≤ support Q := fun _ ↦ by aesop (add simp mem_support)
 
 theorem HasIdealSupport.smul_mem [P.HasIdealSupport]
     (x : R) {a : R} (h₁a : a ∈ P) (h₂a : -a ∈ P) : x * a ∈ P := by
@@ -53,6 +51,16 @@ theorem HasIdealSupport.smul_mem [P.HasIdealSupport]
 theorem HasIdealSupport.neg_smul_mem [P.HasIdealSupport]
     (x : R) {a : R} (h₁a : a ∈ P) (h₂a : -a ∈ P) : -(x * a) ∈ P := by
   grind [hasIdealSupport_iff]
+
+end AddSubmonoid
+
+namespace Subsemiring
+
+open AddSubmonoid
+
+/-!
+### Supports
+-/
 
 -- TODO : figure out namespacing (for dot notation)
 

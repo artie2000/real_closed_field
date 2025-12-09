@@ -35,9 +35,11 @@ into an ordered ring, and vice versa.
 #### Preorderings
 -/
 
-variable {R : Type*} [CommRing R] (S : AddSubmonoid R)
+variable {R : Type*} [CommRing R] {S : Type*} [SetLike S R] (s : S)
 
 namespace AddSubmonoid
+
+variable [AddSubmonoidClass S R]
 
 /-!
 #### Support
@@ -45,54 +47,56 @@ namespace AddSubmonoid
 
 section supportAddSubgroup
 
+variable (s : AddSubmonoid R)
+
 /--
 The support of a subsemiring `S` of a commutative ring `R` is
 the set of elements `x` in `R` such that both `x` and `-x` lie in `S`.
 -/
 def supportAddSubgroup : AddSubgroup R where
-  carrier := S ∩ -S
+  carrier := s ∩ -s
   zero_mem' := by aesop
   add_mem' := by aesop
   neg_mem' := by aesop
 
-variable {S} in
-theorem mem_supportAddSubgroup {x} : x ∈ S.supportAddSubgroup ↔ x ∈ S ∧ -x ∈ S := .rfl
+variable {s} in
+theorem mem_supportAddSubgroup {x} : x ∈ s.supportAddSubgroup ↔ x ∈ s ∧ -x ∈ s := .rfl
 
-theorem coe_supportAddSubgroup : S.supportAddSubgroup = (S ∩ -S : Set R) := rfl
+theorem coe_supportAddSubgroup : s.supportAddSubgroup = (s ∩ -s : Set R) := rfl
 
 end supportAddSubgroup
 
 /-- Typeclass to track whether the support of a subsemiring forms an ideal. -/
-class HasIdealSupport (S : AddSubmonoid R) : Prop where
-  smul_mem_support (S) (x : R) {a : R} (ha : a ∈ S.supportAddSubgroup) :
-    x * a ∈ S.supportAddSubgroup
+class HasIdealSupport (s : S) : Prop where
+  smul_mem_support (s) (x : R) {a : R} (ha : a ∈ (AddSubmonoid.ofClass s).supportAddSubgroup) :
+    x * a ∈ (AddSubmonoid.ofClass s).supportAddSubgroup
 
 export HasIdealSupport (smul_mem_support)
 
 theorem hasIdealSupport_iff :
-    S.HasIdealSupport ↔ ∀ x a : R, a ∈ S → -a ∈ S → x * a ∈ S ∧ -(x * a) ∈ S where
-  mp _ := by simpa [mem_supportAddSubgroup] using S.smul_mem_support
+    HasIdealSupport s ↔ ∀ x a : R, a ∈ s → -a ∈ s → x * a ∈ s ∧ -(x * a) ∈ s where
+  mp _ := by simpa [mem_supportAddSubgroup] using smul_mem_support (R := R) s
   mpr _ := ⟨by simpa [mem_supportAddSubgroup]⟩
 
 section support
 
-variable [S.HasIdealSupport]
+variable (s : AddSubmonoid R) [HasIdealSupport s]
 
 /--
 The support of a subsemiring `S` of a commutative ring `R` is
 the set of elements `x` in `R` such that both `x` and `-x` lie in `P`.
 -/
 def support : Ideal R where
-  __ := S.supportAddSubgroup
-  smul_mem' := smul_mem_support S
+  __ := supportAddSubgroup s
+  smul_mem' := smul_mem_support s
 
-variable {S} in
-theorem mem_support {x} : x ∈ S.support ↔ x ∈ S ∧ -x ∈ S := .rfl
+variable {s} in
+theorem mem_support {x} : x ∈ s.support ↔ x ∈ s ∧ -x ∈ s := .rfl
 
-theorem coe_support : S.support = (S : Set R) ∩ -(S : Set R) := rfl
+theorem coe_support : s.support = (s : Set R) ∩ -(s : Set R) := rfl
 
 @[simp]
-theorem supportAddSubgroup_eq : S.supportAddSubgroup = S.support.toAddSubgroup := rfl
+theorem supportAddSubgroup_eq : s.supportAddSubgroup = s.support.toAddSubgroup := rfl
 
 end support
 
@@ -100,49 +104,41 @@ end AddSubmonoid
 
 namespace Subsemiring
 
-variable (S : Subsemiring R)
+variable [SubsemiringClass S R]
 
-instance [HasMemOrNegMem S] : S.HasIdealSupport where
+instance [SubsemiringClass S R] [HasMemOrNegMem s] : AddSubmonoid.HasIdealSupport s where
   smul_mem_support x a ha :=
-    match mem_or_neg_mem S x with
+    match mem_or_neg_mem s x with
     | .inl hx => ⟨by simpa using mul_mem hx ha.1, by simpa using mul_mem hx ha.2⟩
     | .inr hx => ⟨by simpa using mul_mem hx ha.2, by simpa using mul_mem hx ha.1⟩
 
 /-- A preordering on a ring `R` is a subsemiring of `R` containing all squares,
 but not containing `-1`. -/
-class IsPreordering (S : Subsemiring R) : Prop where
-  mem_of_isSquare (S) {x} (hx : IsSquare x) : x ∈ S := by aesop
-  neg_one_notMem (S) : -1 ∉ S := by aesop
+class IsPreordering [SubsemiringClass S R] (s : S) : Prop where
+  mem_of_isSquare (s) {x} (hx : IsSquare x) : x ∈ s := by aesop
+  neg_one_notMem (s) : -1 ∉ s := by aesop
 
 export IsPreordering (mem_of_isSquare)
 export IsPreordering (neg_one_notMem)
 
-/- TODO : figure out how to make aesop fire when S.IsPreordering is an instance variable
-          e.g. when we can see S.IsOrdering -/
-
-@[aesop unsafe 20% forward (rule_sets := [SetLike])]
-theorem neg_one_notMem' {_ : S.IsPreordering} : -1 ∉ S := S.neg_one_notMem
-
-attribute [aesop unsafe 20% forward (rule_sets := [SetLike])] neg_one_notMem
-
 section IsPreordering
 
-variable [S.IsPreordering]
+variable [IsPreordering s]
 
 @[aesop unsafe 80% (rule_sets := [SetLike])]
-protected theorem mem_of_isSumSq {x : R} (hx : IsSumSq x) : x ∈ S := by
+protected theorem mem_of_isSumSq {x : R} (hx : IsSumSq x) : x ∈ s := by
   induction hx with
   | zero => simp
   | sq_add => aesop (add unsafe mem_of_isSquare)
 
-theorem sumSq_le : .sumSq R ≤ S := fun _ ↦ by
-  simpa using Subsemiring.mem_of_isSumSq S
+theorem sumSq_le : Subsemiring.sumSq R ≤ .ofClass s := fun _ ↦ by
+  simpa using Subsemiring.mem_of_isSumSq s
 
 @[simp]
-protected theorem mul_self_mem (x : R) : x * x ∈ S := by aesop
+protected theorem mul_self_mem (x : R) : x * x ∈ s := by aesop
 
 @[simp]
-protected theorem pow_two_mem (x : R) : x ^ 2 ∈ S := by aesop
+protected theorem pow_two_mem (x : R) : x ^ 2 ∈ s := by aesop
 
 end IsPreordering
 
@@ -151,6 +147,6 @@ An ordering `O` on a ring `R` is a preordering such that
 1. `O` contains either `x` or `-x` for each `x` in `R` and
 2. the support of `O` is a prime ideal.
 -/
-class IsOrdering extends IsPreordering S, HasMemOrNegMem S, S.support.IsPrime
+class IsOrdering extends IsPreordering s, HasMemOrNegMem s, (Subsemiring.ofClass s).support.IsPrime
 
 end Subsemiring
