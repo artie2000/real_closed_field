@@ -59,7 +59,7 @@ theorem Subsemiring.nonneg_toAddSubmonoid
 
 -- TODO : move to right place; fix proof
 instance {T : Type*} [Ring T] [LinearOrder T] [IsOrderedRing T] :
-    (AddSubmonoid.nonneg T).HasMemOrNegMem' where
+    (AddSubmonoid.nonneg T).HasMemOrNegMem where
   mem_or_neg_mem := mem_or_neg_mem (AddGroupCone.nonneg T)
 
 @[simp]
@@ -71,7 +71,7 @@ theorem AddSubmonoid.nonneg_supportAddSubgroup_eq_bot
 
 instance {T : Type*} [Ring T] [LinearOrder T] [IsOrderedRing T] :
     (AddSubmonoid.nonneg T).HasIdealSupport := by
-  have : (Subsemiring.nonneg T).HasMemOrNegMem' := by simp; infer_instance
+  have : (Subsemiring.nonneg T).HasMemOrNegMem := by simp; infer_instance
   simpa using (inferInstance : (Subsemiring.nonneg T).HasIdealSupport)
 
 @[simp]
@@ -93,10 +93,10 @@ theorem RingCone.supportAddSubgroup_eq_bot : C.supportAddSubgroup = ⊥ := by
 theorem RingCone.support_eq_bot [C.HasIdealSupport] : C.support = ⊥ := by
   aesop (add safe (eq_zero_of_mem_of_neg_mem (C := C)), simp AddSubmonoid.mem_support)
 
-abbrev RingCone.isPreordering [Nontrivial R] [C.HasMemOrNegMem'] : C.IsPreordering :=
+abbrev RingCone.isPreordering [Nontrivial R] [C.HasMemOrNegMem] : C.IsPreordering :=
   .of_support_eq_bot C.support_eq_bot
 
-abbrev RingCone.isOrdering [IsDomain R] [C.HasMemOrNegMem'] : C.IsOrdering :=
+abbrev RingCone.isOrdering [IsDomain R] [C.HasMemOrNegMem] : C.IsOrdering :=
   .of_support_eq_bot C.support_eq_bot
 
 end CommRing
@@ -115,12 +115,12 @@ abbrev RingCone.mkOfSubsemiring' [P.HasIdealSupport] (hP : P.support = ⊥) : Ri
   .mkOfSubsemiring (P := P) (by simp [hP])
 
 -- TODO : remove this when `MemOrNegMem` has its definition changed
-instance [P.HasMemOrNegMem'] (hP : P.support = ⊥) :
+instance [P.HasMemOrNegMem] (hP : P.support = ⊥) :
     HasMemOrNegMem (RingCone.mkOfSubsemiring' hP) where
   mem_or_neg_mem := P.mem_or_neg_mem
 
-instance [P.HasMemOrNegMem'] (hP : P.support = ⊥) :
-    (RingCone.mkOfSubsemiring' hP).HasMemOrNegMem' where
+instance [P.HasMemOrNegMem] (hP : P.support = ⊥) :
+    (RingCone.mkOfSubsemiring' hP).HasMemOrNegMem where
   mem_or_neg_mem := P.mem_or_neg_mem
 
 abbrev PartialOrder.mkOfSubsemiring (hP : P.supportAddSubgroup = ⊥) : PartialOrder R :=
@@ -131,13 +131,13 @@ theorem IsOrderedRing.mkOfSubsemiring (hP : P.supportAddSubgroup = ⊥) :
     IsOrderedRing R :=
   .mkOfCone <| RingCone.mkOfSubsemiring hP
 
-abbrev LinearOrder.mkOfSubsemiring [P.HasMemOrNegMem'] [DecidablePred (· ∈ P)]
+abbrev LinearOrder.mkOfSubsemiring [P.HasMemOrNegMem] [DecidablePred (· ∈ P)]
     (hP : P.support = ⊥) : LinearOrder R :=
   .mkOfAddGroupCone <| RingCone.mkOfSubsemiring' hP
 
 open Classical in
 noncomputable def subsemiringLinearOrderEquiv :
-    Equiv {O : Subsemiring R // ∃ _ : O.HasMemOrNegMem', O.support = ⊥}
+    Equiv {O : Subsemiring R // ∃ _ : O.HasMemOrNegMem, O.support = ⊥}
           {l : LinearOrder R // IsOrderedRing R} where
   toFun := fun ⟨O, hO⟩ => letI _ := hO.1; ⟨.mkOfSubsemiring hO.2, .mkOfSubsemiring (by simp [hO.2])⟩
   invFun := fun ⟨_, _⟩ => ⟨.nonneg R, by simp; infer_instance, by simp⟩
@@ -166,9 +166,9 @@ variable {F : Type*} [Field F] (P : Subsemiring F)
 abbrev RingCone.mkOfIsPreordering [P.IsPreordering] : RingCone F :=
   .mkOfSubsemiring' <| Subsemiring.IsPreordering.support_eq_bot P
 
--- TODO : figure out why synthesis of `P.IsOrdering -> P.HasMemOrNegMem'` is slow
+-- TODO : figure out why synthesis of `P.IsOrdering -> P.HasMemOrNegMem` is slow
 set_option synthInstance.maxHeartbeats 30000 in
-instance [P.IsOrdering] : (RingCone.mkOfIsPreordering P).HasMemOrNegMem' where
+instance [P.IsOrdering] : (RingCone.mkOfIsPreordering P).HasMemOrNegMem where
   mem_or_neg_mem := P.mem_or_neg_mem
 
 abbrev PartialOrder.mkOfIsPreordering [P.IsPreordering] : PartialOrder F :=
@@ -207,9 +207,9 @@ end Field
 
 section Quot
 
-variable {R : Type*} [CommRing R] (O : Subsemiring R) [O.HasMemOrNegMem']
+variable {R : Type*} [CommRing R] (O : Subsemiring R) [O.HasMemOrNegMem]
 
-instance : (O.map (Ideal.Quotient.mk O.support)).HasMemOrNegMem' :=
+instance : (O.map (Ideal.Quotient.mk O.support)).HasMemOrNegMem :=
   AddSubmonoid.HasMemOrNegMem.map O.toAddSubmonoid Ideal.Quotient.mk_surjective
 
 theorem Subsemiring.support_map_mk_support_eq_bot :
@@ -237,7 +237,7 @@ abbrev LinearOrder.mkOfSubsemiring_quot [DecidablePred (· ∈ O)] :
 
 open Classical in
 noncomputable def subsemiringLinearOrderEquiv_quot :
-    Equiv {O : Subsemiring R // O.HasMemOrNegMem'}
+    Equiv {O : Subsemiring R // O.HasMemOrNegMem}
           (Σ I : Ideal R, {p : LinearOrder (R ⧸ I) // IsOrderedRing (R ⧸ I)}) where
   toFun := fun ⟨O, hO⟩ => ⟨O.support, ⟨.mkOfSubsemiring_quot O, .mkOfSubsemiring_quot O⟩⟩
   invFun := fun ⟨I, l, hl⟩ =>

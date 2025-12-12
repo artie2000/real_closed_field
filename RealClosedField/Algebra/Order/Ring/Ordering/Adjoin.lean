@@ -24,7 +24,7 @@ and that all orderings on a field are maximal preorderings.
 --TODO : move to basic
 @[to_additive]
 theorem Submonoid.mem_supportSubgroup_of_ge_of_notMem {G : Type*} [Group G] {P Q : Submonoid G}
-    [P.HasMemOrInvMem'] (h : P ≤ Q) {a : G} (ha : a ∈ Q) (haP : a ∉ P) : a ∈ Q.supportSubgroup :=
+    [P.HasMemOrInvMem] (h : P ≤ Q) {a : G} (ha : a ∈ Q) (haP : a ∉ P) : a ∈ Q.supportSubgroup :=
   ⟨ha, have := P.mem_or_inv_mem a; h (by simp_all)⟩
 
 variable {R : Type*} [CommRing R] (P : Subsemiring R) (a : R)
@@ -139,13 +139,13 @@ theorem IsPreordering.exists_le_isOrdering (P : Subsemiring R) [P.IsPreordering]
       ⟨_, IsPreordering.sSup (Set.nonempty_of_mem hQ) hc.directedOn hS, CompleteLattice.le_sSup S⟩
   ⟨_, ‹_›, .of_maximal_isPreordering hO⟩
 
-/- An ordering on `R` is maximal among preorderings iff it is maximal among orderings. -/
+/- An subsemiting of `R` is a maximal preordering iff it is a maximal ordering. -/
 theorem IsOrdering.maximal_isPreordering_iff_maximal_isOrdering
-    {O : Subsemiring R} [O.IsOrdering] :
+    {O : Subsemiring R} :
     Maximal IsPreordering O ↔ Maximal IsOrdering O where
-  mp h := Maximal.mono h (fun _ _ => inferInstance) ‹_›
+  mp h := Maximal.mono h (fun _ _ => inferInstance) (.of_maximal_isPreordering h)
   mpr hO :=
-    ⟨inferInstance, fun P hP h ↦ by
+    ⟨have := hO.prop; inferInstance, fun P hP h ↦ by
       rcases IsPreordering.exists_le_isOrdering P with ⟨O', hO', hO'₂⟩
       simp at hO'
       simpa [Maximal.eq_of_ge hO hO'₂ (by sorry/-order-/)] using hO'⟩ -- TODO : figure out why `order` fails here (bug)

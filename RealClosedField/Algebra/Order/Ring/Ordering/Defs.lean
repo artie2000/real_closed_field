@@ -37,13 +37,11 @@ namespace AddSubmonoid
 
 variable {G : Type*} [AddGroup G] (S : AddSubmonoid G)
 
--- TODO : remove `'` from name
-
 /-- Typeclass for substructures `S` such that `S ∪ -S = G`. -/
-class HasMemOrNegMem' {G : Type*} [AddGroup G] (S : AddSubmonoid G) : Prop where
+class HasMemOrNegMem {G : Type*} [AddGroup G] (S : AddSubmonoid G) : Prop where
   mem_or_neg_mem (S) (a : G) : a ∈ S ∨ -a ∈ S
 
-export HasMemOrNegMem' (mem_or_neg_mem)
+export HasMemOrNegMem (mem_or_neg_mem)
 
 /--
 The support of a subsemiring `S` of a commutative ring `R` is
@@ -68,18 +66,16 @@ namespace Submonoid
 
 variable {G : Type*} [Group G] (S : Submonoid G)
 
--- TODO : remove `'` from name
-
 /-- Typeclass for substructures `S` such that `S ∪ S⁻¹ = G`. -/
 @[to_additive]
-class HasMemOrInvMem' {G : Type*} [Group G] (s : Submonoid G) : Prop where
+class HasMemOrInvMem {G : Type*} [Group G] (s : Submonoid G) : Prop where
   mem_or_inv_mem (s) (a : G) : a ∈ s ∨ a⁻¹ ∈ s
 
-export HasMemOrInvMem' (mem_or_inv_mem)
+export HasMemOrInvMem (mem_or_inv_mem)
 
 @[to_additive]
-theorem HasMemOrInvMem'.of_le {s t : Submonoid G} [s.HasMemOrInvMem'] (h : s ≤ t) :
-    t.HasMemOrInvMem' where
+theorem HasMemOrInvMem.of_le {s t : Submonoid G} [s.HasMemOrInvMem] (h : s ≤ t) :
+    t.HasMemOrInvMem where
   mem_or_inv_mem a := by aesop (add unsafe forward (s.mem_or_inv_mem a))
 
 /--
@@ -185,7 +181,7 @@ namespace Subsemiring
 
 variable (S : Subsemiring R)
 
-instance [S.HasMemOrNegMem'] : S.HasIdealSupport where
+instance [S.HasMemOrNegMem] : S.HasIdealSupport where
   smul_mem_support x a ha :=
     match S.mem_or_neg_mem x with
     | .inl hx => ⟨by simpa using Subsemiring.mul_mem S hx ha.1,
@@ -198,9 +194,9 @@ An ordering `O` on a ring `R` is a subsemiring of `R` such that
 1. `O` contains either `x` or `-x` for each `x` in `R` and
 2. the support of `O` is a prime ideal.
 -/
-class IsOrdering extends S.HasMemOrNegMem', S.support.IsPrime
+class IsOrdering extends S.HasMemOrNegMem, S.support.IsPrime
 
-instance [IsDomain R] [S.HasMemOrNegMem'] [S.IsAddCone] : S.IsOrdering where
+instance [IsDomain R] [S.HasMemOrNegMem] [S.IsAddCone] : S.IsOrdering where
   __ : S.support.IsPrime := by simpa using Ideal.bot_prime
 
 /-- A preordering on a ring `R` is a subsemiring of `R` containing all squares,
@@ -237,7 +233,7 @@ protected theorem pow_two_mem (x : R) : x ^ 2 ∈ S := by aesop
 end IsPreordering
 
 variable {S} in
-theorem IsPreordering.of_support_neq_top [S.HasMemOrNegMem'] (h : S.support ≠ ⊤) :
+theorem IsPreordering.of_support_neq_top [S.HasMemOrNegMem] (h : S.support ≠ ⊤) :
     S.IsPreordering where
   mem_of_isSquare x := by
     rcases x with ⟨y, rfl⟩
@@ -248,7 +244,7 @@ theorem IsPreordering.of_support_neq_top [S.HasMemOrNegMem'] (h : S.support ≠ 
     have : 1 ∈ S.support := by simp [AddSubmonoid.mem_support, hc]
     exact h (by simpa [Ideal.eq_top_iff_one])
 
-instance [Nontrivial R] [S.HasMemOrNegMem'] [S.IsAddCone] : S.IsPreordering :=
+instance [Nontrivial R] [S.HasMemOrNegMem] [S.IsAddCone] : S.IsPreordering :=
   .of_support_neq_top (by simp)
 
 /- An ordering is a preordering. -/
