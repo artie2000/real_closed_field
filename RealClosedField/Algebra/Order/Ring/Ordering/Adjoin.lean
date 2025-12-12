@@ -21,6 +21,12 @@ and that all orderings on a field are maximal preorderings.
 
 -/
 
+--TODO : move to basic
+@[to_additive]
+theorem Submonoid.mem_supportSubgroup_of_ge_of_notMem {G : Type*} [Group G] {P Q : Submonoid G}
+    [P.HasMemOrInvMem'] (h : P ≤ Q) {a : G} (ha : a ∈ Q) (haP : a ∉ P) : a ∈ Q.supportSubgroup :=
+  ⟨ha, have := P.mem_or_inv_mem a; h (by simp_all)⟩
+
 variable {R : Type*} [CommRing R] (P : Subsemiring R) (a : R)
 
 namespace Subsemiring.IsPreordering
@@ -116,7 +122,7 @@ end IsPreordering
 theorem IsOrdering.of_maximal_isPreordering {O : Subsemiring R} (max : Maximal IsPreordering O) :
     O.IsOrdering :=
   have := max.prop
-  isOrdering_iff.mpr <| fun a b h => by
+  IsPreordering.isOrdering_iff.mpr <| fun a b h => by
   cases IsPreordering.neg_one_notMem_closure_insert_or_of_neg_mul_mem h with
   | inl h => exact Or.inl <| max.le_of_ge (IsPreordering.closure_insert h)
                               (fun _ ↦ by aesop) (by aesop)
@@ -126,11 +132,11 @@ theorem IsOrdering.of_maximal_isPreordering {O : Subsemiring R} (max : Maximal I
 /- Every preordering on `R` extends to an ordering. -/
 theorem IsPreordering.exists_le_isOrdering (P : Subsemiring R) [P.IsPreordering] :
     ∃ O ≥ P, O.IsOrdering :=
-  have := P.isSemireal_ofIsPreordering
+  have := isSemireal_ofIsPreordering P
   have ⟨_, _, hO⟩ : ∃ O, P ≤ O ∧ Maximal IsPreordering O := by
     refine zorn_le_nonempty₀ {P : Subsemiring R | IsPreordering P} ?_ P (by simpa)
     exact fun S hS hc Q hQ =>
-      ⟨_, isPreordering_sSup (Set.nonempty_of_mem hQ) hc.directedOn hS, CompleteLattice.le_sSup S⟩
+      ⟨_, IsPreordering.sSup (Set.nonempty_of_mem hQ) hc.directedOn hS, CompleteLattice.le_sSup S⟩
   ⟨_, ‹_›, .of_maximal_isPreordering hO⟩
 
 /- An ordering on `R` is maximal among preorderings iff it is maximal among orderings. -/
@@ -141,38 +147,11 @@ theorem IsOrdering.maximal_isPreordering_iff_maximal_isOrdering
   mpr hO :=
     ⟨inferInstance, fun P hP h ↦ by
       rcases IsPreordering.exists_le_isOrdering P with ⟨O', hO', hO'₂⟩
-      simpa [Maximal.eq_of_ge hO hO'₂ (by order)] using hO'⟩
-
-/-!
-### Comparison of orderings
--/
-
-variable {P Q : Subsemiring R} {a : R}
-
-def HasMemOrNegMem.of_le [HasMemOrNegMem P] (h : P ≤ Q) : HasMemOrNegMem Q where
-  mem_or_neg_mem a := have := mem_or_neg_mem P a; by aesop
-
-theorem mem_support_of_ge_of_notMem [HasMemOrNegMem P]
-    (h : P ≤ Q) (ha : a ∈ Q) (haP : a ∉ P) :
-    let := HasMemOrNegMem.of_le h
-    a ∈ Q.support := by
-  aesop (add simp mem_support)
-
-theorem eq_of_le_of_support_eq_bot [HasMemOrNegMem P] (h : P ≤ Q)
-    (hSupp : let := HasMemOrNegMem.of_le h; Q.support = ⊥) : P = Q := by
-  by_contra h2
-  have ⟨x, hx, hx2⟩ : ∃ x, x ∈ Q ∧ x ∉ P :=
-    Set.exists_of_ssubset <| lt_of_le_of_ne h (by simpa using h2)
-  have : -x ∈ Q := by aesop
-  apply_fun (x ∈ ·) at hSupp
-  aesop (add simp mem_support)
-
-theorem IsOrdering.eq_of_ge {F : Type*} [Field F] {O P : Subsemiring F}
-    [O.IsOrdering] [P.IsPreordering] (h : O ≤ P) : O = P :=
-  eq_of_le_of_support_eq_bot h (IsPreordering.support_eq_bot P)
+      simp at hO'
+      simpa [Maximal.eq_of_ge hO hO'₂ (by sorry/-order-/)] using hO'⟩ -- TODO : figure out why `order` fails here (bug)
 
 /- A preordering on a field `F` is maximal iff it is an ordering. -/
-theorem maximal_iff_isOrdering {F : Type*} [Field F] {O : Subsemiring F} :
+theorem maximal_isPreordering_iff_isOrdering {F : Type*} [Field F] {O : Subsemiring F} :
     Maximal IsPreordering O ↔ O.IsOrdering where
   mp h := .of_maximal_isPreordering h
-  mpr _ := ⟨inferInstance, fun _ _ ge ↦ by simp [IsOrdering.eq_of_ge ge]⟩
+  mpr _ := ⟨inferInstance, fun _ _ ge ↦ by simp [IsAddCone.eq_of_le ge]⟩
