@@ -113,7 +113,7 @@ theorem isCone_iff : S.IsCone ↔ ∀ x : G, x ∈ S → x⁻¹ ∈ S → x = 1 
 
 variable {S} in
 @[to_additive]
-theorem eq_zero_of_mem_of_inv_mem [S.IsCone]
+theorem eq_one_of_mem_of_inv_mem [S.IsCone]
     {x : G} (hx₁ : x ∈ S) (hx₂ : x⁻¹ ∈ S) : x = 1 :=
   isCone_iff.mp (inferInstance : S.IsCone) x hx₁ hx₂
 

@@ -3,7 +3,7 @@ Copyright (c) 2024 Florent Schaffhauser. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Florent Schaffhauser, Artie Khovanov
 -/
-import Mathlib.Algebra.Ring.Submonoid.Order
+import Mathlib.Algebra.Order.Monoid.Submonoid
 import Mathlib.Algebra.Ring.Subsemiring.Order
 import Mathlib.RingTheory.Ideal.Quotient.Operations
 import Mathlib.RingTheory.Ideal.Quotient.Defs
@@ -27,7 +27,7 @@ TODO : come up with the right names
 
 -/
 
--- TODO : upstream following 3 lemmas to Mathlib / generalise as needed
+-- TODO : upstream the following
 
 theorem Quotient.image_mk_eq_lift {α : Type*} {s : Setoid α} (A : Set α)
     (h : ∀ x y, x ≈ y → (x ∈ A ↔ y ∈ A)) :
@@ -52,157 +52,132 @@ def decidablePred_mem_map_quotient_mk
       Quotient.image_mk_eq_lift _ this]
   exact Quotient.lift.decidablePred (· ∈ M) (by simpa)
 
--- TODO : move to right place
+namespace Submonoid
+
+variable (G : Type*) [CommGroup G]
+
+@[to_additive]
+instance [LinearOrder G] [IsOrderedMonoid G] : (oneLE G).HasMemOrInvMem where
+  mem_or_inv_mem := by simpa using le_total 1
+
+@[to_additive]
+instance [PartialOrder G] [IsOrderedMonoid G] : (oneLE G).IsCone where
+  supportSubgroup_eq_bot := by
+    ext
+    simp [mem_supportSubgroup, ge_antisymm_iff]
+
+end Submonoid
+
 @[simp]
 theorem Subsemiring.nonneg_toAddSubmonoid
-    (T : Type*) [Semiring T] [PartialOrder T] [IsOrderedRing T] :
-  (Subsemiring.nonneg T).toAddSubmonoid = AddSubmonoid.nonneg T := by ext; simp
+    (R : Type*) [Semiring R] [PartialOrder R] [IsOrderedRing R] :
+  (nonneg R).toAddSubmonoid = AddSubmonoid.nonneg R := by ext; simp
 
--- TODO : move to right place; fix proof
-instance {T : Type*} [Ring T] [LinearOrder T] [IsOrderedRing T] :
-    (AddSubmonoid.nonneg T).HasMemOrNegMem where
-  mem_or_neg_mem := mem_or_neg_mem (AddGroupCone.nonneg T)
+ -- end upstream
 
-@[simp]
-theorem AddSubmonoid.nonneg_supportAddSubgroup_eq_bot
-    (T : Type*) [Ring T] [PartialOrder T] [IsOrderedRing T] :
-    (nonneg T).supportAddSubgroup = ⊥ := by
-  ext
-  simp [mem_supportAddSubgroup, ge_antisymm_iff]
+section Group
 
-instance {T : Type*} [Ring T] [LinearOrder T] [IsOrderedRing T] :
-    (AddSubmonoid.nonneg T).HasIdealSupport := by
-  have : (Subsemiring.nonneg T).HasMemOrNegMem := by simp; infer_instance
-  simpa using (inferInstance : (Subsemiring.nonneg T).HasIdealSupport)
+variable {G : Type*} [CommGroup G] (S : Submonoid G) [S.IsCone]
 
-@[simp]
-theorem AddSubmonoid.nonneg_support_eq_bot
-    (T : Type*) [Ring T] [LinearOrder T] [IsOrderedRing T] :
-    (nonneg T).support = ⊥ := by
-  apply_fun Submodule.toAddSubgroup using Submodule.toAddSubgroup_injective
-  exact AddSubmonoid.nonneg_supportAddSubgroup_eq_bot T
+/-- Construct a partial order by designating a cone in an abelian group. -/
+@[to_additive /-- Construct a partial order by designating a cone in an abelian group. -/]
+abbrev PartialOrder.mkOfSubmonoid : PartialOrder G where
+  le a b := b / a ∈ S
+  le_refl a := by simp [one_mem]
+  le_trans a b c nab nbc := by simpa using mul_mem nbc nab
+  le_antisymm a b nab nba := by
+    simpa [div_eq_one, eq_comm] using Submonoid.eq_one_of_mem_of_inv_mem nab (by simpa using nba)
 
-section CommRing
+@[to_additive (attr := simp)]
+lemma PartialOrder.mkOfSubmonoid_le_iff {a b : G} :
+    (mkOfSubmonoid S).le a b ↔ b / a ∈ S := Iff.rfl
 
-variable {R : Type*} [CommRing R] (C : RingCone R)
+/-- Construct a partially ordered abelian group by designating a cone in an abelian group. -/
+@[to_additive
+  /-- Construct a partially ordered abelian group by designating a cone in an abelian group. -/]
+lemma IsOrderedMonoid.mkOfSubmonoid :
+    letI _ := PartialOrder.mkOfSubmonoid S
+    IsOrderedMonoid G :=
+  letI _ := PartialOrder.mkOfSubmonoid S
+  { mul_le_mul_left := fun a b nab c ↦ by simpa [· ≤ ·] using nab }
 
-@[simp]
-theorem RingCone.supportAddSubgroup_eq_bot : C.supportAddSubgroup = ⊥ := by
-  aesop (add safe (eq_zero_of_mem_of_neg_mem (C := C)), simp AddSubmonoid.mem_supportAddSubgroup)
+/-- Construct a linear order by designating a maximal cone in an abelian group. -/
+@[to_additive /-- Construct a linear order by designating a maximal cone in an abelian group. -/]
+abbrev LinearOrder.mkOfSubmonoid [S.HasMemOrInvMem] [DecidablePred (· ∈ S)] : LinearOrder G where
+  __ := PartialOrder.mkOfSubmonoid S
+  le_total a b := by simpa using Submonoid.HasMemOrInvMem.mem_or_inv_mem S (b / a)
+  toDecidableLE _ := _
 
-@[simp]
-theorem RingCone.support_eq_bot [C.HasIdealSupport] : C.support = ⊥ := by
-  aesop (add safe (eq_zero_of_mem_of_neg_mem (C := C)), simp AddSubmonoid.mem_support)
+end Group
 
-abbrev RingCone.isPreordering [Nontrivial R] [C.HasMemOrNegMem] : C.IsPreordering :=
-  .of_support_eq_bot C.support_eq_bot
+section Ring
 
-abbrev RingCone.isOrdering [IsDomain R] [C.HasMemOrNegMem] : C.IsOrdering :=
-  .of_support_eq_bot C.support_eq_bot
+variable {R : Type*} [Ring R] (S : Subsemiring R) [S.IsAddCone]
 
-end CommRing
-
-section CommRing
-
-variable {R : Type*} [CommRing R] {P : Subsemiring R}
-
-abbrev RingCone.mkOfSubsemiring (hP : P.supportAddSubgroup = ⊥) : RingCone R where
-  __ := P
-  eq_zero_of_mem_of_neg_mem' {a} := by
-    apply_fun (a ∈ ·) at hP
-    aesop (add simp AddSubmonoid.mem_supportAddSubgroup)
-
-abbrev RingCone.mkOfSubsemiring' [P.HasIdealSupport] (hP : P.support = ⊥) : RingCone R :=
-  .mkOfSubsemiring (P := P) (by simp [hP])
-
--- TODO : remove this when `MemOrNegMem` has its definition changed
-instance [P.HasMemOrNegMem] (hP : P.support = ⊥) :
-    HasMemOrNegMem (RingCone.mkOfSubsemiring' hP) where
-  mem_or_neg_mem := P.mem_or_neg_mem
-
-instance [P.HasMemOrNegMem] (hP : P.support = ⊥) :
-    (RingCone.mkOfSubsemiring' hP).HasMemOrNegMem where
-  mem_or_neg_mem := P.mem_or_neg_mem
-
-abbrev PartialOrder.mkOfSubsemiring (hP : P.supportAddSubgroup = ⊥) : PartialOrder R :=
-  .mkOfAddGroupCone <| RingCone.mkOfSubsemiring hP
-
-theorem IsOrderedRing.mkOfSubsemiring (hP : P.supportAddSubgroup = ⊥) :
-    letI _ : PartialOrder R := .mkOfSubsemiring hP
+/-- Construct a partially ordered ring by designating a cone in a ring. -/
+lemma IsOrderedRing.mkOfSubsemiring :
+    letI _ := PartialOrder.mkOfAddSubmonoid S.toAddSubmonoid
     IsOrderedRing R :=
-  .mkOfCone <| RingCone.mkOfSubsemiring hP
+  letI _ := PartialOrder.mkOfAddSubmonoid S.toAddSubmonoid
+  haveI := IsOrderedAddMonoid.mkOfAddSubmonoid S.toAddSubmonoid
+  haveI : ZeroLEOneClass R := ⟨by simp⟩
+  .of_mul_nonneg fun x y xnn ynn ↦ show _ ∈ S by simpa using Subsemiring.mul_mem _ xnn ynn
 
-abbrev LinearOrder.mkOfSubsemiring [P.HasMemOrNegMem] [DecidablePred (· ∈ P)]
-    (hP : P.support = ⊥) : LinearOrder R :=
-  .mkOfAddGroupCone <| RingCone.mkOfSubsemiring' hP
+end Ring
+
+section CommRing
+
+variable (R : Type*) [CommRing R]
 
 open Classical in
-noncomputable def subsemiringLinearOrderEquiv :
-    Equiv {O : Subsemiring R // ∃ _ : O.HasMemOrNegMem, O.support = ⊥}
+noncomputable def isAddConeLinearOrderEquiv :
+    Equiv {C : Subsemiring R // C.IsAddCone ∧ C.HasMemOrNegMem}
           {l : LinearOrder R // IsOrderedRing R} where
-  toFun := fun ⟨O, hO⟩ => letI _ := hO.1; ⟨.mkOfSubsemiring hO.2, .mkOfSubsemiring (by simp [hO.2])⟩
-  invFun := fun ⟨_, _⟩ => ⟨.nonneg R, by simp; infer_instance, by simp⟩
+  toFun := fun ⟨C, _, _⟩ => ⟨.mkOfAddSubmonoid C.toAddSubmonoid, .mkOfSubsemiring C⟩
+  invFun := fun ⟨_, _⟩ => ⟨.nonneg R, by simp; infer_instance, by simp; infer_instance⟩
   left_inv := fun ⟨_, _, _⟩ => by ext; simp
   right_inv := fun ⟨_, _⟩ => by ext; simp
 
 open Classical in
 @[simp]
-theorem subsemiringLinearOrderEquiv_apply {hP} :
-    subsemiringLinearOrderEquiv ⟨P, hP⟩ = have := hP.1; LinearOrder.mkOfSubsemiring hP.2 := rfl
+theorem isAddConeLinearOrderEquiv_apply
+    {C : Subsemiring R} {h₁ : C.IsAddCone} {h₂ : C.HasMemOrNegMem} :
+    isAddConeLinearOrderEquiv R ⟨C, h₁, h₂⟩ = LinearOrder.mkOfAddSubmonoid C.toAddSubmonoid := rfl
 
 @[simp]
-theorem coe_subsemiringLinearOrderEquiv_symm_apply (l : LinearOrder R) (hl : IsOrderedRing R) :
-    subsemiringLinearOrderEquiv.symm ⟨l, hl⟩ = (RingCone.nonneg R : Set R) := rfl
-
-@[simp]
-theorem mem_subsemiringLinearOrderEquiv_symm_apply {l : LinearOrder R} {hl : IsOrderedRing R} {x} :
-    x ∈ (subsemiringLinearOrderEquiv.symm ⟨l, hl⟩ : Subsemiring R) ↔ x ∈ RingCone.nonneg R := .rfl
+theorem isAddConeLinearOrderEquiv_symm_apply {l : LinearOrder R} {hl : IsOrderedRing R} :
+    (isAddConeLinearOrderEquiv R).symm ⟨l, hl⟩ = Subsemiring.nonneg R := rfl
 
 end CommRing
 
 section Field
 
-variable {F : Type*} [Field F] (P : Subsemiring F)
-
-abbrev RingCone.mkOfIsPreordering [P.IsPreordering] : RingCone F :=
-  .mkOfSubsemiring' <| Subsemiring.IsPreordering.support_eq_bot P
-
--- TODO : figure out why synthesis of `P.IsOrdering -> P.HasMemOrNegMem` is slow
-set_option synthInstance.maxHeartbeats 30000 in
-instance [P.IsOrdering] : (RingCone.mkOfIsPreordering P).HasMemOrNegMem where
-  mem_or_neg_mem := P.mem_or_neg_mem
-
-abbrev PartialOrder.mkOfIsPreordering [P.IsPreordering] : PartialOrder F :=
-  .mkOfAddGroupCone <| RingCone.mkOfIsPreordering P
-
-abbrev LinearOrder.mkOfIsPreordering [P.IsOrdering] [DecidablePred (· ∈ P)] :
-    LinearOrder F :=
-  .mkOfAddGroupCone (RingCone.mkOfIsPreordering P)
+variable {F : Type*} [Field F]
 
 open Classical in
 noncomputable def ringOrderingLinearOrderEquiv :
     Equiv {O : Subsemiring F // O.IsOrdering}
           {l : LinearOrder F // IsStrictOrderedRing F} where
   toFun := fun ⟨O, hO⟩ =>
-    let ⟨l, hl⟩ := subsemiringLinearOrderEquiv ⟨O, letI _ := hO; inferInstance, by simp⟩
+    let ⟨l, hl⟩ := isAddConeLinearOrderEquiv F ⟨O, inferInstance, inferInstance⟩
     ⟨l, IsOrderedRing.toIsStrictOrderedRing F⟩
   invFun := fun ⟨l, hl⟩ =>
-    let ⟨O, hO⟩ := subsemiringLinearOrderEquiv.symm ⟨l, inferInstance⟩
-    ⟨O, letI _ := hO.1; .of_support_eq_bot hO.2⟩
+    let ⟨O, h₁, h₂⟩ := (isAddConeLinearOrderEquiv F).symm ⟨l, inferInstance⟩
+    ⟨O, inferInstance⟩
   left_inv := fun ⟨_, _⟩ => by ext; simp
   right_inv := fun ⟨_, _⟩ => by simp
 
 @[simp]
 theorem ringOrderingLinearOrderEquiv_apply (hP : P.IsOrdering) :
     (ringOrderingLinearOrderEquiv ⟨P, hP⟩ : LinearOrder F) =
-    subsemiringLinearOrderEquiv ⟨P, inferInstance, by simp⟩ := by
+    isAddConeLinearOrderEquiv ⟨P, inferInstance, by simp⟩ := by
   simp [ringOrderingLinearOrderEquiv]
 
 @[simp]
 theorem ringOrderingLinearOrderEquiv_symm_apply_val
     (l : LinearOrder F) (hl : IsStrictOrderedRing F) :
     (ringOrderingLinearOrderEquiv.symm ⟨l, hl⟩ : Subsemiring F) =
-    subsemiringLinearOrderEquiv.symm ⟨l, inferInstance⟩ := rfl
+    isAddConeLinearOrderEquiv.symm ⟨l, inferInstance⟩ := rfl
 
 end Field
 
@@ -237,12 +212,12 @@ abbrev LinearOrder.mkOfSubsemiring_quot [DecidablePred (· ∈ O)] :
   .mkOfAddGroupCone <| RingCone.mkOfSubsemiring_quot O
 
 open Classical in
-noncomputable def subsemiringLinearOrderEquiv_quot :
+noncomputable def isAddConeLinearOrderEquiv_quot :
     Equiv {O : Subsemiring R // O.HasMemOrNegMem}
           (Σ I : Ideal R, {p : LinearOrder (R ⧸ I) // IsOrderedRing (R ⧸ I)}) where
   toFun := fun ⟨O, hO⟩ => ⟨O.support, ⟨.mkOfSubsemiring_quot O, .mkOfSubsemiring_quot O⟩⟩
   invFun := fun ⟨I, l, hl⟩ =>
-    ⟨(subsemiringLinearOrderEquiv.symm ⟨l, hl⟩).val.comap (Ideal.Quotient.mk I),
+    ⟨(isAddConeLinearOrderEquiv.symm ⟨l, hl⟩).val.comap (Ideal.Quotient.mk I),
     ⟨fun a ↦ by simpa using le_total ..⟩⟩
   left_inv := fun ⟨O, hO⟩ => by
     ext x
