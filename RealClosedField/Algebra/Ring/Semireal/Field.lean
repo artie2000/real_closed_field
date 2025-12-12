@@ -9,12 +9,6 @@ import RealClosedField.Algebra.Order.Ring.Ordering.Adjoin
 
 variable {F : Type*} [Field F]
 
-instance : RingConeClass (IsPreordering F) F where
-  eq_zero_of_mem_of_neg_mem {P} {a} ha hna := by
-    by_contra
-    have : a⁻¹ * -a ∈ P := by aesop (config := { enableSimp := False })
-    aesop
-
 open Classical in
 def IsSemireal.isFormallyReal [IsSemireal F] : IsFormallyReal F :=
   isFormallyReal_of_eq_zero_of_eq_zero_of_add_mul_self F <| fun {s} {a} _ h ↦ by

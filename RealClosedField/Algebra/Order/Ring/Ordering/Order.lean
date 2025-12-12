@@ -3,7 +3,8 @@ Copyright (c) 2024 Florent Schaffhauser. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Florent Schaffhauser, Artie Khovanov
 -/
-import Mathlib.Algebra.Order.Ring.Cone
+import Mathlib.Algebra.Ring.Submonoid.Order
+import Mathlib.Algebra.Ring.Subsemiring.Order
 import Mathlib.RingTheory.Ideal.Quotient.Operations
 import Mathlib.RingTheory.Ideal.Quotient.Defs
 import RealClosedField.Algebra.Order.Ring.Ordering.Basic
@@ -26,7 +27,7 @@ TODO : come up with the right names
 
 -/
 
--- TODO : upstream following 3 lemmas to Mathlib / gneeralise as needed
+-- TODO : upstream following 3 lemmas to Mathlib / generalise as needed
 
 theorem Quotient.image_mk_eq_lift {α : Type*} {s : Setoid α} (A : Set α)
     (h : ∀ x y, x ≈ y → (x ∈ A ↔ y ∈ A)) :

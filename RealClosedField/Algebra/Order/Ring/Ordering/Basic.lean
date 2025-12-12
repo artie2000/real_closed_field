@@ -89,6 +89,12 @@ theorem HasMemOrNegMem.map [S.HasMemOrInvMem] (hf : Function.Surjective f) :
     have := S.mem_or_inv_mem x'
     aesop
 
+variable {S T} in
+@[to_additive]
+theorem mem_supportSubgroup_of_ge_of_notMem
+    [S.HasMemOrInvMem] (h : S ≤ T) {a : G} (ha : a ∈ T) (haP : a ∉ T) : a ∈ T.supportSubgroup :=
+  ⟨ha, have := S.mem_or_inv_mem a; h (by simp_all)⟩
+
 end Group
 
 section CommGroup
@@ -356,6 +362,7 @@ namespace IsPreordering
 
 variable [P.IsPreordering]
 
+-- TODO : generalise to noncomm rings by doing the algebra manually?
 theorem hasIdealSupport_of_isUnit_two (h : IsUnit (2 : R)) : P.HasIdealSupport := by
   rw [AddSubmonoid.hasIdealSupport_iff]
   intro x a _ _
