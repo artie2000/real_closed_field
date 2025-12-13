@@ -96,38 +96,21 @@ theorem neg_one_notMem_closure_insert_of_neg_notMem
   rw [show -a = x * y⁻¹ + y⁻¹ by field_simp; linear_combination eqn]
   aesop
 
-variable {P a} in
-theorem exists_le_of_neg_one_notMem (h : -1 ∉ closure (insert a P)) :
-    ∃ Q ≥ P, Q.IsPreordering ∧ a ∈ Q := ⟨_, fun _ ↦ by aesop, closure_insert h, by aesop⟩
-
-theorem exists_le_of_neg_mul_mem (x y : R) (h : -(x * y) ∈ P) :
+theorem exists_le_and_mem_or_mem (x y : R) (h : -(x * y) ∈ P) :
     ∃ Q ≥ P, Q.IsPreordering ∧ (x ∈ Q ∨ y ∈ Q) := by
-  have := neg_one_notMem_closure_insert_or_of_neg_mul_mem h
-  have := exists_le_of_neg_one_notMem (P := P) (a := x)
-  have := exists_le_of_neg_one_notMem (P := P) (a := y)
-  grind [exists_le_of_neg_one_notMem]
-
-theorem exists_le :
-    ∃ Q ≥ P, Q.IsPreordering ∧ (a ∈ Q ∨ -a ∈ Q) :=
-  exists_le_of_neg_mul_mem P a (-a) (by simp)
-
-theorem exists_lt (hp : a ∉ P) (hn : -a ∉ P) :
-    ∃ Q > P, Q.IsPreordering := by
-  rcases exists_le P a with ⟨Q, le, hQ, mem | mem⟩ <;>
-    exact ⟨Q, lt_of_le_of_ne le <| Ne.symm (ne_of_mem_of_not_mem' mem ‹_›), hQ⟩
-
-end IsPreordering
+  rcases neg_one_notMem_closure_insert_or_of_neg_mul_mem h with hP | hP <;>
+    exact ⟨_, fun _ ↦ by aesop, closure_insert hP, by aesop⟩
 
 /- A maximal preordering on `R` is an ordering. -/
-theorem IsOrdering.of_maximal_isPreordering {O : Subsemiring R} (max : Maximal IsPreordering O) :
-    O.IsOrdering :=
+theorem _root_.Subsemiring.IsOrdering.of_maximal_isPreordering
+    {O : Subsemiring R} (max : Maximal IsPreordering O) : O.IsOrdering :=
   have := max.prop
   IsPreordering.isOrdering_iff.mpr <| fun a b h => by
-  rcases IsPreordering.exists_le_of_neg_mul_mem _ _ _ h with ⟨O', hO'₁, hO'₂, hO'₃⟩
+  rcases IsPreordering.exists_le_and_mem_or_mem _ _ _ h with ⟨O', hO'₁, hO'₂, hO'₃⟩
   aesop (add safe forward (max.le_of_ge hO'₂ hO'₁))
 
 /- Every preordering on `R` extends to an ordering. -/
-theorem IsPreordering.exists_le_isOrdering (P : Subsemiring R) [P.IsPreordering] :
+theorem exists_le_isOrdering (P : Subsemiring R) [P.IsPreordering] :
     ∃ O ≥ P, O.IsOrdering :=
   have := isSemireal_ofIsPreordering P
   have ⟨_, _, hO⟩ : ∃ O, P ≤ O ∧ Maximal IsPreordering O := by
@@ -135,6 +118,26 @@ theorem IsPreordering.exists_le_isOrdering (P : Subsemiring R) [P.IsPreordering]
     exact fun S hS hc Q hQ =>
       ⟨_, IsPreordering.sSup (Set.nonempty_of_mem hQ) hc.directedOn hS, CompleteLattice.le_sSup S⟩
   ⟨_, ‹_›, .of_maximal_isPreordering hO⟩
+
+theorem exists_le_isOrdering_and_mem
+    {P : Subsemiring R} [P.IsPreordering] {a : R} (h : -1 ∉ closure (insert a P)) :
+    ∃ O ≥ P, O.IsOrdering ∧ a ∈ O := by
+  have := closure_insert h
+  rcases exists_le_isOrdering (closure (insert a P)) with ⟨O, _, _⟩
+  exact ⟨O, fun _ ↦ by aesop, inferInstance, by aesop⟩
+
+theorem exists_le_isOrdering_and_mem_or_neg_mem :
+    ∃ Q ≥ P, Q.IsOrdering ∧ (a ∈ Q ∨ -a ∈ Q) := by
+  rcases exists_le_and_mem_or_mem P a (-a) (by simp) with ⟨P', _, _, _⟩
+  rcases exists_le_isOrdering P' with ⟨O, _, _⟩
+  exact ⟨O, by order, inferInstance, by aesop⟩
+
+theorem exists_lt_isOrdering (hp : a ∉ P) (hn : -a ∉ P) :
+    ∃ Q > P, Q.IsOrdering := by
+  rcases exists_le_isOrdering_and_mem_or_neg_mem P a with ⟨Q, le, hQ, mem | mem⟩ <;>
+    exact ⟨Q, lt_of_le_of_ne le <| Ne.symm (ne_of_mem_of_not_mem' mem ‹_›), hQ⟩
+
+end IsPreordering
 
 /- An subsemiring of `R` is a maximal preordering iff it is a maximal ordering. -/
 theorem maximal_isPreordering_iff_maximal_isOrdering {O : Subsemiring R} :

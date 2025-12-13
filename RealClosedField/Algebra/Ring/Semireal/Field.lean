@@ -5,6 +5,7 @@ Authors: Artie Khovanov
 -/
 import RealClosedField.Algebra.Ring.Semireal.Defs
 import RealClosedField.Algebra.Order.Ring.Ordering.Adjoin
+import RealClosedField.Algebra.Order.Ring.Ordering.Order
 
 variable {F : Type*} [Field F]
 
@@ -29,7 +30,7 @@ theorem Field.exists_isStrictOrderedRing_iff_isSemireal :
 theorem IsSemireal.existsUnique_isStrictOrderedRing
     [IsSemireal F] (h : ∀ x : F, IsSumSq x ∨ IsSumSq (-x)) :
     ∃! _ : LinearOrder F, IsStrictOrderedRing F := by
-  let l := ringOrderingLinearOrderEquiv F
+  let l := Field.ringOrderingLinearOrderEquiv F
     ⟨Subsemiring.sumSq F, { toHasMemOrNegMem := ⟨by simpa using h⟩, toIsPrime := inferInstance }⟩
   refine ⟨l.val, l.property, fun l' hl' => ?_⟩
   · simp only [l]
@@ -44,16 +45,17 @@ theorem IsSemireal.existsUnique_isStrictOrderedRing
 theorem IsSemireal.isSumSq_or_isSumSq_neg [IsSemireal F]
     (h : ∃! _ : LinearOrder F, IsStrictOrderedRing F) :
     ∀ x : F, IsSumSq x ∨ IsSumSq (-x) := by
-  rw [Equiv.existsUnique_subtype_congr (ringOrderingLinearOrderEquiv F).symm] at h
+  rw [Equiv.existsUnique_subtype_congr (Field.ringOrderingLinearOrderEquiv F).symm] at h
   by_contra! hc
-  rcases hc with ⟨x, hx, hnx⟩
-  rcases Subsemiring.IsPreordering.exists_le_isOrdering <| adjoin <| neg_one_notMem_adjoin_of_neg_notMem
-    (by simp_all : -x ∉ ⊥) with ⟨O₁, hle₁, hO₁⟩
-  rcases Subsemiring.IsPreordering.exists_le_isOrdering <| adjoin <| neg_one_notMem_adjoin_of_neg_notMem
-    (by simp_all : -(-x) ∉ ⊥) with ⟨O₂, hle₂, hO₂⟩
-  have x_mem : x ∈ O₁ := hle₁ (by aesop)
+  rcases hc with ⟨x, _⟩
+  rcases Subsemiring.IsPreordering.exists_le_isOrdering_and_mem <|
+    Subsemiring.IsPreordering.neg_one_notMem_closure_insert_of_neg_notMem
+      (by simp_all : -x ∉ (Subsemiring.sumSq F)) with ⟨O₁, hle₁, hO₁, hx₁⟩
+  rcases Subsemiring.IsPreordering.exists_le_isOrdering_and_mem <|
+    Subsemiring.IsPreordering.neg_one_notMem_closure_insert_of_neg_notMem
+      (by simp_all : -(-x) ∉ (Subsemiring.sumSq F)) with ⟨O₂, hle₂, hO₂, hx₂⟩
   exact (show O₁ ≠ O₂ from fun h => show x ≠ 0 by aesop <|
-    AddSubmonoid.eq_zero_of_mem_of_neg_mem (by simp_all) (hle₂ (by aesop))) <|
+    O₁.eq_zero_of_mem_of_neg_mem hx₁ (by simp_all)) <|
       h.unique inferInstance inferInstance
 
 theorem IsSemireal.existsUnique_isStrictOrderedRing_iff [IsSemireal F] :
