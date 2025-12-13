@@ -3,8 +3,8 @@ Copyright (c) 2024 Artie Khovanov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
-import Mathlib.Algebra.Order.Ring.Cone
-import Mathlib.Algebra.Ring.Semireal.Defs
+import RealClosedField.Algebra.Order.Cone
+import RealClosedField.Algebra.Ring.Semireal.Defs
 
 variable {R : Type*}
 
@@ -77,25 +77,6 @@ instance [Ring R] [LinearOrder R] [IsStrictOrderedRing R] : IsFormallyReal R :=
   isFormallyReal_of_eq_zero_of_mul_self_of_eq_zero_of_add R mul_self_eq_zero.mp <|
     fun hs₁ hs₂ h ↦ ((add_eq_zero_iff_of_nonneg (IsSumSq.nonneg hs₁) (IsSumSq.nonneg hs₂)).mp h).1
 
-namespace RingCone
-variable {T : Type*} [CommRing T] [IsFormallyReal T]
-
-variable (T) in
-/--
-In a commutative formally real ring `R`, `Subsemiring.sumSq R`
-is the cone of sums of squares in `R`.
--/
-def sumSq : RingCone T where
-  __ := Subsemiring.sumSq T
-  eq_zero_of_mem_of_neg_mem' {x} hx hnx :=
+instance [CommRing R] [IsFormallyReal R] : (AddSubmonoid.sumSq R).IsCone :=
+  AddSubmonoid.isCone_iff.mpr fun x hx hnx ↦
     IsFormallyReal.eq_zero_of_add_left (by simpa using hnx) (by simpa using hx) (neg_add_cancel x)
-
-@[simp] theorem sumSq_toSubsemiring : (sumSq T).toSubsemiring = .sumSq T := rfl
-
-@[simp] theorem mem_sumSq {a : T} : a ∈ sumSq T ↔ IsSumSq a :=
-  show a ∈ Subsemiring.sumSq T ↔ IsSumSq a by simp
-
-@[simp, norm_cast] theorem coe_sumSq : sumSq T = {x : T | IsSumSq x} :=
-  show Subsemiring.sumSq T = {x : T | IsSumSq x} by simp
-
-end RingCone

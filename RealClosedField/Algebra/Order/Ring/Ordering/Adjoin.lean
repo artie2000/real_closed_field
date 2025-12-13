@@ -8,33 +8,23 @@ import RealClosedField.Algebra.Order.Ring.Ordering.Basic
 
 /-!
 
-Let `R` be a commutative ring, and let `P` be a preordering on `R`. If `a ∉ P`, then we can extend
-`P` to a preordering containing either `a` or `-a`.
-Moreover, we can always extend `P` to an ordering on `R`.
+Let `R` be a commutative ring, and let `P` be a preordering on `R`.
 
-We also prove various sufficient conditions to be able to extend `P` to `a`,
-and that all orderings on a field are maximal preorderings.
+## Main results
+
+* `Subsemiring.IsPreordering.exists_le`: if `a ∉ P`, then `P` extends to a preordering
+containing either `a` or `-a`.
+* `Subsemiring.IsPreordering.exists_le_isOrdering`: `P` extends to an ordering.
+* `Subsemiring.maximal_isPreordering_iff_maximal_isOrdering`:
+an ordering is maximal as an ordering if and only if it is maximal as a preordering.
+* `Subsemiring.maximal_isPreordering_iff_isOrdering`: over a field,
+orderings are precisely maximal preorderings.
 
 ## References
 
 - [*An introduction to real algebra*, T.Y. Lam][lam_1984]
 
 -/
-
-theorem IsPreordering.exists_le_isOrdering {R : Type*} [CommRing R] (P : Subsemiring R) :
-    ∃ O, P ≤ O := sorry
-
-def Maximal' {α : Type*} [LE α] (P : α → Prop) (x : α) : Prop := True ∧ ∀ ⦃y⦄, P y → x ≤ y → y ≤ x
-
-/- An subsemiring of `R` is a maximal preordering iff it is a maximal ordering. -/
-theorem Subsemiring.IsOrdering.maximal_isPreordering_iff_maximal_isOrdering
-    {R : Type*} [CommRing R] {O : Subsemiring R} :
-    Maximal' IsPreordering O :=
-    ⟨trivial, fun P hP h ↦ by
-      rcases IsPreordering.exists_le_isOrdering P with ⟨Q, hQ⟩
-      have : P ≤ Q := by order
-      sorry⟩
-
 
 variable {R : Type*} [CommRing R]
 
@@ -146,8 +136,7 @@ theorem IsPreordering.exists_le_isOrdering (P : Subsemiring R) [P.IsPreordering]
   ⟨_, ‹_›, .of_maximal_isPreordering hO⟩
 
 /- An subsemiring of `R` is a maximal preordering iff it is a maximal ordering. -/
-theorem IsOrdering.maximal_isPreordering_iff_maximal_isOrdering
-    {O : Subsemiring R} :
+theorem maximal_isPreordering_iff_maximal_isOrdering {O : Subsemiring R} :
     Maximal IsPreordering O ↔ Maximal IsOrdering O where
   mp h := Maximal.mono h (fun _ _ => inferInstance) (.of_maximal_isPreordering h)
   mpr hO :=
@@ -161,4 +150,6 @@ theorem IsOrdering.maximal_isPreordering_iff_maximal_isOrdering
 theorem maximal_isPreordering_iff_isOrdering {F : Type*} [Field F] {O : Subsemiring F} :
     Maximal IsPreordering O ↔ O.IsOrdering where
   mp h := .of_maximal_isPreordering h
-  mpr _ := ⟨inferInstance, fun _ _ ge ↦ by simp [IsAddCone.eq_of_le ge]⟩
+  mpr _ := ⟨inferInstance, fun O' _ ↦ by
+    simpa using (AddSubmonoid.IsCone.maximal O.toAddSubmonoid).le_of_ge
+      (y := O'.toAddSubmonoid) inferInstance⟩
