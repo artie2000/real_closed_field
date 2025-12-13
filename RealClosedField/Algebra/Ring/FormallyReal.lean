@@ -3,7 +3,7 @@ Copyright (c) 2024 Artie Khovanov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
-import RealClosedField.Algebra.Order.Cone
+import RealClosedField.Algebra.Order.Cone.Defs
 import RealClosedField.Algebra.Ring.Semireal.Defs
 
 variable {R : Type*}

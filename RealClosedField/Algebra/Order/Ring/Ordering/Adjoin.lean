@@ -143,8 +143,7 @@ theorem maximal_isPreordering_iff_maximal_isOrdering {O : Subsemiring R} :
     ⟨have := hO.prop; inferInstance, fun P hP h ↦ by
       rcases IsPreordering.exists_le_isOrdering P with ⟨O', hO', hO'₂⟩
       simp at hO'
-      simpa [Maximal.eq_of_ge hO hO'₂ (by sorry/-order-/)] using hO'⟩ -- TODO : figure out why `order` fails here (bug)
-
+      simpa [Maximal.eq_of_ge hO hO'₂ (by sorry/-order-/)] using hO'⟩ -- TODO : `order` bugfix VN
 
 /- A preordering on a field `F` is maximal iff it is an ordering. -/
 theorem maximal_isPreordering_iff_isOrdering {F : Type*} [Field F] {O : Subsemiring F} :
