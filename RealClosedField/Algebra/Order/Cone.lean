@@ -177,4 +177,4 @@ theorem IsOrderedRing.mkOfSubsemiring :
 
 end Ring
 
--- TODO : bundled equivs for these correspondences as in `Ordering.Order`?
+-- TODO : bundled equivs for these correspondences as in `Ordering.Order`
