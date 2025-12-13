@@ -21,6 +21,21 @@ and that all orderings on a field are maximal preorderings.
 
 -/
 
+theorem IsPreordering.exists_le_isOrdering {R : Type*} [CommRing R] (P : Subsemiring R) :
+    ∃ O, P ≤ O := sorry
+
+def Maximal' {α : Type*} [LE α] (P : α → Prop) (x : α) : Prop := True ∧ ∀ ⦃y⦄, P y → x ≤ y → y ≤ x
+
+/- An subsemiring of `R` is a maximal preordering iff it is a maximal ordering. -/
+theorem Subsemiring.IsOrdering.maximal_isPreordering_iff_maximal_isOrdering
+    {R : Type*} [CommRing R] {O : Subsemiring R} :
+    Maximal' IsPreordering O :=
+    ⟨trivial, fun P hP h ↦ by
+      rcases IsPreordering.exists_le_isOrdering P with ⟨Q, hQ⟩
+      have : P ≤ Q := by order
+      sorry⟩
+
+
 variable {R : Type*} [CommRing R]
 
 namespace Subsemiring.IsPreordering
@@ -140,6 +155,7 @@ theorem IsOrdering.maximal_isPreordering_iff_maximal_isOrdering
       rcases IsPreordering.exists_le_isOrdering P with ⟨O', hO', hO'₂⟩
       simp at hO'
       simpa [Maximal.eq_of_ge hO hO'₂ (by sorry/-order-/)] using hO'⟩ -- TODO : figure out why `order` fails here (bug)
+
 
 /- A preordering on a field `F` is maximal iff it is an ordering. -/
 theorem maximal_isPreordering_iff_isOrdering {F : Type*} [Field F] {O : Subsemiring F} :
