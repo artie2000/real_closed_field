@@ -53,33 +53,7 @@ def decidablePred_mem_map_quotient_mk
       Quotient.image_mk_eq_lift _ this]
   exact Quotient.lift.decidablePred (· ∈ M) (by simpa)
 
-section CommRing
-
-variable {R : Type*} [CommRing R]
-
-variable (R) in
-open Classical in
-noncomputable def IsConeLinearOrderEquiv :
-    Equiv {C : Subsemiring R // C.IsCone ∧ C.HasMemOrNegMem}
-          {l : LinearOrder R // IsOrderedRing R} where
-  toFun := fun ⟨C, hC⟩ => have := hC.1; have := hC.2;
-    ⟨.mkOfAddSubmonoid C.toAddSubmonoid, .mkOfSubsemiring C⟩
-  invFun := fun ⟨_, _⟩ => ⟨.nonneg R, by simp; infer_instance, by simp; infer_instance⟩
-  left_inv := fun ⟨_, _, _⟩ => by ext; simp
-  right_inv := fun ⟨_, _⟩ => by ext; simp
-
-open Classical in
-@[simp]
-theorem IsConeLinearOrderEquiv_apply
-    (C : Subsemiring R) (h : C.IsCone ∧ C.HasMemOrNegMem) :
-    (IsConeLinearOrderEquiv R ⟨C, h⟩ : LinearOrder R) =
-    have := h.1; have := h.2; LinearOrder.mkOfAddSubmonoid C.toAddSubmonoid := rfl
-
-@[simp]
-theorem IsConeLinearOrderEquiv_symm_apply (l : LinearOrder R) (h : IsOrderedRing R) :
-    (IsConeLinearOrderEquiv R).symm ⟨l, h⟩ = Subsemiring.nonneg R := rfl
-
-end CommRing
+-- end upstream
 
 section Field
 

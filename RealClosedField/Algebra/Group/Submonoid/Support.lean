@@ -59,15 +59,6 @@ class HasMemOrNegMem (M : AddSubmonoid G) : Prop where
 
 export HasMemOrNegMem (mem_or_neg_mem)
 
-/--
-The support of a submonoid `M` of a group `G` is `M ∩ -M`, the largest subgroup contained in `M`.
--/
-def supportAddSubgroup : AddSubgroup G where
-  carrier := M ∩ -M
-  zero_mem' := by aesop
-  add_mem' := by aesop
-  neg_mem' := by aesop
-
 end AddSubmonoid
 
 namespace Submonoid
@@ -89,7 +80,9 @@ theorem HasMemOrInvMem.of_le {M N : Submonoid G} [M.HasMemOrInvMem] (h : M ≤ N
 /--
 The support of a submonoid `M` of a group `G` is `M ∩ M⁻¹`, the largest subgroup contained in `M`.
 -/
-@[to_additive existing]
+@[to_additive
+  /-- The support of a submonoid `M` of a group `G` is `M ∩ -M`,
+  the largest subgroup contained in `M`. -/]
 def supportSubgroup : Subgroup G where
   carrier := M ∩ M⁻¹
   one_mem' := by aesop
