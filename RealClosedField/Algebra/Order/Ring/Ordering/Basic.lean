@@ -85,6 +85,8 @@ instance [Nontrivial R] [P.HasMemOrNegMem] [P.IsCone] : P.IsPreordering :=
 instance [IsDomain R] [P.HasMemOrNegMem] [P.IsCone] : P.IsOrdering where
   __ : P.support.IsPrime := by simpa using Ideal.bot_prime
 
+-- PR SPLIT ↑1 ↓2
+
 instance (P₁ P₂ : Subsemiring R) [P₁.IsPreordering] [P₂.IsPreordering] :
     (P₁ ⊓ P₂).IsPreordering where
 
@@ -134,6 +136,8 @@ theorem IsPreordering.map [P.IsPreordering] (hf : Function.Surjective f)
     aesop
 
 end Ring
+
+-- PR SPLIT ↑2 ↓1
 
 section CommRing
 

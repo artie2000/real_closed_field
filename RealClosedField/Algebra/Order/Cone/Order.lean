@@ -12,7 +12,7 @@ import Mathlib.RingTheory.Ideal.Quotient.Operations
 Positive cones in an abelian group `G` correspond to ordered group structures on `G`.
 Positive cones in a ring `R` correspond to ordered ring structures on `R`.
 In each case, the cone corresponds to the set of non-negative elements.
-If the cone `C` satisfies `C ∪ -C = G`, the induced order is total.
+If the cone `C` satisfies `C ∪ -C = ⊤`, the induced order is total.
 
 ## Main definitions
 
@@ -20,6 +20,12 @@ If the cone `C` satisfies `C ∪ -C = G`, the induced order is total.
 between (maximal) cones in an abelian group `G` and (linearly) ordered group structures on `G`.
 * `Ring.isConePartialOrderEquiv` and `Ring.isConeLinearOrderEquiv`: equivalence
 between (maximal) cones in an ring `R` and (linearly) ordered ring structures on `R`.
+* `AddCommGroup.addSubmonoidPartialOrderEquiv` and `AddCommGroup.addSubmonoidLinearOrderEquiv`:
+equivalence between submonoids `H` of an abelian group `G` (satisfying `H ∪ -H = G`) and
+(linearly) ordered group structures on `R ⧸ H.supportAddSubgroup`.
+* `Ring.subsemiringPartialOrderEquiv` and `Ring.subsemiringPartialOrderEquiv`: equivalence
+between subsemirings `S` of a ring `R` (satisfying `S ∪ -S = R`) and
+(linearly) ordered ring structures on `R ⧸ S.support`.
 
 -/
 
@@ -56,6 +62,8 @@ abbrev LinearOrder.mkOfSubmonoid [S.HasMemOrInvMem] [DecidablePred (· ∈ S)] :
   __ := PartialOrder.mkOfSubmonoid S
   le_total a b := by simpa using Submonoid.HasMemOrInvMem.mem_or_inv_mem S (b / a)
   toDecidableLE _ := _
+
+-- PR SPLIT ↑1 ↓2
 
 namespace CommGroup
 
@@ -111,6 +119,8 @@ theorem isMulConeLinearOrderEquiv_symm_apply (l : LinearOrder G) (h : IsOrderedM
 
 end CommGroup
 
+-- PR SPLIT ↑2 ↓1
+
 section Ring
 
 variable {R : Type*} [Ring R]
@@ -123,6 +133,8 @@ theorem IsOrderedRing.mkOfSubsemiring (S : Subsemiring R) [S.IsCone] :
   haveI := IsOrderedAddMonoid.mkOfAddSubmonoid S.toAddSubmonoid
   haveI : ZeroLEOneClass R := ⟨by simp⟩
   .of_mul_nonneg fun x y xnn ynn ↦ show _ ∈ S by simpa using Subsemiring.mul_mem _ xnn ynn
+
+-- PR SPLIT ↑1 ↓2
 
 namespace Ring
 
@@ -172,6 +184,10 @@ end Ring
 
 end Ring
 
+-- PR SPLIT ↑2 ↓3
+
+/- TODO : quotient versions: need to lift the constructions to prop equality?
+
 -- TODO : upstream the following
 
 theorem Quotient.image_mk_eq_lift {α : Type*} {s : Setoid α} (A : Set α)
@@ -201,6 +217,8 @@ def decidablePred_mem_map_quotient_mk
 
 section Quot
 
+-- TODO : group and partial versions
+
 variable {R : Type*} [CommRing R] (O : Subsemiring R) [O.HasMemOrNegMem]
 
 instance : (O.map (Ideal.Quotient.mk O.support)).HasMemOrNegMem :=
@@ -212,6 +230,7 @@ instance : (O.map (Ideal.Quotient.mk O.support)).HasMemOrNegMem :=
 theorem RingHom.ker_toAddSubgroup {R S : Type*} [Ring R] [Ring S] (f : R →+* S) :
   (RingHom.ker f).toAddSubgroup = f.toAddMonoidHom.ker := by ext; simp
 
+-- TODO : make proof less awful
 instance : (O.map (Ideal.Quotient.mk O.support)).IsCone where
   supportAddSubgroup_eq_bot := by
     have : (O.toAddSubmonoid.map (Ideal.Quotient.mk O.support).toAddMonoidHom).HasIdealSupport := by
@@ -240,12 +259,12 @@ abbrev LinearOrder.mkOfSubsemiring_quot [DecidablePred (· ∈ O)] : LinearOrder
 
 -- TODO : come up with correct statement and name
 open Classical in
-noncomputable def isConeLinearOrderEquiv_quot :
-    Equiv {O : Subsemiring R // O.HasMemOrNegMem}
-          (Σ I : Ideal R, {p : LinearOrder (R ⧸ I) // IsOrderedRing (R ⧸ I)}) where
-  toFun := fun ⟨O, hO⟩ => ⟨O.support, ⟨.mkOfSubsemiring_quot O, .mkOfSubsemiring_quot O⟩⟩
-  invFun := fun ⟨I, l, hl⟩ =>
-    ⟨((Ring.isConeLinearOrderEquiv _).symm ⟨l, hl⟩).val.comap (Ideal.Quotient.mk I),
+noncomputable def subsemiringLinearOrderEquiv (I : Ideal R) :
+    Equiv {O : Subsemiring R // ∃ _ : O.HasMemOrNegMem, O.support = I}
+          {o : LinearOrder (R ⧸ I) // IsOrderedRing (R ⧸ I)} where
+  toFun := fun ⟨O, hO⟩ => have := hO.1; have hs := hO.2; ⟨by rw [← hs]; exact .mkOfSubsemiring_quot O, .mkOfSubsemiring_quot O⟩
+  invFun := fun ⟨o, ho⟩ =>
+    ⟨((Ring.isConeLinearOrderEquiv _).symm ⟨o, ho⟩).val.comap (Ideal.Quotient.mk I),
     ⟨fun a ↦ by simpa using le_total ..⟩⟩
   left_inv := fun ⟨O, hO⟩ => by
     ext x
@@ -267,3 +286,5 @@ noncomputable def isConeLinearOrderEquiv_quot :
 /- TODO : apply and symm_apply simp lemmas -/
 
 end Quot
+
+-/

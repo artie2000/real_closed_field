@@ -24,31 +24,6 @@ We define supports and prove how they interact with operations.
 
 -/
 
--- TODO : move to right place and replace non-primed versions
-namespace Subsemiring
-
-variable {R S : Type*} [Semiring R] [Semiring S] (f : R →+* S)
-         (P : Subsemiring R) (Q : Subsemiring S)
-
-@[simp]
-theorem comap_toSubmonoid' : (Q.comap f).toSubmonoid = Q.toSubmonoid.comap f.toMonoidHom := by
-  ext; simp
-
-@[simp]
-theorem comap_toAddSubmonoid :
-    (Q.comap f).toAddSubmonoid = Q.toAddSubmonoid.comap f.toAddMonoidHom := by
-  ext; simp
-
-@[simp]
-theorem map_toSubmonoid' : (P.map f).toSubmonoid = P.toSubmonoid.map f.toMonoidHom := by
-  ext; simp
-
-@[simp]
-theorem map_toAddSubmonoid : (P.map f).toAddSubmonoid = P.toAddSubmonoid.map f.toAddMonoidHom := by
-  ext; simp
-
-end Subsemiring
-
 namespace AddSubmonoid
 
 variable {G : Type*} [AddGroup G] (M : AddSubmonoid G)
@@ -156,6 +131,33 @@ instance (M : Subsemiring R) [M.HasMemOrNegMem] : M.HasIdealSupport where
 end Subsemiring
 
 end Ring
+
+-- PR SPLIT ↑1 ↓2
+
+-- TODO : move to right place and replace non-primed versions
+namespace Subsemiring
+
+variable {R S : Type*} [Semiring R] [Semiring S] (f : R →+* S)
+         (P : Subsemiring R) (Q : Subsemiring S)
+
+@[simp]
+theorem comap_toSubmonoid' : (Q.comap f).toSubmonoid = Q.toSubmonoid.comap f.toMonoidHom := by
+  ext; simp
+
+@[simp]
+theorem comap_toAddSubmonoid :
+    (Q.comap f).toAddSubmonoid = Q.toAddSubmonoid.comap f.toAddMonoidHom := by
+  ext; simp
+
+@[simp]
+theorem map_toSubmonoid' : (P.map f).toSubmonoid = P.toSubmonoid.map f.toMonoidHom := by
+  ext; simp
+
+@[simp]
+theorem map_toAddSubmonoid : (P.map f).toAddSubmonoid = P.toAddSubmonoid.map f.toAddMonoidHom := by
+  ext; simp
+
+end Subsemiring
 
 namespace Submonoid
 

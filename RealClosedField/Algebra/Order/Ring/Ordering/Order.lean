@@ -13,6 +13,8 @@ import RealClosedField.Algebra.Order.Ring.Ordering.Basic
 
 * `Field.ringOrderingLinearOrderEquiv`: equivalence between orderings on a field `F` and
 linearly ordered field structures on `F`.
+* `Ring.ringOrderingLinearOrderEquiv`: equivalence between orderings `O` on a ring `R` and
+linearly ordered field structures on the domain `R ⧸ O.support`.
 
 -/
 
@@ -49,3 +51,5 @@ theorem ringOrderingLinearOrderEquiv_symm_apply_val
   simp [ringOrderingLinearOrderEquiv]
 
 end Field
+
+-- TODO : `Ring.ringOrderingLinearOrderEquiv` from unfinished part of `Algebra.Order.Cone.Order`
