@@ -25,7 +25,8 @@ with `O` as the set of non-negative elements. See `Algebra.Order.Ring.Ordering.O
 
 ## References
 
-- [*An introduction to real algebra*, T.Y. Lam][lam_1984]
+- *An introduction to real algebra*, by T.Y. Lam. Rocky Mountain J. Math. 14(4): 767-814 (1984).
+[lam_1984](https://doi.org/10.1216/RMJ-1984-14-4-767)
 
 -/
 

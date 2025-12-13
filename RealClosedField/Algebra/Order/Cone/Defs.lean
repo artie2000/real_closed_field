@@ -1,8 +1,7 @@
--- TODO : fix copyright to acknowledge original author of cone files
 /-
-Copyright (c) 2025 Artie Khovanov. All rights reserved.
+Copyright (c) 2017 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Artie Khovanov
+Authors: Mario Carneiro, Artie Khovanov
 -/
 import RealClosedField.Algebra.Group.Submonoid.Support
 import Mathlib.Algebra.Order.Monoid.Submonoid

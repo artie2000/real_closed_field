@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
 import RealClosedField.Algebra.Order.Cone.Defs
-import RealClosedField.Algebra.Ring.Semireal.Defs
+import Mathlib.Algebra.Ring.SumsOfSquares
 
 variable {R : Type*}
 
@@ -68,10 +68,6 @@ theorem isFormallyReal_of_eq_zero_of_eq_zero_of_add_mul_self [NonUnitalNonAssocS
         intro has
         have := h (by rw [isSumSq_iff_mem_range_linearCombination]; simp) has
         exact ⟨this, hm (by simpa [this] using has)⟩
-
-instance [NonAssocSemiring R] [Nontrivial R] [IsFormallyReal R] : IsSemireal R where
-  one_add_ne_zero hs h_contr := by
-    simpa using IsFormallyReal.eq_zero_of_add_right IsSumSq.one hs h_contr
 
 instance [Ring R] [LinearOrder R] [IsStrictOrderedRing R] : IsFormallyReal R :=
   isFormallyReal_of_eq_zero_of_mul_self_of_eq_zero_of_add R mul_self_eq_zero.mp <|

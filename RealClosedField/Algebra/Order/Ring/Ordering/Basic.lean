@@ -17,7 +17,8 @@ under certain operations.
 
 ## References
 
-- [*An introduction to real algebra*, T.Y. Lam][lam_1984]
+- *An introduction to real algebra*, by T.Y. Lam. Rocky Mountain J. Math. 14(4): 767-814 (1984).
+[lam_1984](https://doi.org/10.1216/RMJ-1984-14-4-767)
 
 -/
 
@@ -160,26 +161,15 @@ end IsPreordering
 
 theorem IsPreordering.ofIsCone [Nontrivial R] [P.IsCone] (h : .sumSq R ≤ P) : P.IsPreordering where
 
-instance [IsSemireal R] : (sumSq R).IsPreordering where
-  neg_one_notMem := by simpa using IsSemireal.not_isSumSq_neg_one
-
-theorem _root_.isSemireal_ofIsPreordering [P.IsPreordering] : IsSemireal R :=
-  .of_not_isSumSq_neg_one (P.neg_one_notMem <| P.mem_of_isSumSq ·)
-
-theorem _root_.exists_isPreordering_iff_isSemireal :
-    (∃ P : Subsemiring R, P.IsPreordering) ↔ IsSemireal R where
-  mp | ⟨P, _⟩ => isSemireal_ofIsPreordering P
-  mpr _ := ⟨sumSq R, inferInstance⟩
-
 end CommRing
 
 section Field
 
-variable {F : Type*} [Field F]
+variable {F : Type*} [Field F] (P : Subsemiring F)
 
 namespace IsPreordering
 
-variable (P : Subsemiring F) [P.IsPreordering]
+variable [P.IsPreordering]
 
 variable {P} in
 @[aesop unsafe 90% apply (rule_sets := [SetLike])]
@@ -198,16 +188,25 @@ instance : P.support.IsPrime := by simpa using Ideal.bot_prime
 
 end IsPreordering
 
+end Field
+
+end Subsemiring
+
+namespace Field
+
+variable {F : Type*} [Field F]
+
 variable (F) in
 open Classical in
+/-- Equivalence between orderings on a field `F` and linearly ordered field structures on `F`. -/
 noncomputable def ringOrderingLinearOrderEquiv :
     Equiv {O : Subsemiring F // O.IsOrdering}
-          {l : LinearOrder F // IsStrictOrderedRing F} where
+          {o : LinearOrder F // IsStrictOrderedRing F} where
   toFun := fun ⟨O, hO⟩ =>
-    let ⟨l, hl⟩ := Ring.isConeLinearOrderEquiv F ⟨O, inferInstance, inferInstance⟩
-    ⟨l, IsOrderedRing.toIsStrictOrderedRing F⟩
-  invFun := fun ⟨l, hl⟩ =>
-    let ⟨O, hO⟩ := (Ring.isConeLinearOrderEquiv F).symm ⟨l, inferInstance⟩
+    let ⟨o, ho⟩ := Ring.isConeLinearOrderEquiv F ⟨O, inferInstance, inferInstance⟩
+    ⟨o, IsOrderedRing.toIsStrictOrderedRing F⟩
+  invFun := fun ⟨o, ho⟩ =>
+    let ⟨O, hO⟩ := (Ring.isConeLinearOrderEquiv F).symm ⟨o, inferInstance⟩
     have := hO.1; have := hO.2; ⟨O, inferInstance⟩
   left_inv := fun ⟨_, _⟩ => by ext; simp
   right_inv := fun ⟨_, _⟩ => by ext; simp
@@ -220,11 +219,9 @@ theorem ringOrderingLinearOrderEquiv_apply (O : Subsemiring F) (h : O.IsOrdering
 
 @[simp]
 theorem ringOrderingLinearOrderEquiv_symm_apply_val
-    (l : LinearOrder F) (h : IsStrictOrderedRing F) :
-    ((ringOrderingLinearOrderEquiv F).symm ⟨l, h⟩ : Subsemiring F) =
-    (Ring.isConeLinearOrderEquiv F).symm ⟨l, inferInstance⟩ := by
+    (o : LinearOrder F) (h : IsStrictOrderedRing F) :
+    ((ringOrderingLinearOrderEquiv F).symm ⟨o, h⟩ : Subsemiring F) =
+    (Ring.isConeLinearOrderEquiv F).symm ⟨o, inferInstance⟩ := by
   simp [ringOrderingLinearOrderEquiv]
 
 end Field
-
-end Subsemiring

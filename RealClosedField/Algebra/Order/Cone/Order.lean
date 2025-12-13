@@ -1,8 +1,7 @@
--- TODO : fix copyright to acknowledge original author of cone files
 /-
-Copyright (c) 2025 Artie Khovanov. All rights reserved.
+Copyright (c) 2017 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Artie Khovanov
+Authors: Mario Carneiro, Artie Khovanov
 -/
 import RealClosedField.Algebra.Order.Cone.Defs
 import Mathlib.RingTheory.Ideal.Quotient.Operations
@@ -239,8 +238,9 @@ abbrev LinearOrder.mkOfSubsemiring_quot [DecidablePred (· ∈ O)] : LinearOrder
       (by simp [AddSubmonoid.coe_support])
   .mkOfAddSubmonoid (O.map (Ideal.Quotient.mk O.support)).toAddSubmonoid
 
+-- TODO : come up with correct statement and name
 open Classical in
-noncomputable def IsConeLinearOrderEquiv_quot :
+noncomputable def isConeLinearOrderEquiv_quot :
     Equiv {O : Subsemiring R // O.HasMemOrNegMem}
           (Σ I : Ideal R, {p : LinearOrder (R ⧸ I) // IsOrderedRing (R ⧸ I)}) where
   toFun := fun ⟨O, hO⟩ => ⟨O.support, ⟨.mkOfSubsemiring_quot O, .mkOfSubsemiring_quot O⟩⟩

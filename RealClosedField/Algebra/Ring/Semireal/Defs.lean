@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Florent Schaffhauser, Artie Khovanov
 -/
 
-import Mathlib.Algebra.Ring.SumsOfSquares
+import RealClosedField.Algebra.Order.Ring.Ordering.Defs
+import RealClosedField.Algebra.Ring.FormallyReal
 
 /-!
 # Semireal rings
@@ -22,6 +23,7 @@ not.
 
 - *An introduction to real algebra*, by T.Y. Lam. Rocky Mountain J. Math. 14(4): 767-814 (1984).
 [lam_1984](https://doi.org/10.1216/RMJ-1984-14-4-767)
+
 -/
 
 variable {R : Type*}
@@ -47,6 +49,10 @@ theorem isSemireal_iff_not_isSumSq_neg_one [AddGroup R] [One R] [Mul R] :
 
 alias ⟨_, IsSemireal.of_not_isSumSq_neg_one⟩ := isSemireal_iff_not_isSumSq_neg_one
 
+instance [NonAssocSemiring R] [Nontrivial R] [IsFormallyReal R] : IsSemireal R where
+  one_add_ne_zero hs h_contr := by
+    simpa using IsFormallyReal.eq_zero_of_add_right IsSumSq.one hs h_contr
+
 /--
 Linearly ordered semirings with the property `a ≤ b → ∃ c, a + c = b` (e.g. `ℕ`)
 are semireal.
@@ -54,3 +60,20 @@ are semireal.
 instance [Semiring R] [LinearOrder R] [IsStrictOrderedRing R] [ExistsAddOfLE R] : IsSemireal R where
   one_add_ne_zero hs amo := zero_ne_one' R (le_antisymm zero_le_one
                               (le_of_le_of_eq (le_add_of_nonneg_right hs.nonneg) amo))
+
+section CommRing
+
+variable [CommRing R]
+
+instance [IsSemireal R] : (Subsemiring.sumSq R).IsPreordering where
+  neg_one_notMem := by simpa using IsSemireal.not_isSumSq_neg_one
+
+theorem isSemireal_ofIsPreordering (P : Subsemiring R) [P.IsPreordering] : IsSemireal R :=
+  .of_not_isSumSq_neg_one (P.neg_one_notMem <| P.mem_of_isSumSq ·)
+
+theorem exists_isPreordering_iff_isSemireal :
+    (∃ P : Subsemiring R, P.IsPreordering) ↔ IsSemireal R where
+  mp | ⟨P, _⟩ => isSemireal_ofIsPreordering P
+  mpr _ := ⟨Subsemiring.sumSq R, inferInstance⟩
+
+end CommRing
