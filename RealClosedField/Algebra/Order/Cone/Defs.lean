@@ -26,12 +26,6 @@ Positive cones correspond to ordered group structures: see `Algebra.Order.Cone.O
 
 -- TODO : register `to_additive` naming rule `IsMulCone` -> `IsCone` and remove explicit name annotations
 
--- TODO : upstream
-@[simp]
-theorem Subsemiring.nonneg_toAddSubmonoid
-    (R : Type*) [Semiring R] [PartialOrder R] [IsOrderedRing R] :
-  (nonneg R).toAddSubmonoid = AddSubmonoid.nonneg R := by ext; simp
-
 namespace AddSubmonoid
 
 variable {G : Type*} [AddGroup G] (M : AddSubmonoid G)
@@ -114,11 +108,10 @@ variable {R : Type*} [Ring R] (C : Subsemiring R)
 theorem IsCone.neg_one_notMem [Nontrivial R] [C.IsCone] : -1 ∉ C := fun hc ↦ by
   simpa [C.eq_zero_of_mem_of_neg_mem (by simp) hc] using zero_ne_one' R
 
--- TODO : check if these instances can be removed once definition of `Subsemiring.nonneg` changes
-instance [LinearOrder R] [IsOrderedRing R] : (nonneg R).HasMemOrNegMem := by
-  simpa using (inferInstance : (AddSubmonoid.nonneg R).HasMemOrNegMem)
+instance [LinearOrder R] [IsOrderedRing R] : (nonneg R).HasMemOrNegMem :=
+  (inferInstance : (AddSubmonoid.nonneg R).HasMemOrNegMem)
 
-instance [PartialOrder R] [IsOrderedRing R] : (nonneg R).IsCone := by
-  simpa using (inferInstance : (AddSubmonoid.nonneg R).IsCone)
+instance [PartialOrder R] [IsOrderedRing R] : (nonneg R).IsCone :=
+  (inferInstance : (AddSubmonoid.nonneg R).IsCone)
 
 end Subsemiring

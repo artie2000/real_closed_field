@@ -21,8 +21,6 @@ We define supports and prove how they interact with operations.
 
 -/
 
--- TODO : try adding aesop forward rules once fix comes through
-
 namespace AddSubmonoid
 
 variable {G : Type*} [AddGroup G] (M : AddSubmonoid G)
@@ -83,8 +81,8 @@ namespace AddSubmonoid
 variable (M : AddSubmonoid R)
 
 /-- Typeclass to track when the support of a submonoid forms an ideal. -/
-class HasIdealSupport (M : AddSubmonoid R) : Prop where
-  smul_mem_support (M) (x : R) {a : R} (ha : a ∈ M.supportAddSubgroup) :
+class HasIdealSupport : Prop where
+  smul_mem_support (x : R) {a : R} (ha : a ∈ M.supportAddSubgroup) :
     x * a ∈ M.supportAddSubgroup := by aesop
 
 export HasIdealSupport (smul_mem_support)
@@ -115,7 +113,7 @@ the set of elements `x` in `R` such that both `x` and `-x` lie in `P`.
 -/
 def support : Ideal R where
   __ := supportAddSubgroup M
-  smul_mem' := by simpa [mem_supportAddSubgroup] using smul_mem_support M
+  smul_mem' := have := M.smul_mem_support; by aesop
 
 variable {M} in
 @[aesop simp]
@@ -133,12 +131,10 @@ end AddSubmonoid
 namespace Subsemiring
 
 instance (M : Subsemiring R) [M.HasMemOrNegMem] : M.HasIdealSupport where
-  smul_mem_support x a ha :=
-    match M.mem_or_neg_mem x with
-    | .inl hx => ⟨by simpa using Subsemiring.mul_mem M hx ha.1,
-                  by simpa using Subsemiring.mul_mem M hx ha.2⟩
-    | .inr hx => ⟨by simpa using Subsemiring.mul_mem M hx ha.2,
-                  by simpa using Subsemiring.mul_mem M hx ha.1⟩
+  smul_mem_support x a ha := by
+    have := M.mem_or_neg_mem x
+    have : ∀ x y, -x ∈ M → -y ∈ M → x * y ∈ M := fun _ _ hx hy ↦ by simpa using mul_mem hx hy
+    aesop (add unsafe 80% apply this)
 
 end Subsemiring
 
@@ -318,7 +314,7 @@ theorem support_sSup (hsn : s.Nonempty) (hsd : DirectedOn (· ≤ ·) s)
     exact ⟨z.support, by aesop (add safe apply support_mono)⟩
 
 instance : (M'.comap f.toAddMonoidHom).HasIdealSupport where
-  smul_mem_support x a ha := by simpa using smul_mem_support M' (f x) (by simpa using ha)
+  smul_mem_support x a ha := by simpa using smul_mem_support (f x) (by simpa using ha)
 
 @[simp]
 theorem comap_support : (M'.comap f.toAddMonoidHom).support = (M'.support).comap f := by
@@ -335,7 +331,7 @@ theorem HasIdealSupport.map (hf : Function.Surjective f)
     rw [map_supportAddSubgroup hsupp] at ha
     rcases ha with ⟨a', ha', rfl⟩
     rcases hf x with ⟨x', rfl⟩
-    have := smul_mem_support M x' ha'
+    have := smul_mem_support x' ha'
     aesop (erase simp RingHom.toAddMonoidHom_eq_coe)
 
 end HasIdealSupport

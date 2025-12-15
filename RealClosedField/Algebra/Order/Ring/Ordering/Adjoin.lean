@@ -112,7 +112,6 @@ theorem _root_.Subsemiring.IsOrdering.of_maximal_isPreordering
 /- Every preordering on `R` extends to an ordering. -/
 theorem exists_le_isOrdering (P : Subsemiring R) [P.IsPreordering] :
     ∃ O ≥ P, O.IsOrdering :=
-  have := isSemireal_ofIsPreordering P
   have ⟨_, _, hO⟩ : ∃ O, P ≤ O ∧ Maximal IsPreordering O := by
     refine zorn_le_nonempty₀ {P : Subsemiring R | IsPreordering P} ?_ P (by simpa)
     exact fun S hS hc Q hQ =>

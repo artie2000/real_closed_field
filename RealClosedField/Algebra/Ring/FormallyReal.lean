@@ -73,6 +73,6 @@ instance [Ring R] [LinearOrder R] [IsStrictOrderedRing R] : IsFormallyReal R :=
   isFormallyReal_of_eq_zero_of_mul_self_of_eq_zero_of_add R mul_self_eq_zero.mp <|
     fun hs₁ hs₂ h ↦ ((add_eq_zero_iff_of_nonneg (IsSumSq.nonneg hs₁) (IsSumSq.nonneg hs₂)).mp h).1
 
-instance [CommRing R] [IsFormallyReal R] : (AddSubmonoid.sumSq R).IsCone :=
-  AddSubmonoid.isCone_iff.mpr fun x hx hnx ↦
-    IsFormallyReal.eq_zero_of_add_left (by simpa using hnx) (by simpa using hx) (neg_add_cancel x)
+instance [CommRing R] [IsFormallyReal R] : (AddSubmonoid.sumSq R).IsCone where
+  eq_zero_of_mem_of_neg_mem hx hnx :=
+    IsFormallyReal.eq_zero_of_add_left (by simpa using hnx) (by simpa using hx) (by simp)
