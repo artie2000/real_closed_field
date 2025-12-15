@@ -24,13 +24,15 @@ We define supports and prove how they interact with operations.
 
 -/
 
+-- TODO : try adding aesop forward rules once fix comes through
+
 namespace AddSubmonoid
 
 variable {G : Type*} [AddGroup G] (M : AddSubmonoid G)
 
 /-- Typeclass for submonoids `M` of a group `G` such that `M ∪ -M = G`. -/
 class HasMemOrNegMem (M : AddSubmonoid G) : Prop where
-  mem_or_neg_mem (M) (a : G) : a ∈ M ∨ -a ∈ M
+  mem_or_neg_mem (M) (a : G) : a ∈ M ∨ -a ∈ M := by aesop
 
 export HasMemOrNegMem (mem_or_neg_mem)
 
@@ -43,14 +45,16 @@ variable {G : Type*} [Group G] (M : Submonoid G)
 /-- Typeclass for submonoids `S` of a group `G` such that `M ∪ -M = G`. -/
 @[to_additive]
 class HasMemOrInvMem {G : Type*} [Group G] (M : Submonoid G) : Prop where
-  mem_or_inv_mem (M) (a : G) : a ∈ M ∨ a⁻¹ ∈ M
+  mem_or_inv_mem (M) (a : G) : a ∈ M ∨ a⁻¹ ∈ M := by aesop
 
 export HasMemOrInvMem (mem_or_inv_mem)
+
+-- TODO : aesop forward rule for `mem_or_inv_mem`; remove `have := ?.mem_or_???_mem` lines
 
 @[to_additive]
 theorem HasMemOrInvMem.of_le {M N : Submonoid G} [M.HasMemOrInvMem] (h : M ≤ N) :
     N.HasMemOrInvMem where
-  mem_or_inv_mem a := by aesop (add unsafe forward (M.mem_or_inv_mem a))
+  mem_or_inv_mem a := have := M.mem_or_inv_mem a; by aesop
 
 /--
 The support of a submonoid `M` of a group `G` is `M ∩ M⁻¹`, the largest subgroup contained in `M`.
@@ -65,7 +69,7 @@ def supportSubgroup : Subgroup G where
   inv_mem' := by aesop
 
 variable {M} in
-@[to_additive]
+@[to_additive (attr := aesop simp)]
 theorem mem_supportSubgroup {x} : x ∈ M.supportSubgroup ↔ x ∈ M ∧ x⁻¹ ∈ M := .rfl
 
 @[to_additive]
@@ -84,19 +88,29 @@ variable (M : AddSubmonoid R)
 /-- Typeclass to track when the support of a submonoid forms an ideal. -/
 class HasIdealSupport (M : AddSubmonoid R) : Prop where
   smul_mem_support (M) (x : R) {a : R} (ha : a ∈ M.supportAddSubgroup) :
-    x * a ∈ M.supportAddSubgroup
+    x * a ∈ M.supportAddSubgroup := by aesop
 
 export HasIdealSupport (smul_mem_support)
 
 variable {M} in
 theorem hasIdealSupport_iff :
     M.HasIdealSupport ↔ ∀ x a : R, a ∈ M → -a ∈ M → x * a ∈ M ∧ -(x * a) ∈ M where
-  mp _ := by simpa [mem_supportAddSubgroup] using smul_mem_support M
-  mpr _ := ⟨by simpa [mem_supportAddSubgroup]⟩
+  mp _ := have := M.smul_mem_support; by aesop
+  mpr _ := { }
 
 section HasIdealSupport
 
 variable [M.HasIdealSupport]
+
+@[aesop unsafe 80% apply]
+theorem smul_mem (x : R) {a : R} (h₁a : a ∈ M) (h₂a : -a ∈ M) : x * a ∈ M := by
+  have := M.smul_mem_support
+  aesop
+
+@[aesop unsafe 80% apply]
+theorem neg_smul_mem (x : R) {a : R} (h₁a : a ∈ M) (h₂a : -a ∈ M) : -(x * a) ∈ M := by
+  have := M.smul_mem_support
+  aesop
 
 /--
 The support of a subsemiring `S` of a commutative ring `R` is
@@ -107,6 +121,7 @@ def support : Ideal R where
   smul_mem' := by simpa [mem_supportAddSubgroup] using smul_mem_support M
 
 variable {M} in
+@[aesop simp]
 theorem mem_support {x} : x ∈ M.support ↔ x ∈ M ∧ -x ∈ M := .rfl
 
 theorem coe_support : M.support = (M : Set R) ∩ -(M : Set R) := rfl
@@ -133,6 +148,11 @@ end Subsemiring
 end Ring
 
 -- PR SPLIT ↑1 ↓2
+
+-- TODO : upstream and add similar
+attribute [simp] Submonoid.mem_sInf
+attribute [simp] AddSubmonoid.mem_sInf
+attribute [simp] Subsemiring.mem_sInf
 
 -- TODO : move to right place and replace non-primed versions
 namespace Subsemiring
@@ -168,25 +188,25 @@ variable {G H : Type*} [Group G] [Group H] (f : G →* H) (M N : Submonoid G) (M
 variable {M N} in
 @[to_additive]
 theorem supportSubgroup_mono (h : M ≤ N) : M.supportSubgroup ≤ N.supportSubgroup :=
-  fun _ ↦ by aesop (add simp mem_supportSubgroup)
+  fun _ ↦ by aesop
 
 @[to_additive (attr := simp)]
 theorem supportSubgroup_inf : (M ⊓ N).supportSubgroup = M.supportSubgroup ⊓ N.supportSubgroup := by
-  aesop (add simp mem_supportSubgroup)
+  aesop
 
 @[to_additive (attr := simp)]
 theorem supportSubgroup_sInf (s : Set (Submonoid G)) :
     (sInf s).supportSubgroup = InfSet.sInf (supportSubgroup '' s) := by
   ext
-  aesop (add simp mem_supportSubgroup, simp mem_sInf)
+  aesop
 
 @[to_additive]
 instance [M'.HasMemOrInvMem] : (M'.comap f).HasMemOrInvMem where
-  mem_or_inv_mem x := by simpa using M'.mem_or_inv_mem (f x)
+  mem_or_inv_mem x := have := M'.mem_or_inv_mem; by aesop
 
 @[to_additive (attr := simp)]
 theorem comap_supportSubgroup : (M'.comap f).supportSubgroup = (M'.supportSubgroup).comap f := by
-  ext; simp [mem_supportSubgroup]
+  ext; aesop
 
 variable {f} in
 @[to_additive]
@@ -199,9 +219,9 @@ theorem HasMemOrNegMem.map [M.HasMemOrInvMem] (hf : Function.Surjective f) :
 
 variable {M N} in
 @[to_additive]
-theorem mem_supportSubgroup_of_ge_of_notMem
-    [M.HasMemOrInvMem] (h : M ≤ N) {a : G} (ha : a ∈ N) (haP : a ∉ N) : a ∈ N.supportSubgroup :=
-  ⟨ha, have := M.mem_or_inv_mem a; h (by simp_all)⟩
+theorem mem_supportSubgroup_of_ge_of_notMem [M.HasMemOrInvMem] (h : M ≤ N)
+    {a : G} (ha : a ∈ N) (haP : a ∉ N) : a ∈ N.supportSubgroup :=
+  have := M.mem_or_inv_mem; by aesop
 
 end Group
 
@@ -215,9 +235,9 @@ theorem map_supportSubgroup
     (hsupp : f.ker ≤ M.supportSubgroup) :
     (M.map f).supportSubgroup = (M.supportSubgroup).map f := by
   ext
-  refine ⟨fun ⟨⟨a, ⟨ha₁, ha₂⟩⟩, ⟨b, ⟨hb₁, hb₂⟩⟩⟩ => ?_, by aesop (add simp mem_supportSubgroup)⟩
+  refine ⟨fun ⟨⟨a, ⟨ha₁, ha₂⟩⟩, ⟨b, ⟨hb₁, hb₂⟩⟩⟩ => ?_, by aesop⟩
   have : (a * b)⁻¹ * b ∈ M := by exact mul_mem (hsupp (show f (a * b) = 1 by simp_all)).2 hb₁
-  aesop (add simp mem_supportSubgroup)
+  aesop
 
 end CommGroup
 
@@ -235,16 +255,9 @@ section HasIdealSupport
 variable [M.HasIdealSupport] [N.HasIdealSupport] [M'.HasIdealSupport]
 
 variable {M N} in
-theorem support_mono (h : M ≤ N) :support M ≤ support N := fun _ ↦ by aesop (add simp mem_support)
+theorem support_mono (h : M ≤ N) :support M ≤ support N := fun _ ↦ by aesop
 
-theorem HasIdealSupport.smul_mem (x : R) {a : R} (h₁a : a ∈ M) (h₂a : -a ∈ M) : x * a ∈ M := by
-  grind [hasIdealSupport_iff]
-
-theorem HasIdealSupport.neg_smul_mem (x : R) {a : R} (h₁a : a ∈ M) (h₂a : -a ∈ M) :
-    -(x * a) ∈ M := by
-  grind [hasIdealSupport_iff]
-
-instance : (M ⊓ N).HasIdealSupport := by simp_all [hasIdealSupport_iff]
+instance : (M ⊓ N).HasIdealSupport where
 
 @[simp]
 theorem support_inf : (M ⊓ N).support = M.support ⊓ N.support := by
@@ -252,14 +265,16 @@ theorem support_inf : (M ⊓ N).support = M.support ⊓ N.support := by
   simpa [-Submodule.toAddSubgroup_inj] using supportAddSubgroup_inf (M := M) (N := N)
 
 theorem HasIdealSupport.sInf (h : ∀ M ∈ s, M.HasIdealSupport) :
-    (sInf s).HasIdealSupport := by
-  simp_all [hasIdealSupport_iff, mem_sInf]
+    (sInf s).HasIdealSupport where
+  smul_mem_support := by
+    simp_rw [hasIdealSupport_iff] at h -- TODO : do this properly
+    aesop
 
 @[simp]
 theorem support_sInf (h : ∀ M ∈ s, M.HasIdealSupport) :
     letI _ := HasIdealSupport.sInf h
     (sInf s).support = InfSet.sInf {I | ∃ M, ∃ hM : M ∈ s, letI _ := h _ hM; I = M.support} := by
-  aesop (add simp mem_support, simp mem_sInf)
+  aesop
 
 @[simp]
 theorem supportAddSubgroup_sSup (hsn : s.Nonempty) (hsd : DirectedOn (· ≤ ·) s) :

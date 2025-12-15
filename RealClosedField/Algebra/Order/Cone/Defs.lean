@@ -38,11 +38,9 @@ variable {G : Type*} [AddGroup G] (M : AddSubmonoid G)
 
 /-- Typeclass for submonoids with zero support. -/
 class IsCone (M : AddSubmonoid G) : Prop where
-  supportAddSubgroup_eq_bot (M) : M.supportAddSubgroup = ⊥
+  eq_zero_of_mem_of_neg_mem {x} (hx₁ : x ∈ M) (hx₂ : -x ∈ M) : x = 0 := by aesop
 
-export IsCone (supportAddSubgroup_eq_bot)
-
-attribute [simp] supportAddSubgroup_eq_bot
+export IsCone (eq_zero_of_mem_of_neg_mem)
 
 end AddSubmonoid
 
@@ -55,25 +53,14 @@ variable {G : Type*} [Group G] (M : Submonoid G)
 /-- Typeclass for submonoids with zero support. -/
 @[to_additive IsCone]
 class IsMulCone (M : Submonoid G) : Prop where
-  supportSubgroup_eq_bot (M) : M.supportSubgroup = ⊥
+  eq_one_of_mem_of_inv_mem {x} (hx₁ : x ∈ M) (hx₂ : x⁻¹ ∈ M) : x = 1 := by aesop
 
-export IsMulCone (supportSubgroup_eq_bot)
+export IsMulCone (eq_one_of_mem_of_inv_mem)
 
-variable {M} in
-@[to_additive isCone_iff]
-theorem isMulCone_iff : M.IsMulCone ↔ ∀ x : G, x ∈ M → x⁻¹ ∈ M → x = 1 where
-  mp _ x := by
-    have := IsMulCone.supportSubgroup_eq_bot M
-    apply_fun (x ∈ ·) at this
-    aesop (add simp mem_supportSubgroup)
-  mpr _ := ⟨by ext; aesop (add simp mem_supportSubgroup)⟩
-
-@[to_additive]
-theorem eq_one_of_mem_of_inv_mem [M.IsMulCone]
-    {x : G} (hx₁ : x ∈ M) (hx₂ : x⁻¹ ∈ M) : x = 1 :=
-  isMulCone_iff.mp (inferInstance : M.IsMulCone) x hx₁ hx₂
-
-attribute [simp] supportSubgroup_eq_bot
+@[to_additive (attr := simp)]
+theorem supportSubgroup_eq_bot [M.IsMulCone] : M.supportSubgroup = ⊥ := by
+  ext
+  aesop (add unsafe M.eq_one_of_mem_of_inv_mem)
 
 end Group
 
@@ -83,9 +70,7 @@ variable (G : Type*) [CommGroup G]
 
 @[to_additive]
 instance [PartialOrder G] [IsOrderedMonoid G] : (oneLE G).IsMulCone where
-  supportSubgroup_eq_bot := by
-    ext
-    simp [mem_supportSubgroup, ge_antisymm_iff]
+  eq_one_of_mem_of_inv_mem := by simp_all [ge_antisymm_iff]
 
 @[to_additive]
 instance [LinearOrder G] [IsOrderedMonoid G] : (oneLE G).HasMemOrInvMem where
@@ -100,7 +85,6 @@ namespace AddSubmonoid
 variable {R : Type*} [Ring R] (M : AddSubmonoid R)
 
 instance [M.IsCone] : M.HasIdealSupport where
-  smul_mem_support := by simp [supportAddSubgroup_eq_bot]
 
 @[simp]
 theorem support_eq_bot [M.IsCone] : M.support = ⊥ := by
@@ -108,13 +92,15 @@ theorem support_eq_bot [M.IsCone] : M.support = ⊥ := by
   exact supportAddSubgroup_eq_bot M
 
 theorem IsCone.of_support_eq_bot [M.HasIdealSupport] (h : M.support = ⊥) : M.IsCone where
-  supportAddSubgroup_eq_bot := by simp [h]
+  eq_zero_of_mem_of_neg_mem {x} := by
+    apply_fun (x ∈ ·) at h
+    aesop
 
 theorem IsCone.maximal [M.IsCone] [M.HasMemOrNegMem] : Maximal IsCone M :=
   ⟨inferInstance, fun N hN h ↦ by
     by_contra h2
     have ⟨x, hx, hx2⟩ : ∃ x, x ∈ N ∧ x ∉ M := Set.not_subset.mp h2
-    have : -x ∈ N := by aesop (add unsafe forward (M.mem_or_neg_mem))
+    have : -x ∈ N := have := M.mem_or_neg_mem x; by aesop
     have := AddSubmonoid.eq_zero_of_mem_of_neg_mem (M := N) (x := x)
     simp_all⟩
 

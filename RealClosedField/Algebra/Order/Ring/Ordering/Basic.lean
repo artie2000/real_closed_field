@@ -6,7 +6,6 @@ Authors: Florent Schaffhauser, Artie Khovanov
 -/
 import RealClosedField.Algebra.Order.Cone.Defs
 import RealClosedField.Algebra.Order.Ring.Ordering.Defs
-import RealClosedField.Algebra.Ring.Semireal.Defs
 import Mathlib.Tactic.FieldSimp
 import Mathlib.Tactic.LinearCombination
 
@@ -59,8 +58,8 @@ theorem isOrdering_iff :
     have : ∀ (a : R), a ∈ P ∨ -a ∈ P := P.mem_or_neg_mem
     have : a * b ∈ P := by simpa using mul_mem (by grind : -a ∈ P) (by grind : -b ∈ P)
     have : a ∈ P.support ∨ b ∈ P.support :=
-      Ideal.IsPrime.mem_or_mem inferInstance (by simp_all [AddSubmonoid.mem_support])
-    simp_all [AddSubmonoid.mem_support]
+      Ideal.IsPrime.mem_or_mem inferInstance (by aesop)
+    aesop
   mpr h :=
     have : P.HasMemOrNegMem := ⟨by simp [h]⟩
     { this with
@@ -71,7 +70,7 @@ theorem isOrdering_iff :
         have := h (-x) (-y)
         have := h x y
         have := h x (-y)
-        cases (by aesop : x ∈ P ∨ -x ∈ P) <;> simp_all [AddSubmonoid.mem_support]
+        cases (by aesop : x ∈ P ∨ -x ∈ P) <;> aesop
     }
 
 variable {P} in
@@ -87,15 +86,19 @@ instance [IsDomain R] [P.HasMemOrNegMem] [P.IsCone] : P.IsOrdering where
 
 -- PR SPLIT ↑1 ↓2
 
+-- TODO : upstream and add similar
+attribute [simp] Submonoid.mem_sInf
+attribute [simp] AddSubmonoid.mem_sInf
+attribute [simp] Subsemiring.mem_sInf
+
 instance (P₁ P₂ : Subsemiring R) [P₁.IsPreordering] [P₂.IsPreordering] :
     (P₁ ⊓ P₂).IsPreordering where
 
 theorem IsPreordering.sInf {S : Set (Subsemiring R)}
     (hSn : S.Nonempty) (hS : ∀ s ∈ S, s.IsPreordering) : (sInf S).IsPreordering where
-  mem_of_isSquare x := by aesop (add simp Subsemiring.mem_sInf)
   neg_one_notMem := by
     have := hS _ hSn.some_mem
-    simpa [Subsemiring.mem_sInf] using ⟨_, hSn.some_mem, hSn.some.neg_one_notMem⟩
+    simpa using ⟨_, hSn.some_mem, hSn.some.neg_one_notMem⟩
 
 theorem IsPreordering.sSup  {S : Set (Subsemiring R)}
     (hSn : S.Nonempty) (hSd : DirectedOn (· ≤ ·) S)
@@ -148,18 +151,18 @@ namespace IsPreordering
 variable [P.IsPreordering]
 
 -- TODO : generalise to noncomm rings by doing the algebra manually?
-theorem hasIdealSupport_of_isUnit_two (h : IsUnit (2 : R)) : P.HasIdealSupport := by
-  rw [AddSubmonoid.hasIdealSupport_iff]
-  intro x a _ _
-  rcases h.exists_right_inv with ⟨half, h2⟩
-  set y := (1 + x) * half
-  set z := (1 - x) * half
-  rw [show x = y ^ 2 - z ^ 2 by
-    linear_combination (- x - x * half * 2) * h2]
-  ring_nf
-  aesop (add simp sub_eq_add_neg)
+theorem hasIdealSupport_of_isUnit_two (h : IsUnit (2 : R)) : P.HasIdealSupport where
+  smul_mem_support x a _:= by
+    rcases h.exists_right_inv with ⟨half, h2⟩
+    set y := (1 + x) * half
+    set z := (1 - x) * half
+    rw [show x = y ^ 2 - z ^ 2 by
+      linear_combination (- x - x * half * 2) * h2]
+    ring_nf
+    aesop (add simp sub_eq_add_neg)
 
 instance [h : Fact (IsUnit (2 : R))] : P.HasIdealSupport := hasIdealSupport_of_isUnit_two P h.out
+
 
 end IsPreordering
 
@@ -182,11 +185,13 @@ theorem inv_mem {a : F} (ha : a ∈ P) : a⁻¹ ∈ P := by
   field_simp at mem
   simp_all
 
-instance : P.IsCone := AddSubmonoid.isCone_iff.mpr fun x _ _ ↦ by
-  by_contra
-  have mem : -x * x⁻¹ ∈ P := by aesop (erase simp neg_mul)
-  field_simp at mem
-  exact P.neg_one_notMem mem
+instance : P.IsCone where
+  eq_zero_of_mem_of_neg_mem {x} _ _ := by
+    by_contra
+    have mem : -x * x⁻¹ ∈ P := by aesop (erase simp neg_mul)
+    field_simp at mem
+    exact P.neg_one_notMem mem
+
 
 instance : P.support.IsPrime := by simpa using Ideal.bot_prime
 

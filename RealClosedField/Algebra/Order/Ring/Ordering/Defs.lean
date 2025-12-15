@@ -45,6 +45,7 @@ class IsPreordering (S : Subsemiring R) : Prop where
 export IsPreordering (mem_of_isSquare)
 export IsPreordering (neg_one_notMem)
 
+-- TODO : change to forward
 attribute [aesop simp (rule_sets := [SetLike])] neg_one_notMem
 
 section IsPreordering
