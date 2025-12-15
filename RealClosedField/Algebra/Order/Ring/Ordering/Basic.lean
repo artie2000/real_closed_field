@@ -151,7 +151,7 @@ variable [P.IsPreordering]
 
 -- TODO : generalise to noncomm rings by doing the algebra manually?
 theorem hasIdealSupport_of_isUnit_two (h : IsUnit (2 : R)) : P.HasIdealSupport where
-  smul_mem_support x a _:= by
+  smul_mem_support x a _ := by
     rcases h.exists_right_inv with ⟨half, h2⟩
     set y := (1 + x) * half
     set z := (1 - x) * half
