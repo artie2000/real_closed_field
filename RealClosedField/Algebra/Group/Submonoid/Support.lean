@@ -9,11 +9,8 @@ import Mathlib.RingTheory.Ideal.Maps
 # Supports of submonoids
 
 Let `G` be an (additive) group, and let `M` be a submonoid of `G`.
-
 The *support* of `M` is `M ∩ -M`, the largest subgroup of `M`.
-
 When `M ∪ -M = G`, the support of `M` forms an ideal.
-
 We define supports and prove how they interact with operations.
 
 ## Main definitions
