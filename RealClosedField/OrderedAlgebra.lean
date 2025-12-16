@@ -16,6 +16,7 @@ namespace Field
 
 /- TODO : generalise to extensions of ordered rings using `IsCone` -/
 
+variable (F K) in
 open Classical in
 open scoped algebraMap in
 noncomputable def ringOrderingOrderedAlgebraEquiv :
@@ -35,41 +36,39 @@ noncomputable def ringOrderingOrderedAlgebraEquiv :
     ⟨O, O.property, fun x hx => by
     rcases hl with ⟨hl, hl₂⟩
     have : ∀ b : F, 0 ≤ b → 0 ≤ (b : K) := fun _ h ↦ by
-      simpa using algebraMap_mono (A := K) h
+      simpa using algebraMap_mono (β := K) h
     aesop⟩
   left_inv := fun ⟨_, _, _⟩ => by ext; simp
-  right_inv := fun _ => by ext; simp
+  right_inv := fun ⟨_, _, _⟩ => by ext; simp
 
 @[simp]
-theorem ringOrderingOrderedAlgebraEquivField_apply_coe
-    {O : IsPreordering K} (hO : O.IsOrdering)
-    (hO₂ : Subsemiring.map (algebraMap F K) (Subsemiring.nonneg F) ≤ O.toSubsemiring) :
-    (ringOrderingOrderedAlgebraEquivField ⟨O, hO, hO₂⟩ : LinearOrder K) =
-    ringOrderingLinearOrderEquivField ⟨O, hO⟩ := rfl
+theorem ringOrderingOrderedAlgebraEquiv_apply_coe
+    (O : Subsemiring K) (hO : O.IsOrdering)
+    (hO₂ : Subsemiring.map (algebraMap F K) (Subsemiring.nonneg F) ≤ O) :
+    (ringOrderingOrderedAlgebraEquiv F K ⟨O, hO, hO₂⟩ : LinearOrder K) =
+    ringOrderingLinearOrderEquiv K ⟨O, hO⟩ := rfl
 
 @[simp]
-theorem ringOrderingOrderedAlgebraEquivField_symm_apply_coe
+theorem ringOrderingOrderedAlgebraEquiv_symm_apply_coe
     (l : LinearOrder K) (hl : IsStrictOrderedRing K) (hl₂ : IsOrderedModule F K) :
-    (ringOrderingOrderedAlgebraEquivField.symm ⟨l, hl, hl₂⟩ : IsPreordering K) =
-    ringOrderingLinearOrderEquivField.symm ⟨l, hl⟩ := rfl
+    ((ringOrderingOrderedAlgebraEquiv F K).symm ⟨l, hl, hl₂⟩ : Subsemiring K) =
+    (ringOrderingLinearOrderEquiv K).symm ⟨l, hl⟩ := rfl
 
 open Classical Subsemiring in
 theorem exists_isOrderedAlgebra_iff_neg_one_notMem_sup :
-    (∃ _ : LinearOrder K, ∃ _ : IsStrictOrderedRing K, IsOrderedModule F K) ↔
+    (∃ _ : LinearOrder K, IsStrictOrderedRing K ∧ IsOrderedModule F K) ↔
     -1 ∉ ((Subsemiring.nonneg F).map (algebraMap F K) ⊔ Subsemiring.sumSq K) := by
-  rw [Equiv.exists_subtype_congr ringOrderingOrderedAlgebraEquivField.symm]
+  rw [Equiv.exists_subtype_congr (ringOrderingOrderedAlgebraEquiv F K).symm]
+  set P := (Subsemiring.nonneg F).map (algebraMap F K) ⊔ Subsemiring.sumSq K with hP
   refine ⟨fun ⟨O, hO, hO₂⟩ hc => ?_, fun h => ?_⟩
-  · suffices Subsemiring.map (algebraMap F K) (Subsemiring.nonneg F) ⊔ Subsemiring.sumSq K ≤
-             O.toSubsemiring from
-      IsPreordering.neg_one_notMem _ <| this hc
+  · suffices P ≤ O from IsPreordering.neg_one_notMem _ (this hc)
     rw [sup_le_iff]
-    exact ⟨hO₂, fun _ => by aesop⟩
-  · rcases IsPreordering.exists_le_isOrdering
-        { toSubsemiring := (Subsemiring.nonneg F).map (algebraMap F K) ⊔ Subsemiring.sumSq K } with
-      ⟨O, hO, hO₂⟩
-    refine ⟨O, ⟨inferInstance, ?_⟩⟩
-    intro _ hx
-    simpa using hO <| le_sup_left (α := Subsemiring K) hx
+    exact ⟨hO₂, fun _ ↦ by aesop⟩
+    -- TODO : add `SetLike.subset_def` or something to Aesop as a low prio apply rule,
+    -- and golf the last 2 lines here
+  · have : P.IsPreordering := { }
+    rcases IsPreordering.exists_le_isOrdering P with ⟨O, hO, hO₂⟩
+    refine ⟨O, ⟨inferInstance, by simp_all⟩⟩
 
 end Field
 
@@ -89,7 +88,7 @@ theorem sup_map_nonneg_sumSq_eq_addSubmonoid_closure_set_mul :
 
 open scoped Pointwise in
 theorem Field.exists_isOrderedAlgebra_iff_neg_one_notMem_span_nonneg_isSquare :
-    (∃ _ : LinearOrder K, ∃ _ : IsStrictOrderedRing K, IsOrderedModule F K) ↔
+    (∃ _ : LinearOrder K, IsStrictOrderedRing K ∧ IsOrderedModule F K) ↔
     -1 ∉ Submodule.span (Subsemiring.nonneg F) {x : K | IsSquare x} := by
   rw [← SetLike.mem_coe, ← sup_map_nonneg_sumSq_eq_addSubmonoid_closure_set_mul, SetLike.mem_coe,
     Field.exists_isOrderedAlgebra_iff_neg_one_notMem_sup]
@@ -97,7 +96,7 @@ theorem Field.exists_isOrderedAlgebra_iff_neg_one_notMem_span_nonneg_isSquare :
 open scoped Pointwise algebraMap in
 theorem Field.exists_isOrderedAlgebra_of_projection
     (π : K →ₗ[F] F) (hπ : ∀ x, x ≠ 0 → 0 < π (x * x)) :
-    (∃ _ : LinearOrder K, ∃ _ : IsStrictOrderedRing K, IsOrderedModule F K) := by
+    (∃ _ : LinearOrder K, IsStrictOrderedRing K ∧ IsOrderedModule F K) := by
   rw [Field.exists_isOrderedAlgebra_iff_neg_one_notMem_span_nonneg_isSquare]
   have ih : ∀ x ∈ Submodule.span (Subsemiring.nonneg F) {x : K | IsSquare x}, 0 ≤ π x := by
     apply Submodule.closure_induction
@@ -134,8 +133,8 @@ theorem isSumSq_of_isSquare {K : Type*} [Field K]
 open Polynomial IsAdjoinRoot.Quadratic in
 theorem adj_sqrt_ordered {a : F} (ha : 0 ≤ a) (ha₂ : ¬ IsSquare a) :
     ∃ _ : LinearOrder (AdjoinRoot (X ^ 2 - C a : F[X])),
-      ∃ _ : IsStrictOrderedRing (AdjoinRoot (X ^ 2 - C a : F[X])),
-        IsOrderedModule F (AdjoinRoot (X ^ 2 - C a : F[X])) := by
+      IsStrictOrderedRing (AdjoinRoot (X ^ 2 - C a : F[X])) ∧
+      IsOrderedModule F (AdjoinRoot (X ^ 2 - C a : F[X])) := by
   have hK := AdjoinRoot.isAdjoinRootMonic (X ^ 2 - C a : F[X]) (by simp [Monic])
   have : Fact (Irreducible (X ^ 2 - C a)) := Fact.mk <| by
     simpa [← X_sq_sub_C_irreducible_iff_not_isSquare] using ha₂
@@ -256,7 +255,7 @@ theorem minus_one_notMem_span_nonneg_isSquare_mod_f {f : F[X]}
 
 open scoped Pointwise in
 theorem odd_deg_ordered (h_rank : Odd <| Module.finrank F K) :
-    (∃ _ : LinearOrder K, ∃ _ : IsStrictOrderedRing K, IsOrderedModule F K) := by
+    (∃ _ : LinearOrder K, IsStrictOrderedRing K ∧ IsOrderedModule F K) := by
   rw [Field.exists_isOrderedAlgebra_iff_neg_one_notMem_span_nonneg_isSquare]
   have : FiniteDimensional F K := Module.finite_of_finrank_pos <| Odd.pos h_rank
   rcases Field.exists_primitive_element F K with ⟨α, hα⟩
