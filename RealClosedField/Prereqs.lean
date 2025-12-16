@@ -454,3 +454,12 @@ theorem IsGalois.exists_intermediateField_ge_card_pow_prime_mul_of_card_pow_prim
   linear_combination (norm := skip) mul / (p ^ (multiplicity p (Module.finrank K L) - m))
   field_simp
   ring
+
+-- `Algebra.Order.Module.Algebra`
+theorem IsOrderedModule.of_algebraMap_mono {R A : Type*} [CommSemiring R] [Preorder R]
+    [Semiring A] [PartialOrder A] [PosMulMono A] [MulPosMono A] [Algebra R A]
+    (h : Monotone (algebraMap R A)) : IsOrderedModule R A where
+  smul_le_smul_of_nonneg_left _ ha _ _ hb := by
+    simpa [Algebra.smul_def] using mul_le_mul_of_nonneg_left hb (by simpa using h ha)
+  smul_le_smul_of_nonneg_right _ ha _ _ hb := by
+    simpa [Algebra.smul_def] using mul_le_mul_of_nonneg_right (h hb) ha
