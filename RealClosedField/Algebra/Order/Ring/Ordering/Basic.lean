@@ -22,13 +22,16 @@ under certain operations.
 
 namespace Subsemiring
 
-section Ring
+section CommRing
 
-variable {R S : Type*} [Ring R] [Ring S] (f : R →+* S) (P : Subsemiring R) (P' : Subsemiring S)
+variable {R S : Type*} [CommRing R] [CommRing S] (f : R →+* S) (P : Subsemiring R) (P' : Subsemiring S)
 
 namespace IsPreordering
 
 variable [P.IsPreordering]
+
+variable {P} in
+theorem of_le {Q : Subsemiring R} (hPQ : P ≤ Q) (hQ : -1 ∉ Q) : Q.IsPreordering where
 
 variable {P} in
 @[aesop unsafe 90% apply (rule_sets := [SetLike])]
@@ -72,8 +75,17 @@ theorem isOrdering_iff :
         cases (by aesop : x ∈ P ∨ -x ∈ P) <;> aesop
     }
 
-variable {P} in
-theorem of_le {Q : Subsemiring R} (hPQ : P ≤ Q) (hQ : -1 ∉ Q) : Q.IsPreordering where
+theorem hasIdealSupport_of_isUnit_two (h : IsUnit (2 : R)) : P.HasIdealSupport where
+  smul_mem_support x a _ := by
+    rcases h.exists_right_inv with ⟨half, h2⟩
+    set y := (1 + x) * half
+    set z := (1 - x) * half
+    rw [show x = y ^ 2 - z ^ 2 by
+      linear_combination (- x - x * half * 2) * h2]
+    ring_nf
+    aesop (add simp sub_eq_add_neg)
+
+instance [h : Fact (IsUnit (2 : R))] : P.HasIdealSupport := hasIdealSupport_of_isUnit_two P h.out
 
 end IsPreordering
 
@@ -82,6 +94,8 @@ instance [Nontrivial R] [P.HasMemOrNegMem] [P.IsCone] : P.IsPreordering :=
 
 instance [IsDomain R] [P.HasMemOrNegMem] [P.IsCone] : P.IsOrdering where
   __ : P.support.IsPrime := by simpa using Ideal.bot_prime
+
+theorem IsPreordering.ofIsCone [Nontrivial R] [P.IsCone] (h : .sumSq R ≤ P) : P.IsPreordering where
 
 -- PR SPLIT ↑1 ↓2
 
@@ -137,37 +151,9 @@ theorem IsPreordering.map [P.IsPreordering] (hf : Function.Surjective f)
     have : -(x' + 1) + x' ∈ P := add_mem (hsupp (show f (x' + 1) = 0 by simp_all)).2 hx'
     aesop
 
-end Ring
+end CommRing
 
 -- PR SPLIT ↑2 ↓1
-
-section CommRing
-
-variable {R : Type*} [CommRing R] (P : Subsemiring R)
-
-namespace IsPreordering
-
-variable [P.IsPreordering]
-
--- TODO : generalise to noncomm rings by doing the algebra manually?
-theorem hasIdealSupport_of_isUnit_two (h : IsUnit (2 : R)) : P.HasIdealSupport where
-  smul_mem_support x a _ := by
-    rcases h.exists_right_inv with ⟨half, h2⟩
-    set y := (1 + x) * half
-    set z := (1 - x) * half
-    rw [show x = y ^ 2 - z ^ 2 by
-      linear_combination (- x - x * half * 2) * h2]
-    ring_nf
-    aesop (add simp sub_eq_add_neg)
-
-instance [h : Fact (IsUnit (2 : R))] : P.HasIdealSupport := hasIdealSupport_of_isUnit_two P h.out
-
-
-end IsPreordering
-
-theorem IsPreordering.ofIsCone [Nontrivial R] [P.IsCone] (h : .sumSq R ≤ P) : P.IsPreordering where
-
-end CommRing
 
 section Field
 

@@ -29,7 +29,7 @@ All orderings are preorderings.
 
 namespace Subsemiring
 
-variable {R : Type*} [Ring R] (S : Subsemiring R)
+variable {R : Type*} [CommRing R] (S : Subsemiring R)
 
 /--
 An ordering `O` on a ring `R` is a subsemiring of `R` such that `O ∪ -O = R` and
