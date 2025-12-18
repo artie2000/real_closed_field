@@ -31,25 +31,27 @@ class HasMemOrNegMem (M : AddSubmonoid G) : Prop where
 
 export HasMemOrNegMem (mem_or_neg_mem)
 
+attribute [aesop safe forward] mem_or_neg_mem
+
 end AddSubmonoid
 
 namespace Submonoid
 
 variable {G : Type*} [Group G] (M : Submonoid G)
 
-/-- Typeclass for submonoids `S` of a group `G` such that `M ∪ -M = G`. -/
+/-- Typeclass for submonoids `M` of a group `G` such that `M ∪ -M = G`. -/
 @[to_additive]
 class HasMemOrInvMem {G : Type*} [Group G] (M : Submonoid G) : Prop where
   mem_or_inv_mem (M) (a : G) : a ∈ M ∨ a⁻¹ ∈ M := by aesop
 
 export HasMemOrInvMem (mem_or_inv_mem)
 
--- TODO : aesop forward rule for `mem_or_inv_mem`; remove `have := ?.mem_or_???_mem` lines
+attribute [aesop safe forward] mem_or_inv_mem
 
 @[to_additive]
 theorem HasMemOrInvMem.of_le {M N : Submonoid G} [M.HasMemOrInvMem] (h : M ≤ N) :
     N.HasMemOrInvMem where
-  mem_or_inv_mem a := have := M.mem_or_inv_mem a; by aesop
+  mem_or_inv_mem a := by aesop
 
 /--
 The support of a submonoid `M` of a group `G` is `M ∩ M⁻¹`, the largest subgroup contained in `M`.
@@ -97,12 +99,12 @@ section HasIdealSupport
 
 variable [M.HasIdealSupport]
 
-@[aesop unsafe 80% apply]
+@[aesop 80% (rule_sets := [SetLike])]
 theorem smul_mem (x : R) {a : R} (h₁a : a ∈ M) (h₂a : -a ∈ M) : x * a ∈ M := by
   have := M.smul_mem_support
   aesop
 
-@[aesop unsafe 80% apply]
+@[aesop 80% (rule_sets := [SetLike])]
 theorem neg_smul_mem (x : R) {a : R} (h₁a : a ∈ M) (h₂a : -a ∈ M) : -(x * a) ∈ M := by
   have := M.smul_mem_support
   aesop
@@ -113,7 +115,7 @@ the set of elements `x` in `R` such that both `x` and `-x` lie in `P`.
 -/
 def support : Ideal R where
   __ := supportAddSubgroup M
-  smul_mem' := have := M.smul_mem_support; by aesop
+  smul_mem' := by aesop
 
 variable {M} in
 @[aesop simp]
@@ -141,11 +143,6 @@ end Subsemiring
 end Ring
 
 -- PR SPLIT ↑1 ↓2
-
--- TODO : upstream and add similar
-attribute [simp] Submonoid.mem_sInf
-attribute [simp] AddSubmonoid.mem_sInf
-attribute [simp] Subsemiring.mem_sInf
 
 -- TODO : move to right place and replace non-primed versions
 namespace Subsemiring
@@ -207,14 +204,7 @@ theorem HasMemOrNegMem.map [M.HasMemOrInvMem] (hf : Function.Surjective f) :
     (M.map f).HasMemOrInvMem where
   mem_or_inv_mem x := by
     obtain ⟨x', rfl⟩ := hf x
-    have := M.mem_or_inv_mem x'
     aesop
-
-variable {M N} in
-@[to_additive]
-theorem mem_supportSubgroup_of_ge_of_notMem [M.HasMemOrInvMem] (h : M ≤ N)
-    {a : G} (ha : a ∈ N) (haP : a ∉ N) : a ∈ N.supportSubgroup :=
-  have := M.mem_or_inv_mem; by aesop
 
 end Group
 

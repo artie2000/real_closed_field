@@ -138,20 +138,18 @@ theorem exists_lt_isOrdering (hp : a ∉ P) (hn : -a ∉ P) :
 
 end IsPreordering
 
-/- An subsemiring of `R` is a maximal preordering iff it is a maximal ordering. -/
-theorem maximal_isPreordering_iff_maximal_isOrdering {O : Subsemiring R} :
-    Maximal IsPreordering O ↔ Maximal IsOrdering O where
-  mp h := Maximal.mono h (fun _ _ => inferInstance) (.of_maximal_isPreordering h)
-  mpr hO :=
+/- A maximal ordering on `R` is precisely a maixmal preordering on `R`. -/
+theorem maximal_isOrdering_iff_maximal_isPreordering {O : Subsemiring R} :
+    Maximal IsOrdering O ↔ Maximal IsPreordering O where
+  mp hO :=
     ⟨have := hO.prop; inferInstance, fun P hP h ↦ by
       rcases IsPreordering.exists_le_isOrdering P with ⟨O', hO', hO'₂⟩
-      simp at hO'
-      simpa [Maximal.eq_of_ge hO hO'₂ (by sorry/-order-/)] using hO'⟩ -- TODO : `order` bugfix VN
+      simpa [Maximal.eq_of_ge hO hO'₂ (by order)] using hO'⟩
+  mpr hO := Maximal.mono hO (fun _ _ => inferInstance) (.of_maximal_isPreordering hO)
 
 /- A preordering on a field `F` is maximal iff it is an ordering. -/
 theorem maximal_isPreordering_iff_isOrdering {F : Type*} [Field F] {O : Subsemiring F} :
     Maximal IsPreordering O ↔ O.IsOrdering where
   mp h := .of_maximal_isPreordering h
   mpr _ := ⟨inferInstance, fun O' _ ↦ by
-    simpa using (AddSubmonoid.IsCone.maximal O.toAddSubmonoid).le_of_ge
-      (y := O'.toAddSubmonoid) inferInstance⟩
+    simpa using (AddSubmonoid.IsCone.maximal O.toAddSubmonoid).le_of_ge (inferInstance : O'.IsCone)⟩

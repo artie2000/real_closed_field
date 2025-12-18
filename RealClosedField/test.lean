@@ -15,3 +15,7 @@ theorem result
   rcases this with ⟨Q, hQ⟩
   have : P ≤ Q := by order
   sorry
+
+-- check that order treats defeq types the same
+example (a : Fin 3) (b : Fin (2 + 1)) (h : a ≤ b) : LE.le (α := Fin (2 + 1)) a b := by
+  order

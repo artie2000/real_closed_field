@@ -45,22 +45,20 @@ class IsPreordering (S : Subsemiring R) : Prop where
 export IsPreordering (mem_of_isSquare)
 export IsPreordering (neg_one_notMem)
 
--- TODO : change to forward
-attribute [aesop simp (rule_sets := [SetLike])] neg_one_notMem
+attribute [aesop simp, aesop safe forward] neg_one_notMem
 
 section IsPreordering
 
 variable [IsPreordering S]
 
-@[aesop unsafe 80% (rule_sets := [SetLike])]
+@[aesop 80% (rule_sets := [SetLike])]
 protected theorem mem_of_isSumSq {x : R} (hx : IsSumSq x) : x ∈ S := by
   induction hx with
   | zero => simp
   | sq_add => aesop (add unsafe mem_of_isSquare)
 
 theorem sumSq_le {R : Type*} [CommRing R] (S : Subsemiring R) [IsPreordering S] :
-    Subsemiring.sumSq R ≤ S := fun _ ↦ by
-  simpa using Subsemiring.mem_of_isSumSq S
+    Subsemiring.sumSq R ≤ S := fun _ ↦ by aesop
 
 @[simp]
 protected theorem mul_self_mem (x : R) : x * x ∈ S := by aesop

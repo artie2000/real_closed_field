@@ -7,11 +7,11 @@ import Mathlib
 
 /- Lemmas that should be upstreamed to Mathlib -/
 
-@[aesop unsafe 70%]
+@[aesop 70%]
 theorem mem_sup_of_mem_left {R : Type*} [Semiring R] {a b : Subsemiring R} {x : R} :
     x ∈ a → x ∈ a ⊔ b := by gcongr; exact le_sup_left
 
-@[aesop unsafe 70%]
+@[aesop 70%]
 theorem mem_sup_of_mem_right {R : Type*} [Semiring R] {a b : Subsemiring R} {x : R} :
     x ∈ b → x ∈ a ⊔ b := by gcongr; exact le_sup_right
 

@@ -34,7 +34,7 @@ variable {P} in
 theorem of_le {Q : Subsemiring R} (hPQ : P ≤ Q) (hQ : -1 ∉ Q) : Q.IsPreordering where
 
 variable {P} in
-@[aesop unsafe 90% apply (rule_sets := [SetLike])]
+@[aesop 90% (rule_sets := [SetLike])]
 theorem unitsInv_mem {a : Rˣ} (ha : ↑a ∈ P) : ↑a⁻¹ ∈ P := by
   have : (a * (a⁻¹ * a⁻¹) : R) ∈ P := by aesop (config := { enableSimp := false })
   simp_all
@@ -164,7 +164,7 @@ namespace IsPreordering
 variable [P.IsPreordering]
 
 variable {P} in
-@[aesop unsafe 90% apply (rule_sets := [SetLike])]
+@[aesop 90% (rule_sets := [SetLike])]
 theorem inv_mem {a : F} (ha : a ∈ P) : a⁻¹ ∈ P := by
   have mem : a * (a⁻¹ * a⁻¹) ∈ P := by aesop
   field_simp at mem

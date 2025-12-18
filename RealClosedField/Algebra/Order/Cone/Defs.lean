@@ -36,6 +36,8 @@ class IsCone (M : AddSubmonoid G) : Prop where
 
 export IsCone (eq_zero_of_mem_of_neg_mem)
 
+attribute [aesop 50% apply, aesop safe forward (immediate := [hx₁])] eq_zero_of_mem_of_neg_mem
+
 end AddSubmonoid
 
 namespace Submonoid
@@ -51,10 +53,13 @@ class IsMulCone (M : Submonoid G) : Prop where
 
 export IsMulCone (eq_one_of_mem_of_inv_mem)
 
+attribute [aesop 50% apply, aesop safe forward (immediate := [hx₁])] eq_one_of_mem_of_inv_mem
+
+@[to_additive (attr := aesop safe forward (immediate := [hx₂]))]
+alias eq_one_of_mem_of_inv_mem₂ := eq_one_of_mem_of_inv_mem -- for Aesop
+
 @[to_additive (attr := simp)]
-theorem supportSubgroup_eq_bot [M.IsMulCone] : M.supportSubgroup = ⊥ := by
-  ext
-  aesop (add unsafe M.eq_one_of_mem_of_inv_mem)
+theorem supportSubgroup_eq_bot [M.IsMulCone] : M.supportSubgroup = ⊥ := by ext; aesop
 
 end Group
 
@@ -92,11 +97,8 @@ theorem IsCone.of_support_eq_bot [M.HasIdealSupport] (h : M.support = ⊥) : M.I
 
 theorem IsCone.maximal [M.IsCone] [M.HasMemOrNegMem] : Maximal IsCone M :=
   ⟨inferInstance, fun N hN h ↦ by
-    by_contra h2
-    have ⟨x, hx, hx2⟩ : ∃ x, x ∈ N ∧ x ∉ M := Set.not_subset.mp h2
-    have : -x ∈ N := have := M.mem_or_neg_mem x; by aesop
-    have := AddSubmonoid.eq_zero_of_mem_of_neg_mem (M := N) (x := x)
-    simp_all⟩
+    rw [SetLike.le_def] at h ⊢
+    aesop⟩
 
 end AddSubmonoid
 
@@ -104,7 +106,7 @@ namespace Subsemiring
 
 variable {R : Type*} [Ring R] (C : Subsemiring R)
 
-@[aesop simp (rule_sets := [SetLike])]
+@[aesop simp, aesop safe forward]
 theorem IsCone.neg_one_notMem [Nontrivial R] [C.IsCone] : -1 ∉ C := fun hc ↦ by
   simpa [C.eq_zero_of_mem_of_neg_mem (by simp) hc] using zero_ne_one' R
 

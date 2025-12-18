@@ -60,7 +60,7 @@ theorem IsOrderedMonoid.mkOfSubmonoid :
 @[to_additive /-- Construct a linear order by designating a maximal cone in an abelian group. -/]
 abbrev LinearOrder.mkOfSubmonoid [S.HasMemOrInvMem] [DecidablePred (· ∈ S)] : LinearOrder G where
   __ := PartialOrder.mkOfSubmonoid S
-  le_total a b := by simpa using Submonoid.HasMemOrInvMem.mem_or_inv_mem S (b / a)
+  le_total a b := by simpa using S.mem_or_inv_mem (b / a)
   toDecidableLE _ := _
 
 -- PR SPLIT ↑1 ↓2
