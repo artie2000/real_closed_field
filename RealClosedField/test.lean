@@ -1,21 +1,21 @@
 import Mathlib
 
-def foo (R : Type*) [Ring R] : Subsemiring R → Prop := ⊤
+variable {R : Type*} [CommRing R]
 
-def bar (α : Type*) (P : α → Prop) : Prop := ∀ y : α, False
+open Polynomial
 
-theorem exists_ge (R : Type*) [CommRing R] (P : Subsemiring R) : ∃ O, P ≤ O := ⟨P, fun _ ↦ id⟩
+--#synth Mul (R[X] ⧸ (⊥ : Ideal R[X]))
 
-set_option trace.order true in
-theorem result
-    {R : Type*} [CommRing R] {O : Subsemiring R} :
-    bar _ (foo R) := by
-  intro P
-  have := exists_ge R P
-  rcases this with ⟨Q, hQ⟩
-  have : P ≤ Q := by order
-  sorry
+--#count_heartbeats in
+--#synth Ring (R[X] ⧸ (⊥ : Ideal R[X]))
 
--- check that order treats defeq types the same
-example (a : Fin 3) (b : Fin (2 + 1)) (h : a ≤ b) : LE.le (α := Fin (2 + 1)) a b := by
-  order
+--#count_heartbeats in
+--#synth Monoid (R[X] ⧸ (⊥ : Ideal R[X]))
+
+--#count_heartbeats in
+--#synth Semigroup (R[X] ⧸ (⊥ : Ideal R[X]))
+
+--#count_heartbeats in
+--#synth Mul (R[X] ⧸ (⊥ : Ideal R[X]))
+
+--set_option synthInstance.maxHeartbeats 200000

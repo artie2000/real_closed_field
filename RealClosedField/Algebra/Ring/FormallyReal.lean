@@ -15,6 +15,7 @@ class IsFormallyReal [AddCommMonoid R] [Mul R] : Prop where
 theorem IsFormallyReal.eq_zero_of_mul_self [AddCommMonoid R] [Mul R] [IsFormallyReal R] {a : R} :
   a * a = 0 → a = 0 := by simpa using IsFormallyReal.eq_zero_of_sum_eq_zero (s := {a})
 
+-- TODO : move to right place
 theorem AddSubmonoid.closure_eq_image_multiset_sum {M : Type*} [AddCommMonoid M] (s : Set M) :
     ↑(closure s) = Multiset.sum '' {m : Multiset M | ∀ x ∈ m, x ∈ s} := by
   ext x
@@ -22,7 +23,7 @@ theorem AddSubmonoid.closure_eq_image_multiset_sum {M : Type*} [AddCommMonoid M]
   rcases h with ⟨m, hm, rfl⟩
   exact AddSubmonoid.multiset_sum_mem _ _ (by aesop)
 
-theorem isSumSq_iff_mem_range_linearCombination [AddCommMonoid R] [Mul R] {x} :
+theorem isSumSq_iff_exists_sum_mul_self_eq [AddCommMonoid R] [Mul R] {x} :
     IsSumSq x ↔ ∃ s : Multiset R, (s.map (fun a ↦ a * a)).sum = x := by
   rw [← AddSubmonoid.mem_sumSq, ← AddSubmonoid.closure_isSquare, ← SetLike.mem_coe,
       AddSubmonoid.closure_eq_image_multiset_sum, Set.mem_image]
@@ -33,7 +34,7 @@ theorem isSumSq_iff_mem_range_linearCombination [AddCommMonoid R] [Mul R] {x} :
 
 theorem IsFormallyReal.eq_zero_of_add_right [NonUnitalNonAssocSemiring R] [IsFormallyReal R]
     {s₁ s₂ : R} (hs₁ : IsSumSq s₁) (hs₂ : IsSumSq s₂) (h : s₁ + s₂ = 0) : s₁ = 0 := by
-  simp_rw [isSumSq_iff_mem_range_linearCombination] at *
+  simp_rw [isSumSq_iff_exists_sum_mul_self_eq] at *
   rcases hs₁ with ⟨m₁, rfl⟩
   rcases hs₂ with ⟨m₂, rfl⟩
   rw [← Multiset.sum_add, ← Multiset.map_add] at h
@@ -54,11 +55,11 @@ theorem isFormallyReal_of_eq_zero_of_mul_self_of_eq_zero_of_add [AddCommMonoid R
     | cons a m hm =>
         simp only [Multiset.map_cons, Multiset.sum_cons, Multiset.mem_cons, forall_eq_or_imp]
         intro h
-        have := ha (by simp) (by rw [isSumSq_iff_mem_range_linearCombination]; simp) h
+        have := ha (by simp) (by rw [isSumSq_iff_exists_sum_mul_self_eq]; simp) h
         exact ⟨hz this, hm (by simpa [this] using h)⟩
 
 variable (R) in
-theorem isFormallyReal_of_eq_zero_of_eq_zero_of_add_mul_self [NonUnitalNonAssocSemiring R]
+theorem isFormallyReal_of_eq_zero_of_eq_zero_of_mul_self_add [NonUnitalNonAssocSemiring R]
     (h : ∀ {s a : R}, IsSumSq s → a * a + s = 0 → a = 0) : IsFormallyReal R where
   eq_zero_of_sum_eq_zero {s} := by
     induction s using Multiset.induction with
@@ -66,7 +67,7 @@ theorem isFormallyReal_of_eq_zero_of_eq_zero_of_add_mul_self [NonUnitalNonAssocS
     | cons a m hm =>
         simp only [Multiset.map_cons, Multiset.sum_cons, Multiset.mem_cons, forall_eq_or_imp]
         intro has
-        have := h (by rw [isSumSq_iff_mem_range_linearCombination]; simp) has
+        have := h (by rw [isSumSq_iff_exists_sum_mul_self_eq]; simp) has
         exact ⟨this, hm (by simpa [this] using has)⟩
 
 instance [Ring R] [LinearOrder R] [IsStrictOrderedRing R] : IsFormallyReal R :=

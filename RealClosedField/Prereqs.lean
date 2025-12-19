@@ -106,10 +106,12 @@ open _root_.Polynomial
 
 variable {R F : Type*} [CommRing R] [Field F] [Algebra R F] {f : R[X]} (hf : IsAdjoinRoot F f)
 
+variable (I : Ideal R[X])
+
 include hf in
 theorem ne_zero : f ≠ 0 := fun _ ↦ Polynomial.not_isField R <|
   MulEquiv.isField (Field.toIsField F) <|
-    (RingEquiv.quotientBot _).symm.trans <|
+    (RingEquiv.quotientBot R[X]).symm.trans <|
     (Ideal.quotientEquiv ⊥ (Ideal.span {f}) (RingEquiv.refl _) (by simpa)).trans <|
     hf.adjoinRootAlgEquiv.toRingEquiv
 

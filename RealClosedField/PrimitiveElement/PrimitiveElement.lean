@@ -76,7 +76,7 @@ def liftOfRightInverse (hf : Function.RightInverse f_inv f) :
 /-- A non-computable version of `AlgHom.liftOfRightInverse` for when no computable right
 inverse is available, that uses `Function.surjInv`. -/
 @[simp]
-noncomputable abbrev liftOfSurjective (hf : Function.Surjective f) :
+noncomputable abbrev liftOfSurjective' (hf : Function.Surjective f) : -- TODO : replace `AlgHom.liftOfSurjective`
     { g : A →ₐ[R] C // RingHom.ker f ≤ RingHom.ker g } ≃ (B →ₐ[R] C) :=
   f.liftOfRightInverse (Function.surjInv hf) (Function.rightInverse_surjInv hf)
 
@@ -222,7 +222,7 @@ variable {T : Type*} [Ring T] [Algebra R T]
 noncomputable def liftEquiv :
     { y : T // ∀ g : R[X], aeval x g = 0 → aeval y g = 0 } ≃ (S →ₐ[R] T) :=
   ((AlgHomEquiv R T).subtypeEquiv (by simp [SetLike.le_def])).trans <|
-  AlgHom.liftOfSurjective _ hx.aeval_surjective
+  AlgHom.liftOfSurjective' _ hx.aeval_surjective
 
 @[simp]
 theorem liftEquiv_symm_apply (φ : S →ₐ[R] T) :
