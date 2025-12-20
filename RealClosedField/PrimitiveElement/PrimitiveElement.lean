@@ -3,11 +3,7 @@ Copyright (c) 2025 Artie Khovanov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
-import Mathlib.Algebra.Polynomial.Roots
-import Mathlib.FieldTheory.Minpoly.Basic
-import Mathlib.LinearAlgebra.FreeModule.StrongRankCondition
-import Mathlib.RingTheory.IntegralClosure.Algebra.Basic
-import Mathlib.Tactic.DepRewrite
+import Mathlib
 
 -- TODO : check out `Mathlib.LinearAlgebra.AnnihilatingPolynomial`: can we generalise it?
 
@@ -177,13 +173,15 @@ noncomputable def MvPolynomial.AlgHomEquiv
 
 end AlgHomEquiv
 
+section element
+
+variable (R : Type*) {S : Type*} [CommRing R] [Ring S] [Algebra R S] (x : S)
+
 /-
 ## Lemmas about principal generators for an algebra
 -/
 
 namespace Algebra
-
-variable (R : Type*) {S : Type*} [CommRing R] [Ring S] [Algebra R S] (x : S)
 
 @[mk_iff IsGenerator.def]
 structure IsGenerator : Prop where
@@ -215,6 +213,12 @@ theorem finite_iff_isIntegral : Module.Finite R S ↔ IsIntegral R x where
   mpr h :=
     have := Algebra.finite_adjoin_simple_of_isIntegral h
     Module.Finite.equiv (adjoinEquiv hx).toLinearEquiv
+
+include hx in
+theorem of_root_mem_adjoin {y : S} (hy : x ∈ Algebra.adjoin R {y}) : IsGenerator R y where
+  adjoin_eq_top := by
+    rw [_root_.eq_top_iff, ← hx.adjoin_eq_top]
+    exact adjoin_le (by simp [hy])
 
 section liftEquiv
 
@@ -255,7 +259,7 @@ end liftEquiv
 
 end IsGenerator
 
-variable {R} (g: R[X])
+variable {R} (g : R[X])
 
 @[mk_iff HasPrincipalKerAeval.def]
 structure HasPrincipalKerAeval : Prop extends IsGenerator R x where
@@ -375,11 +379,15 @@ theorem equivOfRoot_map :
 
 end map
 
-end HasPrincipalKerAeval
+end Algebra.HasPrincipalKerAeval
+
+open Algebra Polynomial
 
 /-
 ## Lemmas about *integral* principal generators for an algebra
 -/
+
+variable {R} (g : R[X])
 
 structure IsIntegralUnique : Prop where
   monic : g.Monic
@@ -410,18 +418,28 @@ theorem of_ker_aeval_eq_span_minpoly
   monic := minpoly.monic hx
   ker_aeval := h
 
--- TODO : make explicit using helper lemmas
-theorem of_ker_aeval_eq_span [IsDomain R] (hx : IsIntegral R x)
-    (h : RingHom.ker (aeval x) = Ideal.span {g}) : ∃ g' : R[X], IsIntegralUnique x g' := by
-  have dvd : g ∣ minpoly R x := by simp [← Ideal.mem_span_singleton, ← h]
-  rcases dvd with ⟨k, hk⟩
-  have hu : IsUnit g.leadingCoeff := IsUnit.of_mul_eq_one k.leadingCoeff <| by
-    apply_fun leadingCoeff at hk
-    simpa [minpoly.monic, hx] using hk.symm
-  refine ⟨C (↑hu.unit⁻¹ : R) * g, ⟨?_, ?_⟩⟩
-  · simpa [Units.smul_def, smul_eq_C_mul] using monic_of_isUnit_leadingCoeff_inv_smul hu
-  · simpa [h, Ideal.span_singleton_eq_span_singleton] using
+theorem of_ker_aeval_eq_span' [IsDomain R] (hx : IsIntegral R x)
+    (h : RingHom.ker (aeval x) = Ideal.span {g}) :
+    have hu : IsUnit g.leadingCoeff :=
+      (minpoly.monic hx).isUnit_leadingCoeff_of_dvd (by simp [← Ideal.mem_span_singleton, ← h])
+    IsIntegralUnique x (C (↑hu.unit⁻¹ : R) * g) where
+  monic := by
+    generalize_proofs
+    simpa [Units.smul_def, smul_eq_C_mul] using monic_of_isUnit_leadingCoeff_inv_smul ‹_›
+  ker_aeval := by
+    simpa [h, Ideal.span_singleton_eq_span_singleton] using
       associated_unit_mul_right _ _ (by simp [isUnit_C])
+
+-- TODO : fix proof
+theorem of_ker_aeval_eq_span [IsDomain R] [NormalizationMonoid R] (hx : IsIntegral R x)
+    (h : RingHom.ker (aeval x) = Ideal.span {g}) :
+    IsIntegralUnique x (normalize g) := by
+  have iu := of_ker_aeval_eq_span' hx h
+  generalize_proofs pf at iu
+  rcases pf with ⟨u, hu⟩
+  simp [normalize, ← hu] at *
+  rw [mul_comm]
+  exact iu
 
 theorem of_aeval_eq_zero_imp_minpoly_dvd (hx : IsIntegral R x)
     (h : ∀ {f}, aeval x f = 0 → minpoly R x ∣ f) : IsIntegralUnique x (minpoly R x) where
@@ -497,6 +515,15 @@ theorem minpoly_eq_gen : minpoly R x = g := by
       simp [← RingHom.mem_ker, h.ker_aeval, Ideal.mem_span_singleton_self]
 
 include h in
+theorem gen_unique {g' : R[X]} (h' : IsIntegralUnique x g') : g = g' := by
+  rw [← h.minpoly_eq_gen, ← h'.minpoly_eq_gen]
+
+include h in
+theorem gen_irreducible [IsDomain R] [IsDomain S] : Irreducible g := by
+  rw [← h.minpoly_eq_gen]
+  exact minpoly.irreducible h.isIntegral
+
+include h in
 theorem isIntegralUnique_minpoly : IsIntegralUnique x (minpoly R x) :=
   .of_ker_aeval_eq_span_minpoly h.isIntegral <| h.minpoly_eq_gen ▸ h.ker_aeval
 
@@ -505,15 +532,15 @@ theorem gen_dvd_of_aeval_eq_zero {f} (hf : aeval x f = 0) : g ∣ f := by
   rw [← Ideal.mem_span_singleton, ← h.ker_aeval, RingHom.mem_ker, hf]
 
 include h in
-theorem unique_of_degree_le_degree_gen {f : R[X]} (hmo : f.Monic) (hf : aeval x f = 0)
+theorem eq_gen_of_degree_le_degree_gen {f : R[X]} (hmo : f.Monic) (hf : aeval x f = 0)
     (fmin : f.degree ≤ g.degree) : f = g :=
   eq_of_monic_of_dvd_of_natDegree_le h.monic hmo
     (h.gen_dvd_of_aeval_eq_zero hf) (natDegree_le_natDegree fmin)
 
 include h in
-theorem gen_unique {f : R[X]} (hmo : f.Monic) (hf : aeval x f = 0)
-    (hmin : ∀ k : R[X], k.Monic → aeval x k = 0 → f.degree ≤ k.degree) :
-    f = g := unique_of_degree_le_degree_gen h hmo hf <| hmin g h.monic h.aeval_gen
+theorem eq_gen_of_aeval_eq_zero_imp_degree_ge {f : R[X]} (hmo : f.Monic) (hf : aeval x f = 0)
+    (hmin : ∀ k : R[X], k.Monic → aeval x k = 0 → f.degree ≤ k.degree) : f = g :=
+  eq_gen_of_degree_le_degree_gen h hmo hf <| hmin g h.monic h.aeval_gen
 
 include h in
 theorem eq_gen_of_ker_aeval_eq_span {f : R[X]} (hf : f.Monic)
@@ -534,13 +561,6 @@ structure IsIntegralUniqueGen : Prop extends
 namespace IsIntegralUniqueGen
 
 variable {x g}
-
--- TODO : make explicit using helper lemmas
-theorem of_hasPrincipalKerAeval [IsDomain R] (hx : IsIntegral R x)
-    (h : HasPrincipalKerAeval x g) : ∃ g' : R[X], IsIntegralUniqueGen x g' := by
-  rcases IsIntegralUnique.of_ker_aeval_eq_span hx h.ker_aeval with ⟨g', hg'⟩
-  use g'
-  exact { hg', h with }
 
 theorem of_basis [Module.Finite R S] {n} (B : Module.Basis (Fin n) R S)
     (hB : ∀ i, B i = x ^ (i : ℕ)) :
@@ -854,7 +874,7 @@ end basis
 
 end IsIntegralUniqueGen
 
-end Algebra
+end element
 
 section IsAdjoinRoot'
 
@@ -896,7 +916,7 @@ variable {S f} (h : IsAdjoinRootMonic' S f)
 
 noncomputable def root := h.exists_root.choose
 
-theorem pe : Algebra.IsIntegralUniqueGen h.root f where
+theorem pe : IsIntegralUniqueGen h.root f where
   __ := h.exists_root.choose_spec
   monic := h.f_monic
 

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
 import RealClosedField.PrimitiveElement.PrimitiveElement
-import Mathlib
 
 -- TODO : ensure all material from `Mathlib.RingTheory.Adjoin.PowerBasis` is transferred
 -- TODO : rewrite `Mathlib.FieldTheory.Minpoly.IsIntegrallyClosed` to use my definitions
@@ -13,14 +12,14 @@ open Polynomial
 
 -- TODO : move to `Mathlib.FieldTheory.Minpoly.Field`
 theorem Field.isIntegralUnique {R S : Type*} [Field R] [Ring S] [Algebra R S] {x : R}
-    (h₁ : IsIntegral R x) : Algebra.IsIntegralUnique x (minpoly R x) :=
+    (h₁ : IsIntegral R x) : IsIntegralUnique x (minpoly R x) :=
   .of_aeval_eq_zero_imp_minpoly_dvd h₁ (minpoly.dvd R x)
 
 -- TODO : move to `Mathlib.FieldTheory.Minpoly.IsIntegrallyClosed`
 theorem IsIntegrallyClosed.isIntegralUnique
     {R S : Type*} [CommRing R] [CommRing S] [IsDomain R] [Algebra R S]
     [IsDomain S] [NoZeroSMulDivisors R S] [IsIntegrallyClosed R] {x : S}
-    (h₁ : IsIntegral R x) : Algebra.IsIntegralUnique x (minpoly R x) :=
+    (h₁ : IsIntegral R x) : IsIntegralUnique x (minpoly R x) :=
   .of_aeval_eq_zero_imp_minpoly_dvd h₁ (minpoly.isIntegrallyClosed_dvd h₁)
 
 -- TODO : move adjoin lemmas to somewhere like `Mathlib.RingTheory.Adjoin.PowerBasis`
