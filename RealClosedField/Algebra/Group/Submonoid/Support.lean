@@ -54,11 +54,12 @@ theorem HasMemOrInvMem.of_le {M N : Submonoid G} [M.HasMemOrInvMem] (h : M ≤ N
   mem_or_inv_mem a := by aesop
 
 /--
-The support of a submonoid `M` of a group `G` is `M ∩ M⁻¹`, the largest subgroup contained in `M`.
+The support of a submonoid `M` of a group `G` is `M ∩ M⁻¹`,
+the largest subgroup contained in `M`.
 -/
 @[to_additive
-  /-- The support of a submonoid `M` of a group `G` is `M ∩ -M`,
-  the largest subgroup contained in `M`. -/]
+/-- The support of a submonoid `M` of a group `G` is `M ∩ -M`,
+the largest subgroup contained in `M`. -/]
 def supportSubgroup : Subgroup G where
   carrier := M ∩ M⁻¹
   one_mem' := by aesop
@@ -109,10 +110,7 @@ theorem neg_smul_mem (x : R) {a : R} (h₁a : a ∈ M) (h₂a : -a ∈ M) : -(x 
   have := M.smul_mem_support
   aesop
 
-/--
-The support of a subsemiring `S` of a commutative ring `R` is
-the set of elements `x` in `R` such that both `x` and `-x` lie in `P`.
--/
+/-- The support `M ∩ -M` of a submonoid `M` of a ring `R`, as an ideal. -/
 def support : Ideal R where
   __ := supportAddSubgroup M
   smul_mem' := by aesop
@@ -136,7 +134,7 @@ instance (M : Subsemiring R) [M.HasMemOrNegMem] : M.HasIdealSupport where
   smul_mem_support x a ha := by
     have := M.mem_or_neg_mem x
     have : ∀ x y, -x ∈ M → -y ∈ M → x * y ∈ M := fun _ _ hx hy ↦ by simpa using mul_mem hx hy
-    aesop (add unsafe 80% apply this)
+    aesop (add 80% this)
 
 end Subsemiring
 
