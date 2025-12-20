@@ -86,13 +86,12 @@ end Algebra.IsIntegralUniqueGen.Quadratic
 
 open Polynomial
 
-variable {K L : Type*} [Field K] [Field L] [Algebra K L]
-
-open Polynomial in
 theorem X_sq_sub_C_irreducible_iff_not_isSquare {F : Type*} [Field F] (a : F) :
     Irreducible (X ^ 2 - C a) ↔ ¬ IsSquare a := by
   rw [isSquare_iff_exists_sq, X_pow_sub_C_irreducible_iff_of_prime Nat.prime_two]
   grind only
+
+variable {K L : Type*} [Field K] [Field L] [Algebra K L]
 
 theorem exists_gen [Algebra.IsQuadraticExtension K L] :
     ∃ a : K, IsAdjoinRootMonic' L (X ^ 2 - C a) := by
@@ -103,13 +102,14 @@ theorem related_gen {r₁ r₂ : L} {a₁ a₂ : K}
     (h₂ : Algebra.IsIntegralUniqueGen r₂ (X ^ 2 - C a₂)) : IsSquare (a₁ / a₂) := by
   sorry
 
-theorem gen_of_isSquare {r₁ : L} {a₁ a₂ : K}
+theorem gen_of_isSquare {r₁ : L} {a₁ a₂ : K} (ha₁ : a₁ ≠ 0) (ha₂ : a₂ ≠ 0)
     (ha : IsSquare (a₁ / a₂))
     (h : Algebra.IsIntegralUniqueGen r₁ (X ^ 2 - C a₁)) :
     IsAdjoinRootMonic' L (X ^ 2 - C a₂) where
   exists_root := by
     rcases ha with ⟨m, hm⟩
+    field_simp at hm
     use (algebraMap _ _ m) * r₁
     -- ↑m * r₁ generates since r₁ generates
-    -- ↑m * r₁ satisfies X ^ 2 - C (m * a₁) = X ^ 2 - C a₂, which is irreducible, so done
+    -- ↑m * r₁ satisfies X ^ 2 - C (m ^ 2 * a₁) = X ^ 2 - C a₂, which is irreducible, so done
   f_monic := by simp [Monic]

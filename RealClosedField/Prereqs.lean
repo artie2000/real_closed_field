@@ -39,12 +39,6 @@ theorem Ideal.Quotient.irreducible_iff_isField
   mp := Ideal.Quotient.isField_of_irreducible
   mpr := Ideal.Quotient.irreducible_of_isField hm
 
-open Polynomial in
-theorem X_sq_sub_C_irreducible_iff_not_isSquare {F : Type*} [Field F] (a : F) :
-    Irreducible (X ^ 2 - C a) ↔ ¬ IsSquare a := by
-  rw [isSquare_iff_exists_sq, X_pow_sub_C_irreducible_iff_of_prime Nat.prime_two]
-  grind only
-
 @[simp]
 theorem Polynomial.natDegree_add_one {R : Type u} [Semiring R] {p : Polynomial R} :
     (p + 1).natDegree = p.natDegree := by

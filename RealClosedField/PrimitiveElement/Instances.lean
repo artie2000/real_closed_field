@@ -9,21 +9,25 @@ import Mathlib
 -- TODO : ensure all material from `Mathlib.RingTheory.Adjoin.PowerBasis` is transferred
 -- TODO : rewrite `Mathlib.FieldTheory.Minpoly.IsIntegrallyClosed` to use my definitions
 
+open Polynomial
+
 -- TODO : move to `Mathlib.FieldTheory.Minpoly.Field`
 theorem Field.isIntegralUnique {R S : Type*} [Field R] [Ring S] [Algebra R S] {x : R}
-    (h₁ : IsIntegral R x) : IsIntegralUnique x (minpoly R x) :=
+    (h₁ : IsIntegral R x) : Algebra.IsIntegralUnique x (minpoly R x) :=
   .of_aeval_eq_zero_imp_minpoly_dvd h₁ (minpoly.dvd R x)
 
 -- TODO : move to `Mathlib.FieldTheory.Minpoly.IsIntegrallyClosed`
 theorem IsIntegrallyClosed.isIntegralUnique
     {R S : Type*} [CommRing R] [CommRing S] [IsDomain R] [Algebra R S]
     [IsDomain S] [NoZeroSMulDivisors R S] [IsIntegrallyClosed R] {x : S}
-    (h₁ : IsIntegral R x) : IsIntegralUnique x (minpoly R x) :=
+    (h₁ : IsIntegral R x) : Algebra.IsIntegralUnique x (minpoly R x) :=
   .of_aeval_eq_zero_imp_minpoly_dvd h₁ (minpoly.isIntegrallyClosed_dvd h₁)
 
 -- TODO : move adjoin lemmas to somewhere like `Mathlib.RingTheory.Adjoin.PowerBasis`
 
 namespace Algebra.adjoin
+
+variable (R : Type*) {S : Type*} [CommRing R] [Ring S] [Algebra R S] (x : S)
 
 theorem isIntegral [Algebra.IsIntegral R S] (s : Set S) :
     Algebra.IsIntegral R ↥(Algebra.adjoin R s) :=
@@ -57,21 +61,21 @@ theorem isGenerator : IsGenerator R (⟨x, by aesop⟩ : ↥(adjoin R {x})) wher
     (by simp [Subalgebra.range_val])
 
 variable {R x} in
-theorem hasPrincipalKerAeval {f : R[X]} (h : RingHom.ker (aeval x) = Ideal.span {f}) :
-    HasPrincipalKerAeval (⟨x, by aesop⟩ : ↥(adjoin R {x})) f where
+theorem hasPrincipalKerAeval {g : R[X]} (h : RingHom.ker (aeval x) = Ideal.span {g}) :
+    HasPrincipalKerAeval (⟨x, by aesop⟩ : ↥(adjoin R {x})) g where
   __ := isGenerator R x
   ker_aeval := by simp [h]
 
 variable {R x} in
-theorem isIntegralUnique (hx : IsIntegralUnique R x) :
-    IsIntegralUnique R (⟨x, by aesop⟩ : ↥(adjoin R {x})) :=
-  .of_ker_aeval_eq_span_monic (minpoly.monic hx.isIntegral) (by simp [hx.ker_aeval])
+theorem isIntegralUnique {g : R[X]} (hx : IsIntegralUnique x g) :
+    IsIntegralUnique (⟨x, by aesop⟩ : ↥(adjoin R {x})) g where
+  monic := hx.monic
+  ker_aeval := by simp [hx.ker_aeval]
 
 variable {R x} in
-theorem hasPrincipalKerAevalIntegral (hx : IsIntegralUnique R x) :
-    HasPrincipalKerAevalIntegral R (⟨x, by aesop⟩ : ↥(adjoin R {x})) :=
-  .of_isIntegralUnique (Algebra.adjoin.isIntegralUnique hx) (Algebra.adjoin.isGenerator R x)
+theorem isIntegralUniqueGen {g : R[X]}  (hx : IsIntegralUnique x g) :
+    IsIntegralUniqueGen (⟨x, by aesop⟩ : ↥(adjoin R {x})) g where
+  __ := hasPrincipalKerAeval hx.ker_aeval
+  __ := isIntegralUnique hx
 
 end Algebra.adjoin
-
-#min_imports
