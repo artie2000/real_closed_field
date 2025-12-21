@@ -123,11 +123,58 @@ theorem IsIntegralUnique.of_square_root {a : K} (ha : ¬ IsSquare a)
   exact minpoly.eq_of_irreducible_of_monic ha root monic
   -- TODO : figure out how to avoid duplication in this proof
 
-theorem exists_gen [Algebra.IsQuadraticExtension K L] :
-    ∃ a : K, IsAdjoinRootMonic' L (X ^ 2 - C a) := by
-  sorry
+theorem generator_of_notMem_bot [Algebra.IsQuadraticExtension K L] {r : L}
+    (hr : r ∉ (⊥ : Subalgebra K L)) : IsGenerator K r where
+  adjoin_eq_top := by
+    have : adjoin K {r} ≠ ⊥ := fun hc ↦ hr <| by
+      simpa [← hc] using self_mem_adjoin_singleton K r
+    have := (Subalgebra.isSimpleOrder_of_finrank_prime K L
+      (by simpa [Algebra.IsQuadraticExtension.finrank_eq_two] using Nat.prime_two)).eq_bot_or_eq_top
+        (adjoin K {r})
+    grind
+    -- TODO : fix proof
 
-theorem related_gen {r₁ r₂ : L} {a₁ a₂ : K}  [NeZero (2 : K)]
+theorem IsIntegralUniqueGen.of_square_root [Algebra.IsQuadraticExtension K L]
+    {a : K} {r : L} (hr₁ : r ∉ (⊥ : Subalgebra K L))
+    (hr₂ : r ^ 2 = algebraMap _ _ a) : IsIntegralUniqueGen r (X ^ 2 - C a) where
+  __ : IsIntegralUnique .. := by
+    refine .of_square_root (fun ⟨r', hr'⟩ ↦ ?_) hr₂
+    apply_fun algebraMap _ L at hr'
+    rw [hr', map_mul, ← pow_two] at hr₂
+    rcases eq_or_eq_neg_of_sq_eq_sq _ _ hr₂ with (h | h) <;> simp_all
+  __ := generator_of_notMem_bot hr₁
+
+theorem exists_gen [Algebra.IsQuadraticExtension K L] [h2 : NeZero (2 : K)] :
+    ∃ a : K, IsAdjoinRootMonic' L (X ^ 2 - C a) := by
+  have : (⊥ : Subalgebra K L) ≠ ⊤ := by
+    simp [Subalgebra.bot_eq_top_iff_finrank_eq_one, Algebra.IsQuadraticExtension.finrank_eq_two]
+  rcases SetLike.exists_not_mem_of_ne_top ⊥ this rfl with ⟨s, hs⟩
+  have h : IsIntegralUniqueGen s _ := {
+    IsIntegrallyClosed.isIntegralUnique (Algebra.IsIntegral.isIntegral (R := K) s),
+    generator_of_notMem_bot hs with }
+  use ((h.coeff (s ^ 2) 1) ^ 2 - 4 * h.coeff (s ^ 2) 0)
+  refine .ofIsIntegralUniqueGen (x := 2 * s + algebraMap _ _ (h.coeff (s ^ 2) 1))
+    (.of_square_root (fun hc ↦ hs ?_) ?_)
+  · simp [Algebra.mem_bot] at hc
+    rcases hc with ⟨b, hb⟩
+    have : s = (algebraMap K L) ((b - h.coeff (s ^ 2) 1) / 2) := by
+      simp [map_ofNat]
+      have : (2 : L) ≠ 0 := by
+        have := h2.ne
+        apply_fun ⇑(algebraMap K L) at this using (by sorry : Function.Injective ⇑(algebraMap K L))
+        simpa [map_ofNat]
+      linear_combination (norm := (field_simp; ring)) - hb / 2
+    rw [this]
+    exact Subalgebra.algebraMap_mem ..
+  · have : s ^ 2 =
+        - (algebraMap _ _ (h.coeff (s ^ 2) 1)) * s - (algebraMap _ _ (h.coeff (s ^ 2) 0)) := by
+      sorry
+    ring_nf
+    nth_rw 2 [this]
+    simp [map_ofNat]
+    ring
+
+theorem related_gen {r₁ r₂ : L} {a₁ a₂ : K} [NeZero (2 : K)]
     (h₁ : IsIntegralUniqueGen r₁ (X ^ 2 - C a₁))
     (h₂ : IsIntegralUniqueGen r₂ (X ^ 2 - C a₂)) : IsSquare (a₁ / a₂) := by
   have : a₂ ≠ 0 := IsIntegralUniqueGen.SqRoot.ne_zero h₂.toIsIntegralUnique

@@ -914,7 +914,8 @@ namespace IsAdjoinRootMonic'
 
 variable {S f} (h : IsAdjoinRootMonic' S f)
 
-noncomputable def root := h.exists_root.choose
+theorem ofIsIntegralUniqueGen {x : S} (hx : IsIntegralUniqueGen x f) : IsAdjoinRootMonic' S f :=
+  ⟨⟨x, hx.toHasPrincipalKerAeval⟩, hx.monic⟩
 
 theorem pe : IsIntegralUniqueGen h.root f where
   __ := h.exists_root.choose_spec
