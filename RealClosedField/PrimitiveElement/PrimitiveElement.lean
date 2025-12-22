@@ -230,6 +230,19 @@ theorem of_root_mem_adjoin {y : S} (hy : x ∈ Algebra.adjoin R {y}) : IsGenerat
     rw [_root_.eq_top_iff, ← hx.adjoin_eq_top]
     exact adjoin_le (by simp [hy])
 
+include hx in
+theorem add_algebraMap (r : R) : IsGenerator R (x + (algebraMap _ _ r)) :=
+  hx.of_root_mem_adjoin <| by
+    nth_rw 2 [show x = x + (algebraMap _ _ r) - (algebraMap _ _ r) by simp]
+    exact Subalgebra.sub_mem (adjoin R {x + (algebraMap _ _ r)}) (by aesop) (by aesop)
+
+theorem algberaMap_mul {F : Type*} [Field F] [Algebra F S] {x : S} (hx : IsGenerator F x)
+    {r : F} (hr : r ≠ 0) : IsGenerator F ((algebraMap _ _ r) * x) :=
+  hx.of_root_mem_adjoin <| by
+    nth_rw 2 [show x = (algebraMap _ _ r⁻¹) * ((algebraMap _ _ r) * x) by
+      rw [← mul_assoc, ← map_mul]; simp [hr]]
+    exact Subalgebra.mul_mem (adjoin F {algebraMap _ _ r * x}) (by aesop) (by aesop)
+
 section liftEquiv
 
 variable {T : Type*} [Ring T] [Algebra R T]

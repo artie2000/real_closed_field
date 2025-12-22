@@ -167,15 +167,13 @@ theorem exists_gen [Algebra.IsQuadraticExtension K L] (hK : ringChar K ≠ 2) :
     exact Subalgebra.algebraMap_mem ..
   · have : s ^ 2 =
         (algebraMap _ _ (h.coeff (s ^ 2) 1)) * s + (algebraMap _ _ (h.coeff (s ^ 2) 0)) := by
-      have : s ^ 2 + algebraMap _ _ ((minpoly K s).coeff 1) * s +
-          algebraMap _ _ ((minpoly K s).coeff 0) = 0 := by
-        have lc : (minpoly K s).coeff 2 = 1 := by simpa [sdeg] using h.monic.coeff_natDegree
-        have := minpoly.aeval K s
-        simp [↓Polynomial.aeval_eq_sum_range, ← h.finrank_eq_natDegree,
-            Algebra.IsQuadraticExtension.finrank_eq_two, Finset.sum_range_succ, smul_def, lc] at this
-        linear_combination this
-      simp [by simpa [sdeg] using h.coeff_root_pow_natDegree (i := 0),
-            by simpa [sdeg] using h.coeff_root_pow_natDegree (i := 1)]
+      have lc : (minpoly K s).coeff 2 = 1 := by simpa [sdeg] using h.monic.coeff_natDegree
+      have scoeff : ∀ i < 2, h.coeff (s ^ 2) i = - (minpoly K s).coeff i := fun _ _ ↦ by
+        simpa [sdeg] using h.coeff_root_pow_natDegree (by simpa [sdeg])
+      have := by simpa [↓Polynomial.aeval_eq_sum_range, ← h.finrank_eq_natDegree,
+        Algebra.IsQuadraticExtension.finrank_eq_two, Finset.sum_range_succ, smul_def, lc] using
+          minpoly.aeval K s
+      simp [scoeff]
       linear_combination this
     ring_nf
     nth_rw 2 [this]
@@ -202,6 +200,11 @@ theorem related_gen {r₁ r₂ : L} {a₁ a₂ : K} (hK : ringChar K ≠ 2)
   · absurd IsIntegralUniqueGen.SqRoot.not_isSquare h₂.toIsIntegralUnique
     exact ⟨h₁.coeff r₂ 0, by simp_all [pow_two]⟩
 
+theorem related_isAdjoinRoot {a₁ a₂ : K} (hK : ringChar K ≠ 2)
+    (h₁ : IsAdjoinRootMonic' L (X ^ 2 - C a₁))
+    (h₂ : IsAdjoinRootMonic' L (X ^ 2 - C a₂)) : IsSquare (a₁ / a₂) :=
+  related_gen hK h₁.pe h₂.pe
+
 theorem gen_of_isSquare {r₁ : L} {a₁ a₂ : K} (ha₂ : a₂ ≠ 0)
     (ha : IsSquare (a₁ / a₂))
     (h : IsIntegralUniqueGen r₁ (X ^ 2 - C a₁)) :
@@ -209,23 +212,30 @@ theorem gen_of_isSquare {r₁ : L} {a₁ a₂ : K} (ha₂ : a₂ ≠ 0)
   exists_root := by
     rcases ha with ⟨m, hm⟩
     field_simp at hm
-    have : m ≠ 0 := fun hc ↦
+    have mz : m ≠ 0 := fun hc ↦
       IsIntegralUniqueGen.SqRoot.ne_zero h.toIsIntegralUnique (by simp_all)
     use (algebraMap _ _ m⁻¹) * r₁
-    refine { (?_ : IsIntegralUnique ..), (?_ : IsGenerator ..) with }
-    · refine IsIntegralUnique.of_square_root (fun hc ↦ ?_) ?_
-      · have : IsSquare a₁ := by aesop
-        exact IsIntegralUniqueGen.SqRoot.not_isSquare h.toIsIntegralUnique this
-      · calc
-          (algebraMap _ _ m⁻¹ * r₁) ^ 2 = algebraMap _ _ m⁻¹ ^ 2 * r₁ ^ 2 := by ring
-          _ = algebraMap _ _ (m⁻¹ ^ 2 * a₁) := by
-            simp [IsIntegralUniqueGen.SqRoot.sq_root h.toIsIntegralUnique]
-          _ = algebraMap _ _ a₂ := by rw [hm]; field_simp
-    · exact .of_root_mem_adjoin h.toIsGenerator <| by
-        nth_rw 2 [show r₁ = m • ((algebraMap _ _ m⁻¹) * r₁) by
-          rw [smul_def, ← mul_assoc, ← map_mul]
-          simp [this]]
-        exact Subalgebra.smul_mem (adjoin K {(algebraMap K L) m⁻¹ * r₁})
-          (x := (algebraMap K L) m⁻¹ * r₁) (by aesop) m
-      -- TODO : fix proof
+    refine { IsIntegralUnique.of_square_root (fun hc ↦ ?_) ?_,
+            h.algberaMap_mul (inv_ne_zero mz) with }
+    · have : IsSquare a₁ := by aesop
+      exact IsIntegralUniqueGen.SqRoot.not_isSquare h.toIsIntegralUnique this
+    · calc
+        (algebraMap _ _ m⁻¹ * r₁) ^ 2 = algebraMap _ _ m⁻¹ ^ 2 * r₁ ^ 2 := by ring
+        _ = algebraMap _ _ (m⁻¹ ^ 2 * a₁) := by
+          simp [IsIntegralUniqueGen.SqRoot.sq_root h.toIsIntegralUnique]
+        _ = algebraMap _ _ a₂ := by rw [hm]; field_simp
   f_monic := by simp [Monic]
+
+-- TODO : figure out how to define this!
+@[simps]
+noncomputable def deg_2_classify (hK : ringChar K ≠ 2) :
+    (Kˣ ⧸ (Subgroup.square Kˣ)) ≃
+    { L : IntermediateField K (AlgebraicClosure K) // Algebra.IsQuadraticExtension K L } where
+  toFun := Quotient.lift (fun a ↦ by sorry) (fun a₁ a₂ ha ↦ by sorry)
+  invFun L :=
+    have ⟨L, hL⟩ := L;
+    ⟦.mk0 (Classical.choose (exists_gen hK (L := L)))
+      (IsIntegralUniqueGen.SqRoot.ne_zero
+        (Classical.choose_spec (exists_gen hK (L := L))).pe.toIsIntegralUnique)⟧
+  left_inv := sorry
+  right_inv := sorry
