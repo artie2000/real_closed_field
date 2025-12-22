@@ -22,6 +22,37 @@ theorem IsIntegrallyClosed.isIntegralUnique
     (h₁ : IsIntegral R x) : IsIntegralUnique x (minpoly R x) :=
   .of_aeval_eq_zero_imp_minpoly_dvd h₁ (minpoly.isIntegrallyClosed_dvd h₁)
 
+namespace AdjoinRoot
+
+variable {R : Type*} [CommRing R] (f : R[X])
+
+theorem isGenerator : Algebra.IsGenerator R (root f) := by
+  rw [Algebra.isGenerator_iff_aeval_surjective]
+  convert mk_surjective
+  ext
+  rw [aeval_eq]
+
+theorem hasPrincipalKerAeval : Algebra.HasPrincipalKerAeval (root f) f where
+  __ := isGenerator f
+  ker_aeval := by
+    ext
+    simp [Ideal.mem_span_singleton]
+
+variable {f} in
+theorem isIntegralUniqueGen (hf : f.Monic) : IsIntegralUnique (root f) f where
+  __ := hasPrincipalKerAeval f
+  monic := hf
+
+theorem isAdjoinRoot' : IsAdjoinRoot' (AdjoinRoot f) f := ⟨root f, hasPrincipalKerAeval f⟩
+
+variable {f} in
+theorem isAdjoinRootMonic' (hf : f.Monic) : IsAdjoinRootMonic' (AdjoinRoot f) f :=
+  ⟨isAdjoinRoot' f, hf⟩
+
+end AdjoinRoot
+
+-- TODO : primitive element theorem
+
 -- TODO : move adjoin lemmas to somewhere like `Mathlib.RingTheory.Adjoin.PowerBasis`
 
 namespace Algebra.adjoin

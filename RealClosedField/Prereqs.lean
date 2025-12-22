@@ -102,18 +102,6 @@ variable {R F : Type*} [CommRing R] [Field F] [Algebra R F] {f : R[X]} (hf : IsA
 
 variable (I : Ideal R[X])
 
-include hf in
-theorem ne_zero : f ≠ 0 := fun _ ↦ Polynomial.not_isField R <|
-  MulEquiv.isField (Field.toIsField F) <|
-    (RingEquiv.quotientBot R[X]).symm.trans <|
-    (Ideal.quotientEquiv ⊥ (Ideal.span {f}) (RingEquiv.refl _) (by simpa)).trans <|
-    hf.adjoinRootAlgEquiv.toRingEquiv
-
-include hf in
-theorem irreducible [IsDomain R] : Irreducible f :=
-  Ideal.Quotient.irreducible_of_isField hf.ne_zero <|
-    hf.adjoinRootAlgEquiv.toMulEquiv.isField (Field.toIsField F)
-
 end IsAdjoinRoot
 
 namespace IsAdjoinRootMonic

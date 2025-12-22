@@ -52,26 +52,26 @@ theorem even_finrank_extension (hK : Module.finrank R K ≠ 1) : Even (Module.fi
   exact hK <| by simpa using natDegree_eq_of_degree_eq_some <|
     degree_eq_one_of_irreducible_of_root hf.irreducible hx
 
--- TODO : find a way to go between `X ^ 2 - C (-1)` and `X ^ 2 + 1` in `IsAdjoinRoot` (data)
-noncomputable def isAdjoinRootIOfFinrankExtensionEqTwo (hK : Module.finrank R K = 2) :
-    IsAdjoinRoot K (X ^ 2 - C (-1) : R[X]) := by sorry
+-- TODO : find a way to go between `X ^ 2 - C (-1)` and `X ^ 2 + 1` in `HasPrincipalKerAeval`
+noncomputable def isAdjoinRootIOfFinrankExtensionEqTwo [IsQuadraticExtension K R] :
+    IsAdjoinRoot K (X ^ 2 + 1 : R[X]) := by sorry
 
 theorem finrank_adjoinRoot_i_extension_neq_two
-    {K : Type*} [Field K] [Algebra (AdjoinRoot (X ^ 2 - C (-1) : R[X])) K] :
-    Module.finrank (AdjoinRoot (X ^ 2 - C (-1) : R[X])) K ≠ 2 := by sorry
+    {K : Type*} [Field K] [Algebra (AdjoinRoot (X ^ 2 + 1 : R[X])) K] :
+    Module.finrank (AdjoinRoot (X ^ 2 + 1 : R[X])) K ≠ 2 := fun hK ↦ by sorry
 
 theorem finite_extension_classify :
-    Nonempty (IsAdjoinRoot K (X ^ 2 - C (-1) : R[X])) ∨ Module.finrank R K = 1 := by sorry
+    IsAdjoinRootMonic' K (X ^ 2 + 1 : R[X])) ∨ Module.finrank R K = 1 := by sorry
 
 end finite_ext
 
 theorem algebraic_extension_classify
     {K : Type*} [Field K] [Algebra R K] [Algebra.IsAlgebraic R K] :
-    Nonempty (IsAdjoinRoot K (X ^ 2 - C (-1) : R[X])) ∨ Module.finrank R K = 1 := by sorry
+    IsAdjonRootMonic' K (X ^ 2 + 1 : R[X]) ∨ Module.finrank R K = 1 := by sorry
 
 noncomputable def isAdjoinRootIOfIsAlgClosure
     {K : Type*} [Field K] [Algebra R K] [IsAlgClosure R K] :
-    IsAdjoinRoot K (X ^ 2 - C (-1) : R[X]) := by sorry
+    IsAdjoinRootMonic' K (X ^ 2 + 1 : R[X]) := by sorry
 
 end properties
 

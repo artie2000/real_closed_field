@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
 import RealClosedField.Prereqs
+import RealCLosedField.PrimitiveElement.Quadratic
 import RealClosedField.Algebra.Order.Ring.Ordering.Adjoin
 import RealClosedField.Algebra.Order.Ring.Ordering.Order
 import Mathlib.Algebra.Order.Module.Algebra
@@ -130,12 +131,14 @@ theorem isSumSq_of_isSquare {K : Type*} [Field K]
       rw [(by simpa [-map_one] using hx 0 : a = _), (by simpa [-map_one] using hx 1 : b = _)]
       ring
 
+-- TODO : switch `IsAdjoinRootMonic` → `IsIntegralUniqueGen` etc
+
 open Polynomial IsAdjoinRoot.Quadratic in
 theorem adj_sqrt_ordered {a : F} (ha : 0 ≤ a) (ha₂ : ¬ IsSquare a) :
     ∃ _ : LinearOrder (AdjoinRoot (X ^ 2 - C a : F[X])),
       IsStrictOrderedRing (AdjoinRoot (X ^ 2 - C a : F[X])) ∧
       IsOrderedModule F (AdjoinRoot (X ^ 2 - C a : F[X])) := by
-  have hK := AdjoinRoot.isAdjoinRootMonic (X ^ 2 - C a : F[X]) (by simp [Monic])
+  have hK := AdjoinRoot.isAdjoinRootMonic' (X ^ 2 - C a : F[X]) (by simp [Monic])
   have : Fact (Irreducible (X ^ 2 - C a)) := Fact.mk <| by
     simpa [← X_sq_sub_C_irreducible_iff_not_isSquare] using ha₂
   have : 0 < a := lt_of_le_of_ne ha (by aesop)
