@@ -192,7 +192,7 @@ theorem related_gen {r₁ r₂ : L} {a₁ a₂ : K} (hK : ringChar K ≠ 2)
     simpa using eq
   rcases show h₁.coeff r₂ 0 = 0 ∨ h₁.coeff r₂ 1 = 0 by
     apply_fun (h₁.coeff · 1) at eq
-    simpa [two_ne_zero] using eq
+    simpa [Ring.two_ne_zero hK] using eq
   with (h0 | h1)
   · use (h₁.coeff r₂ 1)⁻¹
     have : h₁.coeff r₂ 1 ≠ 0 := fun hc ↦
