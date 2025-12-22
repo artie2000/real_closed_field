@@ -144,7 +144,7 @@ theorem IsIntegralUniqueGen.of_square_root [Algebra.IsQuadraticExtension K L]
     rcases eq_or_eq_neg_of_sq_eq_sq _ _ hr₂ with (h | h) <;> simp_all
   __ := generator_of_notMem_bot hr₁
 
-theorem exists_gen [Algebra.IsQuadraticExtension K L] [h2 : NeZero (2 : K)] :
+theorem exists_gen [Algebra.IsQuadraticExtension K L] (hK : ringChar K ≠ 2) :
     ∃ a : K, IsAdjoinRootMonic' L (X ^ 2 - C a) := by
   have : (⊥ : Subalgebra K L) ≠ ⊤ := by
     simp [Subalgebra.bot_eq_top_iff_finrank_eq_one, Algebra.IsQuadraticExtension.finrank_eq_two]
@@ -152,29 +152,37 @@ theorem exists_gen [Algebra.IsQuadraticExtension K L] [h2 : NeZero (2 : K)] :
   have h : IsIntegralUniqueGen s _ := {
     IsIntegrallyClosed.isIntegralUnique (Algebra.IsIntegral.isIntegral (R := K) s),
     generator_of_notMem_bot hs with }
-  use ((h.coeff (s ^ 2) 1) ^ 2 - 4 * h.coeff (s ^ 2) 0)
-  refine .ofIsIntegralUniqueGen (x := 2 * s + algebraMap _ _ (h.coeff (s ^ 2) 1))
+  have sdeg : (minpoly K s).natDegree = 2 := by
+    rw [← h.finrank_eq_natDegree, Algebra.IsQuadraticExtension.finrank_eq_two]
+  use ((h.coeff (s ^ 2) 1) ^ 2 + 4 * h.coeff (s ^ 2) 0)
+  refine .ofIsIntegralUniqueGen (x := 2 * s - algebraMap _ _ (h.coeff (s ^ 2) 1))
     (.of_square_root (fun hc ↦ hs ?_) ?_)
   · simp [Algebra.mem_bot] at hc
     rcases hc with ⟨b, hb⟩
-    have : s = (algebraMap K L) ((b - h.coeff (s ^ 2) 1) / 2) := by
+    have : s = (algebraMap K L) ((b + h.coeff (s ^ 2) 1) / 2) := by
       simp [map_ofNat]
-      have : (2 : L) ≠ 0 := by
-        have := h2.ne
-        apply_fun ⇑(algebraMap K L) at this using (by sorry : Function.Injective ⇑(algebraMap K L))
-        simpa [map_ofNat]
+      have : (2 : L) ≠ 0 := Ring.two_ne_zero (by simpa [Algebra.ringChar_eq K L] using hK)
       linear_combination (norm := (field_simp; ring)) - hb / 2
     rw [this]
     exact Subalgebra.algebraMap_mem ..
   · have : s ^ 2 =
-        - (algebraMap _ _ (h.coeff (s ^ 2) 1)) * s - (algebraMap _ _ (h.coeff (s ^ 2) 0)) := by
-      sorry
+        (algebraMap _ _ (h.coeff (s ^ 2) 1)) * s + (algebraMap _ _ (h.coeff (s ^ 2) 0)) := by
+      have : s ^ 2 + algebraMap _ _ ((minpoly K s).coeff 1) * s +
+          algebraMap _ _ ((minpoly K s).coeff 0) = 0 := by
+        have lc : (minpoly K s).coeff 2 = 1 := by simpa [sdeg] using h.monic.coeff_natDegree
+        have := minpoly.aeval K s
+        simp [↓Polynomial.aeval_eq_sum_range, ← h.finrank_eq_natDegree,
+            Algebra.IsQuadraticExtension.finrank_eq_two, Finset.sum_range_succ, smul_def, lc] at this
+        linear_combination this
+      simp [by simpa [sdeg] using h.coeff_root_pow_natDegree (i := 0),
+            by simpa [sdeg] using h.coeff_root_pow_natDegree (i := 1)]
+      linear_combination this
     ring_nf
     nth_rw 2 [this]
     simp [map_ofNat]
     ring
 
-theorem related_gen {r₁ r₂ : L} {a₁ a₂ : K} [NeZero (2 : K)]
+theorem related_gen {r₁ r₂ : L} {a₁ a₂ : K} (hK : ringChar K ≠ 2)
     (h₁ : IsIntegralUniqueGen r₁ (X ^ 2 - C a₁))
     (h₂ : IsIntegralUniqueGen r₂ (X ^ 2 - C a₂)) : IsSquare (a₁ / a₂) := by
   have : a₂ ≠ 0 := IsIntegralUniqueGen.SqRoot.ne_zero h₂.toIsIntegralUnique

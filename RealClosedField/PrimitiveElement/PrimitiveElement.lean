@@ -111,6 +111,10 @@ theorem aeval_eq_zero_of_dvd_aeval_eq_zero'
     (aeval a) q = 0 :=
   zero_dvd_iff.mp (h₂ ▸ aeval_dvd _ h₁)
 
+@[simp]
+theorem modByMonic_self {R : Type*} [Ring R] {p : R[X]} (hp : p.Monic) : p %ₘ p = 0 := by
+  rw [modByMonic_eq_zero_iff_dvd hp]
+
 theorem dvd_modByMonic_sub {R : Type*} [Ring R] (p q : R[X]) : q ∣ (p %ₘ q - p) := by
   by_cases h : q.Monic
   · simp [modByMonic_eq_sub_mul_div, h]
@@ -133,6 +137,12 @@ theorem aeval_modByMonic_minpoly {R S : Type*} [CommRing R] [Ring S] [Algebra R 
 @[simp]
 theorem aeval_apply_X {A B : Type*} [CommSemiring A] [Semiring B] [Algebra A B]
     (φ : A[X] →ₐ[A] B) : aeval (φ X) = φ := by ext; simp
+
+theorem degree_sub_lt' {R : Type u} [Ring R] {p q : Polynomial R}
+    (hd : p.degree = q.degree) (hq0 : q ≠ 0) (hlc : p.leadingCoeff = q.leadingCoeff) :
+    (p - q).degree < q.degree := by
+  rw [← degree_neg, neg_sub]
+  exact degree_sub_lt hd.symm hq0 hlc.symm
 
 lemma natDegree_le_of_monic_of_dvd {R : Type*} [Semiring R] {p q : R[X]}
     (hp : p.Monic) (hq : q ≠ 0) (hdvd : p ∣ q) : p.natDegree ≤ q.natDegree := by
@@ -667,6 +677,16 @@ theorem repr_algebraMap [Nontrivial S] (r : R) :
     h.repr (algebraMap R S r) = algebraMap R R[X] r := by
   simp [Algebra.algebraMap_eq_smul_one, smul_eq_C_mul]
 
+@[simp]
+theorem repr_root_pow_algebraMap :
+    h.repr (x ^ g.natDegree) = X ^ g.natDegree - g := by
+  nontriviality R
+  rw [show x ^ g.natDegree = aeval x (X ^ g.natDegree : R[X]) by simp, repr_aeval,
+      show X ^ g.natDegree %ₘ g = (X ^ g.natDegree - g) %ₘ g by simp [sub_modByMonic, h.monic],
+      modByMonic_eq_self_iff h.monic]
+  exact Polynomial.degree_sub_lt' (by simp [degree_eq_natDegree h.monic.ne_zero])
+    h.monic.ne_zero (by simp [h.monic.leadingCoeff])
+
 theorem degree_repr_le [Nontrivial R] (y : S) :
     (h.repr y).degree < g.degree :=
   degree_modByMonic_lt _ h.monic
@@ -760,7 +780,11 @@ theorem coeff_root_pow {n} (hn : n < g.natDegree) :
   ext i
   simp [coeff, hn, Pi.single_apply]
 
-theorem coeff_root (hdeg : 1 < natDegree g) : h.coeff x = Pi.single 1 1 := by
+theorem coeff_root_pow_natDegree {i : ℕ} (hi : i < g.natDegree) :
+    h.coeff (x ^ g.natDegree) i = - g.coeff i := by
+  simp [coeff, show i ≠ g.natDegree by omega]
+
+theorem coeff_root (hdeg : 1 < g.natDegree) : h.coeff x = Pi.single 1 1 := by
   rw [← h.coeff_root_pow hdeg, pow_one]
 
 @[simp]
