@@ -71,7 +71,7 @@ theorem exists_isOrderedAlgebra_iff_neg_one_notMem_sup :
     -- and golf the last 2 lines here
   · have : P.IsPreordering := { }
     rcases IsPreordering.exists_le_isOrdering P with ⟨O, hO, hO₂⟩
-    refine ⟨O, ⟨inferInstance, by simp_all⟩⟩
+    exact ⟨O, ⟨inferInstance, by simp_all⟩⟩
 
 end Field
 
@@ -250,7 +250,7 @@ theorem minus_one_notMem_span_nonneg_isSquare_mod_f {f : F[X]}
       have := Submodule.span_mono (R := Subsemiring.nonneg F) this
       rw [← Submodule.map_span] at this
       exact Set.mem_of_subset_of_mem this ⟨g, hg, rfl⟩
-    rcases lift_poly_span_nonneg_isSquare (AdjoinRoot.isIntegralUniqueGen _ k'_Monic) this with
+    rcases lift_poly_span_nonneg_isSquare (AdjoinRoot.isIntegralUniqueGen k'_Monic) this with
       ⟨g', hg'_map, hg'_mem⟩
     exact ih k'.natDegree (by linarith [Polynomial.natDegree_le_of_dvd k'_dvd ‹k ≠ 0›])
       ‹_› ‹_› ‹_› hg'_mem rfl <|
@@ -262,12 +262,10 @@ theorem odd_deg_ordered (h_rank : Odd <| Module.finrank F K) :
     (∃ _ : LinearOrder K, IsStrictOrderedRing K ∧ IsOrderedModule F K) := by
   rw [Field.exists_isOrderedAlgebra_iff_neg_one_notMem_span_nonneg_isSquare]
   have : FiniteDimensional F K := Module.finite_of_finrank_pos <| Odd.pos h_rank
-  rcases Field.exists_primitive_element F K with ⟨α, hα⟩
-  have int := IsIntegral.of_finite F α
-  have hAdj := IsAdjoinRootMonic.mkOfPrimitiveElement int hα
+  rcases Field.exists_isIntegralUniqueGen F K with ⟨α, hα⟩
   intro hc
-  rcases lift_poly_span_nonneg_isSquare hAdj (x := -1) hc with ⟨g, hg_map, hg_mem⟩
-  apply minus_one_notMem_span_nonneg_isSquare_mod_f hAdj.monic (minpoly.irreducible int)
-          (by simpa [← hAdj.finrank] using h_rank) hg_mem
-  rw [← hAdj.map_eq_zero_iff]
+  rcases lift_poly_span_nonneg_isSquare hα (x := -1) hc with ⟨g, hg_map, hg_mem⟩
+  apply minus_one_notMem_span_nonneg_isSquare_mod_f hα.monic hα.gen_irreducible
+          (by simpa [← hα.finrank_eq_natDegree] using h_rank) hg_mem
+  rw [← hα.map_eq_zero_iff]
   simp [hg_map]

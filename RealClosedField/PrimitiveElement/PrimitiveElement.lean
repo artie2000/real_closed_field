@@ -161,18 +161,21 @@ theorem eq_of_ideal_span_eq_of_monic {R : Type*} [CommSemiring R] {p q : R[X]}
 
 end Polynomial
 
+theorem RingHom.subsingleton {R S : Type*} [Semiring R] [Semiring S]
+    {f : R →+* S} : f 1 = 0 ↔ Subsingleton S := by
+  rw [map_one, eq_comm, ← subsingleton_iff_zero_eq_one]
+
 theorem RingHom.ker_eq_top_iff {R S : Type*} [Semiring R] [Semiring S]
-    {f : R →+* S} : RingHom.ker f = ⊤ ↔ Subsingleton S where
-  mp h := by
-    have : f 1 = 0 := by
-      rw [← RingHom.mem_ker]
-      simp [h]
-    simpa [← subsingleton_iff_zero_eq_one] using this.symm
-  mpr h := eq_top_iff.mpr fun _ _ ↦ Subsingleton.elim _ _
+    {f : R →+* S} : RingHom.ker f = ⊤ ↔ Subsingleton S := by
+  rw [Ideal.eq_top_iff_one, mem_ker, RingHom.subsingleton]
+
+alias ⟨RingHom.subsingleton_of_ker_eq_top, _⟩ :=
+  RingHom.ker_eq_top_iff
 
 -- TODO : replace unprimed version
-alias ⟨RingHom.subsingleton_of_ker_eq_top, RingHom.ker_eq_top_of_subsingleton'⟩ :=
-  RingHom.ker_eq_top_iff
+@[nontriviality]
+theorem RingHom.ker_eq_top_of_subsingleton' {R S : Type*} [Semiring R] [Semiring S]
+    [Subsingleton S] {f : R →+* S} : RingHom.ker f = ⊤ := RingHom.ker_eq_top_iff.mpr inferInstance
 
 section AlgHomEquiv
 
@@ -295,40 +298,47 @@ end liftEquiv
 
 end IsGenerator
 
-variable {R} (g : R[X])
+variable {R x} {g : R[X]}
 
-@[mk_iff HasPrincipalKerAeval.def]
-structure HasPrincipalKerAeval : Prop extends IsGenerator R x where
-  ker_aeval : RingHom.ker (aeval x) = Ideal.span {g}
+theorem isUnit_iff_subsingleton_of_ker_aeval (h : RingHom.ker (aeval x) = Ideal.span {g}) :
+    IsUnit g ↔ Subsingleton S := by
+  rw [← Ideal.span_singleton_eq_top, ← h, ← RingHom.ker_coe_toRingHom, RingHom.ker_eq_top_iff]
 
-namespace HasPrincipalKerAeval
+alias ⟨subsingleton_of_ker_aeval, _⟩ := isUnit_iff_subsingleton_of_ker_aeval
 
-variable {x g} (h : HasPrincipalKerAeval x g)
+theorem isUnit_of_ker_aeval [Subsingleton S] (h : RingHom.ker (aeval x) = Ideal.span {g}) :
+    IsUnit g := (isUnit_iff_subsingleton_of_ker_aeval h).mpr inferInstance
 
-include h in
-theorem aeval_self : g.aeval x = 0 := by
-  simp [← RingHom.mem_ker, h.ker_aeval, Ideal.mem_span_singleton_self]
-
-include h in
-theorem isUnit_gen_iff_subsingleton : IsUnit g ↔ Subsingleton S := by
-  rw [← Ideal.span_singleton_eq_top, ← h.ker_aeval, ← RingHom.ker_coe_toRingHom,
-      RingHom.ker_eq_top_iff]
-
-alias ⟨subsingleton, _⟩ := isUnit_gen_iff_subsingleton
-
-include h in
-@[nontriviality]
-theorem isUnit_gen [Subsingleton S] : IsUnit g := h.isUnit_gen_iff_subsingleton.mpr inferInstance
-
-include h in
-theorem nontrivial (hg : ¬ IsUnit g) : Nontrivial S := by
-  rw [h.isUnit_gen_iff_subsingleton] at hg
+theorem nontrivial_of_ker_aeval (h : RingHom.ker (aeval x) = Ideal.span {g}) (hg : ¬ IsUnit g) :
+    Nontrivial S := by
+  rw [isUnit_iff_subsingleton_of_ker_aeval h] at hg
   exact not_subsingleton_iff_nontrivial.mp hg
 
+theorem not_isUnit_of_ker_aeval [Nontrivial S] (h : RingHom.ker (aeval x) = Ideal.span {g}) :
+    ¬ IsUnit g := fun hc ↦ by
+    rw [isUnit_iff_subsingleton_of_ker_aeval h] at hc
+    exact false_of_nontrivial_of_subsingleton S
+
+theorem aeval_eq_zero_iff_of_ker_aeval_eq_span_singleton
+    (h : RingHom.ker (aeval x) = Ideal.span {g}) {f} : f.aeval x = 0 ↔ g ∣ f := by
+  rw [← RingHom.mem_ker, h, Ideal.mem_span_singleton]
+
+variable (x g)
+
+@[mk_iff IsSimpleGenerator.def]
+structure IsSimpleGenerator : Prop extends IsGenerator R x where
+  ker_aeval : RingHom.ker (aeval x) = Ideal.span {g}
+
+namespace IsSimpleGenerator
+
+variable {x g} (h : IsSimpleGenerator x g)
+
 include h in
-theorem not_isUnit_gen [Nontrivial S] : ¬ IsUnit g := fun hc ↦ by
-  rw [h.isUnit_gen_iff_subsingleton] at hc
-  exact false_of_nontrivial_of_subsingleton S
+theorem aeval_eq_zero_iff {f} : f.aeval x = 0 ↔ g ∣ f :=
+  aeval_eq_zero_iff_of_ker_aeval_eq_span_singleton h.ker_aeval
+
+include h in
+theorem aeval_self : g.aeval x = 0 := by rw [h.aeval_eq_zero_iff]
 
 variable {T : Type*} [Ring T] [Algebra R T]
 
@@ -336,9 +346,9 @@ include h in
 theorem aeval_gen_eq_zero_iff (y : T) :
     g.aeval y = 0 ↔ ∀ f : R[X], f.aeval x = 0 → f.aeval y = 0 where
   mp hy f hf := aeval_eq_zero_of_dvd_aeval_eq_zero'
-    (by simpa [← RingHom.mem_ker, h.ker_aeval, Ideal.mem_span_singleton] using hf) hy
+    (by simpa [h.aeval_eq_zero_iff] using hf) hy
   mpr hy := by
-    simpa using hy g (by simp [← RingHom.mem_ker, h.ker_aeval, Ideal.mem_span_singleton_self])
+    simpa using hy g (by simp [h.aeval_eq_zero_iff])
 
 section lift
 
@@ -376,7 +386,7 @@ variable {S' : Type*} [Ring S'] [Algebra R S'] {x' : S'} {g' : R[X]}
 
 section root
 
-variable (h' : HasPrincipalKerAeval x' g') (hx : g'.aeval x = 0) (hx' : g.aeval x' = 0)
+variable (h' : IsSimpleGenerator x' g') (hx : g'.aeval x = 0) (hx' : g.aeval x' = 0)
 
 @[simps! -isSimp apply]
 noncomputable def equivOfRoot : S ≃ₐ[R] S' :=
@@ -398,7 +408,7 @@ end root
 
 section equal
 
-variable (h' : HasPrincipalKerAeval x' g)
+variable (h' : IsSimpleGenerator x' g)
 
 noncomputable def equiv : S ≃ₐ[R] S' :=
   equivOfRoot h h' h.aeval_self h'.aeval_self
@@ -418,7 +428,7 @@ section map
 
 variable {T : Type*} [Ring T] [Algebra R T] (φ : S ≃ₐ[R] T)
 
-noncomputable def map : HasPrincipalKerAeval (φ x) g where
+noncomputable def map : IsSimpleGenerator (φ x) g where
   adjoin_eq_top := by
     have : (adjoin R {x}).map φ.toAlgHom = ⊤ := by
       simp [h.adjoin_eq_top, AlgHom.range_eq_top, AlgEquiv.surjective]
@@ -436,7 +446,7 @@ theorem equivOfRoot_map :
 
 end map
 
-end Algebra.HasPrincipalKerAeval
+end Algebra.IsSimpleGenerator
 
 open Algebra Polynomial
 
@@ -454,9 +464,6 @@ namespace IsIntegralUnique
 
 variable {x g}
 
--- TODO : add this attribute in Mathlib
-attribute [nontriviality] RingHom.ker_eq_top_of_subsingleton
-
 variable (x g) in
 @[nontriviality]
 theorem of_subsingleton [Subsingleton R] : IsIntegralUnique x g where
@@ -467,7 +474,7 @@ variable (R x) in
 @[nontriviality]
 theorem of_subsingleton_gen_one [Subsingleton S] : IsIntegralUnique x (1 : R[X]) where
   monic := by simp
-  ker_aeval := by simp [nontriviality]
+  ker_aeval := by rw [← RingHom.ker_coe_toRingHom]; simp [nontriviality]
 
 theorem of_ker_aeval_eq_span_minpoly
     (hx : IsIntegral R x) (h : RingHom.ker (aeval x) = Ideal.span {minpoly R x}) :
@@ -520,17 +527,18 @@ theorem of_unique_of_degree_le_degree_minpoly (hx : IsIntegral R x)
 variable (h : IsIntegralUnique x g)
 
 include h in
-theorem aeval_gen : g.aeval x = 0 := by
-  rw [← RingHom.mem_ker, h.ker_aeval]
-  exact Ideal.mem_span_singleton_self _
+theorem aeval_eq_zero_iff {f} : f.aeval x = 0 ↔ g ∣ f :=
+  aeval_eq_zero_iff_of_ker_aeval_eq_span_singleton h.ker_aeval
+
+include h in
+theorem aeval_gen : g.aeval x = 0 := by rw [h.aeval_eq_zero_iff]
 
 include h in
 theorem isIntegral : IsIntegral R x := ⟨g, h.monic, h.aeval_gen⟩
 
 include h in
 theorem gen_eq_one_iff_subsingleton : g = 1 ↔ Subsingleton S := by
-  rw [← RingHom.ker_eq_top_iff (f := (aeval (R := R) x : R[X] →+* S)), RingHom.ker_coe_toRingHom,
-      h.ker_aeval, Ideal.span_singleton_eq_top, h.monic.isUnit_iff]
+  rw [← isUnit_iff_subsingleton_of_ker_aeval h.ker_aeval, h.monic.isUnit_iff]
 
 alias ⟨subsingleton, _⟩ := gen_eq_one_iff_subsingleton
 
@@ -562,14 +570,14 @@ theorem minpoly_eq_gen : minpoly R x = g := by
   rw [eq_of_monic_of_dvd_of_natDegree_le h.monic (minpoly.monic h.isIntegral)]
   · simp [← Ideal.mem_span_singleton, ← h.ker_aeval]
   · exact Polynomial.natDegree_le_natDegree <| minpoly.min _ x h.monic <| by
-      simp [← RingHom.mem_ker, h.ker_aeval, Ideal.mem_span_singleton_self]
+      simp [h.aeval_eq_zero_iff]
 
 include h in
 theorem gen_unique {g' : R[X]} (h' : IsIntegralUnique x g') : g = g' := by
   rw [← h.minpoly_eq_gen, ← h'.minpoly_eq_gen]
 
 include h in
-theorem gen_irreducible [IsDomain R] [IsDomain S] : Irreducible g := by
+theorem irreducible_gen [IsDomain R] [IsDomain S] : Irreducible g := by
   rw [← h.minpoly_eq_gen]
   exact minpoly.irreducible h.isIntegral
 
@@ -578,14 +586,10 @@ theorem isIntegralUnique_minpoly : IsIntegralUnique x (minpoly R x) :=
   .of_ker_aeval_eq_span_minpoly h.isIntegral <| h.minpoly_eq_gen ▸ h.ker_aeval
 
 include h in
-theorem gen_dvd_of_aeval_eq_zero {f} (hf : f.aeval x = 0) : g ∣ f := by
-  rw [← Ideal.mem_span_singleton, ← h.ker_aeval, RingHom.mem_ker, hf]
-
-include h in
 theorem eq_gen_of_degree_le_degree_gen {f : R[X]} (hmo : f.Monic) (hf : f.aeval x = 0)
     (fmin : f.degree ≤ g.degree) : f = g :=
   eq_of_monic_of_dvd_of_natDegree_le h.monic hmo
-    (h.gen_dvd_of_aeval_eq_zero hf) (natDegree_le_natDegree fmin)
+    (h.aeval_eq_zero_iff.mp hf) (natDegree_le_natDegree fmin)
 
 include h in
 theorem eq_gen_of_aeval_eq_zero_imp_degree_ge {f : R[X]} (hmo : f.Monic) (hf : f.aeval x = 0)
@@ -601,12 +605,12 @@ include h in
 theorem modByMonic_gen_eq_iff_aeval_eq (f₁ f₂ : R[X]) :
     f₁ %ₘ g = f₂ %ₘ g ↔ f₁.aeval x = f₂.aeval x := by
   rw [← sub_eq_zero, ← sub_modByMonic, modByMonic_eq_zero_iff_dvd h.monic,
-      ← Ideal.mem_span_singleton, ← h.ker_aeval, RingHom.mem_ker, map_sub, sub_eq_zero]
+      ← h.aeval_eq_zero_iff, map_sub, sub_eq_zero]
 
 end IsIntegralUnique
 
 structure IsIntegralUniqueGen : Prop extends
-    HasPrincipalKerAeval x g, IsIntegralUnique x g
+    IsSimpleGenerator x g, IsIntegralUnique x g
 
 namespace IsIntegralUniqueGen
 
@@ -777,12 +781,12 @@ variable {S' : Type*} [Ring S'] [Algebra R S'] {x' : S'}
 variable (h' : IsIntegralUniqueGen x' g)
 
 noncomputable def equiv : S ≃ₐ[R] S' :=
-  HasPrincipalKerAeval.equiv h.toHasPrincipalKerAeval h'.toHasPrincipalKerAeval
+  IsSimpleGenerator.equiv h.toIsSimpleGenerator h'.toIsSimpleGenerator
 
 @[simp]
 theorem equiv_apply (z : S) :
-    equiv h h' z = HasPrincipalKerAeval.equiv
-      h.toHasPrincipalKerAeval h'.toHasPrincipalKerAeval z := by
+    equiv h h' z = IsSimpleGenerator.equiv
+      h.toIsSimpleGenerator h'.toIsSimpleGenerator z := by
   simp [equiv]
 
 @[simp]
@@ -795,11 +799,11 @@ section map
 variable {T : Type*} [Ring T] [Algebra R T] (φ : S ≃ₐ[R] T)
 
 noncomputable def map : IsIntegralUniqueGen (φ x) g where
-  __ : HasPrincipalKerAeval (φ x) g := h.toHasPrincipalKerAeval.map φ
+  __ : IsSimpleGenerator (φ x) g := h.toIsSimpleGenerator.map φ
   monic := h.monic
 
 @[simp]
-theorem equivOfRoot_map : h.equivOfRoot (h.map φ).toHasPrincipalKerAeval
+theorem equivOfRoot_map : h.equivOfRoot (h.map φ).toIsSimpleGenerator
     h.aeval_gen (h.map φ).aeval_gen = φ := by
   apply_fun AlgHomClass.toAlgHom using AlgEquiv.coe_algHom_injective
   exact h.algHom_ext (by simp)
@@ -948,7 +952,7 @@ section IsAdjoinRoot'
 variable {R : Type*} (S : Type*) [CommRing R] [Ring S] [Algebra R S] (f : R[X])
 
 structure IsAdjoinRoot' : Prop where
-  exists_root : ∃ x : S, Algebra.HasPrincipalKerAeval x f
+  exists_root : ∃ x : S, Algebra.IsSimpleGenerator x f
 
 namespace IsAdjoinRoot'
 
@@ -956,7 +960,7 @@ variable {S f} (h : IsAdjoinRoot' S f)
 
 noncomputable def root := h.exists_root.choose
 
-theorem pe : Algebra.HasPrincipalKerAeval h.root f := h.exists_root.choose_spec
+theorem pe : Algebra.IsSimpleGenerator h.root f := h.exists_root.choose_spec
 
 noncomputable def liftEquiv {T : Type*} [Ring T] [Algebra R T] :
     { y : T // f.aeval y = 0 } ≃ (S →ₐ[R] T) :=
@@ -982,7 +986,7 @@ namespace IsAdjoinRootMonic'
 variable {S f} (h : IsAdjoinRootMonic' S f)
 
 theorem ofIsIntegralUniqueGen {x : S} (hx : IsIntegralUniqueGen x f) : IsAdjoinRootMonic' S f :=
-  ⟨⟨x, hx.toHasPrincipalKerAeval⟩, hx.monic⟩
+  ⟨⟨x, hx.toIsSimpleGenerator⟩, hx.monic⟩
 
 theorem pe : IsIntegralUniqueGen h.root f where
   __ := h.exists_root.choose_spec

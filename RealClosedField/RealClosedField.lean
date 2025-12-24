@@ -52,7 +52,7 @@ theorem even_finrank_extension (hK : Module.finrank R K ≠ 1) : Even (Module.fi
   exact hK <| by simpa using natDegree_eq_of_degree_eq_some <|
     degree_eq_one_of_irreducible_of_root hf.irreducible hx
 
--- TODO : find a way to go between `X ^ 2 - C (-1)` and `X ^ 2 + 1` in `HasPrincipalKerAeval`
+-- TODO : find a way to go between `X ^ 2 - C (-1)` and `X ^ 2 + 1` in `IsSimpleGenerator`
 noncomputable def isAdjoinRootIOfFinrankExtensionEqTwo [IsQuadraticExtension K R] :
     IsAdjoinRoot K (X ^ 2 + 1 : R[X]) := by sorry
 

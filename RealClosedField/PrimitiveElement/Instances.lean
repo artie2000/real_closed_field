@@ -32,7 +32,7 @@ theorem isGenerator : Algebra.IsGenerator R (root f) := by
   ext
   rw [aeval_eq]
 
-theorem hasPrincipalKerAeval : Algebra.HasPrincipalKerAeval (root f) f where
+theorem hasPrincipalKerAeval : Algebra.IsSimpleGenerator (root f) f where
   __ := isGenerator f
   ker_aeval := by
     ext
@@ -51,8 +51,7 @@ theorem isAdjoinRootMonic' (hf : f.Monic) : IsAdjoinRootMonic' (AdjoinRoot f) f 
 
 end AdjoinRoot
 
-variable (F E) in
-noncomputable def Field.isIntegralUniqueGen {F E : Type*} [Field F] [Field E] [Algebra F E]
+noncomputable def Field.exists_isIntegralUniqueGen (F E : Type*) [Field F] [Field E] [Algebra F E]
          [FiniteDimensional F E] [Algebra.IsSeparable F E] :
          ∃ x : E, IsIntegralUniqueGen x (minpoly F x) := by
   have : Algebra.IsIntegral F E := by infer_instance
@@ -100,7 +99,7 @@ theorem isGenerator : IsGenerator R (⟨x, by aesop⟩ : ↥(adjoin R {x})) wher
 
 variable {R x} in
 theorem hasPrincipalKerAeval {g : R[X]} (h : RingHom.ker (aeval x) = Ideal.span {g}) :
-    HasPrincipalKerAeval (⟨x, by aesop⟩ : ↥(adjoin R {x})) g where
+    IsSimpleGenerator (⟨x, by aesop⟩ : ↥(adjoin R {x})) g where
   __ := isGenerator R x
   ker_aeval := by simp [h]
 
