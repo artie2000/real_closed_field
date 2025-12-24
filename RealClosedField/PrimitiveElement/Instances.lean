@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
 import RealClosedField.PrimitiveElement.PrimitiveElement
+import Mathlib.FieldTheory.Minpoly.IsIntegrallyClosed
+import Mathlib.FieldTheory.PrimitiveElement
 
 -- TODO : ensure all material from `Mathlib.RingTheory.Adjoin.PowerBasis` is transferred
 -- TODO : rewrite `Mathlib.FieldTheory.Minpoly.IsIntegrallyClosed` to use my definitions

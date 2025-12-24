@@ -3,7 +3,11 @@ Copyright (c) 2025 Artie Khovanov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
-import Mathlib
+import Mathlib.Algebra.Polynomial.FieldDivision
+import Mathlib.FieldTheory.Minpoly.Basic
+import Mathlib.LinearAlgebra.FreeModule.StrongRankCondition
+import Mathlib.RingTheory.IntegralClosure.Algebra.Basic
+import Mathlib.Tactic.DepRewrite
 
 -- TODO : check out `Mathlib.LinearAlgebra.AnnihilatingPolynomial`: can we generalise it?
 

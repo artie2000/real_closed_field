@@ -3,7 +3,9 @@ Copyright (c) 2025 Artie Khovanov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
-import Mathlib
+import Mathlib.FieldTheory.Galois.Basic
+import Mathlib.GroupTheory.Sylow
+import Mathlib.Tactic.Qify
 
 /- Lemmas that should be upstreamed to Mathlib -/
 

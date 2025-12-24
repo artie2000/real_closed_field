@@ -254,7 +254,7 @@ theorem minus_one_notMem_span_nonneg_isSquare_mod_f {f : F[X]}
       ⟨g', hg'_map, hg'_mem⟩
     exact ih k'.natDegree (by linarith [Polynomial.natDegree_le_of_dvd k'_dvd ‹k ≠ 0›])
       ‹_› ‹_› ‹_› hg'_mem rfl <|
-      (dvd_iff_dvd_of_dvd_sub <| by simpa [AdjoinRoot.isAdjoinRoot_map_eq_mkₐ] using hg'_map).mpr <|
+      (dvd_iff_dvd_of_dvd_sub <| by simpa using hg'_map).mpr <|
         dvd_trans k'_dvd <| dvd_iff_exists_eq_mul_left.mpr ⟨f, hk⟩
 
 open scoped Pointwise in

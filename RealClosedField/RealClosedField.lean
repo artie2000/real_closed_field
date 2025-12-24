@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
 import RealClosedField.OrderedAlgebra
-import RealClosedField.Algebra.Ring.Semireal.Field
+import RealClosedField.Algebra.Order.Field.Semireal
 
 open Polynomial
 
@@ -14,9 +14,10 @@ class IsRealClosed (R : Type*) [Field R] [LinearOrder R] : Prop extends IsStrict
   isSquare_of_nonneg {x : R} (hx : 0 ≤ x) : IsSquare x
   exists_isRoot_of_odd_natDegree {f : R[X]} (hf : Odd f.natDegree) : ∃ x, f.IsRoot x
 
+-- TODO : figure out assumptions vs extends here
 /- A real closure is a real closed ordered algebraic extension. -/
 class IsRealClosure (K R : Type*) [Field K] [Field R] [LinearOrder K] [LinearOrder R] [Algebra K R]
-    [IsStrictOrderedRing K] extends IsRealClosed R, IsOrderedAlgebra K R, Algebra.IsAlgebraic K R
+    [IsStrictOrderedRing K] extends IsRealClosed R, IsOrderedModule K R, Algebra.IsAlgebraic K R
 
 namespace IsRealClosed
 

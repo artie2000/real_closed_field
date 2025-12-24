@@ -4,6 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
 import RealClosedField.PrimitiveElement.Instances
+import Mathlib.Algebra.Group.Subgroup.Even
+import Mathlib.Data.Finsupp.Notation
+import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
 
 open Polynomial
 open Algebra
@@ -240,3 +243,5 @@ noncomputable def deg_2_classify (hK : ringChar K ≠ 2) :
         (Classical.choose_spec (exists_gen hK (L := L))).pe.toIsIntegralUnique)⟧
   left_inv := sorry
   right_inv := sorry
+
+#min_imports

@@ -6,6 +6,8 @@ Authors: Florent Schaffhauser, Artie Khovanov
 
 import RealClosedField.Algebra.Order.Ring.Ordering.Defs
 import RealClosedField.Algebra.Ring.FormallyReal
+import Mathlib.Tactic.FieldSimp
+import Mathlib.Tactic.LinearCombination
 
 /-!
 # Semireal rings
@@ -78,8 +80,7 @@ theorem exists_isPreordering_iff_isSemireal :
 
 end CommRing
 
-open Classical in
-def IsSemireal.isFormallyReal {F : Type*} [Field F] [IsSemireal F] : IsFormallyReal F :=
+theorem IsSemireal.isFormallyReal {F : Type*} [Field F] [IsSemireal F] : IsFormallyReal F :=
   isFormallyReal_of_eq_zero_of_eq_zero_of_mul_self_add F <| fun {s} {a} _ h ↦ by
     by_contra
     exact IsSemireal.one_add_ne_zero (s := s * a⁻¹ ^ 2) (by aesop)
