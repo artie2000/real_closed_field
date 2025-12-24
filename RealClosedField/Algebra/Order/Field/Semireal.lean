@@ -3,18 +3,11 @@ Copyright (c) 2025 Artie Khovanov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
-import RealClosedField.Algebra.Ring.Semireal.Defs
+import RealClosedField.Algebra.Ring.Semireal
 import RealClosedField.Algebra.Order.Ring.Ordering.Adjoin
 import RealClosedField.Algebra.Order.Ring.Ordering.Order
 
 variable {F : Type*} [Field F]
-
-open Classical in
-def IsSemireal.isFormallyReal [IsSemireal F] : IsFormallyReal F :=
-  isFormallyReal_of_eq_zero_of_eq_zero_of_add_mul_self F <| fun {s} {a} _ h ↦ by
-    by_contra
-    exact IsSemireal.one_add_ne_zero (s := s * a⁻¹ ^ 2) (by aesop)
-      (by field_simp; linear_combination h)
 
 open Classical in
 theorem Field.exists_isStrictOrderedRing_iff_isSemireal :
@@ -27,8 +20,8 @@ theorem Field.exists_isStrictOrderedRing_iff_isSemireal :
             letI inst := (choose_spec exO).2
             ⟨choose exO, inferInstance⟩⟩
 
-theorem IsSemireal.existsUnique_isStrictOrderedRing
-    [IsSemireal F] (h : ∀ x : F, IsSumSq x ∨ IsSumSq (-x)) :
+theorem IsSemireal.existsUnique_isStrictOrderedRing [IsSemireal F]
+    (h : ∀ x : F, IsSumSq x ∨ IsSumSq (-x)) :
     ∃! _ : LinearOrder F, IsStrictOrderedRing F := by
   let l := Field.ringOrderingLinearOrderEquiv F
     ⟨Subsemiring.sumSq F, { toHasMemOrNegMem := ⟨by simpa using h⟩, toIsPrime := inferInstance }⟩

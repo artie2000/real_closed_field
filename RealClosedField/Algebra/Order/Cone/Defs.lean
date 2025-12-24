@@ -3,7 +3,7 @@ Copyright (c) 2017 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro, Artie Khovanov
 -/
-import RealClosedField.Algebra.Group.Submonoid.Support
+import RealClosedField.Algebra.Order.Support
 import Mathlib.Algebra.Order.Monoid.Submonoid
 import Mathlib.Algebra.Ring.Subsemiring.Order
 

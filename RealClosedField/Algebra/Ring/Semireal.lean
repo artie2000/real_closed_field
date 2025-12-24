@@ -77,3 +77,10 @@ theorem exists_isPreordering_iff_isSemireal :
   mpr _ := ⟨Subsemiring.sumSq R, inferInstance⟩
 
 end CommRing
+
+open Classical in
+def IsSemireal.isFormallyReal {F : Type*} [Field F] [IsSemireal F] : IsFormallyReal F :=
+  isFormallyReal_of_eq_zero_of_eq_zero_of_mul_self_add F <| fun {s} {a} _ h ↦ by
+    by_contra
+    exact IsSemireal.one_add_ne_zero (s := s * a⁻¹ ^ 2) (by aesop)
+      (by field_simp; linear_combination h)
