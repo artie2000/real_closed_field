@@ -116,7 +116,7 @@ theorem IsIntegralUniqueGen.SqRoot.ne_zero {a : K} {r : L}
 
 theorem IsIntegralUnique.of_square_root {a : K} (ha : ¬ IsSquare a)
     {r : L} (hr : r ^ 2 = algebraMap _ _ a) : IsIntegralUnique r (X ^ 2 - C a) := by
-  have root : aeval r (X ^ 2 - C a) = 0 := by simp [hr]
+  have root : (X ^ 2 - C a).aeval r = 0 := by simp [hr]
   have monic : (X ^ 2 - C a).Monic := by simp [Monic]
   convert IsIntegrallyClosed.isIntegralUnique ⟨_, monic, root⟩
   rw [← X_sq_sub_C_irreducible_iff_not_isSquare] at ha
@@ -231,7 +231,9 @@ theorem gen_of_isSquare {r₁ : L} {a₁ a₂ : K} (ha₂ : a₂ ≠ 0)
 noncomputable def deg_2_classify (hK : ringChar K ≠ 2) :
     (Kˣ ⧸ (Subgroup.square Kˣ)) ≃
     { L : IntermediateField K (AlgebraicClosure K) // Algebra.IsQuadraticExtension K L } where
-  toFun := Quotient.lift (fun a ↦ by sorry) (fun a₁ a₂ ha ↦ by sorry)
+  toFun := Quotient.lift
+    (fun a ↦ sorry)--(⊤ : IntermediateField K (AdjoinRoot (X ^ 2 - C (a : K)))).map IsAlgClosed.lift)
+    (fun a₁ a₂ ha ↦ by sorry)
   invFun L :=
     have ⟨L, hL⟩ := L;
     ⟦.mk0 (Classical.choose (exists_gen hK (L := L)))

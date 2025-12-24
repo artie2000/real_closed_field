@@ -11,7 +11,7 @@ import RealClosedField.PrimitiveElement.PrimitiveElement
 open Polynomial
 
 -- TODO : move to `Mathlib.FieldTheory.Minpoly.Field`
-theorem Field.isIntegralUnique {R S : Type*} [Field R] [Ring S] [Algebra R S] {x : R}
+theorem Field.isIntegralUnique {R S : Type*} [Field R] [Ring S] [Algebra R S] {x : S}
     (h₁ : IsIntegral R x) : IsIntegralUnique x (minpoly R x) :=
   .of_aeval_eq_zero_imp_minpoly_dvd h₁ (minpoly.dvd R x)
 
@@ -39,7 +39,7 @@ theorem hasPrincipalKerAeval : Algebra.HasPrincipalKerAeval (root f) f where
     simp [Ideal.mem_span_singleton]
 
 variable {f} in
-theorem isIntegralUniqueGen (hf : f.Monic) : IsIntegralUnique (root f) f where
+theorem isIntegralUniqueGen (hf : f.Monic) : IsIntegralUniqueGen (root f) f where
   __ := hasPrincipalKerAeval f
   monic := hf
 
@@ -51,7 +51,15 @@ theorem isAdjoinRootMonic' (hf : f.Monic) : IsAdjoinRootMonic' (AdjoinRoot f) f 
 
 end AdjoinRoot
 
--- TODO : primitive element theorem
+variable (F E) in
+noncomputable def Field.isIntegralUniqueGen {F E : Type*} [Field F] [Field E] [Algebra F E]
+         [FiniteDimensional F E] [Algebra.IsSeparable F E] :
+         ∃ x : E, IsIntegralUniqueGen x (minpoly F x) := by
+  have : Algebra.IsIntegral F E := by infer_instance
+  rcases Field.exists_primitive_element F E with ⟨x, hx⟩
+  use x
+  exact { Field.isIntegralUnique (Algebra.IsIntegral.isIntegral (R := F) (A := E) x)
+          with adjoin_eq_top := IntermediateField.adjoin_eq_top_iff.mp hx }
 
 -- TODO : move adjoin lemmas to somewhere like `Mathlib.RingTheory.Adjoin.PowerBasis`
 

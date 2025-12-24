@@ -4,12 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
 import RealClosedField.Prereqs
-import RealCLosedField.PrimitiveElement.Quadratic
+import RealClosedField.PrimitiveElement.Quadratic
 import RealClosedField.Algebra.Order.Ring.Ordering.Adjoin
 import RealClosedField.Algebra.Order.Ring.Ordering.Order
 import Mathlib.Algebra.Order.Module.Algebra
 
 attribute [-simp] AdjoinRoot.algebraMap_eq
+
+-- TODO : `Submodule (Subsemiring.nonneg R)` support for ordered modules
 
 variable {F K : Type*} [Field F] [LinearOrder F] [IsStrictOrderedRing F] [Field K] [Algebra F K]
 
@@ -111,39 +113,38 @@ theorem Field.exists_isOrderedAlgebra_of_projection
   intro h
   simpa using not_le_of_gt (hπ 1 (by simp)) (by simpa using ih _ h)
 
-open Polynomial IsAdjoinRoot.Quadratic algebraMap in
+open Polynomial algebraMap in
 theorem isSumSq_of_isSquare {K : Type*} [Field K]
-    (h : ∀ x : AdjoinRoot (X ^ 2 - C (-1) : K[X]), IsSquare x)
+    (h : ∀ x : AdjoinRoot (X ^ 2 + 1 : K[X]), IsSquare x)
     (a : K) (ha : IsSumSq a) : IsSquare a := by
   rw [← AddSubmonoid.mem_sumSq, ← AddSubmonoid.closure_isSquare] at ha
-  have hL := AdjoinRoot.isAdjoinRootMonic (X ^ 2 - C (-1) : K[X]) (by simp [Monic])
-  have hdeg : (X ^ 2 - C (-1) : K[X]).natDegree = 2 := by simp [-map_one]
-  have := hL.nontrivial (by simp)
+  have hL : IsIntegralUniqueGen (AdjoinRoot.root (X ^ 2 + 1 : K[X])) (X ^ 2 - C (-1) : K[X]) := by
+    simpa using AdjoinRoot.isIntegralUniqueGen (by simp [Monic])
   induction ha using AddSubmonoid.closure_induction with
   | zero => simp
   | mem a ha => exact ha
   | add _ _ _ _ iha ihb =>
       rcases iha with ⟨a, rfl⟩
       rcases ihb with ⟨b, rfl⟩
-      rcases h (a + b * hL.root) with ⟨x, hx⟩
+      rcases h (a + b * (AdjoinRoot.root _ : AdjoinRoot (X ^ 2 + 1 : K[X]))) with ⟨x, hx⟩
       rw [hL.ext_elem_iff] at hx
       use hL.coeff x 0 ^ 2 + hL.coeff x 1 ^ 2
-      rw [(by simpa [-map_one] using hx 0 : a = _), (by simpa [-map_one] using hx 1 : b = _)]
+      rw [(by simpa [-map_neg] using hx 0 : a = _), (by simpa [-map_neg] using hx 1 : b = _)]
+      -- TODO : fix `-map_neg` workaround (currently `simp` infinite loops without it)
       ring
 
--- TODO : switch `IsAdjoinRootMonic` → `IsIntegralUniqueGen` etc
-
-open Polynomial IsAdjoinRoot.Quadratic in
+open Polynomial in
 theorem adj_sqrt_ordered {a : F} (ha : 0 ≤ a) (ha₂ : ¬ IsSquare a) :
     ∃ _ : LinearOrder (AdjoinRoot (X ^ 2 - C a : F[X])),
       IsStrictOrderedRing (AdjoinRoot (X ^ 2 - C a : F[X])) ∧
       IsOrderedModule F (AdjoinRoot (X ^ 2 - C a : F[X])) := by
-  have hK := AdjoinRoot.isAdjoinRootMonic' (X ^ 2 - C a : F[X]) (by simp [Monic])
+  have hK := AdjoinRoot.isIntegralUniqueGen (f := X ^ 2 - C a) (by simp [Monic])
   have : Fact (Irreducible (X ^ 2 - C a)) := Fact.mk <| by
     simpa [← X_sq_sub_C_irreducible_iff_not_isSquare] using ha₂
   have : 0 < a := lt_of_le_of_ne ha (by aesop)
   refine Field.exists_isOrderedAlgebra_of_projection (hK.basis.coord 0) fun x hx => ?_
-  suffices 0 < hK.coeff x 0 * hK.coeff x 0 + a * hK.coeff x 1 * hK.coeff x 1 by simpa
+  suffices 0 < hK.coeff x 0 * hK.coeff x 0 + a * hK.coeff x 1 * hK.coeff x 1 by
+    simpa [hK.basis_repr_eq_coeff]
   suffices h : hK.coeff x 0 ≠ 0 ∨ hK.coeff x 1 ≠ 0 by
     cases h with
     | inl h =>
@@ -157,18 +158,18 @@ theorem adj_sqrt_ordered {a : F} (ha : 0 ≤ a) (ha₂ : ¬ IsSquare a) :
 
 -- TODO : generalise this and make it less cursed
 open scoped Polynomial in
-theorem lift_poly_span_nonneg_isSquare {f : F[X]} (hAdj : IsAdjoinRootMonic K f) {x : K}
+theorem lift_poly_span_nonneg_isSquare {f : F[X]} {r : K} (hAdj : IsIntegralUniqueGen r f) {x : K}
     (hx : x ∈ Submodule.span (Subsemiring.nonneg F) ({x : K | IsSquare x})) :
-    ∃ g, hAdj.map g = x ∧
+    ∃ g, g.aeval r = x ∧
       g ∈ Submodule.span (Subsemiring.nonneg F)
             ((fun x ↦ x * x) '' {g : F[X] | g.natDegree < f.natDegree}) := by
-  have f_ne_one : f ≠ 1 := fun hc ↦ by aesop (add safe forward hAdj.deg_ne_zero)
+  have f_ne_one : f ≠ 1 := hAdj.gen_ne_one
   induction hx using Submodule.span_induction with
   | zero => exact ⟨0, by simp⟩
   | mem x hx =>
       rcases hx with ⟨y, rfl⟩
-      refine ⟨hAdj.modByMonicHom y * hAdj.modByMonicHom y, by simp, Submodule.mem_span_of_mem ?_⟩
-      exact ⟨hAdj.modByMonicHom y,
+      refine ⟨hAdj.repr y * hAdj.repr y, by simp, Submodule.mem_span_of_mem ?_⟩
+      exact ⟨hAdj.repr y,
           by simpa using Polynomial.natDegree_modByMonic_lt _ hAdj.monic f_ne_one⟩
   | smul r x hx ih =>
       rcases ih with ⟨g, rfl, hg⟩
@@ -249,7 +250,7 @@ theorem minus_one_notMem_span_nonneg_isSquare_mod_f {f : F[X]}
       have := Submodule.span_mono (R := Subsemiring.nonneg F) this
       rw [← Submodule.map_span] at this
       exact Set.mem_of_subset_of_mem this ⟨g, hg, rfl⟩
-    rcases lift_poly_span_nonneg_isSquare (AdjoinRoot.isAdjoinRootMonic _ k'_Monic) this with
+    rcases lift_poly_span_nonneg_isSquare (AdjoinRoot.isIntegralUniqueGen _ k'_Monic) this with
       ⟨g', hg'_map, hg'_mem⟩
     exact ih k'.natDegree (by linarith [Polynomial.natDegree_le_of_dvd k'_dvd ‹k ≠ 0›])
       ‹_› ‹_› ‹_› hg'_mem rfl <|

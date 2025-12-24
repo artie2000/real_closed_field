@@ -102,13 +102,13 @@ namespace Polynomial
 
 @[gcongr]
 theorem aeval_dvd {S T : Type*} [CommSemiring S] [Semiring T] [Algebra S T]
-    {p q : Polynomial S} (a : T) : p ∣ q → aeval a p ∣ aeval a q := _root_.map_dvd (aeval a)
+    {p q : Polynomial S} (a : T) : p ∣ q → p.aeval a ∣ q.aeval a := _root_.map_dvd (aeval a)
 
 -- TODO : replace non-primed version
 theorem aeval_eq_zero_of_dvd_aeval_eq_zero'
     {S T : Type*} [CommSemiring S] [Semiring T] [Algebra S T]
-    {p q : Polynomial S} (h₁ : p ∣ q) {a : T} (h₂ : (aeval a) p = 0) :
-    (aeval a) q = 0 :=
+    {p q : Polynomial S} (h₁ : p ∣ q) {a : T} (h₂ : p.aeval a = 0) :
+    q.aeval a = 0 :=
   zero_dvd_iff.mp (h₂ ▸ aeval_dvd _ h₁)
 
 @[simp]
@@ -127,11 +127,11 @@ theorem dvd_iff_dvd_modByMonic {R : Type*} [Ring R] {p q : R[X]} :
 -- TODO : replace non-primed version
 theorem aeval_modByMonic_eq_self_of_root'
     {R S : Type*} [CommRing R] [Ring S] [Algebra R S] (p : R[X]) {q : R[X]} {x : S}
-    (hx : aeval x q = 0) : aeval x (p %ₘ q) = aeval x p := by
+    (hx : q.aeval x = 0) : (p %ₘ q).aeval x = p.aeval x := by
   simpa [sub_eq_zero, hx] using aeval_dvd x <| dvd_modByMonic_sub p q
 
 theorem aeval_modByMonic_minpoly {R S : Type*} [CommRing R] [Ring S] [Algebra R S]
-    (p : R[X]) (x : S) : aeval x (p %ₘ minpoly R x) = aeval x p :=
+    (p : R[X]) (x : S) : (p %ₘ minpoly R x).aeval x = p.aeval x :=
   aeval_modByMonic_eq_self_of_root' _ (minpoly.aeval ..)
 
 @[simp]
@@ -160,6 +160,19 @@ theorem eq_of_ideal_span_eq_of_monic {R : Type*} [CommSemiring R] {p q : R[X]}
     (natDegree_le_of_monic_of_dvd hp hq.ne_zero p_dvd_q)
 
 end Polynomial
+
+theorem RingHom.ker_eq_top_iff {R S : Type*} [Semiring R] [Semiring S]
+    {f : R →+* S} : RingHom.ker f = ⊤ ↔ Subsingleton S where
+  mp h := by
+    have : f 1 = 0 := by
+      rw [← RingHom.mem_ker]
+      simp [h]
+    simpa [← subsingleton_iff_zero_eq_one] using this.symm
+  mpr h := eq_top_iff.mpr fun _ _ ↦ Subsingleton.elim _ _
+
+-- TODO : replace unprimed version
+alias ⟨RingHom.subsingleton_of_ker_eq_top, RingHom.ker_eq_top_of_subsingleton'⟩ :=
+  RingHom.ker_eq_top_iff
 
 section AlgHomEquiv
 
@@ -248,7 +261,7 @@ section liftEquiv
 variable {T : Type*} [Ring T] [Algebra R T]
 
 noncomputable def liftEquiv :
-    { y : T // ∀ g : R[X], aeval x g = 0 → aeval y g = 0 } ≃ (S →ₐ[R] T) :=
+    { y : T // ∀ g : R[X], g.aeval x = 0 → g.aeval y = 0 } ≃ (S →ₐ[R] T) :=
   ((AlgHomEquiv R T).subtypeEquiv (by simp [SetLike.le_def])).trans <|
   AlgHom.liftOfSurjective' _ hx.aeval_surjective
 
@@ -262,10 +275,10 @@ theorem algHom_ext ⦃φ ψ : S →ₐ[R] T⦄ (h : φ x = ψ x) : φ = ψ := by
   ext
   simp [h]
 
-variable {y : T} (hy : ∀ g : R[X], aeval x g = 0 → aeval y g = 0)
+variable {y : T} (hy : ∀ g : R[X], g.aeval x = 0 → g.aeval y = 0)
 
 @[simp]
-theorem liftEquiv_aeval_apply (g : R[X]) : (hx.liftEquiv ⟨_, hy⟩) (aeval x g) = aeval y g := by
+theorem liftEquiv_aeval_apply (g : R[X]) : (hx.liftEquiv ⟨_, hy⟩) (g.aeval x) = g.aeval y := by
   simpa [liftEquiv] using AlgHom.liftOfRightInverse_comp_apply ..
 
 @[simp]
@@ -293,14 +306,35 @@ namespace HasPrincipalKerAeval
 variable {x g} (h : HasPrincipalKerAeval x g)
 
 include h in
-theorem aeval_self : aeval x g = 0 := by
+theorem aeval_self : g.aeval x = 0 := by
   simp [← RingHom.mem_ker, h.ker_aeval, Ideal.mem_span_singleton_self]
+
+include h in
+theorem isUnit_gen_iff_subsingleton : IsUnit g ↔ Subsingleton S := by
+  rw [← Ideal.span_singleton_eq_top, ← h.ker_aeval, ← RingHom.ker_coe_toRingHom,
+      RingHom.ker_eq_top_iff]
+
+alias ⟨subsingleton, _⟩ := isUnit_gen_iff_subsingleton
+
+include h in
+@[nontriviality]
+theorem isUnit_gen [Subsingleton S] : IsUnit g := h.isUnit_gen_iff_subsingleton.mpr inferInstance
+
+include h in
+theorem nontrivial (hg : ¬ IsUnit g) : Nontrivial S := by
+  rw [h.isUnit_gen_iff_subsingleton] at hg
+  exact not_subsingleton_iff_nontrivial.mp hg
+
+include h in
+theorem not_isUnit_gen [Nontrivial S] : ¬ IsUnit g := fun hc ↦ by
+  rw [h.isUnit_gen_iff_subsingleton] at hc
+  exact false_of_nontrivial_of_subsingleton S
 
 variable {T : Type*} [Ring T] [Algebra R T]
 
 include h in
 theorem aeval_gen_eq_zero_iff (y : T) :
-    aeval y g = 0 ↔ ∀ f : R[X], aeval x f = 0 → aeval y f = 0 where
+    g.aeval y = 0 ↔ ∀ f : R[X], f.aeval x = 0 → f.aeval y = 0 where
   mp hy f hf := aeval_eq_zero_of_dvd_aeval_eq_zero'
     (by simpa [← RingHom.mem_ker, h.ker_aeval, Ideal.mem_span_singleton] using hf) hy
   mpr hy := by
@@ -309,7 +343,7 @@ theorem aeval_gen_eq_zero_iff (y : T) :
 section lift
 
 noncomputable def liftEquiv :
-    { y : T // aeval y g = 0 } ≃ (S →ₐ[R] T) :=
+    { y : T // g.aeval y = 0 } ≃ (S →ₐ[R] T) :=
   ((Equiv.refl _).subtypeEquiv fun y => by simpa using h.aeval_gen_eq_zero_iff y).trans <|
   h.toIsGenerator.liftEquiv
 
@@ -317,12 +351,12 @@ noncomputable def liftEquiv :
 theorem liftEquiv_symm_apply (φ : S →ₐ[R] T) :
     h.liftEquiv.symm φ = φ x := by simp [liftEquiv]
 
-variable {y : T} (hy : aeval y g = 0)
+variable {y : T} (hy : g.aeval y = 0)
 
 noncomputable def lift : S →ₐ[R] T := h.liftEquiv ⟨_, hy⟩
 
 @[simp]
-theorem lift_aeval (f : R[X]) : h.lift hy (aeval x f) = aeval y f := by
+theorem lift_aeval (f : R[X]) : h.lift hy (f.aeval x) = f.aeval y := by
   simp [lift, liftEquiv]
 
 @[simp]
@@ -342,7 +376,7 @@ variable {S' : Type*} [Ring S'] [Algebra R S'] {x' : S'} {g' : R[X]}
 
 section root
 
-variable (h' : HasPrincipalKerAeval x' g') (hx : aeval x g' = 0) (hx' : aeval x' g = 0)
+variable (h' : HasPrincipalKerAeval x' g') (hx : g'.aeval x = 0) (hx' : g.aeval x' = 0)
 
 @[simps! -isSimp apply]
 noncomputable def equivOfRoot : S ≃ₐ[R] S' :=
@@ -354,7 +388,7 @@ theorem equivOfRoot_symm : (equivOfRoot h h' hx hx').symm = equivOfRoot h' h hx'
   ext; simp [equivOfRoot]
 
 @[simp]
-theorem equivOfRoot_aeval (f : R[X]): equivOfRoot h h' hx hx' (aeval x f) = aeval x' f := by
+theorem equivOfRoot_aeval (f : R[X]): equivOfRoot h h' hx hx' (f.aeval x) = aeval x' f := by
   simp [equivOfRoot_apply]
 
 @[simp]
@@ -465,7 +499,7 @@ theorem of_ker_aeval_eq_span [IsDomain R] [NormalizationMonoid R] (hx : IsIntegr
   exact iu
 
 theorem of_aeval_eq_zero_imp_minpoly_dvd (hx : IsIntegral R x)
-    (h : ∀ {f}, aeval x f = 0 → minpoly R x ∣ f) : IsIntegralUnique x (minpoly R x) where
+    (h : ∀ {f}, f.aeval x = 0 → minpoly R x ∣ f) : IsIntegralUnique x (minpoly R x) where
   monic := minpoly.monic hx
   ker_aeval := by
     ext f
@@ -473,7 +507,7 @@ theorem of_aeval_eq_zero_imp_minpoly_dvd (hx : IsIntegral R x)
       ⟨h, fun h' ↦ aeval_eq_zero_of_dvd_aeval_eq_zero' h' (minpoly.aeval R x)⟩
 
 theorem of_unique_of_degree_le_degree_minpoly (hx : IsIntegral R x)
-    (h : ∀ f : R[X], f.Monic → aeval x f = 0 → f.degree ≤ (minpoly R x).degree → f = minpoly R x) :
+    (h : ∀ f : R[X], f.Monic → f.aeval x = 0 → f.degree ≤ (minpoly R x).degree → f = minpoly R x) :
     IsIntegralUnique x (minpoly R x) := of_aeval_eq_zero_imp_minpoly_dvd hx <| fun {g} hg ↦ by
   nontriviality R
   have := degree_modByMonic_lt g (minpoly.monic hx)
@@ -486,7 +520,7 @@ theorem of_unique_of_degree_le_degree_minpoly (hx : IsIntegral R x)
 variable (h : IsIntegralUnique x g)
 
 include h in
-theorem aeval_gen : aeval x g = 0 := by
+theorem aeval_gen : g.aeval x = 0 := by
   rw [← RingHom.mem_ker, h.ker_aeval]
   exact Ideal.mem_span_singleton_self _
 
@@ -494,27 +528,20 @@ include h in
 theorem isIntegral : IsIntegral R x := ⟨g, h.monic, h.aeval_gen⟩
 
 include h in
-@[nontriviality]
-theorem gen_eq_one [Subsingleton S] : g = 1 := by
-  simpa [h.ker_aeval, Ideal.span_singleton_eq_top, h.monic.isUnit_iff] using
-    RingHom.ker_eq_top_of_subsingleton (aeval (R := R) x)
-
-include h in
-theorem gen_eq_one_iff_subsingleton : g = 1 ↔ Subsingleton S where
-  mp hg := by
-    -- TODO : golf / make this argument resuable
-    have : aeval x (1 : R[X]) = 0 := by
-      rw [← RingHom.mem_ker, h.ker_aeval, hg]
-      exact Ideal.mem_span_singleton_self 1
-    simpa [← subsingleton_iff_zero_eq_one] using this.symm
-  mpr _ := h.gen_eq_one
+theorem gen_eq_one_iff_subsingleton : g = 1 ↔ Subsingleton S := by
+  rw [← RingHom.ker_eq_top_iff (f := (aeval (R := R) x : R[X] →+* S)), RingHom.ker_coe_toRingHom,
+      h.ker_aeval, Ideal.span_singleton_eq_top, h.monic.isUnit_iff]
 
 alias ⟨subsingleton, _⟩ := gen_eq_one_iff_subsingleton
 
 include h in
+@[nontriviality]
+theorem gen_eq_one [Subsingleton S] : g = 1 := h.gen_eq_one_iff_subsingleton.mpr inferInstance
+
+include h in
 theorem nontrivial (hg : g ≠ 1) : Nontrivial S := by
-  by_contra! _
-  exact hg h.gen_eq_one
+  rw [ne_eq, h.gen_eq_one_iff_subsingleton] at hg
+  exact not_subsingleton_iff_nontrivial.mp hg
 
 include h in
 theorem gen_ne_one [Nontrivial S] : g ≠ 1 := fun hc ↦ by
@@ -524,11 +551,11 @@ theorem gen_ne_one [Nontrivial S] : g ≠ 1 := fun hc ↦ by
 include h in
 theorem natDegree_gen_pos [Nontrivial S] : 0 < g.natDegree := by
   by_contra hg
-  exact h.gen_ne_one (Polynomial.eq_one_of_monic_natDegree_zero h.monic (by omega))
+  exact h.gen_ne_one (eq_one_of_monic_natDegree_zero h.monic (by omega))
 
 include h in
 theorem degree_gen_pos [Nontrivial S] : 0 < g.degree :=
-  natDegree_pos_iff_degree_pos.mp (h.natDegree_gen_pos)
+  natDegree_pos_iff_degree_pos.mp h.natDegree_gen_pos
 
 include h in
 theorem minpoly_eq_gen : minpoly R x = g := by
@@ -551,18 +578,18 @@ theorem isIntegralUnique_minpoly : IsIntegralUnique x (minpoly R x) :=
   .of_ker_aeval_eq_span_minpoly h.isIntegral <| h.minpoly_eq_gen ▸ h.ker_aeval
 
 include h in
-theorem gen_dvd_of_aeval_eq_zero {f} (hf : aeval x f = 0) : g ∣ f := by
+theorem gen_dvd_of_aeval_eq_zero {f} (hf : f.aeval x = 0) : g ∣ f := by
   rw [← Ideal.mem_span_singleton, ← h.ker_aeval, RingHom.mem_ker, hf]
 
 include h in
-theorem eq_gen_of_degree_le_degree_gen {f : R[X]} (hmo : f.Monic) (hf : aeval x f = 0)
+theorem eq_gen_of_degree_le_degree_gen {f : R[X]} (hmo : f.Monic) (hf : f.aeval x = 0)
     (fmin : f.degree ≤ g.degree) : f = g :=
   eq_of_monic_of_dvd_of_natDegree_le h.monic hmo
     (h.gen_dvd_of_aeval_eq_zero hf) (natDegree_le_natDegree fmin)
 
 include h in
-theorem eq_gen_of_aeval_eq_zero_imp_degree_ge {f : R[X]} (hmo : f.Monic) (hf : aeval x f = 0)
-    (hmin : ∀ k : R[X], k.Monic → aeval x k = 0 → f.degree ≤ k.degree) : f = g :=
+theorem eq_gen_of_aeval_eq_zero_imp_degree_ge {f : R[X]} (hmo : f.Monic) (hf : f.aeval x = 0)
+    (hmin : ∀ k : R[X], k.Monic → k.aeval x = 0 → f.degree ≤ k.degree) : f = g :=
   eq_gen_of_degree_le_degree_gen h hmo hf <| hmin g h.monic h.aeval_gen
 
 include h in
@@ -572,7 +599,7 @@ theorem eq_gen_of_ker_aeval_eq_span {f : R[X]} (hf : f.Monic)
 
 include h in
 theorem modByMonic_gen_eq_iff_aeval_eq (f₁ f₂ : R[X]) :
-    f₁ %ₘ g = f₂ %ₘ g ↔ aeval x f₁ = aeval x f₂ := by
+    f₁ %ₘ g = f₂ %ₘ g ↔ f₁.aeval x = f₂.aeval x := by
   rw [← sub_eq_zero, ← sub_modByMonic, modByMonic_eq_zero_iff_dvd h.monic,
       ← Ideal.mem_span_singleton, ← h.ker_aeval, RingHom.mem_ker, map_sub, sub_eq_zero]
 
@@ -598,7 +625,7 @@ theorem of_basis [Module.Finite R S] {n} (B : Module.Basis (Fin n) R S)
       simp [nontriviality]
     have n_pos : 0 < n := @Fin.pos' _ B.index_nonempty
     set f := X ^ n - ∑ i : Fin n, C (B.repr (x ^ n) i) * X ^ (i : ℕ) with f_def
-    have aeval_f : aeval x f = 0 := by
+    have aeval_f : f.aeval x = 0 := by
       suffices x ^ n - ∑ i, (B.repr (x ^ n)) i • x ^ (i : ℕ) = 0 by simpa [f, ← Algebra.smul_def]
       rw (occs := [1]) [sub_eq_zero, ← B.linearCombination_repr (x ^ n),
                         Finsupp.linearCombination_apply, Finsupp.sum_fintype] <;>
@@ -657,16 +684,16 @@ theorem aeval_repr (y : S) : aeval x (h.repr y) = y := by
         Classical.choose_spec (h.aeval_surjective _)]
 
 @[simp]
-theorem repr_aeval (f : R[X]) : h.repr (aeval x f) = f %ₘ g := by
+theorem repr_aeval (f : R[X]) : h.repr (f.aeval x) = f %ₘ g := by
   simp [repr, h.modByMonic_gen_eq_iff_aeval_eq,
         Classical.choose_spec (h.aeval_surjective _)]
 
 theorem repr_aeval_eq_self_iff [Nontrivial R] (f : R[X]) :
-    h.repr (aeval x f) = f ↔ f.degree < g.degree := by
+    h.repr (f.aeval x) = f ↔ f.degree < g.degree := by
   simpa using modByMonic_eq_self_iff h.monic
 
 theorem repr_aeval_eq_self {f : R[X]} (hf : f.degree < g.degree) :
-    h.repr (aeval x f) = f := by
+    h.repr (f.aeval x) = f := by
   nontriviality R
   exact (h.repr_aeval_eq_self_iff _).mpr hf
 
@@ -691,10 +718,14 @@ theorem repr_algebraMap [Nontrivial S] (r : R) :
   simp [Algebra.algebraMap_eq_smul_one, smul_eq_C_mul]
 
 @[simp]
+theorem repr_ofNat [Nontrivial S] (n : ℕ) [Nat.AtLeastTwo n] :
+    h.repr ofNat(n) = (n : R) := by simpa using h.repr_algebraMap n
+
+@[simp]
 theorem repr_root_pow_algebraMap :
     h.repr (x ^ g.natDegree) = X ^ g.natDegree - g := by
   nontriviality R
-  rw [show x ^ g.natDegree = aeval x (X ^ g.natDegree : R[X]) by simp, repr_aeval,
+  rw [show x ^ g.natDegree = (X ^ g.natDegree : R[X]).aeval x by simp, repr_aeval,
       show X ^ g.natDegree %ₘ g = (X ^ g.natDegree - g) %ₘ g by simp [sub_modByMonic, h.monic],
       modByMonic_eq_self_iff h.monic]
   exact Polynomial.degree_sub_lt' (by simp [degree_eq_natDegree h.monic.ne_zero])
@@ -807,8 +838,7 @@ theorem coeff_one [Nontrivial S] : h.coeff 1 = Pi.single 0 1 := by
 @[simp]
 theorem coeff_algebraMap [Nontrivial S] (r : R) : h.coeff (algebraMap R S r) = Pi.single 0 r := by
   ext i
-  simpa [Algebra.algebraMap_eq_smul_one, Pi.smul_apply] using
-    Pi.apply_single (fun _ s ↦ r * s) (by simp) 0 1 i
+  simp [coeff, Polynomial.coeff_C, Pi.single_apply]
 
 @[simp]
 theorem coeff_ofNat [Nontrivial S] (n : ℕ) [Nat.AtLeastTwo n] :
@@ -816,7 +846,7 @@ theorem coeff_ofNat [Nontrivial S] (n : ℕ) [Nat.AtLeastTwo n] :
 
 noncomputable def basis : Basis (Fin g.natDegree) R S := Basis.ofRepr
   { toFun y := (h.repr y).toFinsupp.comapDomain _ Fin.val_injective.injOn
-    invFun f := aeval x (ofFinsupp (f.mapDomain Fin.val))
+    invFun f := (ofFinsupp (f.mapDomain Fin.val)).aeval x
     left_inv y := by
       simp only
       rw [Finsupp.mapDomain_comapDomain _ Fin.val_injective]
@@ -929,10 +959,10 @@ noncomputable def root := h.exists_root.choose
 theorem pe : Algebra.HasPrincipalKerAeval h.root f := h.exists_root.choose_spec
 
 noncomputable def liftEquiv {T : Type*} [Ring T] [Algebra R T] :
-    { y : T // aeval y f = 0 } ≃ (S →ₐ[R] T) :=
+    { y : T // f.aeval y = 0 } ≃ (S →ₐ[R] T) :=
   ((Equiv.refl _).subtypeEquiv (by simp)).trans h.pe.liftEquiv
 
-noncomputable def lift {T : Type*} [Ring T] [Algebra R T] {y : T} (hy : aeval y f = 0) :
+noncomputable def lift {T : Type*} [Ring T] [Algebra R T] {y : T} (hy : f.aeval y = 0) :
     S →ₐ[R] T := h.pe.lift (by simpa using hy)
 
 noncomputable def equiv {T : Type*} [Ring T] [Algebra R T] (h' : IsAdjoinRoot' T f):
