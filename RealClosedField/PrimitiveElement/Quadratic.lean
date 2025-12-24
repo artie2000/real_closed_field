@@ -12,95 +12,101 @@ open Polynomial
 open Algebra
 open scoped algebraMap
 
-namespace IsIntegralUniqueGen.SqRoot
+-- TODO : generalise to `n`th root?
+structure IsIntegralGenSqrt {K L : Type*} [CommRing K] [Ring L] [Algebra K L] (r : L) (a : K)
+    extends IsIntegralUniqueGen r (X ^ 2 - C a)
+
+namespace IsIntegralGenSqrt
 
 variable {K L : Type*} [CommRing K] [Ring L] [Algebra K L]
-         {a : K} {r : L}
+         {a : K} {r : L} (h : IsIntegralGenSqrt r a)
 
-theorem sq_root (hr : IsIntegralUnique r (X ^ 2 - C a)) : r ^ 2 = a := by
+include h in
+theorem sq_root : r ^ 2 = a := by
   suffices r ^ 2 - a = 0 by grind
-  simpa using hr.aeval_gen
+  simpa using h.aeval_gen
 
 variable [Nontrivial K]
 
 instance : NeZero (X ^ 2 - C a).natDegree := ⟨by simp⟩
 
-theorem nontrivial (hr : IsIntegralUnique r (X ^ 2 - C a)) : Nontrivial L :=
-  hr.nontrivial (by apply_fun natDegree; simp)
+include h in
+theorem nontrivial : Nontrivial L :=
+  h.toIsIntegralUnique.nontrivial (by apply_fun natDegree; simp)
 
-theorem isQuadraticExtension (hr : IsIntegralUniqueGen r (X ^ 2 - C a)) :
+include h in
+theorem isQuadraticExtension :
     Algebra.IsQuadraticExtension K L where
-  __ := hr.free
-  finrank_eq_two' := by simpa using hr.finrank_eq_natDegree
+  __ := h.free
+  finrank_eq_two' := by simpa using h.finrank_eq_natDegree
 
-theorem basis_0 (hr : IsIntegralUniqueGen r (X ^ 2 - C a)) : hr.basis 0 = 1 := by simp
+theorem basis_0 : h.basis 0 = 1 := by simp
 
-theorem basis_1 (hr : IsIntegralUniqueGen r (X ^ 2 - C a)) : hr.basis 1 = r := by simp
-
-@[simp]
-theorem coeff_one (hr : IsIntegralUniqueGen r (X ^ 2 - C a)) : hr.coeff 1 = Pi.single 0 1 :=
-  letI _ := nontrivial hr.toIsIntegralUnique
-  hr.coeff_one
+theorem basis_1 : h.basis 1 = r := by simp
 
 @[simp]
-theorem coeff_root (hr : IsIntegralUniqueGen r (X ^ 2 - C a)) : hr.coeff r = Pi.single 1 1 :=
-  hr.coeff_root (by simp)
+theorem coeff_one : h.coeff 1 = Pi.single 0 1 :=
+  letI _ := h.nontrivial
+  h.toIsIntegralUniqueGen.coeff_one
 
 @[simp]
-theorem coeff_algebraMap (hr : IsIntegralUniqueGen r (X ^ 2 - C a)) (k : K) :
-    hr.coeff k = Pi.single 0 k :=
-  letI _ := nontrivial hr.toIsIntegralUnique
-  hr.coeff_algebraMap k
+theorem coeff_root : h.coeff r = Pi.single 1 1 :=
+  h.toIsIntegralUniqueGen.coeff_root (by simp)
 
 @[simp]
-theorem coeff_ofNat (hr : IsIntegralUniqueGen r (X ^ 2 - C a)) (n : ℕ) [Nat.AtLeastTwo n] :
-    hr.coeff ofNat(n) = Pi.single 0 (n : K) :=
-  letI _ := nontrivial hr.toIsIntegralUnique
-  hr.coeff_ofNat n
+theorem coeff_algebraMap (k : K) : h.coeff (algebraMap _ _ k) = Pi.single 0 k :=
+  letI _ := h.nontrivial
+  h.toIsIntegralUniqueGen.coeff_algebraMap k
 
-theorem self_eq_coeff (hr : IsIntegralUniqueGen r ((X ^ 2 - C a) : K[X])) (x : L) :
-    x = hr.coeff x 0 + hr.coeff x 1 * r := by
-  rw [hr.ext_elem_iff]
+@[simp]
+theorem coeff_ofNat (n : ℕ) [Nat.AtLeastTwo n] : h.coeff ofNat(n) = Pi.single 0 (n : K) :=
+  letI _ := h.nontrivial
+  h.toIsIntegralUniqueGen.coeff_ofNat n
+
+set_option trace.Meta.Tactic.simp true
+theorem foo : h.coeff r = Pi.single 1 1 := by simp
+
+theorem self_eq_coeff (x : L) : x = algebraMap _ _ (h.coeff x 0) + algebraMap _ _ (h.coeff x 1) * r := by
+  rw [h.ext_elem_iff]
   intro i hi
   have : i < 2 := by simpa using hi
   interval_cases i <;> simp [← Algebra.smul_def]
 
-theorem coeff_of_add_of_mul_root (hr : IsIntegralUniqueGen r (X ^ 2 - C a)) {x y : K} :
-    hr.coeff (x + y * r) = fun₀ | 0 => x | 1 => y := by
+theorem coeff_of_add_of_mul_root {x y : K} : h.coeff (x + y * r) = fun₀ | 0 => x | 1 => y := by
   ext i
-  by_cases h : i < 2
+  by_cases hi : i < 2
   · interval_cases i <;> simp [← Algebra.smul_def]
-  · rw [show hr.coeff _ i = 0 from hr.coeff_apply_of_natDegree_le _ i (by simpa using h)]
+  · rw [show h.coeff _ i = 0 from h.coeff_apply_of_natDegree_le _ i (by simpa using hi)]
     simp [show i ≠ 0 ∧ i ≠ 1 by omega]
 
 @[simp]
 theorem coeff_mul {K L : Type*} [CommRing K] [CommRing L] [Algebra K L] [Nontrivial K]
-         {a : K} {r : L} (hr : IsIntegralUniqueGen r (X ^ 2 - C a))
-         (x y) : hr.coeff (x * y) =
+         {a : K} {r : L} (h : IsIntegralGenSqrt r a) (x y) :
+    h.coeff (x * y) =
     fun₀
-    | 0 => hr.coeff x 0 * hr.coeff y 0 + a * hr.coeff x 1 * hr.coeff y 1
-    | 1 => hr.coeff x 0 * hr.coeff y 1 + hr.coeff y 0 * hr.coeff x 1 := by
-  rw [← coeff_of_add_of_mul_root hr]
+    | 0 => h.coeff x 0 * h.coeff y 0 + a * h.coeff x 1 * h.coeff y 1
+    | 1 => h.coeff x 0 * h.coeff y 1 + h.coeff y 0 * h.coeff x 1 := by
+  rw [← coeff_of_add_of_mul_root h]
   congr
-  nth_rw 1 [self_eq_coeff hr x, self_eq_coeff hr y]
+  nth_rw 1 [self_eq_coeff h x, self_eq_coeff h y]
   ring_nf
-  simp only [sq_root hr.toIsIntegralUnique, map_add, map_mul]
+  simp only [h.sq_root, map_add, map_mul]
   ring
 
 @[simp]
 theorem coeff_pow_two {K L : Type*} [CommRing K] [CommRing L] [Algebra K L] [Nontrivial K]
-         {a : K} {r : L} (hr : IsIntegralUniqueGen r (X ^ 2 - C a))
-         (x) : hr.coeff (x ^ 2) =
+         {a : K} {r : L} (h : IsIntegralGenSqrt r a) (x) :
+    h.coeff (x ^ 2) =
     fun₀
-    | 0 => hr.coeff x 0 ^ 2 + a * hr.coeff x 1 ^ 2
-    | 1 => 2 * hr.coeff x 0 * hr.coeff x 1 := by
+    | 0 => h.coeff x 0 ^ 2 + a * h.coeff x 1 ^ 2
+    | 1 => 2 * h.coeff x 0 * h.coeff x 1 := by
   simp [pow_two x]
   ext i
   by_cases h : i < 2
   · interval_cases i <;> simp <;> ring
   · simp [show i ≠ 0 ∧ i ≠ 1 by omega]
 
-end IsIntegralUniqueGen.SqRoot
+end IsIntegralGenSqrt
 
 variable {K L : Type*} [Field K] [Field L] [Algebra K L]
 
@@ -110,25 +116,25 @@ theorem Polynomial.X_sq_sub_C_irreducible_iff_not_isSquare {F : Type*} [Field F]
   grind only
 
 theorem IsIntegralUniqueGen.SqRoot.not_isSquare {a : K} {r : L}
-    (hr : IsIntegralUnique r (X ^ 2 - C a)) : ¬ IsSquare a := by
-  simpa [X_sq_sub_C_irreducible_iff_not_isSquare] using hr.irreducible_gen
+    (h : IsIntegralUnique r (X ^ 2 - C a)) : ¬ IsSquare a := by
+  simpa [X_sq_sub_C_irreducible_iff_not_isSquare] using h.irreducible_gen
 
 theorem IsIntegralUniqueGen.SqRoot.ne_zero {a : K} {r : L}
-    (hr : IsIntegralUnique r (X ^ 2 - C a)) : a ≠ 0 := fun hc ↦
-      IsIntegralUniqueGen.SqRoot.not_isSquare hr (by aesop)
+    (h : IsIntegralUnique r (X ^ 2 - C a)) : a ≠ 0 := fun hc ↦
+      IsIntegralUniqueGen.SqRoot.not_isSquare h (by aesop)
 
 theorem IsIntegralUnique.of_square_root {a : K} (ha : ¬ IsSquare a)
-    {r : L} (hr : r ^ 2 = algebraMap _ _ a) : IsIntegralUnique r (X ^ 2 - C a) := by
-  have root : (X ^ 2 - C a).aeval r = 0 := by simp [hr]
+    {r : L} (h : r ^ 2 = algebraMap _ _ a) : IsIntegralUnique r (X ^ 2 - C a) := by
+  have root : (X ^ 2 - C a).aeval r = 0 := by simp [h]
   have monic : (X ^ 2 - C a).Monic := by simp [Monic]
   convert IsIntegrallyClosed.isIntegralUnique ⟨_, monic, root⟩
   rw [← X_sq_sub_C_irreducible_iff_not_isSquare] at ha
   exact minpoly.eq_of_irreducible_of_monic ha root monic
 
 theorem generator_of_notMem_bot [Algebra.IsQuadraticExtension K L] {r : L}
-    (hr : r ∉ (⊥ : Subalgebra K L)) : IsGenerator K r where
+    (h : r ∉ (⊥ : Subalgebra K L)) : IsGenerator K r where
   adjoin_eq_top := by
-    have : adjoin K {r} ≠ ⊥ := fun hc ↦ hr <| by
+    have : adjoin K {r} ≠ ⊥ := fun hc ↦ h <| by
       simpa [← hc] using self_mem_adjoin_singleton K r
     have := (Subalgebra.isSimpleOrder_of_finrank_prime K L
       (by simpa [Algebra.IsQuadraticExtension.finrank_eq_two] using Nat.prime_two)).eq_bot_or_eq_top
@@ -137,14 +143,14 @@ theorem generator_of_notMem_bot [Algebra.IsQuadraticExtension K L] {r : L}
     -- TODO : fix proof
 
 theorem IsIntegralUniqueGen.of_square_root [Algebra.IsQuadraticExtension K L]
-    {a : K} {r : L} (hr₁ : r ∉ (⊥ : Subalgebra K L))
-    (hr₂ : r ^ 2 = algebraMap _ _ a) : IsIntegralUniqueGen r (X ^ 2 - C a) where
+    {a : K} {r : L} (h₁ : r ∉ (⊥ : Subalgebra K L))
+    (h₂ : r ^ 2 = algebraMap _ _ a) : IsIntegralUniqueGen r (X ^ 2 - C a) where
   __ : IsIntegralUnique .. := by
-    refine .of_square_root (fun ⟨r', hr'⟩ ↦ ?_) hr₂
-    apply_fun algebraMap _ L at hr'
-    rw [hr', map_mul, ← pow_two] at hr₂
-    rcases eq_or_eq_neg_of_sq_eq_sq _ _ hr₂ with (h | h) <;> simp_all
-  __ := generator_of_notMem_bot hr₁
+    refine .of_square_root (fun ⟨r', h'⟩ ↦ ?_) h₂
+    apply_fun algebraMap _ L at h'
+    rw [h', map_mul, ← pow_two] at h₂
+    rcases eq_or_eq_neg_of_sq_eq_sq _ _ h₂ with (h | h) <;> simp_all
+  __ := generator_of_notMem_bot h₁
 
 theorem exists_gen [Algebra.IsQuadraticExtension K L] (hK : ringChar K ≠ 2) :
     ∃ a : K, IsAdjoinRootMonic' L (X ^ 2 - C a) := by

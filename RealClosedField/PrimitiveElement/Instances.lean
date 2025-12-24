@@ -53,7 +53,7 @@ theorem isAdjoinRootMonic' (hf : f.Monic) : IsAdjoinRootMonic' (AdjoinRoot f) f 
 
 end AdjoinRoot
 
-noncomputable def Field.exists_isIntegralUniqueGen (F E : Type*) [Field F] [Field E] [Algebra F E]
+theorem Field.exists_isIntegralUniqueGen (F E : Type*) [Field F] [Field E] [Algebra F E]
          [FiniteDimensional F E] [Algebra.IsSeparable F E] :
          ∃ x : E, IsIntegralUniqueGen x (minpoly F x) := by
   have : Algebra.IsIntegral F E := by infer_instance
@@ -61,6 +61,13 @@ noncomputable def Field.exists_isIntegralUniqueGen (F E : Type*) [Field F] [Fiel
   use x
   exact { Field.isIntegralUnique (Algebra.IsIntegral.isIntegral (R := F) (A := E) x)
           with adjoin_eq_top := IntermediateField.adjoin_eq_top_iff.mp hx }
+
+theorem Field.exists_isAdjoinRootMonic (F E : Type*) [Field F] [Field E] [Algebra F E]
+         [FiniteDimensional F E] [Algebra.IsSeparable F E] :
+         ∃ f : F[X], IsAdjoinRootMonic' E f := by
+  have : Algebra.IsIntegral F E := by infer_instance
+  rcases Field.exists_isIntegralUniqueGen F E with ⟨x, hx⟩
+  exact ⟨_, .ofIsIntegralUniqueGen hx⟩
 
 -- TODO : move adjoin lemmas to somewhere like `Mathlib.RingTheory.Adjoin.PowerBasis`
 

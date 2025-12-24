@@ -1000,6 +1000,9 @@ theorem pe : IsIntegralUniqueGen h.root f where
 theorem minpoly_root : minpoly R h.root = f := h.pe.minpoly_eq_gen
 
 include h in
+theorem irreducible [IsDomain R] [IsDomain S] : Irreducible f := h.pe.irreducible_gen
+
+include h in
 theorem subsingleton (hf : f = 1) : Subsingleton S := h.pe.gen_eq_one_iff_subsingleton.mp hf
 
 include h in

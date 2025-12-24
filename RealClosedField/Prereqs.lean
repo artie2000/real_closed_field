@@ -102,6 +102,16 @@ theorem Polynomial.has_root_of_odd_natDegree_imp_not_irreducible {F : Type*} [Fi
         rcases ih a.natDegree (by omega) h rfl with ⟨r, hr⟩
         exact ⟨r, Polynomial.IsRoot.dvd hr (by simp [hfab])⟩
 
+open scoped Polynomial in
+open Classical in -- for `normalize` instance
+theorem Polynomial.has_root_of_monic_odd_natDegree_imp_not_irreducible {F : Type*} [Field F]
+    (h : ∀ f : F[X], f.Monic → Odd f.natDegree → f.natDegree ≠ 1 → ¬(Irreducible f))
+    {f : F[X]} (hf : Odd f.natDegree) : ∃ x, f.IsRoot x := by
+  refine has_root_of_odd_natDegree_imp_not_irreducible (fun f hf₁ hf₂ hf₃ ↦ ?_) hf
+  exact h (normalize f) (Polynomial.monic_normalize (Irreducible.ne_zero hf₃))
+    (by simpa using hf₁) (by simpa using hf₂)
+    (by rw [Associated.irreducible_iff (normalize_associated f)]; exact hf₃)
+
 section poly_estimate
 
 open Polynomial
