@@ -265,7 +265,6 @@ theorem odd_deg_ordered (h_rank : Odd <| Module.finrank F K) :
   rcases Field.exists_isIntegralUniqueGen F K with ⟨α, hα⟩
   intro hc
   rcases lift_poly_span_nonneg_isSquare hα (x := -1) hc with ⟨g, hg_map, hg_mem⟩
-  apply minus_one_notMem_span_nonneg_isSquare_mod_f hα.monic hα.gen_irreducible
+  apply minus_one_notMem_span_nonneg_isSquare_mod_f hα.monic hα.irreducible_gen
           (by simpa [← hα.finrank_eq_natDegree] using h_rank) hg_mem
-  rw [← hα.map_eq_zero_iff]
-  simp [hg_map]
+  simp [← hα.aeval_eq_zero_iff, hg_map]

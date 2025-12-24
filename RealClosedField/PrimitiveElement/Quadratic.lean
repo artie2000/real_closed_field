@@ -108,7 +108,7 @@ theorem Polynomial.X_sq_sub_C_irreducible_iff_not_isSquare {F : Type*} [Field F]
 
 theorem IsIntegralUniqueGen.SqRoot.not_isSquare {a : K} {r : L}
     (hr : IsIntegralUnique r (X ^ 2 - C a)) : ¬ IsSquare a := by
-  simpa [X_sq_sub_C_irreducible_iff_not_isSquare] using hr.gen_irreducible
+  simpa [X_sq_sub_C_irreducible_iff_not_isSquare] using hr.irreducible_gen
 
 theorem IsIntegralUniqueGen.SqRoot.ne_zero {a : K} {r : L}
     (hr : IsIntegralUnique r (X ^ 2 - C a)) : a ≠ 0 := fun hc ↦
@@ -121,7 +121,6 @@ theorem IsIntegralUnique.of_square_root {a : K} (ha : ¬ IsSquare a)
   convert IsIntegrallyClosed.isIntegralUnique ⟨_, monic, root⟩
   rw [← X_sq_sub_C_irreducible_iff_not_isSquare] at ha
   exact minpoly.eq_of_irreducible_of_monic ha root monic
-  -- TODO : figure out how to avoid duplication in this proof
 
 theorem generator_of_notMem_bot [Algebra.IsQuadraticExtension K L] {r : L}
     (hr : r ∉ (⊥ : Subalgebra K L)) : IsGenerator K r where
