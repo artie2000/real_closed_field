@@ -822,7 +822,7 @@ noncomputable def coeff : S →ₗ[R] ℕ → R :=
   { toFun := Polynomial.coeff, map_add' p q := by ext; simp, map_smul' c p := by ext; simp } ∘ₗ
   h.repr
 
-theorem coeff_apply_of_natDegree_le (z : S) (i : ℕ) (hi : g.natDegree ≤ i) :
+theorem coeff_apply_of_natDegree_le (z : S) {i : ℕ} (hi : g.natDegree ≤ i) :
     h.coeff z i = 0 := by
   nontriviality R
   simpa [coeff] using h.repr_coeff_of_natDegree_le z hi
