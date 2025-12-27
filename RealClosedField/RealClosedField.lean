@@ -154,7 +154,6 @@ theorem finite_extension_classify [FiniteDimensional R K] :
   rcases Nat.exists_eq_two_pow_mul_odd (n := Module.finrank R K) Module.finrank_pos.ne'
     with ⟨k, a, ha, hka⟩
 
-
 variable (K) in
 theorem algebraic_extension_classify [Algebra.IsAlgebraic R K] :
     IsAdjoinRootMonic' K (X ^ 2 + 1 : R[X]) ∨ Module.finrank R K = 1 := by sorry

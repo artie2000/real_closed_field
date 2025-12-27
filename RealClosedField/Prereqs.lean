@@ -251,6 +251,18 @@ theorem IsGalois.exists_intermediateField_of_pow_prime_dvd
   exact ⟨IntermediateField.fixedField H,
         by simpa [IntermediateField.finrank_fixedField_eq_card] using hH⟩
 
+theorem IsGalois.exists_intermediateField_of_pow_prime_dvd_of_card_pow_prime_mul
+    {K L : Type*} [Field K] [Field L] [Algebra K L] [FiniteDimensional K L] [IsGalois K L]
+    {p n a : ℕ} (hp : Nat.Prime p) (hn : Module.finrank K L = p ^ n * a) {m : ℕ} (hm : m ≤ n) :
+    ∃ M : IntermediateField K L, Module.finrank K M = p ^ m * a := by
+  rcases IsGalois.exists_intermediateField_of_pow_prime_dvd hp
+    (by rw [hn]; exact Nat.pow_dvd_of_le_of_pow_dvd (by simp : n - m ≤ n) (by simp)) with ⟨M, hM⟩
+  use M
+  have dvd := Module.finrank_dvd_finrank K M L
+  rw [hn, hM, ← Nat.pow_sub_mul_pow _ hm, mul_assoc,
+      Nat.mul_div_right _ (by positivity [hp.pos])] at dvd
+  exact dvd
+
 theorem Sylow.exists_subgroup_le_card_pow_prime_of_card_pow_prime
     {G : Type*} [Group G] {m n p : ℕ} (hp : Nat.Prime p)
     {H : Subgroup G} (hH : Nat.card H = p ^ n) (hm : m ≤ n) :
@@ -278,27 +290,23 @@ theorem IsGalois.exists_intermediateField_ge_card_pow_prime_of_card_pow_prime
 
 theorem IsGalois.exists_intermediateField_ge_card_pow_prime_mul_of_card_pow_prime_mul
     {K L : Type*} [Field K] [Field L] [Algebra K L] [FiniteDimensional K L] [IsGalois K L]
-    {p a : ℕ} (hp : Nat.Prime p)
-    (ha : Module.finrank K L = p ^ (multiplicity p (Module.finrank K L)) * a)
-    {n m : ℕ}
-    {M : IntermediateField K L}
-    (hM : Module.finrank K M = p ^ n * a) (hm_le : n ≤ m)
-    (hm : m ≤ multiplicity p (Module.finrank K L)) :
-    ∃ N ≥ M, Module.finrank K N = p ^ m * a := by
+    {p n a : ℕ} (hp : Nat.Prime p) (hL : Module.finrank K L = p ^ n * a)
+    {m m' : ℕ} {M : IntermediateField K L} (hM : Module.finrank K M = p ^ m * a)
+    (hm'₁ : m ≤ m') (hm'₂ : m' ≤ n) :
+    ∃ N ≥ M, Module.finrank K N = p ^ m' * a := by
   by_cases! haz : a = 0
   · exact ⟨M, by simp, by simp_all⟩
   have : 0 < p := hp.pos
-  have : Module.finrank (↥M) L = p ^ (multiplicity p (Module.finrank K L) - n) := by
+  have : Module.finrank (↥M) L = p ^ (n - m) := by
     have dvd := Module.finrank_dvd_finrank' K M L
-    rw [hM, ha, ← Nat.pow_sub_mul_pow _ (Nat.le_trans hm_le hm), mul_assoc,
+    rw [hM, hL, ← Nat.pow_sub_mul_pow _ (by omega : m ≤ n), mul_assoc,
         Nat.mul_div_left _ (by positivity)] at dvd
     exact dvd
   rcases IsGalois.exists_intermediateField_ge_card_pow_prime_of_card_pow_prime hp (M := M)
-    (n := multiplicity p (Module.finrank K L) - n) (m := multiplicity p (Module.finrank K L) - m)
-    this (by omega) with ⟨N, hN, hNrk⟩
+    (n := n - m) (m := n - m') this (by omega) with ⟨N, hN, hNrk⟩
   refine ⟨N, hN, ?_⟩
   have dvd := Module.finrank_dvd_finrank K N L
-  rw [ha, hNrk, ← Nat.pow_sub_mul_pow _ hm, mul_assoc,
+  rw [hL, hNrk, ← Nat.pow_sub_mul_pow _ hm'₂, mul_assoc,
       Nat.mul_div_right _ (by positivity)] at dvd
   exact dvd
 
