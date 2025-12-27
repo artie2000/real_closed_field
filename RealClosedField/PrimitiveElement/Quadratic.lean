@@ -40,10 +40,13 @@ theorem nontrivial : Nontrivial S :=
   h.toIsIntegralUnique.nontrivial (by apply_fun natDegree; simp)
 
 include h in
+theorem finrank : Module.finrank R S = 2 := by simpa using h.finrank_eq_natDegree
+
+include h in
 theorem isQuadraticExtension :
     Algebra.IsQuadraticExtension R S where
   __ := h.free
-  finrank_eq_two' := by simpa using h.finrank_eq_natDegree
+  finrank_eq_two' := h.finrank
 
 noncomputable def basis : Module.Basis (Fin 2) R S :=
   h.toIsIntegralUniqueGen.basis.reindex (finCongr (by simp))
@@ -53,6 +56,10 @@ theorem basis_0 : h.basis 0 = 1 := by simp [basis]
 theorem basis_1 : h.basis 1 = r := by simp [basis]
 
 noncomputable def coeff := h.toIsIntegralUniqueGen.coeff
+
+theorem basis_repr_eq_coeff (y : S) (i : Fin 2) :
+    h.basis.repr y i = h.coeff y ↑i :=
+  h.toIsIntegralUniqueGen.basis_repr_eq_coeff y (finCongr (by simp) i)
 
 theorem coeff_apply_of_two_le (z : S) {i : ℕ} (hi : 2 ≤ i) :
     h.coeff z i = 0 :=
@@ -76,6 +83,10 @@ theorem coeff_algebraMap (k : R) : h.coeff (algebraMap _ _ k) = Pi.single 0 k :=
 theorem coeff_ofNat (n : ℕ) [Nat.AtLeastTwo n] : h.coeff ofNat(n) = Pi.single 0 (n : R) :=
   letI _ := h.nontrivial
   h.toIsIntegralUniqueGen.coeff_ofNat n
+
+theorem ext_elem ⦃y z : S⦄ (hyz : ∀ i < 2, h.coeff y i = h.coeff z i) :
+    y = z :=
+  h.toIsIntegralUniqueGen.ext_elem (by simpa using hyz)
 
 theorem ext_elem_iff {y z : S} :
     y = z ↔ ∀ i < 2, h.coeff y i = h.coeff z i := by
@@ -176,7 +187,9 @@ theorem IsIntegralGenSqrt.of_sqrt [Algebra.IsQuadraticExtension K L]
     rcases eq_or_eq_neg_of_sq_eq_sq _ _ h₂ with (h | h) <;> simp_all
   __ := IsQuadraticExtension.isGenerator_of_notMem_bot h₁
 
-theorem exists_gen [Algebra.IsQuadraticExtension K L] (hK : ringChar K ≠ 2) :
+variable (L) in
+theorem Algebra.IsQuadraticExtension.exists_isAdjoinRootMonic_X_pow_two_sub_C
+    [Algebra.IsQuadraticExtension K L] (hK : ringChar K ≠ 2) :
     ∃ a : K, IsAdjoinRootMonic' L (X ^ 2 - C a) := by
   have : (⊥ : Subalgebra K L) ≠ ⊤ := by
     simp [Subalgebra.bot_eq_top_iff_finrank_eq_one, Algebra.IsQuadraticExtension.finrank_eq_two]
@@ -212,16 +225,13 @@ theorem exists_gen [Algebra.IsQuadraticExtension K L] (hK : ringChar K ≠ 2) :
     simp [map_ofNat]
     ring
 
-theorem related_gen {r₁ r₂ : L} {a₁ a₂ : K} (hK : ringChar K ≠ 2)
+theorem IsIntegralGenSqrt.isSquare_div {r₁ r₂ : L} {a₁ a₂ : K} (hK : ringChar K ≠ 2)
     (h₁ : IsIntegralGenSqrt r₁ a₁) (h₂ : IsIntegralGenSqrt r₂ a₂) : IsSquare (a₁ / a₂) := by
   have a₂_ne_zero : a₂ ≠ 0 := h₂.ne_zero
   have eq : r₂ ^ 2 = algebraMap _ _ a₂ := h₂.sq_root
-  have c0 : h₁.coeff r₂ 0 ^ 2 + a₁ * h₁.coeff r₂ 1 ^ 2 = a₂ := by
-    apply_fun (h₁.coeff · 0) at eq
-    simpa using eq
-  rcases show h₁.coeff r₂ 0 = 0 ∨ h₁.coeff r₂ 1 = 0 by
-    apply_fun (h₁.coeff · 1) at eq
-    simpa [Ring.two_ne_zero hK] using eq
+  rw [h₁.ext_elem_iff] at eq
+  have := eq 0
+  rcases show h₁.coeff r₂ 0 = 0 ∨ h₁.coeff r₂ 1 = 0 by simpa [Ring.two_ne_zero hK] using eq 1
   with (h0 | h1)
   · use (h₁.coeff r₂ 1)⁻¹
     have : h₁.coeff r₂ 1 ≠ 0 := fun hc ↦ a₂_ne_zero (by simp_all)
@@ -230,14 +240,12 @@ theorem related_gen {r₁ r₂ : L} {a₁ a₂ : K} (hK : ringChar K ≠ 2)
   · absurd h₂.not_isSquare
     exact ⟨h₁.coeff r₂ 0, by simp_all [pow_two]⟩
 
-theorem related_isAdjoinRoot {a₁ a₂ : K} (hK : ringChar K ≠ 2)
-    (h₁ : IsAdjoinRootMonic' L (X ^ 2 - C a₁))
-    (h₂ : IsAdjoinRootMonic' L (X ^ 2 - C a₂)) : IsSquare (a₁ / a₂) :=
-  related_gen hK ⟨h₁.pe⟩ ⟨h₂.pe⟩
+theorem IsAdjoinRootMonic'.isSquare_div {a₁ a₂ : K} (hK : ringChar K ≠ 2)
+    (h₁ : IsAdjoinRootMonic' L (X ^ 2 - C a₁)) (h₂ : IsAdjoinRootMonic' L (X ^ 2 - C a₂)) :
+    IsSquare (a₁ / a₂) := IsIntegralGenSqrt.isSquare_div hK ⟨h₁.pe⟩ ⟨h₂.pe⟩
 
-theorem gen_of_isSquare {r₁ : L} {a₁ a₂ : K} (ha₂ : a₂ ≠ 0)
-    (ha : IsSquare (a₁ / a₂))
-    (h : IsIntegralGenSqrt r₁ a₁) :
+theorem IsAdjoinRootMonic'.of_isIntegralGenSqrt_of_isSquare_div {r₁ : L} {a₁ a₂ : K} (ha₂ : a₂ ≠ 0)
+    (ha : IsSquare (a₁ / a₂)) (h : IsIntegralGenSqrt r₁ a₁) :
     IsAdjoinRootMonic' L (X ^ 2 - C a₂) where
   exists_root := by
     rcases ha with ⟨m, hm⟩
@@ -252,6 +260,11 @@ theorem gen_of_isSquare {r₁ : L} {a₁ a₂ : K} (ha₂ : a₂ ≠ 0)
       _ = algebraMap _ _ a₂ := by rw [hm]; field_simp
   f_monic := by simp [Monic]
 
+theorem IsAdjoinRootMonic'.of_isAdjoinRootMonic_of_isSquare_div {a₁ a₂ : K} (ha₂ : a₂ ≠ 0)
+    (ha : IsSquare (a₁ / a₂)) (h : IsAdjoinRootMonic' L (X ^ 2 - C a₁)) :
+    IsAdjoinRootMonic' L (X ^ 2 - C a₂) :=
+  .of_isIntegralGenSqrt_of_isSquare_div ha₂ ha ⟨h.pe⟩
+
 -- TODO : figure out how to define this!
 @[simps]
 noncomputable def deg_2_classify (hK : ringChar K ≠ 2) :
@@ -262,8 +275,8 @@ noncomputable def deg_2_classify (hK : ringChar K ≠ 2) :
     (fun a₁ a₂ ha ↦ by sorry)
   invFun L :=
     have ⟨L, hL⟩ := L;
-    ⟦.mk0 (Classical.choose (exists_gen hK (L := L)))
-      (IsIntegralGenSqrt.ne_zero ⟨(Classical.choose_spec (exists_gen hK (L := L))).pe⟩)⟧
+    ⟦.mk0 (Classical.choose (Algebra.IsQuadraticExtension.exists_isAdjoinRootMonic_X_pow_two_sub_C L hK))
+      (IsIntegralGenSqrt.ne_zero ⟨(Classical.choose_spec (Algebra.IsQuadraticExtension.exists_isAdjoinRootMonic_X_pow_two_sub_C L hK)).pe⟩)⟧
   left_inv := sorry
   right_inv := sorry
 

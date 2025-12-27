@@ -118,8 +118,8 @@ theorem isSumSq_of_isSquare {K : Type*} [Field K]
     (h : ∀ x : AdjoinRoot (X ^ 2 + 1 : K[X]), IsSquare x)
     (a : K) (ha : IsSumSq a) : IsSquare a := by
   rw [← AddSubmonoid.mem_sumSq, ← AddSubmonoid.closure_isSquare] at ha
-  have hL : IsIntegralUniqueGen (AdjoinRoot.root (X ^ 2 + 1 : K[X])) (X ^ 2 - C (-1) : K[X]) := by
-    simpa using AdjoinRoot.isIntegralUniqueGen (by simp [Monic])
+  have hL : IsIntegralGenSqrt _ (-1 : K) :=
+    ⟨by simpa using AdjoinRoot.isIntegralUniqueGen (by simp [Monic])⟩
   induction ha using AddSubmonoid.closure_induction with
   | zero => simp
   | mem a ha => exact ha
@@ -129,8 +129,7 @@ theorem isSumSq_of_isSquare {K : Type*} [Field K]
       rcases h (a + b * (AdjoinRoot.root _ : AdjoinRoot (X ^ 2 + 1 : K[X]))) with ⟨x, hx⟩
       rw [hL.ext_elem_iff] at hx
       use hL.coeff x 0 ^ 2 + hL.coeff x 1 ^ 2
-      rw [(by simpa [-map_neg] using hx 0 : a = _), (by simpa [-map_neg] using hx 1 : b = _)]
-      -- TODO : fix `-map_neg` workaround (currently `simp` infinite loops without it)
+      rw [(by simpa using hx 0 : a = _), (by simpa using hx 1 : b = _)]
       ring
 
 open Polynomial in
@@ -138,7 +137,8 @@ theorem adj_sqrt_ordered {a : F} (ha : 0 ≤ a) (ha₂ : ¬ IsSquare a) :
     ∃ _ : LinearOrder (AdjoinRoot (X ^ 2 - C a : F[X])),
       IsStrictOrderedRing (AdjoinRoot (X ^ 2 - C a : F[X])) ∧
       IsOrderedModule F (AdjoinRoot (X ^ 2 - C a : F[X])) := by
-  have hK := AdjoinRoot.isIntegralUniqueGen (f := X ^ 2 - C a) (by simp [Monic])
+  have hK : IsIntegralGenSqrt _ a :=
+    ⟨AdjoinRoot.isIntegralUniqueGen (by simp [Monic])⟩
   have : Fact (Irreducible (X ^ 2 - C a)) := Fact.mk <| by
     simpa [← X_sq_sub_C_irreducible_iff_not_isSquare] using ha₂
   have : 0 < a := lt_of_le_of_ne ha (by aesop)
