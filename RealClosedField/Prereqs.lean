@@ -251,7 +251,7 @@ theorem IsGalois.exists_intermediateField_of_pow_prime_dvd
   exact ⟨IntermediateField.fixedField H,
         by simpa [IntermediateField.finrank_fixedField_eq_card] using hH⟩
 
-theorem IsGalois.exists_intermediateField_of_pow_prime_dvd_of_card_pow_prime_mul
+theorem IsGalois.exists_intermediateField_of_card_pow_prime_mul
     {K L : Type*} [Field K] [Field L] [Algebra K L] [FiniteDimensional K L] [IsGalois K L]
     {p n a : ℕ} (hp : Nat.Prime p) (hn : Module.finrank K L = p ^ n * a) {m : ℕ} (hm : m ≤ n) :
     ∃ M : IntermediateField K L, Module.finrank K M = p ^ m * a := by
@@ -318,3 +318,28 @@ theorem IsOrderedModule.of_algebraMap_mono {R A : Type*} [CommSemiring R] [Preor
     simpa [Algebra.smul_def] using mul_le_mul_of_nonneg_left hb (by simpa using h ha)
   smul_le_smul_of_nonneg_right _ ha _ _ hb := by
     simpa [Algebra.smul_def] using mul_le_mul_of_nonneg_right (h hb) ha
+
+theorem nonempty_algEquiv_iff_finrank_eq_one
+    {R S : Type*} [CommSemiring R] [StrongRankCondition R] [Semiring S] [Algebra R S]
+    [Module.Free R S] : Nonempty (R ≃ₐ[R] S) ↔ Module.finrank R S = 1 where
+  mp h := by
+    rw [← Algebra.finrank_eq_of_equiv_equiv (RingEquiv.refl _) h.some.toRingEquiv (by ext; simp)]
+    simp
+  mpr h := ⟨AlgEquiv.ofBijective (Algebra.ofId R S)
+    (bijective_algebraMap_of_linearEquiv (Module.nonempty_linearEquiv_of_finrank_eq_one h).some)⟩
+
+theorem IsAlgClosed.isSquare {k : Type*} [Field k] [IsAlgClosed k] (x : k) : IsSquare x :=
+  IsAlgClosed.exists_eq_mul_self x
+
+theorem IsAlgClosed.of_finiteDimensional_imp_finrank_eq_one (k : Type u) [Field k]
+    (H : ∀ (l : Type u), [Field l] → [Algebra k l] → [FiniteDimensional k l] →
+          Module.finrank k l = 1) :
+    IsAlgClosed k :=
+  .of_exists_root _ fun f f_monic f_irr ↦ by
+    have := Fact.mk f_irr
+    have := f_monic.finite_adjoinRoot
+    have := H (AdjoinRoot f)
+    rw [← nonempty_algEquiv_iff_finrank_eq_one] at this
+    use this.some.symm (AdjoinRoot.root f)
+    rw [← Polynomial.coe_aeval_eq_eval, Polynomial.aeval_algHom_apply]
+    simp

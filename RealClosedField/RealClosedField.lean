@@ -50,67 +50,18 @@ instance : Fact (Irreducible (X ^ 2 + 1 : R[X])) := Fact.mk <| by
     simpa
   simp
 
--- TODO : proper sqrt operation + API?
-set_option maxHeartbeats 2000000 in -- TODO : make the proof faster
-theorem isSquare_adjoinRoot_i (x : AdjoinRoot (X ^ 2 + 1 : R[X])) : IsSquare x := by
-  have hRi : IsIntegralGenSqrt _ (-1 : R) :=
-    ⟨by simpa using AdjoinRoot.isIntegralUniqueGen (by simp [Monic])⟩
-  rw [hRi.self_eq_coeff x]
-  rcases eq_or_ne (hRi.coeff x 1) 0 with (zero | ne)
-  · rw [zero]
-    suffices IsSquare (algebraMap _ _ (hRi.coeff x 0)) by
-      aesop (erase simp AdjoinRoot.algebraMap_eq)
-    rcases isSquare_or_isSquare_neg (hRi.coeff x 0) with (pos | neg)
-    · aesop
-    · have : IsSquare (-1 : AdjoinRoot (X ^ 2 + 1 : R[X])) :=
-        ⟨AdjoinRoot.root (X ^ 2 + 1), by simp [← pow_two, hRi.sq_root]⟩
-      simpa using IsSquare.mul this (IsSquare.map (algebraMap _ _) neg)
-  · rcases isSquare_of_nonneg (by positivity : 0 ≤ (hRi.coeff x 0) ^ 2 + (hRi.coeff x 1) ^ 2)
-      with ⟨rt₁, hrt₁⟩
-    have : - |rt₁| < (hRi.coeff x 0) :=
-      (abs_lt_of_sq_lt_sq' (by simp [pow_two, ← hrt₁, ne]) (by simp)).1
-    have : 0 < (hRi.coeff x 0) + |rt₁| := by linarith
-    rcases isSquare_of_nonneg (by positivity : 0 ≤ ((hRi.coeff x 0) + |rt₁|) / 2)
-      with ⟨rt₂, hrt₂⟩
-    have : (algebraMap R (AdjoinRoot (X ^ 2 + 1 : R[X]))) |rt₂| ≠ 0 := fun hc ↦ by simp_all
-    have : (2 : AdjoinRoot (X ^ 2 + 1 : R[X])) ≠ 0 := by
-      -- TODO : add lemma about `CharZero` being preserved by algebra extensions
-      have : CharZero (AdjoinRoot (X ^ 2 + 1 : R[X])) := by
-        simp [← Algebra.ringChar_eq R, ← CharP.ringChar_zero_iff_CharZero]
-      exact two_ne_zero
-    use algebraMap _ _ |rt₂| + algebraMap _ _ (hRi.coeff x 1 / (2 * |rt₂|)) * AdjoinRoot.root (X ^ 2 + 1)
-    simp [-AdjoinRoot.algebraMap_eq, map_ofNat]
-    field_simp
-    have : algebraMap R (AdjoinRoot (X ^ 2 + 1 : R[X])) |rt₂| ^ 2 =
-           algebraMap _ _ ((hRi.coeff x 0 + |rt₁|) / 2) := by
-      rw [← map_pow, sq_abs, pow_two rt₂, ← hrt₂]
-    rw [this]
-    simp [-AdjoinRoot.algebraMap_eq, map_ofNat]
-    field_simp
-    ring_nf
-    simp [hRi.sq_root, -AdjoinRoot.algebraMap_eq]
-    ring_nf
-    have : algebraMap R (AdjoinRoot (X ^ 2 + 1 : R[X])) |rt₁| ^ 2 =
-           algebraMap _ _ (hRi.coeff x 0 ^ 2 + hRi.coeff x 1 ^ 2) := by
-      rw [← map_pow, sq_abs, pow_two rt₁, ← hrt₁]
-    rw [this]
-    simp [-AdjoinRoot.algebraMap_eq] -- times out
-    ring -- times out
-
 /-! # Classification of algebraic extensions of a real closed field -/
 
 section ext
 
 variable (R) {K : Type*} [Field K] [Algebra R K]
 
-theorem even_finrank_extension [FiniteDimensional R K] (hK : Module.finrank R K ≠ 1) :
-  Even (Module.finrank R K) := by
-  by_contra hodd
+theorem odd_finrank_extension [FiniteDimensional R K] (hK :  Odd (Module.finrank R K)) :
+    Module.finrank R K = 1 := by
   rcases Field.exists_isAdjoinRootMonic R K with ⟨f, hf⟩
   rw [hf.finrank_eq_natDegree] at *
-  rcases exists_isRoot_of_odd_natDegree (f := f)
-    (Nat.not_even_iff_odd.mp <| by simpa using hodd) with ⟨x, hx⟩
-  exact hK <| by simpa using natDegree_eq_of_degree_eq_some <|
+  rcases exists_isRoot_of_odd_natDegree (f := f) hK with ⟨x, hx⟩
+  simpa using natDegree_eq_of_degree_eq_some <|
     degree_eq_one_of_irreducible_of_root hf.irreducible hx
 
 variable (K) in
@@ -126,53 +77,177 @@ theorem isAdjoinRoot_i_of_isQuadraticExtension [Algebra.IsQuadraticExtension R K
   · simpa using IsAdjoinRootMonic'.of_isAdjoinRootMonic_of_isSquare_div (a₂ := -1)
       (by simp) (isSquare_of_nonneg (by field_simp; linarith)) hK
 
-theorem finrank_adjoinRoot_i_neq_two
-    (L : Type*) [Field L] [Algebra (AdjoinRoot (X ^ 2 + 1 : R[X])) L] :
-    Module.finrank (AdjoinRoot (X ^ 2 + 1 : R[X])) L ≠ 2 := fun hL ↦ by
-  have : Algebra.IsQuadraticExtension (AdjoinRoot (X ^ 2 + 1)) L := ⟨hL⟩
+-- TODO : proper sqrt operation + API?
+theorem isSquare_of_isAdjoinRoot_i (hK : IsAdjoinRootMonic' K (X ^ 2 + 1 : R[X]))
+    (x : K) : IsSquare x := by
+  let i := hK.root -- prevents the `X ^ 2 + 1` argument being rewritten
+  have hRi : IsIntegralGenSqrt i (-1 : R) := ⟨by simpa using hK.pe⟩
+  rw [hRi.self_eq_coeff x]
+  rcases eq_or_ne (hRi.coeff x 1) 0 with (zero | ne)
+  · rw [zero]
+    suffices IsSquare (algebraMap _ _ (hRi.coeff x 0)) by
+      aesop (erase simp AdjoinRoot.algebraMap_eq)
+    rcases isSquare_or_isSquare_neg (hRi.coeff x 0) with (pos | neg)
+    · aesop
+    · have : IsSquare (-1 : K) := ⟨i, by simp [← pow_two, hRi.sq_root]⟩
+      simpa using IsSquare.mul this (IsSquare.map (algebraMap _ _) neg)
+  · rcases isSquare_of_nonneg (by positivity : 0 ≤ (hRi.coeff x 0) ^ 2 + (hRi.coeff x 1) ^ 2)
+      with ⟨rt₁, hrt₁⟩
+    have : - |rt₁| < (hRi.coeff x 0) :=
+      (abs_lt_of_sq_lt_sq' (by simp [pow_two, ← hrt₁, ne]) (by simp)).1
+    have : 0 < (hRi.coeff x 0) + |rt₁| := by linarith
+    rcases isSquare_of_nonneg (by positivity : 0 ≤ ((hRi.coeff x 0) + |rt₁|) / 2)
+      with ⟨rt₂, hrt₂⟩
+    have : algebraMap _ K |rt₂| ≠ 0 := fun hc ↦ by simp_all
+    have : (2 : K) ≠ 0 := by
+      -- TODO : add lemma about `CharZero` being preserved by algebra extensions
+      have : CharZero K := by
+        simp [← Algebra.ringChar_eq R, ← CharP.ringChar_zero_iff_CharZero]
+      exact two_ne_zero
+    use algebraMap _ _ |rt₂| + algebraMap _ _ (hRi.coeff x 1 / (2 * |rt₂|)) * i
+    simp [-AdjoinRoot.algebraMap_eq, map_ofNat]
+    field_simp
+    have : algebraMap _ K |rt₂| ^ 2 =
+           algebraMap _ _ ((hRi.coeff x 0 + |rt₁|) / 2) := by
+      rw [← map_pow, sq_abs, pow_two rt₂, ← hrt₂]
+    rw [this]
+    simp [-AdjoinRoot.algebraMap_eq, map_ofNat]
+    field_simp
+    ring_nf
+    simp [hRi.sq_root, -AdjoinRoot.algebraMap_eq]
+    ring_nf
+    have : algebraMap _ K |rt₁| ^ 2 =
+           algebraMap _ _ (hRi.coeff x 0 ^ 2 + hRi.coeff x 1 ^ 2) := by
+      rw [← map_pow, sq_abs, pow_two rt₁, ← hrt₁]
+    rw [this]
+    simp [-AdjoinRoot.algebraMap_eq]
+    ring
+
+theorem finrank_neq_two_of_isAdjoinRoot_i (hK : IsAdjoinRootMonic' K (X ^ 2 + 1 : R[X]))
+    (L : Type*) [Field L] [Algebra K L] :
+    Module.finrank K L ≠ 2 := fun hL ↦ by
+  have : Algebra.IsQuadraticExtension K L := ⟨hL⟩
   rcases Algebra.IsQuadraticExtension.exists_isAdjoinRootMonic_X_pow_two_sub_C L
-    (K := AdjoinRoot (X ^ 2 + 1 : R[X])) (by simp [← Algebra.ringChar_eq R]) with ⟨x, hL⟩
+    (K := K) (by simp [← Algebra.ringChar_eq R]) with ⟨x, hL⟩
   absurd (show ¬ IsSquare x by
       simpa [Polynomial.X_sq_sub_C_irreducible_iff_not_isSquare] using hL.irreducible)
-  exact isSquare_adjoinRoot_i x
+  exact isSquare_of_isAdjoinRoot_i R hK x
 
 variable (K) in
-theorem finite_extension_classify [FiniteDimensional R K] :
-    IsAdjoinRootMonic' K (X ^ 2 + 1 : R[X]) ∨ Module.finrank R K = 1 := by
-  suffices 1 ≤ Module.finrank R K ∧ Module.finrank R K ≤ 2 by
-    rcases this with ⟨_, _⟩
-    interval_cases h : Module.finrank R K
-    · simp
-    · have : Algebra.IsQuadraticExtension R K := ⟨h⟩
-      exact Or.inl <| isAdjoinRoot_i_of_isQuadraticExtension R K
+theorem finite_extension_rank_le [FiniteDimensional R K] : Module.finrank R K ≤ 2 := by
   wlog hGal : IsGalois R K generalizing K
-  · have := this ↥(IntermediateField.normalClosure R K (AlgebraicClosure K)) inferInstance
+  · have := this (IntermediateField.normalClosure R K (AlgebraicClosure K)) inferInstance
     have := Module.finrank_bot_le_finrank_of_isScalarTower
-      R K ↥(IntermediateField.normalClosure R K (AlgebraicClosure K))
+      R K (IntermediateField.normalClosure R K (AlgebraicClosure K))
     have := Module.finrank_pos (R := R) (M := K)
     omega
   rcases Nat.exists_eq_two_pow_mul_odd (n := Module.finrank R K) Module.finrank_pos.ne'
     with ⟨k, a, ha, hka⟩
+  have a_val : a = 1 := by
+    rcases IsGalois.exists_intermediateField_of_card_pow_prime_mul
+      Nat.prime_two hka (by simp : 0 ≤ k) with ⟨M, hM⟩
+    simp_all [odd_finrank_extension R (K := M) (by grind)]
+  suffices k ≤ 1 by interval_cases k <;> simp_all
+  by_contra! k_ge
+  rcases IsGalois.exists_intermediateField_of_card_pow_prime_mul
+    Nat.prime_two hka (by omega : 1 ≤ k) with ⟨M, hM⟩
+  rcases IsGalois.exists_intermediateField_ge_card_pow_prime_mul_of_card_pow_prime_mul
+    Nat.prime_two hka hM (by omega : 1 ≤ 2) (by omega) with ⟨N, hN_ge, hN⟩
+  rw [ge_iff_le] at hN_ge
+  have : Algebra.IsQuadraticExtension R M := ⟨by omega⟩
+
+  -- TODO : package this up and upstream it
+  let := (IntermediateField.inclusion hN_ge).toAlgebra
+  have := IsScalarTower.of_algebraMap_eq'
+    (IntermediateField.inclusion hN_ge).comp_algebraMap.symm
+  have := Module.Finite.of_restrictScalars_finite R M N
+
+  apply finrank_neq_two_of_isAdjoinRoot_i R (isAdjoinRoot_i_of_isQuadraticExtension R M) N
+  rw [Module.finrank_dvd_finrank' R M N, hM, hN]
+  simp_all
+
+theorem rank_eq_one_of_isAdjoinRoot_i (hK : IsAdjoinRootMonic' K (X ^ 2 + 1 : R[X])) (L : Type*)
+    [Field L] [Algebra R L] [Algebra K L] [FiniteDimensional R L] [IsScalarTower R K L] :
+    Module.finrank K L = 1 := by
+  have : Module.finrank R K = 2 := by simp [hK.finrank_eq_natDegree]
+  grind [Module.finrank_mul_finrank R K L,
+         Module.finrank_pos (R := R) (M := L), finite_extension_rank_le R L]
 
 variable (K) in
-theorem algebraic_extension_classify [Algebra.IsAlgebraic R K] :
-    IsAdjoinRootMonic' K (X ^ 2 + 1 : R[X]) ∨ Module.finrank R K = 1 := by sorry
+theorem finite_extension_classify [FiniteDimensional R K] :
+    IsAdjoinRootMonic' K (X ^ 2 + 1 : R[X]) ∨ Module.finrank R K = 1 := by
+  have := finite_extension_rank_le R K
+  interval_cases h : Module.finrank R K
+  · simp [Module.finrank_pos.ne'] at h
+  · simp [h]
+  · have : Algebra.IsQuadraticExtension R K := ⟨h⟩
+    exact Or.inl <| isAdjoinRoot_i_of_isQuadraticExtension R K
+
+variable (K) in
+instance [Algebra.IsAlgebraic R K] : FiniteDimensional R K := by
+  by_contra hK
+  rcases IntermediateField.exists_lt_finrank_of_infinite_dimensional hK 2 with ⟨M, _, hM⟩
+  rcases finite_extension_classify R M with (sq | triv)
+  · simp_all [sq.finrank_eq_natDegree]
+  · simp_all
 
 variable (K) in
 theorem maximal_isOrderedAlgebra [LinearOrder K] [IsOrderedRing K] [IsOrderedModule R K]
     [Algebra.IsAlgebraic R K] : Module.finrank R K = 1 := by
-  rcases algebraic_extension_classify R K with (sq | triv)
-  · sorry
+  rcases finite_extension_classify R K with (sq | triv)
+  · have sqrt : IsIntegralGenSqrt sq.root (-1 : R) := ⟨by simpa using sq.pe⟩
+    absurd (show ¬ IsSquare (-1 : K) by simp)
+    exact ⟨sq.root, by simpa [pow_two] using sqrt.sq_root.symm⟩
   · exact triv
+
+variable (K) in
+theorem isAdjoinRoot_i_of_isAlgClosure [IsAlgClosure R K] :
+    IsAdjoinRootMonic' K (X ^ 2 + 1 : R[X]) := by
+  rcases finite_extension_classify R K with (sq | triv)
+  · exact sq
+  · have : IsAlgClosed K := ‹IsAlgClosure _ K›.isAlgClosed
+    rw [← nonempty_algEquiv_iff_finrank_eq_one] at triv
+    have := IsSquare.map triv.some.symm (IsAlgClosed.isSquare (-1 : K))
+    simp_all
+
+instance [IsAlgClosure R K] : Algebra.IsQuadraticExtension R K :=
+  IsIntegralGenSqrt.isQuadraticExtension (a := -1)
+    ⟨by simpa using (isAdjoinRoot_i_of_isAlgClosure R K).pe⟩
+
+variable {R} in
+theorem isAlgClosure_iff_isAdjoinRoot_i :
+    IsAlgClosure R K ↔ IsAdjoinRootMonic' K (X ^ 2 + 1 : R[X]) where
+  mp h := isAdjoinRoot_i_of_isAlgClosure R K
+  mpr h := {
+    isAlgClosed := .of_finiteDimensional_imp_finrank_eq_one K fun L _ _ _ ↦ by
+      have := h.finite
+      letI i := Algebra.compHom L (algebraMap R K)
+      have := IsScalarTower.of_algebraMap_eq' (Algebra.compHom_algebraMap_eq L (algebraMap R K)) -- TODO : add as instance?
+      have := Module.Finite.trans (R := R) K L
+      exact rank_eq_one_of_isAdjoinRoot_i R h L
+    isAlgebraic := have := h.finite; inferInstance
+  }
+
+theorem isAlgClosure_of_isAdjoinRoot_i (hK : IsAdjoinRootMonic' K (X ^ 2 + 1 : R[X])) :
+    IsAlgClosure R K := isAlgClosure_iff_isAdjoinRoot_i.mpr hK
+
+theorem isAlgClosure_of_finrank_ne_one [Algebra.IsAlgebraic R K] (hK : Module.finrank R K ≠ 1) :
+    IsAlgClosure R K := by
+  rcases finite_extension_classify R K with (sq | triv)
+  · exact isAlgClosure_of_isAdjoinRoot_i R sq
+  · contradiction
 
 end ext
 
-noncomputable def isAdjoinRoot_i_of_osAlgClosure
-    {K : Type*} [Field K] [Algebra R K] [IsAlgClosure R K] :
-    IsAdjoinRootMonic' K (X ^ 2 + 1 : R[X]) := by sorry
-
 theorem irred_poly_classify {f : R[X]} (hf : f.Monic) :
-  Irreducible f ↔ f.natDegree = 1 ∨ (∃ a b : R, f = (X - C a) ^ 2 - C b ^ 2) := by sorry
+    Irreducible f ↔ f.natDegree = 1 ∨ (∃ a b : R, f = (X - C a) ^ 2 - C b ^ 2) where
+  mp h := by
+    have := Fact.mk f
+    sorry
+  mpr h := by
+    rcases h with (lin | quad)
+    · sorry
+    · sorry
 
 theorem intermediate_value_property {f : R[X]} {x y : R}
     (hle : x ≤ y) (hx : 0 ≤ f.eval x) (hy : f.eval y ≤ 0) :
