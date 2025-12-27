@@ -138,7 +138,22 @@ theorem finrank_adjoinRoot_i_neq_two
 
 variable (K) in
 theorem finite_extension_classify [FiniteDimensional R K] :
-    IsAdjoinRootMonic' K (X ^ 2 + 1 : R[X]) ∨ Module.finrank R K = 1 := by sorry
+    IsAdjoinRootMonic' K (X ^ 2 + 1 : R[X]) ∨ Module.finrank R K = 1 := by
+  suffices 1 ≤ Module.finrank R K ∧ Module.finrank R K ≤ 2 by
+    rcases this with ⟨_, _⟩
+    interval_cases h : Module.finrank R K
+    · simp
+    · have : Algebra.IsQuadraticExtension R K := ⟨h⟩
+      exact Or.inl <| isAdjoinRoot_i_of_isQuadraticExtension R K
+  wlog hGal : IsGalois R K generalizing K
+  · have := this ↥(IntermediateField.normalClosure R K (AlgebraicClosure K)) inferInstance
+    have := Module.finrank_bot_le_finrank_of_isScalarTower
+      R K ↥(IntermediateField.normalClosure R K (AlgebraicClosure K))
+    have := Module.finrank_pos (R := R) (M := K)
+    omega
+  rcases Nat.exists_eq_two_pow_mul_odd (n := Module.finrank R K) Module.finrank_pos.ne'
+    with ⟨k, a, ha, hka⟩
+
 
 variable (K) in
 theorem algebraic_extension_classify [Algebra.IsAlgebraic R K] :

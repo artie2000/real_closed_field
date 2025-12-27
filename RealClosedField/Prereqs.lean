@@ -227,6 +227,30 @@ theorem sign_change (hdeg: Odd f.natDegree) : ∃ x y, f.eval x < 0 ∧ 0 < f.ev
 
 end poly_estimate
 
+theorem Module.finrank_dvd_finrank (F K A : Type*) [Semiring F] [Ring K] [AddCommGroup A]
+    [Module F K] [Module K A] [Module F A] [IsScalarTower F K A] [Nontrivial A]
+    [StrongRankCondition F] [StrongRankCondition K] [Module.Free F K] [Module.Free K A]
+    [Module.Finite K A] [NoZeroSMulDivisors K A] :
+    Module.finrank F K = Module.finrank F A / Module.finrank K A :=
+  Nat.eq_div_of_mul_eq_left finrank_pos.ne' (finrank_mul_finrank ..)
+
+theorem Module.finrank_dvd_finrank' (F K A : Type*) [Ring F] [Ring K] [AddCommMonoid A]
+    [Module F K] [Module K A] [Module F A] [IsScalarTower F K A] [Nontrivial K]
+    [StrongRankCondition F] [StrongRankCondition K] [Module.Free F K] [Module.Free K A]
+    [Module.Finite F K] [NoZeroSMulDivisors F K] :
+    Module.finrank K A = Module.finrank F A / Module.finrank F K :=
+  Nat.eq_div_of_mul_eq_right finrank_pos.ne' (finrank_mul_finrank ..)
+
+theorem IsGalois.exists_intermediateField_of_pow_prime_dvd
+    {K L : Type*} [Field K] [Field L] [Algebra K L] [FiniteDimensional K L] [IsGalois K L]
+    {p n : ℕ} (hp : Nat.Prime p) (hn : p ^ n ∣ Module.finrank K L):
+    ∃ M : IntermediateField K L, Module.finrank M L = p ^ n := by
+  have := Fact.mk hp
+  rw [← IsGalois.card_aut_eq_finrank K L] at hn
+  rcases Sylow.exists_subgroup_card_pow_prime p hn with ⟨H, hH⟩
+  exact ⟨IntermediateField.fixedField H,
+        by simpa [IntermediateField.finrank_fixedField_eq_card] using hH⟩
+
 theorem Sylow.exists_subgroup_le_card_pow_prime_of_card_pow_prime
     {G : Type*} [Group G] {m n p : ℕ} (hp : Nat.Prime p)
     {H : Subgroup G} (hH : Nat.card H = p ^ n) (hm : m ≤ n) :
@@ -261,29 +285,22 @@ theorem IsGalois.exists_intermediateField_ge_card_pow_prime_mul_of_card_pow_prim
     (hM : Module.finrank K M = p ^ n * a) (hm_le : n ≤ m)
     (hm : m ≤ multiplicity p (Module.finrank K L)) :
     ∃ N ≥ M, Module.finrank K N = p ^ m * a := by
-  by_cases haz : a = 0
+  by_cases! haz : a = 0
   · exact ⟨M, by simp, by simp_all⟩
-  have : p ≠ 0 := hp.ne_zero
+  have : 0 < p := hp.pos
   have : Module.finrank (↥M) L = p ^ (multiplicity p (Module.finrank K L) - n) := by
-    have mul := Module.finrank_mul_finrank K M L
-    rw [hM, ha] at mul
-    rw [← Nat.pow_sub_mul_pow _ (Nat.le_trans hm_le hm)] at mul
-    qify at mul ⊢
-    linear_combination (norm := skip) mul / (p ^ n * a)
-    field_simp
-    ring
+    have dvd := Module.finrank_dvd_finrank' K M L
+    rw [hM, ha, ← Nat.pow_sub_mul_pow _ (Nat.le_trans hm_le hm), mul_assoc,
+        Nat.mul_div_left _ (by positivity)] at dvd
+    exact dvd
   rcases IsGalois.exists_intermediateField_ge_card_pow_prime_of_card_pow_prime hp (M := M)
     (n := multiplicity p (Module.finrank K L) - n) (m := multiplicity p (Module.finrank K L) - m)
     this (by omega) with ⟨N, hN, hNrk⟩
   refine ⟨N, hN, ?_⟩
-  have mul := Module.finrank_mul_finrank K N L
-  rw [hNrk] at mul
-  nth_rw 2 [ha] at mul
-  rw [← Nat.pow_sub_mul_pow _ hm] at mul
-  qify at mul ⊢
-  linear_combination (norm := skip) mul / (p ^ (multiplicity p (Module.finrank K L) - m))
-  field_simp
-  ring
+  have dvd := Module.finrank_dvd_finrank K N L
+  rw [ha, hNrk, ← Nat.pow_sub_mul_pow _ hm, mul_assoc,
+      Nat.mul_div_right _ (by positivity)] at dvd
+  exact dvd
 
 -- `Algebra.Order.Module.Algebra`
 theorem IsOrderedModule.of_algebraMap_mono {R A : Type*} [CommSemiring R] [Preorder R]
