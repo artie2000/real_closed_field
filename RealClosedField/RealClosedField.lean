@@ -5,6 +5,7 @@ Authors: Artie Khovanov
 -/
 import RealClosedField.OrderedAlgebra
 import RealClosedField.Algebra.Order.Field.Semireal
+import Mathlib.Algebra.Polynomial.SpecificDegree
 
 open Polynomial
 
@@ -35,6 +36,7 @@ theorem isSquare_or_isSquare_neg (x : R) : IsSquare x ∨ IsSquare (-x) := by
   · exact Or.inr <| isSquare_of_nonneg (x := -x) (by linarith)
   · exact Or.inl <| isSquare_of_nonneg pos
 
+variable (R) in
 noncomputable def unique_isStrictOrderedRing :
     Unique {l : LinearOrder R // @IsStrictOrderedRing R _ (l.toPartialOrder)} where
   default := ⟨inferInstance, inferInstance⟩
@@ -155,13 +157,10 @@ theorem finite_extension_rank_le [FiniteDimensional R K] : Module.finrank R K �
     Nat.prime_two hka hM (by omega : 1 ≤ 2) (by omega) with ⟨N, hN_ge, hN⟩
   rw [ge_iff_le] at hN_ge
   have : Algebra.IsQuadraticExtension R M := ⟨by omega⟩
-
-  -- TODO : package this up and upstream it
-  let := (IntermediateField.inclusion hN_ge).toAlgebra
-  have := IsScalarTower.of_algebraMap_eq'
+  algebraize [(IntermediateField.inclusion hN_ge).toRingHom]
+  have := IsScalarTower.of_algebraMap_eq' -- TODO : find out why this instance didn't work
     (IntermediateField.inclusion hN_ge).comp_algebraMap.symm
   have := Module.Finite.of_restrictScalars_finite R M N
-
   apply finrank_neq_two_of_isAdjoinRoot_i R (isAdjoinRoot_i_of_isQuadraticExtension R M) N
   rw [Module.finrank_dvd_finrank' R M N, hM, hN]
   simp_all
@@ -179,7 +178,7 @@ theorem finite_extension_classify [FiniteDimensional R K] :
   have := finite_extension_rank_le R K
   interval_cases h : Module.finrank R K
   · simp [Module.finrank_pos.ne'] at h
-  · simp [h]
+  · simp
   · have : Algebra.IsQuadraticExtension R K := ⟨h⟩
     exact Or.inl <| isAdjoinRoot_i_of_isQuadraticExtension R K
 
@@ -206,7 +205,7 @@ theorem isAdjoinRoot_i_of_isAlgClosure [IsAlgClosure R K] :
   rcases finite_extension_classify R K with (sq | triv)
   · exact sq
   · have : IsAlgClosed K := ‹IsAlgClosure _ K›.isAlgClosed
-    rw [← nonempty_algEquiv_iff_finrank_eq_one] at triv
+    rw [← Module.nonempty_algEquiv_iff_finrank_eq_one] at triv
     have := IsSquare.map triv.some.symm (IsAlgClosed.isSquare (-1 : K))
     simp_all
 
@@ -221,8 +220,7 @@ theorem isAlgClosure_iff_isAdjoinRoot_i :
   mpr h := {
     isAlgClosed := .of_finiteDimensional_imp_finrank_eq_one K fun L _ _ _ ↦ by
       have := h.finite
-      letI i := Algebra.compHom L (algebraMap R K)
-      have := IsScalarTower.of_algebraMap_eq' (Algebra.compHom_algebraMap_eq L (algebraMap R K)) -- TODO : add as instance?
+      algebraize [(algebraMap K L).comp (algebraMap R K)]
       have := Module.Finite.trans (R := R) K L
       exact rank_eq_one_of_isAdjoinRoot_i R h L
     isAlgebraic := have := h.finite; inferInstance
@@ -240,18 +238,67 @@ theorem isAlgClosure_of_finrank_ne_one [Algebra.IsAlgebraic R K] (hK : Module.fi
 end ext
 
 theorem irred_poly_classify {f : R[X]} (hf : f.Monic) :
-    Irreducible f ↔ f.natDegree = 1 ∨ (∃ a b : R, f = (X - C a) ^ 2 - C b ^ 2) where
+    Irreducible f ↔ f.natDegree = 1 ∨ (∃ a b : R, b ≠ 0 ∧ f = (X - C a) ^ 2 + C b ^ 2) where
   mp h := by
-    have := Fact.mk f
-    sorry
+    have := Fact.mk h
+    have := hf.finite_adjoinRoot
+    rcases finite_extension_classify R (AdjoinRoot f) with (sq | triv)
+    · apply Or.inr
+      have iu : IsIntegralGenSqrt _ (-1 : R) := ⟨by simpa using sq.pe⟩
+      set r := sq.root with hr
+      have eq_root := iu.self_eq_coeff (AdjoinRoot.root f)
+      refine ⟨iu.coeff (AdjoinRoot.root f) 0, iu.coeff (AdjoinRoot.root f) 1, fun hc ↦ ?_, ?_⟩
+      · simp [hc] at eq_root
+        sorry -- contradiction at eq_root
+      · suffices AdjoinRoot.mk f ((X - C (iu.coeff (AdjoinRoot.root f) 0)) ^ 2 + C (iu.coeff (AdjoinRoot.root f) 1) ^ 2) = 0 by
+          rw [AdjoinRoot.mk_eq_zero] at this
+          refine Polynomial.eq_of_dvd_of_natDegree_le_of_leadingCoeff this ?_ (by simp [hf]; sorry)
+          sorry
+        simp [← AdjoinRoot.algebraMap_eq]
+        nth_rw 1 [eq_root]
+        ring_nf
+        simp [iu.sq_root]
+    · simp_all [(AdjoinRoot.powerBasis hf.ne_zero).finrank] -- TODO : update to my notation
   mpr h := by
     rcases h with (lin | quad)
-    · sorry
-    · sorry
+    · exact Polynomial.irreducible_of_natDegree_eq_one lin
+    · rcases quad with ⟨a, b, hb, rfl⟩
+      have h_deg : ((X - C a) ^ 2 + C b ^ 2).natDegree = 2 := by sorry
+      rw [hf.irreducible_iff_roots_eq_zero_of_degree_le_three (by omega) (by omega),
+          Polynomial.roots_eq_zero_iff_isRoot_eq_bot hf.ne_zero]
+      ext r
+      suffices (r - a) ^ 2 + b ^ 2 ≠ 0 by simp [this]
+      intro hc
+      have : b ^ 2 = 0 := by linarith [sq_nonneg b, sq_nonneg (r - a)]
+      simp_all
 
 theorem intermediate_value_property {f : R[X]} {x y : R}
     (hle : x ≤ y) (hx : 0 ≤ f.eval x) (hy : f.eval y ≤ 0) :
-  ∃ z ∈ Set.Icc x y, f.eval z = 0 := by sorry
+    ∃ z ∈ Set.Icc x y, f.eval z = 0 := by
+  induction hdeg : f.natDegree using Nat.strong_induction_on generalizing f with
+  | h n ih =>
+    subst hdeg
+    by_cases! hz : f.natDegree = 0
+    · rw [Polynomial.eq_C_of_natDegree_eq_zero hz] at hx hy ⊢
+      exact ⟨x, by simp_all; order⟩
+    have hpos := Nat.pos_of_ne_zero hz
+    rcases Polynomial.exists_monic_irreducible_factor f (f.not_isUnit_of_natDegree_pos hpos)
+      with ⟨g, hg_m, hg_i, hg_d⟩
+    rcases (irred_poly_classify hg_m).mp hg_i with (lin | quad)
+    · have := g.roots_degree_eq_one
+        (by simpa [← Polynomial.degree_eq_iff_natDegree_eq_of_pos (by simp : 0 < 1)] using lin)
+      use -((f.coeff 1)⁻¹ * f.coeff 0) -- root of g
+      sorry -- casework
+    · rcases quad with ⟨a, b, hb, g_eq⟩
+      have : ∀ z, 0 < g.eval z := fun z ↦ by simp [g_eq]; positivity
+      -- eval (f /ₘ g) = eval f / eval g
+      -- TODO : combine cases
+      rcases ih (f.natDegree - g.natDegree)
+        (by simp [hg_m.natDegree_pos_of_not_isUnit hg_i.not_isUnit, hpos]) (f := f /ₘ g)
+        (by sorry) (by sorry) (f.natDegree_divByMonic hg_m) with ⟨z, hz_m, hz_e⟩
+      refine ⟨z, hz_m, Polynomial.eval_eq_zero_of_dvd_of_eval_eq_zero ?_ hz_e⟩
+      -- TODO : make into separate lemma
+      simpa [Polynomial.divByMonic_eq_div f hg_m] using EuclideanDomain.div_dvd_of_dvd hg_d
 
 end properties
 
@@ -288,28 +335,38 @@ theorem of_isAdjoinRoot_i_or_finrank_eq_one
       grind
     · exact hf_deg fr
 
+theorem of_isAdjoinRoot_i_algebraicClosure
+    (h : IsAdjoinRootMonic' (AlgebraicClosure R) (X ^ 2 + 1 : R[X])) : IsRealClosed R :=
+  of_isAdjoinRoot_i_or_finrank_eq_one fun K _ _ _ ↦ by
+    rcases IsAlgClosed.nonempty_algEquiv_or_of_finrank_eq_two K
+      (by simpa using h.finrank_eq_natDegree) with (hK | hK)
+    · rw [Nonempty.congr AlgEquiv.symm AlgEquiv.symm,
+          Module.nonempty_algEquiv_iff_finrank_eq_one] at hK
+      exact Or.inr hK
+    · exact Or.inl (h.map hK.some.symm)
+
 theorem of_intermediateValueProperty
-    (h : ∀ (f : R[X]) (x y : R), x ≤ y → 0 ≤ f.eval x → f.eval y ≤ 0 →
+    (h : ∀ {f : R[X]} {x y : R}, x ≤ y → 0 ≤ f.eval x → f.eval y ≤ 0 →
        ∃ z ∈ Set.Icc x y, f.eval z = 0) :
     IsRealClosed R where
   isSquare_of_nonneg {x} hx := by
     have : x ≤ (x + 1) ^ 2 := by
       suffices 0 ≤ 1 + x + x ^ 2 by linear_combination this
       positivity
-    rcases h (- X ^ 2 + C x) 0 (x + 1) (by linarith) (by simpa using hx) (by simpa using this)
-      with ⟨z, _, hz⟩
+    rcases h (f := - X ^ 2 + C x) (x := 0) (y := x + 1)
+      (by linarith) (by simpa using hx) (by simpa using this) with ⟨z, _, hz⟩
     exact ⟨z, by linear_combination (by simpa using hz : _ = (0 : R))⟩
   exists_isRoot_of_odd_natDegree {f} hf := by
     rcases sign_change hf with ⟨x, y, hx, hy⟩
     wlog hxy : y ≤ x
     · simpa using this h (f := -f) (by simpa using hf) y x
         (by simpa using hy) (by simpa using hx) (by order)
-    rcases h f _ _ hxy (by order) (by order) with ⟨z, _, hz⟩
+    rcases h hxy (by order) (by order) with ⟨z, _, hz⟩
     exact ⟨z, hz⟩
 
 theorem of_maximal_isOrderedAlgebra
-    (h : ∀ K : Type u, [Field K] → [LinearOrder K] → [IsOrderedRing K] → [Algebra R K] →
-           [FiniteDimensional R K] → [IsOrderedModule R K] → Module.finrank R K = 1) :
+    (h : ∀ K : Type u, [Field K] → [LinearOrder K] → [IsStrictOrderedRing K] → [Algebra R K] →
+           [Algebra.IsAlgebraic R K] → [IsOrderedModule R K] → Module.finrank R K = 1) :
     IsRealClosed R where
   isSquare_of_nonneg {x} hx := by
     by_contra hx₂
@@ -330,4 +387,47 @@ theorem of_maximal_isOrderedAlgebra
     rcases odd_deg_ordered hf_odd with ⟨_, _, _⟩
     exact hf_deg (h (AdjoinRoot f))
 
+theorem TFAE :
+    [IsRealClosed R,
+     IsAdjoinRootMonic' (AlgebraicClosure R) (X ^ 2 + 1 : R[X]),
+    (∀ K : Type u, [Field K] → [LinearOrder K] → [IsStrictOrderedRing K] → [Algebra R K] →
+      [Algebra.IsAlgebraic R K] → [IsOrderedModule R K] → Module.finrank R K = 1),
+    (∀ {f : R[X]} {x y : R}, x ≤ y → 0 ≤ f.eval x → f.eval y ≤ 0 →
+      ∃ z ∈ Set.Icc x y, f.eval z = 0)].TFAE := by
+  tfae_have 1 → 2 := fun _ ↦ isAdjoinRoot_i_of_isQuadraticExtension R (AlgebraicClosure R)
+  tfae_have 1 → 3 := fun _ K ↦ maximal_isOrderedAlgebra R K
+  tfae_have 1 → 4 := fun _ ↦ intermediate_value_property
+  tfae_have 2 → 1 := of_isAdjoinRoot_i_algebraicClosure
+  tfae_have 3 → 1 := of_maximal_isOrderedAlgebra
+  tfae_have 4 → 1 := of_intermediateValueProperty
+  tfae_finish
+
 end IsRealClosed
+
+theorem very_weak_Artin_Schreier {R : Type*} [Field R]
+    (hR : IsAdjoinRootMonic' (AlgebraicClosure R) (X ^ 2 + 1 : R[X])) :
+    ∃! l : LinearOrder R, ∃ _ : IsStrictOrderedRing R, IsRealClosed R := by
+  suffices IsSemireal R by
+    rw [← Field.exists_isStrictOrderedRing_iff_isSemireal] at this
+    rcases this with ⟨l, hl⟩
+    have : IsRealClosed R := IsRealClosed.of_isAdjoinRoot_i_algebraicClosure hR
+    have uniq := IsRealClosed.unique_isStrictOrderedRing R
+    refine ⟨l, ⟨‹_›, ‹_›⟩, fun l' ⟨hl'₁, hl'₂⟩ ↦ ?_⟩
+    grind [uniq.eq_default ⟨l, hl⟩, uniq.eq_default ⟨l', hl'₁⟩]
+  rw [isSemireal_iff_not_isSumSq_neg_one]
+  intro hc
+  have := hR.irreducible
+  rw [show X ^ 2 + (1 : R[X]) = X ^ 2 - (C (-1)) by simp,
+      Polynomial.X_sq_sub_C_irreducible_iff_not_isSquare] at this
+  exact this <| isSumSq_of_isSquare hR IsAlgClosed.isSquare (-1 : R) hc
+
+theorem weak_Artin_Schreier {R : Type*} [Field R] (hR_char : ringChar R ≠ 2)
+    (hR : Module.finrank R (AlgebraicClosure R) = 2) :
+    ∃! l : LinearOrder R, ∃ _ : IsStrictOrderedRing R, IsRealClosed R :=
+  very_weak_Artin_Schreier <| by
+  sorry
+
+theorem Artin_Schreier {R : Type*} [Field R]
+    (hR : FiniteDimensional R (AlgebraicClosure R)) :
+    IsAlgClosed R ∨ ∃! l : LinearOrder R, ∃ _ : IsStrictOrderedRing R, IsRealClosed R :=
+  sorry

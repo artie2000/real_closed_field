@@ -114,19 +114,19 @@ theorem Field.exists_isOrderedAlgebra_of_projection
   simpa using not_le_of_gt (hπ 1 (by simp)) (by simpa using ih _ h)
 
 open Polynomial algebraMap in
-theorem isSumSq_of_isSquare {K : Type*} [Field K]
-    (h : ∀ x : AdjoinRoot (X ^ 2 + 1 : K[X]), IsSquare x)
-    (a : K) (ha : IsSumSq a) : IsSquare a := by
+theorem isSumSq_of_isSquare {K L : Type*} [Field K] [Field L] [Algebra K L]
+    (hL : IsAdjoinRootMonic' L (X ^ 2 + 1 : K[X]))
+    (h : ∀ x : L, IsSquare x) (a : K) (ha : IsSumSq a) : IsSquare a := by
   rw [← AddSubmonoid.mem_sumSq, ← AddSubmonoid.closure_isSquare] at ha
-  have hL : IsIntegralGenSqrt _ (-1 : K) :=
-    ⟨by simpa using AdjoinRoot.isIntegralUniqueGen (by simp [Monic])⟩
+  let r := hL.root
+  have hL : IsIntegralGenSqrt r (-1 : K) := ⟨by simpa using hL.pe⟩
   induction ha using AddSubmonoid.closure_induction with
   | zero => simp
   | mem a ha => exact ha
   | add _ _ _ _ iha ihb =>
       rcases iha with ⟨a, rfl⟩
       rcases ihb with ⟨b, rfl⟩
-      rcases h (a + b * (AdjoinRoot.root _ : AdjoinRoot (X ^ 2 + 1 : K[X]))) with ⟨x, hx⟩
+      rcases h (algebraMap _ _ a + algebraMap _ _ b * r) with ⟨x, hx⟩
       rw [hL.ext_elem_iff] at hx
       use hL.coeff x 0 ^ 2 + hL.coeff x 1 ^ 2
       rw [(by simpa using hx 0 : a = _), (by simpa using hx 1 : b = _)]

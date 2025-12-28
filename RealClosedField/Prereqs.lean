@@ -56,6 +56,11 @@ theorem Polynomial.natDegree_normalize {R : Type u} [Field R] {p : Polynomial R}
     (normalize p).natDegree = p.natDegree :=
   natDegree_eq_of_degree_eq degree_normalize
 
+theorem Polynomial.irreducible_of_natDegree_eq_one {R : Type*} [Field R] {p : Polynomial R}
+    (hp1 : p.natDegree = 1) : Irreducible p := by
+  rw [← Polynomial.degree_eq_iff_natDegree_eq_of_pos (by simp)] at hp1
+  exact irreducible_of_degree_eq_one hp1
+
 open scoped Polynomial in
 theorem Polynomial.exists_odd_natDegree_monic_irreducible_factor
     {F : Type*} [Field F] {f : F[X]} (hf : Odd f.natDegree) :
@@ -81,9 +86,8 @@ theorem Polynomial.has_root_of_odd_natDegree_imp_not_irreducible {F : Type*} [Fi
     have : f ≠ 0 := fun _ ↦ by simp_all
     by_cases hdeg1 : f.natDegree = 1
     · simp_rw [← Polynomial.mem_roots ‹f ≠ 0›]
-      rw [Polynomial.eq_X_add_C_of_degree_eq_one
-            (show f.degree = 1 by simpa [Polynomial.degree_eq_natDegree ‹f ≠ 0›] using hdeg1),
-          Polynomial.roots_C_mul_X_add_C _ (by simp [‹f ≠ 0›])]
+      rw [Polynomial.roots_degree_eq_one
+        (by simpa [← Polynomial.degree_eq_iff_natDegree_eq_of_pos (by simp : 0 < 1)] using hdeg1)]
       simp
     · rcases (by simpa [h _ hf hdeg1] using
           irreducible_or_factor (Polynomial.not_isUnit_of_natDegree_pos f (Odd.pos hf))) with
@@ -319,7 +323,7 @@ theorem IsOrderedModule.of_algebraMap_mono {R A : Type*} [CommSemiring R] [Preor
   smul_le_smul_of_nonneg_right _ ha _ _ hb := by
     simpa [Algebra.smul_def] using mul_le_mul_of_nonneg_right (h hb) ha
 
-theorem nonempty_algEquiv_iff_finrank_eq_one
+theorem Module.nonempty_algEquiv_iff_finrank_eq_one
     {R S : Type*} [CommSemiring R] [StrongRankCondition R] [Semiring S] [Algebra R S]
     [Module.Free R S] : Nonempty (R ≃ₐ[R] S) ↔ Module.finrank R S = 1 where
   mp h := by
@@ -339,7 +343,7 @@ theorem IsAlgClosed.of_finiteDimensional_imp_finrank_eq_one (k : Type u) [Field 
     have := Fact.mk f_irr
     have := f_monic.finite_adjoinRoot
     have := H (AdjoinRoot f)
-    rw [← nonempty_algEquiv_iff_finrank_eq_one] at this
+    rw [← Module.nonempty_algEquiv_iff_finrank_eq_one] at this
     use this.some.symm (AdjoinRoot.root f)
     rw [← Polynomial.coe_aeval_eq_eval, Polynomial.aeval_algHom_apply]
     simp
