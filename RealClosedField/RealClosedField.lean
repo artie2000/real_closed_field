@@ -52,6 +52,20 @@ instance : Fact (Irreducible (X ^ 2 + 1 : R[X])) := Fact.mk <| by
     simpa
   simp
 
+theorem exists_eq_pow_of_odd (x : R) {n : ℕ} (hn : Odd n) : ∃ r, x = r ^ n := by
+  rcases exists_isRoot_of_odd_natDegree (f := X ^ n - C x) (by simp [hn]) with ⟨r, hr⟩
+  exact ⟨r, by linear_combination - (by simpa using hr : r ^ n - x = 0)⟩
+
+theorem exists_eq_pow_of_nonneg {x : R} (hx : x ≥ 0) {n : ℕ} (hn : n > 0) : ∃ r, x = r ^ n := by
+  induction n using Nat.strong_induction_on generalizing x with
+  | h n ih =>
+    rcases Nat.even_or_odd n with (even | odd)
+    · rcases even with ⟨m, hm⟩
+      rcases isSquare_of_nonneg hx with ⟨s, hs⟩
+      rcases ih m (by omega) (x := |s|) (by simp) (by omega) with ⟨r, hr⟩
+      exact ⟨r, by simp [hm, pow_add, ← hr, hs]⟩
+    · exact exists_eq_pow_of_odd x odd
+
 /-! # Classification of algebraic extensions of a real closed field -/
 
 section ext
