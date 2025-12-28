@@ -66,13 +66,26 @@ theorem Polynomial.natDegree_normalize {R : Type u} [Field R] {p : Polynomial R}
     (normalize p).natDegree = p.natDegree :=
   natDegree_eq_of_degree_eq degree_normalize
 
-@[simp]
-theorem Polynomial.natDegree_X_sub_C_sq_add_C_sq {R : Type u} [Ring R] (a b : R) :
-    ((X - C a) ^ 2 + C b ^ 2).natDegree = 2 := by sorry
+open Polynomial in
+example {R : Type u} [CommRing R] (a b : R) :
+    ((X - C a) ^ 2 + C b ^ 2) = (X ^ 2 + C b ^ 2).comp (X - C a) := by
+  simp
 
 @[simp]
-theorem Polynomial.monic_X_sub_C_sq_add_C_sq {R : Type u} [Ring R] (a b : R) :
-    ((X - C a) ^ 2 + C b ^ 2).Monic := by sorry
+theorem Polynomial.natDegree_X_sub_C_sq_add_C_sq
+    {R : Type u} [CommRing R] [NoZeroDivisors R] [Nontrivial R] (a b : R) :
+    ((X - C a) ^ 2 + C b ^ 2).natDegree = 2 := by
+  rw [show ((X - C a) ^ 2 + C b ^ 2) = (X ^ 2 + C b ^ 2).comp (X - C a) by simp,
+      Polynomial.natDegree_comp]
+  simp [← map_pow]
+
+@[simp]
+theorem Polynomial.monic_X_sub_C_sq_add_C_sq
+    {R : Type u} [CommRing R] [NoZeroDivisors R] [Nontrivial R] (a b : R) :
+    ((X - C a) ^ 2 + C b ^ 2).Monic := by
+  rw [show ((X - C a) ^ 2 + C b ^ 2) = (X ^ 2 + C b ^ 2).comp (X - C a) by simp,
+      Monic, Polynomial.leadingCoeff_comp (by simp)]
+  simp [← map_pow]
 
 open scoped Polynomial in
 theorem Polynomial.exists_odd_natDegree_monic_irreducible_factor

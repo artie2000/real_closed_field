@@ -414,14 +414,17 @@ theorem TFAE :
      IsAdjoinRootMonic' (AlgebraicClosure R) (X ^ 2 + 1 : R[X]),
     (∀ K : Type u, [Field K] → [LinearOrder K] → [IsStrictOrderedRing K] → [Algebra R K] →
       [Algebra.IsAlgebraic R K] → [IsOrderedModule R K] → Module.finrank R K = 1),
+    (∀ K : Type u, [Field K] → [LinearOrder K] → [IsStrictOrderedRing K] → [Algebra R K] →
+      [Algebra.IsAlgebraic R K] → Module.finrank R K = 1),
     (∀ {f : R[X]} {x y : R}, x ≤ y → 0 ≤ f.eval x → f.eval y ≤ 0 →
       ∃ z ∈ Set.Icc x y, f.eval z = 0)].TFAE := by
   tfae_have 1 → 2 := fun _ ↦ isAdjoinRoot_i_of_isQuadraticExtension R (AlgebraicClosure R)
-  tfae_have 1 → 3 := fun _ K ↦ maximal_isOrderedField R K
-  tfae_have 1 → 4 := fun _ ↦ intermediate_value_property
+  tfae_have 1 → 4 := fun _ K ↦ maximal_isOrderedField R K
+  tfae_have 1 → 5 := fun _ ↦ intermediate_value_property
   tfae_have 2 → 1 := of_isAdjoinRoot_i_algebraicClosure
   tfae_have 3 → 1 := of_maximal_isOrderedAlgebra
-  tfae_have 4 → 1 := of_intermediateValueProperty
+  tfae_have 5 → 1 := of_intermediateValueProperty
+  tfae_have 4 → 3 := fun h K ↦ by exact h K
   tfae_finish
 
 end IsRealClosed
@@ -455,19 +458,18 @@ theorem IsSemireal.TFAE_RCF {F : Type u} [Field F] :
     have := IsSemireal.of_isAdjoinRoot_i_algebraicClosure h
     refine ⟨this, ?_⟩
     letI := IsSemireal.toLinearOrder F
-    -- we need the strong version of `IsRealClosed.TFAE [2]`
-    have : IsRealClosed _ := ((IsRealClosed.TFAE F).out 1 0).mp h
     intro K
     intros
     letI := IsSemireal.toLinearOrder K
-    exact IsRealClosed.maximal_isOrderedField F K
+    have := ((IsRealClosed.TFAE F).out 1 3).mp h
+    exact this K
   tfae_have 3 → 1 := fun ⟨h₁, h₂⟩ ↦ by
     refine ⟨h₁, ?_⟩
     letI := IsSemireal.toLinearOrder F
     suffices IsRealClosed F from
       ⟨IsRealClosed.isSquare_or_isSquare_neg,
       IsRealClosed.exists_isRoot_of_odd_natDegree⟩
-    refine ((IsRealClosed.TFAE F).out 2 0).mp (by exact fun K ↦ h₂ K)
+    exact ((IsRealClosed.TFAE F).out 2 0).mp (by exact fun K ↦ h₂ K)
   tfae_finish
 
 theorem very_weak_Artin_Schreier {R : Type*} [Field R]
