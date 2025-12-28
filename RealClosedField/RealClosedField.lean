@@ -242,30 +242,35 @@ theorem irred_poly_classify {f : R[X]} (hf : f.Monic) :
   mp h := by
     have := Fact.mk h
     have := hf.finite_adjoinRoot
+    have finrk : Module.finrank R (AdjoinRoot f) = f.natDegree := by simpa using
+      (AdjoinRoot.powerBasis hf.ne_zero).finrank -- TODO : add this lemma in my notation
     rcases finite_extension_classify R (AdjoinRoot f) with (sq | triv)
     · apply Or.inr
       have iu : IsIntegralGenSqrt _ (-1 : R) := ⟨by simpa using sq.pe⟩
       set r := sq.root with hr
       have eq_root := iu.self_eq_coeff (AdjoinRoot.root f)
       refine ⟨iu.coeff (AdjoinRoot.root f) 0, iu.coeff (AdjoinRoot.root f) 1, fun hc ↦ ?_, ?_⟩
-      · simp [hc] at eq_root
-        sorry -- contradiction at eq_root
+      · -- TODO : redo using `aeval`
+        simp only [AdjoinRoot.algebraMap_eq, hc, map_zero, zero_mul, add_zero] at eq_root
+        nth_rw 1 [← AdjoinRoot.mk_X, ← AdjoinRoot.mk_C, AdjoinRoot.mk_eq_mk] at eq_root
+        have := Polynomial.natDegree_le_of_dvd eq_root (by apply_fun natDegree; simp)
+        simp [iu.finrank, ← finrk] at this
       · suffices AdjoinRoot.mk f ((X - C (iu.coeff (AdjoinRoot.root f) 0)) ^ 2 +
                                  C (iu.coeff (AdjoinRoot.root f) 1) ^ 2) = 0 by
           rw [AdjoinRoot.mk_eq_zero] at this
-          refine Polynomial.eq_of_dvd_of_natDegree_le_of_leadingCoeff this ?_ (by simp [hf]; sorry)
-          sorry
+          exact Polynomial.eq_of_dvd_of_natDegree_le_of_leadingCoeff this
+            (by simp [iu.finrank, ← finrk]) (by simp [hf])
         simp [← AdjoinRoot.algebraMap_eq]
         nth_rw 1 [eq_root]
         ring_nf
         simp [iu.sq_root]
-    · simp_all [(AdjoinRoot.powerBasis hf.ne_zero).finrank] -- TODO : update to my notation
+    · simp_all
   mpr h := by
     rcases h with (lin | quad)
     · exact Polynomial.irreducible_of_degree_eq_one
         (by simpa [Polynomial.natDegree_eq_one_iff_degree_eq_one] using lin)
     · rcases quad with ⟨a, b, hb, rfl⟩
-      have h_deg : ((X - C a) ^ 2 + C b ^ 2).natDegree = 2 := by sorry
+      have h_deg : ((X - C a) ^ 2 + C b ^ 2).natDegree = 2 := by simp
       rw [hf.irreducible_iff_roots_eq_zero_of_degree_le_three (by omega) (by omega),
           Polynomial.roots_eq_zero_iff_isRoot_eq_bot hf.ne_zero]
       ext r
