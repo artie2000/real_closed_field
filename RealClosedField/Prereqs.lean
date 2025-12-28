@@ -41,6 +41,16 @@ theorem Ideal.Quotient.irreducible_iff_isField
   mp := Ideal.Quotient.isField_of_irreducible
   mpr := Ideal.Quotient.irreducible_of_isField hm
 
+theorem Polynomial.natDegree_eq_one_iff_degree_eq_one
+    {R : Type*} [Semiring R] {p : Polynomial R} :
+    p.degree = 1 ↔ p.natDegree = 1 :=
+  degree_eq_iff_natDegree_eq_of_pos (Nat.zero_lt_one)
+
+theorem Polynomial.natDegree_eq_iff_degree_eq_of_atLeastTwo
+    {R : Type*} [Semiring R] {p : Polynomial R} {n : ℕ} [Nat.AtLeastTwo n] :
+    p.degree = n ↔ p.natDegree = n :=
+  degree_eq_iff_natDegree_eq_of_pos (Nat.pos_of_neZero n)
+
 @[simp]
 theorem Polynomial.natDegree_add_one {R : Type u} [Semiring R] {p : Polynomial R} :
     (p + 1).natDegree = p.natDegree := by
@@ -55,11 +65,6 @@ theorem Polynomial.natDegree_one_add {R : Type u} [Semiring R] {p : Polynomial R
 theorem Polynomial.natDegree_normalize {R : Type u} [Field R] {p : Polynomial R} [DecidableEq R] :
     (normalize p).natDegree = p.natDegree :=
   natDegree_eq_of_degree_eq degree_normalize
-
-theorem Polynomial.irreducible_of_natDegree_eq_one {R : Type*} [Field R] {p : Polynomial R}
-    (hp1 : p.natDegree = 1) : Irreducible p := by
-  rw [← Polynomial.degree_eq_iff_natDegree_eq_of_pos (by simp)] at hp1
-  exact irreducible_of_degree_eq_one hp1
 
 open scoped Polynomial in
 theorem Polynomial.exists_odd_natDegree_monic_irreducible_factor
@@ -87,7 +92,7 @@ theorem Polynomial.has_root_of_odd_natDegree_imp_not_irreducible {F : Type*} [Fi
     by_cases hdeg1 : f.natDegree = 1
     · simp_rw [← Polynomial.mem_roots ‹f ≠ 0›]
       rw [Polynomial.roots_degree_eq_one
-        (by simpa [← Polynomial.degree_eq_iff_natDegree_eq_of_pos (by simp : 0 < 1)] using hdeg1)]
+        (by simpa [Polynomial.natDegree_eq_one_iff_degree_eq_one] using hdeg1)]
       simp
     · rcases (by simpa [h _ hf hdeg1] using
           irreducible_or_factor (Polynomial.not_isUnit_of_natDegree_pos f (Odd.pos hf))) with

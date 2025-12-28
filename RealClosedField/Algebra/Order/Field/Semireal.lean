@@ -20,6 +20,16 @@ theorem Field.exists_isStrictOrderedRing_iff_isSemireal :
             letI inst := (choose_spec exO).2
             ⟨choose exO, inferInstance⟩⟩
 
+variable (F) in
+noncomputable def IsSemireal.toLinearOrder [IsSemireal F] : LinearOrder F :=
+  (Field.exists_isStrictOrderedRing_iff_isSemireal.mpr inferInstance).choose
+
+variable (F) in
+instance IsSemireal.toIsStrictOrderedRing [IsSemireal F] :
+    letI := IsSemireal.toLinearOrder F
+    IsStrictOrderedRing F :=
+  (Field.exists_isStrictOrderedRing_iff_isSemireal.mpr inferInstance).choose_spec
+
 theorem IsSemireal.existsUnique_isStrictOrderedRing [IsSemireal F]
     (h : ∀ x : F, IsSumSq x ∨ IsSumSq (-x)) :
     ∃! _ : LinearOrder F, IsStrictOrderedRing F := by

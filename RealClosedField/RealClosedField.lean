@@ -158,7 +158,7 @@ theorem finite_extension_rank_le [FiniteDimensional R K] : Module.finrank R K �
   rw [ge_iff_le] at hN_ge
   have : Algebra.IsQuadraticExtension R M := ⟨by omega⟩
   algebraize [(IntermediateField.inclusion hN_ge).toRingHom]
-  have := IsScalarTower.of_algebraMap_eq' -- TODO : find out why this instance didn't work
+  have := IsScalarTower.of_algebraMap_eq'
     (IntermediateField.inclusion hN_ge).comp_algebraMap.symm
   have := Module.Finite.of_restrictScalars_finite R M N
   apply finrank_neq_two_of_isAdjoinRoot_i R (isAdjoinRoot_i_of_isQuadraticExtension R M) N
@@ -191,8 +191,8 @@ instance [Algebra.IsAlgebraic R K] : FiniteDimensional R K := by
   · simp_all
 
 variable (K) in
-theorem maximal_isOrderedAlgebra [LinearOrder K] [IsOrderedRing K] [IsOrderedModule R K]
-    [Algebra.IsAlgebraic R K] : Module.finrank R K = 1 := by
+theorem maximal_isOrderedField [LinearOrder K] [IsOrderedRing K] [Algebra.IsAlgebraic R K] :
+    Module.finrank R K = 1 := by
   rcases finite_extension_classify R K with (sq | triv)
   · have sqrt : IsIntegralGenSqrt sq.root (-1 : R) := ⟨by simpa using sq.pe⟩
     absurd (show ¬ IsSquare (-1 : K) by simp)
@@ -261,7 +261,8 @@ theorem irred_poly_classify {f : R[X]} (hf : f.Monic) :
     · simp_all [(AdjoinRoot.powerBasis hf.ne_zero).finrank] -- TODO : update to my notation
   mpr h := by
     rcases h with (lin | quad)
-    · exact Polynomial.irreducible_of_natDegree_eq_one lin
+    · exact Polynomial.irreducible_of_degree_eq_one
+        (by simpa [Polynomial.natDegree_eq_one_iff_degree_eq_one] using lin)
     · rcases quad with ⟨a, b, hb, rfl⟩
       have h_deg : ((X - C a) ^ 2 + C b ^ 2).natDegree = 2 := by sorry
       rw [hf.irreducible_iff_roots_eq_zero_of_degree_le_three (by omega) (by omega),
@@ -387,6 +388,7 @@ theorem of_maximal_isOrderedAlgebra
     rcases odd_deg_ordered hf_odd with ⟨_, _, _⟩
     exact hf_deg (h (AdjoinRoot f))
 
+variable (R) in
 theorem TFAE :
     [IsRealClosed R,
      IsAdjoinRootMonic' (AlgebraicClosure R) (X ^ 2 + 1 : R[X]),
@@ -395,7 +397,7 @@ theorem TFAE :
     (∀ {f : R[X]} {x y : R}, x ≤ y → 0 ≤ f.eval x → f.eval y ≤ 0 →
       ∃ z ∈ Set.Icc x y, f.eval z = 0)].TFAE := by
   tfae_have 1 → 2 := fun _ ↦ isAdjoinRoot_i_of_isQuadraticExtension R (AlgebraicClosure R)
-  tfae_have 1 → 3 := fun _ K ↦ maximal_isOrderedAlgebra R K
+  tfae_have 1 → 3 := fun _ K ↦ maximal_isOrderedField R K
   tfae_have 1 → 4 := fun _ ↦ intermediate_value_property
   tfae_have 2 → 1 := of_isAdjoinRoot_i_algebraicClosure
   tfae_have 3 → 1 := of_maximal_isOrderedAlgebra
@@ -404,22 +406,59 @@ theorem TFAE :
 
 end IsRealClosed
 
-theorem very_weak_Artin_Schreier {R : Type*} [Field R]
-    (hR : IsAdjoinRootMonic' (AlgebraicClosure R) (X ^ 2 + 1 : R[X])) :
-    ∃! l : LinearOrder R, ∃ _ : IsStrictOrderedRing R, IsRealClosed R := by
-  suffices IsSemireal R by
-    rw [← Field.exists_isStrictOrderedRing_iff_isSemireal] at this
-    rcases this with ⟨l, hl⟩
-    have : IsRealClosed R := IsRealClosed.of_isAdjoinRoot_i_algebraicClosure hR
-    have uniq := IsRealClosed.unique_isStrictOrderedRing R
-    refine ⟨l, ⟨‹_›, ‹_›⟩, fun l' ⟨hl'₁, hl'₂⟩ ↦ ?_⟩
-    grind [uniq.eq_default ⟨l, hl⟩, uniq.eq_default ⟨l', hl'₁⟩]
+-- TODO : move to right place
+theorem IsSemireal.of_isAdjoinRoot_i_algebraicClosure {R : Type*} [Field R]
+    (hR : IsAdjoinRootMonic' (AlgebraicClosure R) (X ^ 2 + 1 : R[X])) : IsSemireal R := by
   rw [isSemireal_iff_not_isSumSq_neg_one]
   intro hc
   have := hR.irreducible
   rw [show X ^ 2 + (1 : R[X]) = X ^ 2 - (C (-1)) by simp,
       Polynomial.X_sq_sub_C_irreducible_iff_not_isSquare] at this
   exact this <| isSumSq_of_isSquare hR IsAlgClosed.isSquare (-1 : R) hc
+
+theorem IsSemireal.TFAE_RCF {F : Type u} [Field F] :
+    [IsSemireal F ∧ (∀ x : F, IsSquare x ∨ IsSquare (-x)) ∧
+     ∀ {f : F[X]}, Odd f.natDegree → ∃ x, f.IsRoot x,
+     IsAdjoinRootMonic' (AlgebraicClosure F) (X ^ 2 + 1 : F[X]),
+     IsSemireal F ∧
+     (∀ K : Type u, [Field K] → [IsSemireal K] → [Algebra F K] → [Algebra.IsAlgebraic F K] →
+      Module.finrank F K = 1)].TFAE := by
+  tfae_have 1 → 2 := fun ⟨h₁, h₂, h₃⟩ ↦ by
+    letI := IsSemireal.toLinearOrder F
+    apply ((IsRealClosed.TFAE F).out 0 1).mp
+    refine { isSquare_of_nonneg := fun {x} hx ↦ ?_, exists_isRoot_of_odd_natDegree := h₃ }
+    rcases h₂ x with (triv | contr)
+    · exact triv
+    · have : x = 0 := by linarith [IsSquare.nonneg contr]
+      simp_all
+  tfae_have 2 → 3 := fun h ↦ by
+    have := IsSemireal.of_isAdjoinRoot_i_algebraicClosure h
+    refine ⟨this, ?_⟩
+    letI := IsSemireal.toLinearOrder F
+    have : IsRealClosed _ := ((IsRealClosed.TFAE F).out 1 0).mp h
+    intro K
+    intros
+    letI := IsSemireal.toLinearOrder K
+    exact IsRealClosed.maximal_isOrderedField F K
+  tfae_have 3 → 1 := fun ⟨h₁, h₂⟩ ↦ by
+    refine ⟨h₁, ?_⟩
+    letI := IsSemireal.toLinearOrder F
+    suffices IsRealClosed F from
+      ⟨IsRealClosed.isSquare_or_isSquare_neg,
+      IsRealClosed.exists_isRoot_of_odd_natDegree⟩
+    refine ((IsRealClosed.TFAE F).out 2 0).mp (by exact fun K ↦ h₂ K)
+  tfae_finish
+
+theorem very_weak_Artin_Schreier {R : Type*} [Field R]
+    (hR : IsAdjoinRootMonic' (AlgebraicClosure R) (X ^ 2 + 1 : R[X])) :
+    ∃! l : LinearOrder R, ∃ _ : IsStrictOrderedRing R, IsRealClosed R := by
+  have := IsSemireal.of_isAdjoinRoot_i_algebraicClosure hR
+  rw [← Field.exists_isStrictOrderedRing_iff_isSemireal] at this
+  rcases this with ⟨l, hl⟩
+  have : IsRealClosed R := IsRealClosed.of_isAdjoinRoot_i_algebraicClosure hR
+  have uniq := IsRealClosed.unique_isStrictOrderedRing R
+  refine ⟨l, ⟨‹_›, ‹_›⟩, fun l' ⟨hl'₁, hl'₂⟩ ↦ ?_⟩
+  grind [uniq.eq_default ⟨l, hl⟩, uniq.eq_default ⟨l', hl'₁⟩]
 
 theorem weak_Artin_Schreier {R : Type*} [Field R] (hR_char : ringChar R ≠ 2)
     (hR : Module.finrank R (AlgebraicClosure R) = 2) :
