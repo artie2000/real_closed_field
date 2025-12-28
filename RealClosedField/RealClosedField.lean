@@ -250,7 +250,8 @@ theorem irred_poly_classify {f : R[X]} (hf : f.Monic) :
       refine ⟨iu.coeff (AdjoinRoot.root f) 0, iu.coeff (AdjoinRoot.root f) 1, fun hc ↦ ?_, ?_⟩
       · simp [hc] at eq_root
         sorry -- contradiction at eq_root
-      · suffices AdjoinRoot.mk f ((X - C (iu.coeff (AdjoinRoot.root f) 0)) ^ 2 + C (iu.coeff (AdjoinRoot.root f) 1) ^ 2) = 0 by
+      · suffices AdjoinRoot.mk f ((X - C (iu.coeff (AdjoinRoot.root f) 0)) ^ 2 +
+                                 C (iu.coeff (AdjoinRoot.root f) 1) ^ 2) = 0 by
           rw [AdjoinRoot.mk_eq_zero] at this
           refine Polynomial.eq_of_dvd_of_natDegree_le_of_leadingCoeff this ?_ (by simp [hf]; sorry)
           sorry
@@ -283,33 +284,37 @@ theorem intermediate_value_property {f : R[X]} {x y : R}
     · rw [f.eq_C_of_natDegree_eq_zero hz] at hx hy ⊢
       exact ⟨x, by simp_all; order⟩
     have hpos := Nat.pos_of_ne_zero hz
-    by_cases! hdiv : ∃ g : R[X], g.Monic ∧ Irreducible g ∧ g ∣ f ∧ 0 < g.eval y ∧ 0 < g.eval x
-    · rcases hdiv with ⟨g, hg_m, hg_i, hg_d, hg_y, hg_x⟩
-      have hx : 0 ≤ eval x (f /ₘ g) := by sorry -- eval_div
-      have hy : eval y (f /ₘ g) ≤ 0 := by sorry
-      rcases ih (f.natDegree - g.natDegree)
-        (by simp [hg_m.natDegree_pos_of_not_isUnit hg_i.not_isUnit, hpos]) (f := f /ₘ g)
-        hx hy (f.natDegree_divByMonic hg_m) with ⟨z, hz_m, hz_e⟩
-      refine ⟨z, hz_m, Polynomial.eval_eq_zero_of_dvd_of_eval_eq_zero ?_ hz_e⟩
-      -- TODO : make into separate lemma (f /ₘ g ∣ f)
-      simpa [Polynomial.divByMonic_eq_div f hg_m] using EuclideanDomain.div_dvd_of_dvd hg_d
+    by_cases! hdiv : ∃ g : R[X], g.natDegree > 0 ∧ g ∣ f ∧ 0 < g.eval y ∧ 0 < g.eval x
+    · rcases hdiv with ⟨g, hg_deg, hg_div, hg_y, hg_x⟩
+      rcases hg_div with ⟨k, rfl⟩
+      rw [Polynomial.natDegree_mul
+        (show g ≠ 0 from fun _ ↦ by simp_all) (show k ≠ 0 from fun _ ↦ by simp_all)] at ih
+      rw [eval_mul] at hx hy
+      rcases ih (k.natDegree) (by simp_all) (by nlinarith) (by nlinarith) rfl with ⟨z, hz_m, hz_e⟩
+      refine ⟨z, hz_m, Polynomial.eval_eq_zero_of_dvd_of_eval_eq_zero (by simp) hz_e⟩
     · rcases Polynomial.exists_monic_irreducible_factor f (f.not_isUnit_of_natDegree_pos hpos)
         with ⟨g, hg_m, hg_i, hg_d⟩
       rcases (irred_poly_classify hg_m).mp hg_i with (lin | quad)
       · rw [hg_m.eq_X_add_C lin] at hg_i hg_d hg_m
-        have := hdiv _ hg_m hg_i hg_d
-        simp at this
-        by_cases! neg_coeff_comp_y : -(g.coeff 0) < y
-        · have := this (by linarith)
-          use -(g.coeff 0)
+        by_cases! le_y : -g.coeff 0 < y
+        · have := hdiv _ (by simp) hg_d
+          simp only [eval_add, eval_C, eval_X] at this
+          have := this (by linarith)
+          use -g.coeff 0
           rw [Set.mem_Icc]
           exact ⟨⟨by linarith, by linarith⟩,
                 Polynomial.eval_eq_zero_of_dvd_of_eval_eq_zero hg_d (by simp)⟩
-        · -- need to negate (rethink structure)
-          sorry -- unprovable goal
+        · by_cases! y_le : y < -g.coeff 0
+          · have := hdiv (-(X + C (g.coeff 0))) (by simp [↓Polynomial.natDegree_neg])
+              (by simpa [↓neg_dvd] using hg_d)
+            simp only [eval_add, eval_neg, eval_C, eval_X] at this
+            linarith [this (by linarith)]
+          · rw [show y = -g.coeff 0 by linarith] at hle ⊢
+            exact ⟨-g.coeff 0, by simp [hle],
+              Polynomial.eval_eq_zero_of_dvd_of_eval_eq_zero hg_d (by simp)⟩
       · rcases quad with ⟨a, b, hb, g_eq⟩
         have pos : ∀ z, 0 < g.eval z := fun z ↦ by simp [g_eq]; positivity
-        linarith [hdiv g hg_m hg_i hg_d (pos y), pos x]
+        linarith [hdiv g hg_i.natDegree_pos hg_d (pos y), pos x]
 
 end properties
 

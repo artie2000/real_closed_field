@@ -66,6 +66,14 @@ theorem Polynomial.natDegree_normalize {R : Type u} [Field R] {p : Polynomial R}
     (normalize p).natDegree = p.natDegree :=
   natDegree_eq_of_degree_eq degree_normalize
 
+@[simp]
+theorem Polynomial.natDegree_X_sub_C_sq_add_C_sq {R : Type u} [Ring R] (a b : R) :
+    ((X - C a) ^ 2 + C b ^ 2).natDegree = 2 := by sorry
+
+@[simp]
+theorem Polynomial.monic_X_sub_C_sq_add_C_sq {R : Type u} [Ring R] (a b : R) :
+    ((X - C a) ^ 2 + C b ^ 2).Monic := by sorry
+
 open scoped Polynomial in
 theorem Polynomial.exists_odd_natDegree_monic_irreducible_factor
     {F : Type*} [Field F] {f : F[X]} (hf : Odd f.natDegree) :
