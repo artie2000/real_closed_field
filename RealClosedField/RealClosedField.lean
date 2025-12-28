@@ -280,26 +280,36 @@ theorem intermediate_value_property {f : R[X]} {x y : R}
   | h n ih =>
     subst hdeg
     by_cases! hz : f.natDegree = 0
-    · rw [Polynomial.eq_C_of_natDegree_eq_zero hz] at hx hy ⊢
+    · rw [f.eq_C_of_natDegree_eq_zero hz] at hx hy ⊢
       exact ⟨x, by simp_all; order⟩
     have hpos := Nat.pos_of_ne_zero hz
-    rcases Polynomial.exists_monic_irreducible_factor f (f.not_isUnit_of_natDegree_pos hpos)
-      with ⟨g, hg_m, hg_i, hg_d⟩
-    rcases (irred_poly_classify hg_m).mp hg_i with (lin | quad)
-    · have := g.roots_degree_eq_one
-        (by simpa [← Polynomial.degree_eq_iff_natDegree_eq_of_pos (by simp : 0 < 1)] using lin)
-      use -((f.coeff 1)⁻¹ * f.coeff 0) -- root of g
-      sorry -- casework
-    · rcases quad with ⟨a, b, hb, g_eq⟩
-      have : ∀ z, 0 < g.eval z := fun z ↦ by simp [g_eq]; positivity
-      -- eval (f /ₘ g) = eval f / eval g
-      -- TODO : combine cases
+    by_cases! hdiv : ∃ g : R[X], g.Monic ∧ Irreducible g ∧ g ∣ f ∧ 0 < g.eval y ∧ 0 < g.eval x
+    · rcases hdiv with ⟨g, hg_m, hg_i, hg_d, hg_y, hg_x⟩
+      have hx : 0 ≤ eval x (f /ₘ g) := by sorry -- eval_div
+      have hy : eval y (f /ₘ g) ≤ 0 := by sorry
       rcases ih (f.natDegree - g.natDegree)
         (by simp [hg_m.natDegree_pos_of_not_isUnit hg_i.not_isUnit, hpos]) (f := f /ₘ g)
-        (by sorry) (by sorry) (f.natDegree_divByMonic hg_m) with ⟨z, hz_m, hz_e⟩
+        hx hy (f.natDegree_divByMonic hg_m) with ⟨z, hz_m, hz_e⟩
       refine ⟨z, hz_m, Polynomial.eval_eq_zero_of_dvd_of_eval_eq_zero ?_ hz_e⟩
-      -- TODO : make into separate lemma
+      -- TODO : make into separate lemma (f /ₘ g ∣ f)
       simpa [Polynomial.divByMonic_eq_div f hg_m] using EuclideanDomain.div_dvd_of_dvd hg_d
+    · rcases Polynomial.exists_monic_irreducible_factor f (f.not_isUnit_of_natDegree_pos hpos)
+        with ⟨g, hg_m, hg_i, hg_d⟩
+      rcases (irred_poly_classify hg_m).mp hg_i with (lin | quad)
+      · rw [hg_m.eq_X_add_C lin] at hg_i hg_d hg_m
+        have := hdiv _ hg_m hg_i hg_d
+        simp at this
+        by_cases! neg_coeff_comp_y : -(g.coeff 0) < y
+        · have := this (by linarith)
+          use -(g.coeff 0)
+          rw [Set.mem_Icc]
+          exact ⟨⟨by linarith, by linarith⟩,
+                Polynomial.eval_eq_zero_of_dvd_of_eval_eq_zero hg_d (by simp)⟩
+        · -- need to negate (rethink structure)
+          sorry -- unprovable goal
+      · rcases quad with ⟨a, b, hb, g_eq⟩
+        have pos : ∀ z, 0 < g.eval z := fun z ↦ by simp [g_eq]; positivity
+        linarith [hdiv g hg_m hg_i hg_d (pos y), pos x]
 
 end properties
 
@@ -435,6 +445,7 @@ theorem IsSemireal.TFAE_RCF {F : Type u} [Field F] :
     have := IsSemireal.of_isAdjoinRoot_i_algebraicClosure h
     refine ⟨this, ?_⟩
     letI := IsSemireal.toLinearOrder F
+    -- we need the strong version of `IsRealClosed.TFAE [2]`
     have : IsRealClosed _ := ((IsRealClosed.TFAE F).out 1 0).mp h
     intro K
     intros
