@@ -8,215 +8,42 @@
 
 We follow \cite{Lam1984} for the material on field orderings and the algebraic criterion for field orderability. For the material on real closed fields, we synthesise material from \cite{Bochnak1998}, \cite{Knebusch2022}, \cite{Jacobson2012I} and \cite{Jacobson2012II} as convenient. 
 
-Note that the meaning of the notation $F(\sqrt{a})$ depends on whether $a$ is a square in $F$. We take care to write only in the non-trivial case. The same applies to $F(i)$.
+Note that the meaning of the notation $F(\sqrt{a})$ depends on whether $a$ is a square in $F$. We take care to write it only in the non-trivial case. The same applies to $F(i)$.
 
 % TODO : either generalise the section on ring orderings, or remove it and just state the existence conditions
 
 \section{Preliminaries}
 
-\begin{lemma}
-  \label{lem:odd_deg_red_imp_root}
-  \lean{Polynomial.has_root_of_odd_natDegree_imp_not_irreducible}
-  \leanok
-  Let $F$ be a field, and suppose all nonlinear odd-degree polynomials over $F$ are reducible. Then every odd-degree polynomial over $F$ has a root.
-\end{lemma}
-\begin{proof}
-  \leanok
-  Fix an odd-degree polynomial $f$ over $F$, and proceed by induction on $\deg f$. If $\deg f=1$, then $f$ has a root in $F$. Otherwise, $f$ is reducible by assumption; write $f=gh$ where $\deg g,\deg h>0$. Since $\deg f=\deg g+\deg h$, wlog $\deg g$ is odd. Since $\deg g<\deg f$, the factor $g$ has a root in $F$ by induction, and therefore so does $f$.
-\end{proof}
 
-\begin{lemma}
-  \label{lem:sylow_galois}
-  Fix a prime $p$, and let $M/K$ be a separable Galois extension of degree $p^k\cdot a$, where $p\nmid a$. Then, for $0\leq j\leq k$, there are intermediate fields $K\leq L_0\leq\cdots\leq L_k\leq M$, with $[L_j:K]=p^j\cdot a$.
-\end{lemma}
-\begin{proof}
-  Since $M/K$ is Galois, $|\Gal(M/K)|=p^k\cdot a$. A version of Sylow's first theorem says that each subgroup of order $p^j$ with $0\leq j<k$ is contained in a subgroup of order $p^{j+1}$. By induction, $\Gal(M/K)$ has a chain of subgroups $H_k\leq\cdots\leq H_0\leq \Gal(M/K)$ with $|H_j|=p^{k-j}$. By the Galois correspondence, $L_j=M^{H_j}$ are the desired subfields.
-\end{proof}
 
-\begin{lemma}
-  \label{lem:deg_2_classify}
-  Let $K$ be a field with $\ch K\neq2$. Then there is a bijection between the quadratic extensions of $K$ (up to $K$-isomorphism) and the set
-  \[\left(\frac{K^*}{{(K^*)^2}}\right)\setminus\{1\cdot(K^*)^2\},\]
-  given by the map $x(K^*)^2\to K(\sqrt{x})$.
-\end{lemma}
-\begin{proof}
-  Consider the map $\Phi:x\to K(\sqrt{x})$ from the set of non-squares $K^*\setminus(K^*)^2$. We will show it fully respects the relation $x(K^*)^2=y(K^*)^2$; then $\Phi$ descends to a injective map out of the quotient $(K^*/(K^*)^2)\setminus\{1\cdot(K^*)^2\}$.
+\section{Ordered Fields} 
 
-  Indeed, if $x(K^*)^2=y(K^*)^2$, then $x=a^2y$ for some $a\in K$, and so $K(\sqrt{x})\cong_K K(\sqrt{y})$ via $\sqrt{x}\to a\sqrt{y}$. Conversely, if $\varphi:K(\sqrt{x})\to K(\sqrt{y})$ is a $K$-isomorphism, then $\varphi(\sqrt{x})=a+b\sqrt{y}$ for some $a,b\in K$, and so $x=a^2+yb^2+2ab\sqrt{y}$. Comparing coefficients in the $K$-basis $\{1,\sqrt{y}\}$, either $a=0$ or $b=0$. Since $x$ is not a square, we must have $x=a^2y$, and so $x(K^*)^2=y(K^*)^2$.
-
-  It remains to show all quadratic extensions of $K$ are $K$-isomorphic to some $L\in\im\Phi$. Fix a quadratic extension $L/K$, and let $\{1,\alpha\}$ be a $K$-basis for $L$; then $\alpha^2=a\alpha+b$ for some $a,b\in K$. Let $\beta=2\alpha-a$. Since $\ch K\neq 2$, $\alpha=(\beta+a)/2$, and so $L=K+\beta K=K(\beta)$. Now, we compute $\beta^2=a^2+4b$. Therefore $L\cong_K\Phi(a^2+4b)$ via $\beta\to\sqrt{a^2+4b}$.
-\end{proof}
-
-Note that we will only use that this map is well-defined and surjective, and not that it is injective.
-
-\begin{lemma}
-  \label{lem:sumsq_is_sq}
-  \lean{isSumSq_of_isSquare}
-  \leanok
-  Let $F$ be a field in which $-1$ is not a square, and suppose every element of $F(i)$ is a square. Then sums of squares in $F$ are squares in $F$.
-\end{lemma}
-\begin{proof}
-  \leanok
-  Given $a,b\in F$, find $c,d\in F$ such that $a+bi=(c+di)^2$ in $F(i)$. Then $a=c^2-d^2$ and $b=2cd$, so $a^2+b^2=(c^2+d^2)^2$ is a square in $F$. By induction, every sum of squares in $F$ is a square in $F$.
-\end{proof}
-
-\section{Ordered Fields}
-
-\begin{definition}
-  \label{def:ordered_field}
-  \lean{IsStrictOrderedRing}
-  \leanok
-  An ordered field is a field with a total order on it such that $+$ and $\cdot$ are monotone with respect to the order.
-\end{definition}
-
-`Monotonicity' means that, if $a\leq b$, then $a+c\leq b+c$ and, if in addition $c\geq0$, then $ac\leq bc$.
-
-\begin{definition}
-  \label{def:preordering}
-  \lean{IsPreordering}
-  \leanok
-  A preordering on a field $F$ is a subset of $F$ closed under $+$ and $\cdot$ and containing all squares but not containing $-1$.
-\end{definition}
-
-\begin{definition}
-  \label{def:ordering}
-  \uses{def:preordering}
-  \lean{IsPreordering.IsOrdering}
-  \leanok
-  An ordering on a field $F$ is a preordering $P\subset F$ such that $P\cup -P=F$.
-\end{definition}
-
-It is an easy check from the axioms of an ordered field that orderings deserve their name.
-
-\begin{lemma}
-  \label{lem:preord_inv}
-  \uses{def:preordering}
-  \lean{IsPreordering.inv_mem}
-  \leanok
-  Preorderings are closed under multiplicative inverses.
-\end{lemma}
-\begin{proof}
-  \leanok
-  If $x\in P\setminus\{0\}$, then $x^{-1}=x\cdot(x^{-1})^2\in P$.
-\end{proof}
-
-\begin{lemma}
-  \label{lem:preord_antisymm}
-  \uses{def:preordering}
-  \lean{IsPreordering.eq_zero_of_mem_of_neg_mem}
-  \leanok
-  Let $P$ be a preordering on a field $F$. If $x,-x\in P$, then $x=0$.
-\end{lemma}
-\begin{proof}
-  \leanok
-  If $x\neq0$, then, by Lemma \ref{lem:preord_inv}, $-1=-x\cdot x^{-1}\in P$.$_\#$
-\end{proof}
-
-\begin{lemma}
-  \label{lem:linord_fieldord_bij}
-  \uses{def:ordering,def:ordered_field}
-  \lean{ringOrderingLinearOrderEquivField}
-  \leanok
-  Linear orders on a field $F$ making $F$ into an ordered field correspond bijectively with orderings on $F$ via the map $(\leq)\to\{x\geq0\}$.
-\end{lemma}
-\begin{proof}
-  \uses{lem:preord_antisymm}
-  \leanok
-  The only nontrivial check is antisymmetry, which holds by Lemma \ref{lem:preord_antisymm}.
-\end{proof}
-
-From now on, we will refer to the total order on an ordered field and its corresponding field ordering structure interchangeably.
-
-Observe that, by definition, every preordering on $F$ must contain all sums of squares in $F$. This yields an algebraic criterion for the existence of a field ordering.
+We begin with a purely algebraic characterisation of an ordered field. This relies on the theory of \textit{ring orderings}, which can be found in \cite{Lam1984}.
 
 \begin{definition}
   \label{def:semireal}
   \lean{IsSemireal}
   \leanok
-  A field is (semi)real if $-1$ is not a sum of squares.
+  A field is real if $-1$ is not a sum of squares.
 \end{definition}
-
-In other words, a field is real if and only if the sums of squares form a preordering $\Sigma F^2$.
-
-\begin{lemma}
-  \label{lem:preord_adj}
-  \uses{def:preordering}
-  \lean{IsPreordering.neg_one_notMem_adjoin_of_neg_notMem}
-  \leanok
-  Let $P$ be a preordering on a field $F$, and suppose there is some element $a\in F$ such that $-a\notin P$. Then there is a preordering on $F$ containing $P$ and $a$.
-\end{lemma}
-\begin{proof}
-  \uses{lem:preord_inv}
-  \leanok
-  The semiring generated by $P$ and $a$ has the form $\{x+ay\mid x,y\in P\}$. If $x+ay=-1$ ($x,y\in P$), then (by Lemma \ref{lem:preord_inv}) $-a=y^{-1}(x+1)\in P$.$_\#$
-\end{proof}
-
-\begin{lemma}
-  \label{lem:max_preord_is_ord}
-  \uses{def:ordering}
-  \lean{IsPreordering.isOrdering_of_maximal}
-  \leanok
-  Maximal field preorderings are orderings.
-\end{lemma}
-\begin{proof}
-  \uses{lem:preord_adj}
-  \leanok
-  Let $P$ be a maximal preordering on a field $F$. Suppose $P$ is not an ordering. Then there is some element $a\in F$ such that $a,-a\notin P$. By Lemma \ref{lem:preord_adj}, there is a strictly bigger preordering on $F$.
-\end{proof}
-
-\begin{lemma}
-  \label{lem:preord_ext}
-  \uses{def:ordering}
-  \lean{IsPreordering.exists_le_isOrdering}
-  \leanok
-  Let $P$ be a preordering on a field $F$. Then $P$ is contained in an ordering.
-\end{lemma}
-\begin{proof}
-  \uses{lem:max_preord_is_ord}
-  \leanok
-  By Lemma \ref{lem:max_preord_is_ord}, applying Zorn's lemma to the preorderings of $F$ containing $P$ yields an ordering containing $P$.
-\end{proof}
 
 \begin{theorem}
   \label{thm:ord_iff_real}
-  \uses{def:ordered_field, def:semireal}
+  \uses{def:semireal}
   \lean{Field.exists_isStrictOrderedRing_iff_isSemireal}
   \leanok
   A field can be ordered if and only if it is real.
 \end{theorem}
-\begin{proof}
-  \uses{lem:linord_fieldord_bij, lem:preord_ext}
-  \leanok
-  Let $F$ be a field. If $F$ has an ordering $O$, then $O$ contains all sums of squares in $F$, but not $-1$, so $-1$ cannot be a sum of squares. Conversely, applying Lemma \ref{lem:preord_ext} to $\Sigma F^2$ yields an ordering on $F$.
-\end{proof}
 
-\begin{lemma}
-  \label{lem:ord_max}
-  \uses{def:ordering}
-  \lean{IsPreordering.eq_of_le}
-  \leanok
-  Field orderings are maximal as preorderings.
-\end{lemma}
-\begin{proof}
-  \uses{lem:preord_antisymm}
-  \leanok
-  Let $O$ be an ordering on a field $F$, and suppose $O$ is not maximal. Then there is some preordering $P\supsetneq O$ on $F$. Find $x\in P\setminus O$, and note that $x\neq0$. Since $O$ is an ordering, $-x\in P$, violating antisymmetry (Lemma \ref{lem:preord_antisymm}).$_\#$
-\end{proof}
+We can also characterise algebraically whether a field $F$ has a unique ordering. This allows us to talk about `the ordering' on $F$ without ambiguity.
 
 \begin{lemma}
   \label{lem:unique_ord_cond}
-  \uses{def:ordered_field, def:semireal}
+  \uses{def:semireal}
   \lean{IsSemireal.existsUnique_isStrictOrderedRing}
   \leanok
   Let $F$ be a real field. There is a unique ordering on $F$ if and only if, for each $a\in F$, either $a$ or $-a$ is a sum of squares.
 \end{lemma}
-\begin{proof}
-  \uses{lem:ord_max,lem:preord_ext,lem:preord_antisymm}
-  \leanok
-  Suppose there is some $a\in F$ such that $a,-a\notin\sum F^2$ (note $a\neq0$). By Lemmas \ref{lem:preord_adj} and \ref{lem:preord_antisymm}, there is a preordering on $F$ containing $a$ but not $-a$, and one containing $-a$ but not $a$. By \ref{lem:preord_ext}, these extend to necessarily distinct orderings.
-
-  Conversely, every ordering on $F$ contains the preordering $\Sigma F^2$. By assumption, $\Sigma F^2$ is in fact an ordering; by Lemma \ref{lem:ord_max}, $\Sigma F^2$ is maximal, so it is the only ordering.
-\end{proof}
 
 \begin{corollary}
   \label{cor:unique_ord_cond_ordered}
@@ -245,38 +72,17 @@ In other words, a field is real if and only if the sums of squares form a preord
   is a sum of squares. We are done by Corollary \ref{cor:unique_ord_cond_ordered}.
 \end{proof}
 
-Note that real fields have characteristic 0; in particular, their algebraic extensions are separable.
-
-Observe that, given an extension $L/K$ of ordered fields with total orders $(\leq_K),(\leq_L)$ and ordering structures $O_L,O_K$, we have $O_L\cap K=O_K$ if and only if $(\leq_L)|_K=(\leq_K)$. The meaning of a field ordering extending or restricting to another is therefore unambiguous.
-
-\begin{definition}
-  \label{def:ordered_ext}
-  \uses{def:ordered_field}
-  \lean{IsOrderedAlgebra}
-  \leanok
-  An extension $L/K$ of ordered fields is ordered if the ordering on $L$ restricts to the ordering on $K$.
-\end{definition}
+There is a corresponding algebraic characterisation of an ordered field extension. Note that, since real fields have characteristic 0, their algebraic extensions are separable.
 
 \begin{lemma}
   \label{lem:ext_ord_cond}
-  \uses{def:ordered_ext}
   \lean{Field.exists_isOrderedAlgebra_iff_neg_one_notMem_span_nonneg_isSquare}
   \leanok
-  Let $F$ be an ordered field, and let $K/F$ be a field extension. Then there is an ordering on $K$ making $K/F$ ordered if and only if $\sum_i x_i\alpha_i^2\neq-1$ for all choices of $\alpha_i\in K$ and $x_i\in F_{\geq0}$.
+  Let $F$ be an ordered field, and let $K/F$ be a field extension. Then there is an ordering on $K$ making the extension $K/F$ ordered if and only if $\sum_i x_i\alpha_i^2\neq-1$ for all choices of $\alpha_i\in K$ and $x_i\in F_{\geq0}$.
 \end{lemma}
-\begin{proof}
-  \uses{lem:preord_ext, lem:linord_fieldord_bij}
-  \leanok
-  Let $S$ be the semiring generated by $F_{\geq0}$ and the preordering $\sum K^2$. Observe that
-  \[S=\{\sum_i x_i\alpha_i^2\mid x_i\in F_{\geq0},\alpha_i\in K\},\]
-  and that $S$ is a preordering on $K$ if and only if $-1\notin S$.
-
-  Let $O$ be an ordering $O$ on $K$ making $K/F$ ordered. Then $O$ contains $F_{\geq0}$ and $\sum K^2$, so it contains $S$, and so $S$ is a preordering. Conversely, if $S$ is a preordering, then, by Lemma \ref{lem:preord_ext}, there is an ordering on $K$ containing $F_{\geq0}\subseteq S$, and therefore making $K/F$ ordered.
-\end{proof}
 
 \begin{lemma}
   \label{lem:ext_ord_functional_suff}
-  \uses{def:ordered_ext}
   \lean{Field.exists_isOrderedAlgebra_of_projection}
   \leanok
   Let $F$ be an ordered field, and let $K/F$ be a field extension. Suppose that there is an $F$-linear functional $\pi:K\to F$ such that, for all $x\in K$, $\pi(x^2)\geq0$. Then there is a field ordering on $K$ making $K/F$ ordered.
@@ -291,7 +97,6 @@ Observe that, given an extension $L/K$ of ordered fields with total orders $(\le
 
 \begin{corollary}
   \label{cor:ext_ord_to_adj_sqrt}
-  \uses{def:ordered_ext}
   \lean{adj_sqrt_ordered}
   \leanok
   Let $F$ be a ordered field, and suppose $a\in F$ is non-negative (and not a square). Then there is a field ordering on $F(\sqrt{a})$ making $F(\sqrt{a})/F$ ordered.
@@ -304,7 +109,6 @@ Observe that, given an extension $L/K$ of ordered fields with total orders $(\le
 
 \begin{lemma}
   \label{lem:ext_ord_odd_deg}
-  \uses{def:semireal}
   \lean{odd_deg_ordered}
   \leanok
   Let $F$ be an ordered field, and let $K/F$ be an odd-degree extension. Then there is a field ordering on $K$ making $K/F$ ordered.
@@ -323,21 +127,13 @@ Observe that, given an extension $L/K$ of ordered fields with total orders $(\le
   but $\sum_ia_ig_i^2\equiv-1\bmod\tilde h$. We are done by induction.$_\#$
 \end{proof}
 
-There is an easier way to construct ordered extensions if we don't care about them being algebraic.
+There is an easier way to construct ordered field extensions if we don't care about them being algebraic.
 
 \begin{lemma}
   \label{lem:order_fun_field}
   \uses{def:ordered_ext}
   Let $F$ be an ordered field, and let $a\in F$. Then there is a unique ordering on the function field $F(X)$ making $F(X)/F$ ordered such that $X>a$ but $b>X$ for $b>a$, and a unique one such that $X<a$ but $b<X$ for $b<a$.
 \end{lemma}
-\begin{proof}
-  \uses{lem:linord_fieldord_bij}
-  Let $O$ be the set of polynomials over $F$ whose Taylor expansion at $a$ has positive lowest-order (nonzero) coefficient. It is straightforward to check that this is an ordering (note that, over a ring, we additionally need to check that, for $x\neq0$, $x$ and $-x$ are never both in $O$). This then extends to an ordering on $F(X)$ satisfying the required conditions.
-
-  For the second construction, we instead take the polynomials with negative lowest-order coefficients in their Taylor expansions.
-
-  For uniqueness, TODO
-\end{proof}
 
 Intuitively, $X$ is infinitesimally close to $a$. When $a=0$, we often write $R(\eps)$ for $R(X)$ with the first type of ordering.
 
@@ -385,8 +181,7 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
   The field $R(i)$ is the unique quadratic extension of $R$.
 \end{lemma}
 \begin{proof}
-  \uses{lem:deg_2_classify}
-  Fix $x\in R^*$. Then either $x>0$ and $x=1\cdot(\sqrt{x})^2$, or $x<0$ and $x=-1\cdot(\sqrt{-x})^2$. Further, since $-1\notin(R^*)^2$, $-1\cdot(R^*)^2\neq 1\cdot(R^*)^2$. Therefore $R^*/{(R^*)^2}=\{1\cdot(R^*)^2,-1\cdot(R^*)^2\}$, and we are done by Lemma \ref{lem:deg_2_classify}.
+  Let $K/R$ be a quadratic extension. Since $\text{char}(R)\neq2$, we have $K\cong R(\sqrt{a})$ for some $a\in R$. Since nonnegative elements of $R$ are squares, $a$ is negative and so $-a$ is a square in $R$. Rescaling by $\sqrt{-a}^{-1}$, we get $R(\sqrt{a})\cong R(i)$.
 \end{proof}
 
 \begin{lemma}
@@ -396,8 +191,7 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
   There is no quadratic extension of $R(i)$.
 \end{lemma}
 \begin{proof}
-  \uses{lem:deg_2_classify}
-  By Lemma \ref{lem:deg_2_classify}, it suffices to show that every element of $R(i)$ is a square. Indeed, take $x=a+bi\in R(i)$ with $a,b\in R$. If $b=0$, then either $a\geq0$ and so $x$ is a square in $R$, or $a\leq0$ and so $a=(i\sqrt{-a})^2$ is a square in $R$. Now let $b\neq0$. Then we compute $x=(c+di)^2$, where
+  Since $\text{char}R(i)\neq 2$, it suffices to show that every element of $R(i)$ is a square. Indeed, take $x=a+bi\in R(i)$ with $a,b\in R$. If $b=0$, then either $a\geq0$ and so $x$ is a square in $R$, or $a\leq0$ and so $a=(i\sqrt{-a})^2$ is a square in $R$. Now let $b\neq0$. Then we compute $x=(c+di)^2$, where
   \[c=\sqrt{\frac{a+\sqrt{a^2+b^2}}{2}}\text{ and }d=\frac{b}{2c}.\]
   To see that $c$ and $d$ are well-defined elements of $R$, observe that $a^2+b^2>a^2\geq0$ (as $b\neq0$), and so $a+\sqrt{a^2+b^2}>0$. Therefore the square roots above lie in $R$ and $c\neq0$.
 \end{proof}
@@ -409,10 +203,10 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
   The only finite extensions of $R$ are $R$ itself and $R(i)$.
 \end{theorem}
 \begin{proof}
-  \uses{lem:sylow_galois,lem:alg_ext_odd_deg,lem:ext_deg_2,lem:Ri_ext_deg_2}
+  \uses{lem:ext_deg_2, lem:Ri_ext_deg_2, lem:ext_ord_odd_deg}
   By separability, every finite extension of $R$ is contained in a finite Galois extension. Since $R(i)/R$ has no intermediate fields, it suffices to show the result for finite Galois extensions.
   
-  Let $K/R$ be a nontrivial Galois extension of degree $2^k\cdot a$, where $k\geq 0$ and $a\geq1$ is odd. By Lemma \ref{lem:sylow_galois} with $p=2$, there is an intermediate extension of degree $a$. By Lemma \ref{lem:alg_ext_odd_deg}, $a=1$ (and $k>0$). If $k>1$, then applying Lemma \ref{lem:sylow_galois} again yields intermediate extensions $K/L/M/R$ with $[L:M]=[M:R]=2$. By Lemma \ref{lem:ext_deg_2}, $M\cong R(i)$, contradicting Lemma \ref{lem:Ri_ext_deg_2}.$_\#$ Therefore $k=1$ and (by Lemma \ref{lem:ext_deg_2}) $K\cong R(i)$.
+  Let $K/R$ be a nontrivial Galois extension of degree $2^k\cdot a$, where $k\geq 0$ and $a\geq1$ is odd. Applying the Galois correspondence to a Sylow 2-subgroup of $\Gal(K/R)$ yields an intermediate extension of degree $a$; by Lemma \ref{lem:alg_ext_odd_deg}, we have $a=1$ (and $k>0$). If $k>1$, iterating the last construction yields intermediate extensions $K/L/M/R$ with $[L:M]=[M:R]=2$. By Lemma \ref{lem:ext_deg_2}, $M\cong R(i)$, contradicting Lemma \ref{lem:Ri_ext_deg_2}.$_\#$ Therefore $k=1$ and (by Lemma \ref{lem:ext_deg_2}) $K\cong R(i)$.
 \end{proof}
 
 \begin{corollary}
@@ -446,10 +240,9 @@ The converse to Theorem \ref{thm:FTAlg} is much easier.
 \end{lemma}
 \begin{proof}
   \leanok
-  \uses{lem:odd_deg_red_imp_root}
   Let $a\in R$ be non-negative. If $a$ is not a square, then $R(\sqrt{a})\cong R(i)$. Suppose $i$ maps to $x+y\sqrt{a}$ for some $x,y\in R$; then $-1=x^2+ay^2+2xy\sqrt{a}$. Comparing coefficients, $-1=x^2+ay^2\geq0$.$_\#$ Therefore $a$ is a square in $R$.
 
-  Now, fix a nonlinear odd-degree polynomial $f\in R[X]$. Then $R[X]/(f)$ cannot be a field since $R$ has no nontrivial odd-degree extensions, and so $f$ must be reducible. We are done by Lemma \ref{lem:odd_deg_red_imp_root}.
+  Now, fix a nonlinear odd-degree polynomial $f\in R[X]$. Then $R[X]/(f)$ cannot be a field since $R$ has no nontrivial odd-degree extensions, and so $f$ must be reducible. We are done by induction on the degree.
 \end{proof}
 
 As before, let $R$ be a real closed field. Theorem \ref{thm:FTAlg} is a powerful tool for deriving more of its properties.
@@ -521,10 +314,10 @@ In fact, the converses to Lemmas \ref{lem:RCF_max} and \ref{lem:IVP_poly} also h
 \end{theorem}
 \begin{proof}
   \leanok
-  \uses{cor:ext_ord_to_adj_sqrt,lem:odd_deg_red_imp_root,lem:ext_ord_odd_deg}
+  \uses{cor:ext_ord_to_adj_sqrt,lem:ext_ord_odd_deg}
   Let $a\in R$ be non-negative, and suppose $a$ is not a square. By Corollary \ref{cor:ext_ord_to_adj_sqrt}, there is an ordering making the nontrivial extension $R(\sqrt{a})/R$ ordered, contradicting maximality.$_\#$ Therefore $a$ is a square in $R$.
 
-  By Lemma \ref{lem:odd_deg_red_imp_root}, it suffices to show that irreducible odd-degree polynomials over $R$ are linear. Let $f\in R[X]$ be such a polynomial, and consider the odd-degree field extension $R_f=R[X]/(f)$. By Lemma \ref{lem:ext_ord_odd_deg}, there is an ordering making $R_f/R$ an ordered extension; by maximality, $R_f\cong R$, and therefore $\deg f=[R_f:R]=1$.
+  By induction on degree, it suffices to show that irreducible odd-degree polynomials over $R$ are all linear. Let $f\in R[X]$ be such a polynomial, and consider the odd-degree field extension $R_f=R[X]/(f)$. By Lemma \ref{lem:ext_ord_odd_deg}, there is an ordering making $R_f/R$ an ordered extension; by maximality, $R_f\cong R$, and therefore $\deg f=[R_f:R]=1$.
 \end{proof}
 
 In particular, an ordered field maximal with respect to algebraic extensions by ordered fields is real closed.
@@ -554,6 +347,7 @@ In summary, we have proved the following characterisation of real closed fields.
     \item $\bar{R}=R(i)$ (and $-1$ is not a square in $R$).
     \item $R$ satisfies the intermediate value property for polynomials.
     \item $R$ is maximal with respect to ordered algebraic extensions.
+    \item $R$ is maximal with respect to algebraic extensions by ordered fields.
   \end{enumerate}
 \end{theorem}
 \begin{proof}
@@ -659,6 +453,17 @@ Uniqueness of algebraic closures allows us to classify ordered algebraic extensi
 \section{The Artin-Schreier Theorem}
 
 We didn't actually need to assume the ordering on $R$ in Lemma \ref{lem:FTAlg_converse}.
+
+\begin{lemma}
+  \label{lem:sumsq_is_sq}
+  \lean{isSumSq_of_isSquare}
+  \leanok
+  Let $F$ be a field in which $-1$ is not a square, and suppose every element of $F(i)$ is a square. Then sums of squares in $F$ are squares in $F$.
+\end{lemma}
+\begin{proof}
+  \leanok
+  Given $a,b\in F$, find $c,d\in F$ such that $a+bi=(c+di)^2$ in $F(i)$. Then $a=c^2-d^2$ and $b=2cd$, so $a^2+b^2=(c^2+d^2)^2$ is a square in $F$. By induction, every sum of squares in $F$ is a square in $F$.
+\end{proof}
 
 \begin{lemma}
   \label{lem:FTAlg_converse_strong}
