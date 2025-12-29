@@ -496,7 +496,7 @@ theorem of_ker_aeval_eq_span' [IsDomain R] (hx : IsIntegral R x)
     simpa [Units.smul_def, smul_eq_C_mul] using monic_of_isUnit_leadingCoeff_inv_smul ‹_›
   ker_aeval := by
     simpa [h, Ideal.span_singleton_eq_span_singleton] using
-      associated_unit_mul_right _ _ (by simp [isUnit_C])
+      associated_unit_mul_right _ _ (by simp)
 
 -- TODO : fix proof
 theorem of_ker_aeval_eq_span [IsDomain R] [NormalizationMonoid R] (hx : IsIntegral R x)

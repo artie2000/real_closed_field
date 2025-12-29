@@ -170,8 +170,7 @@ theorem IsIntegralUnique.of_sqrt {a : K} (ha : ¬ IsSquare a)
 theorem IsQuadraticExtension.isGenerator_of_notMem_bot [Algebra.IsQuadraticExtension K L]
     (h : r ∉ (⊥ : Subalgebra K L)) : IsGenerator K r where
   adjoin_eq_top := by
-    have : adjoin K {r} ≠ ⊥ := fun hc ↦ h <| by
-      simpa [← hc] using self_mem_adjoin_singleton K r
+    have : adjoin K {r} ≠ ⊥ := fun hc ↦ h (by simp [← hc])
     have := (Subalgebra.isSimpleOrder_of_finrank_prime K L
       (by simpa [Algebra.IsQuadraticExtension.finrank_eq_two] using Nat.prime_two)).eq_bot_or_eq_top
         (adjoin K {r})
