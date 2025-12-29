@@ -168,6 +168,7 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
   The field $R(i)$ is the unique quadratic extension of $R$.
 \end{lemma}
 \begin{proof}
+  \leanok
   Let $K/R$ be a quadratic extension. Since $\operatorname{char}(R)\neq2$, we have $K\cong R(\sqrt{a})$ for some $a\in R$. Since nonnegative elements of $R$ are squares, $a$ is negative and so $-a$ is a square in $R$. Rescaling by $\sqrt{-a}$, we get $R(\sqrt{a})\cong R(i)$.
 \end{proof}
 
@@ -179,6 +180,7 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
   There is no quadratic extension of $R(i)$.
 \end{lemma}
 \begin{proof}
+  \leanok
   Since $\operatorname{char}R(i)\neq 2$, it suffices to show that every element of $R(i)$ is a square. Indeed, take $x=a+bi\in R(i)$ with $a,b\in R$. If $b=0$, then either $a\geq0$ and so $x$ is a square in $R$, or $a\leq0$ and so $a=(i\sqrt{-a})^2$ is a square in $R$. Now let $b\neq0$. Then we compute $x=(c+di)^2$, where
   \[c=\sqrt{\frac{a+\sqrt{a^2+b^2}}{2}}\text{ and }d=\frac{b}{2c}.\]
   To see that $c$ and $d$ are well-defined elements of $R$, observe that $a^2+b^2>a^2\geq0$ (as $b\neq0$), and so $a+\sqrt{a^2+b^2}>0$. Therefore the square roots above lie in $R$ and $c\neq0$.
@@ -193,6 +195,7 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
 \end{theorem}
 \begin{proof}
   \uses{lem:ext_deg_2, lem:Ri_ext_deg_2, lem:ext_ord_odd_deg}
+  \leanok
   By separability, every finite extension of $R$ is contained in a finite Galois extension. Since $R(i)/R$ has no intermediate fields, it suffices to show the result for finite Galois extensions.
   
   Let $K/R$ be a nontrivial Galois extension of degree $2^k\cdot a$, where $k\geq 0$ and $a\geq1$ is odd. Applying the Galois correspondence to a Sylow 2-subgroup of $\Gal(K/R)$ yields an intermediate extension of degree $a$; by Lemma \ref{lem:alg_ext_odd_deg}, we have $a=1$ (and $k>0$). If $k>1$, iterating the last construction yields intermediate extensions $K/L/M/R$ with $[L:M]=[M:R]=2$. By Lemma \ref{lem:ext_deg_2}, $M\cong R(i)$, contradicting Lemma \ref{lem:Ri_ext_deg_2}.$_\#$ Therefore $k=1$ and (by Lemma \ref{lem:ext_deg_2}) $K\cong R(i)$.
@@ -207,6 +210,7 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
 \end{corollary}
 \begin{proof}
   \uses{thm:FTAlg}
+  \leanok
   An infinite algebraic extension contains finite subextensions of arbitrarily large degree.
 \end{proof}
 
@@ -219,6 +223,7 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
 \end{corollary}
 \begin{proof}
   \uses{cor:FTAlg_alg}
+  \leanok
 \end{proof}
 
 The converse to Theorem \ref{thm:FTAlg} is much easier.
@@ -248,6 +253,7 @@ As before, let $R$ be a real closed field. Theorem \ref{thm:FTAlg} is a powerful
 \end{lemma}
 \begin{proof}
   \uses{cor:FTAlg_alg, thm:ord_iff_real}
+  \leanok
   Since $-1$ is a square in $R(i)$, the field $R(i)$ is not formally real and therefore cannot be ordered (by Theorem \ref{thm:ord_iff_real}). We are done by Corollary \ref{cor:FTAlg_alg}.
 \end{proof}
 
@@ -264,6 +270,7 @@ The next property is a little less obvious.
 \end{lemma}
 \begin{proof}
   \uses{thm:FTAlg}
+  \leanok
   Let $f\in R[X]$ be monic and irreducible. The field $R_f=R[X]/(f)$ is a finite extension of $R$, so it is classified by Theorem \ref{thm:FTAlg}. If $R_f\cong R$, then $\deg f=1$, so $f=X-c$ for some $c\in R$. If $R_f\cong R(i)$, let the isomorphism be $\varphi$, and suppose $\varphi(X+(f))=a+bi$ ($a,b\in R$). Note that $b\neq0$ since $\varphi^{-1}$ is constant on $R$. Rearranging, we see that $\varphi((X-a)^2+b^2+(f))=0$; that is, $(X-a)^2+b^2\in(f)$. Since this polynomial is monic and has the same degree as $f$, it must in fact be equal to $f$.
 
   Conversely, linear polynomials over a domain are irreducible by degree, and reducible quadratics have a root. A root of $f=(X-a)^2+b^2$ with $a,b\in R$ is an element $r\in R$ satisfying $(r-a)^2=-b^2$. Since squares are non-negative, if $b\neq0$ then $f$ must be irreducible.
@@ -278,6 +285,7 @@ The next property is a little less obvious.
 \end{lemma}
 \begin{proof}
   \uses{lem:irreds_class}
+  \leanok
   We will prove that, for all $f\in R[X]$ and all $a,b\in R$ with $a\leq b$, if $f(a)\leq 0\leq f(b)$, then there is some $c\in[a,b]$ such that $f(c)=0$.
 
   Fix $a,b\in R$ with $a\leq b$, and proceed by induction on $\deg f$. If $\deg f=0$, then $f$ is constant and the result is clear. Otherwise, take a monic irreducible factor $g$ of $f$; then $g$ is classified by Lemma \ref{lem:irreds_class}.
@@ -352,6 +360,7 @@ In summary, we have proved the following characterisation of real closed fields.
 \end{theorem}
 \begin{proof}
   \uses{cor:RCF_ac,lem:FTAlg_converse,lem:IVP_poly,thm:IVP_poly_imp_RCF,lem:RCF_max,thm:ord_max_imp_RCF}
+  \leanok
 \end{proof}
 
 \section{Real Closures}
@@ -474,6 +483,7 @@ We didn't actually need to assume the ordering on $R$ in Lemma \ref{lem:FTAlg_co
 \end{lemma}
 \begin{proof}
   \uses{thm:ord_iff_real,lem:FTAlg_converse,lem:RCF_ord_unique,lem:sumsq_is_sq}
+  \leanok
   We are very nearly done by Theorem \ref{thm:ord_iff_real}, Lemma \ref{lem:FTAlg_converse}, and Corollary \ref{lem:RCF_ord_unique}; it remains to show that $R$ is real.
 
   We have $\bar{R}\cong R(i)$. Since $R(i)/R$ is nontrivial, $-1$ is not a square in $R$. Since every element of $R(i)$ is a square, Lemma \ref{lem:sumsq_is_sq} says that $-1$ is not a sum of squares in $R$.
