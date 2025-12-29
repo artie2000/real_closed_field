@@ -14,30 +14,24 @@ Note that the meaning of the notation $F(\sqrt{a})$ depends on whether $a$ is a 
 
 We begin with a purely algebraic characterisation of an ordered field. This relies on the theory of \textit{ring orderings}, which can be found in \cite{Lam1984}.
 
-\begin{definition}
-  \label{def:semireal}
-  \lean{IsSemireal}
-  \leanok
-  A field is real if $-1$ is not a sum of squares.
-\end{definition}
-
 \begin{theorem}
   \label{thm:ord_iff_real}
-  \uses{def:semireal}
   \lean{Field.exists_isStrictOrderedRing_iff_isSemireal}
   \leanok
-  A field can be ordered if and only if it is real.
+  A field can be ordered if and only if it is real (that is, $-1$ is not a sum of squares).
 \end{theorem}
 
 We can also characterise algebraically whether a field $F$ has a unique ordering. This allows us to talk about `the ordering' on $F$ without ambiguity.
 
 \begin{lemma}
   \label{lem:unique_ord_cond}
-  \uses{def:semireal}
   \lean{IsSemireal.existsUnique_isStrictOrderedRing_iff}
   \leanok
   Let $F$ be a real field. There is a unique ordering on $F$ if and only if, for each $a\in F$, either $a$ or $-a$ is a sum of squares.
 \end{lemma}
+\begin{proof}
+  \leanok
+\end{proof}
 
 \begin{corollary}
   \label{cor:unique_ord_cond_ordered}
@@ -71,6 +65,9 @@ There is a corresponding algebraic characterisation of an ordered field extensio
   \leanok
   Let $F$ be an ordered field, and let $K/F$ be a field extension. Then there is an ordering on $K$ making the extension $K/F$ ordered if and only if $\sum_i x_i\alpha_i^2\neq-1$ for all choices of $\alpha_i\in K$ and $x_i\in F_{\geq0}$.
 \end{theorem}
+\begin{proof}
+  \leanok
+\end{proof}
 
 \begin{lemma}
   \label{lem:ext_ord_functional_suff}
