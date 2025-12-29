@@ -36,7 +36,7 @@ We can also characterise algebraically whether a field $F$ has a unique ordering
 \begin{lemma}
   \label{lem:unique_ord_cond}
   \uses{def:semireal}
-  \lean{IsSemireal.existsUnique_isStrictOrderedRing}
+  \lean{IsSemireal.existsUnique_isStrictOrderedRing_iff}
   \leanok
   Let $F$ be a real field. There is a unique ordering on $F$ if and only if, for each $a\in F$, either $a$ or $-a$ is a sum of squares.
 \end{lemma}
@@ -69,7 +69,7 @@ There is a corresponding algebraic characterisation of an ordered field extensio
 
 \begin{lemma}
   \label{lem:ext_ord_cond}
-  \lean{Field.exists_isOrderedAlgebra_iff_neg_one_notMem_span_nonneg_isSquare}
+  \lean{Field.exists_isOrderedAlgebra_iff_neg_one_notMem_sup}
   \leanok
   Let $F$ be an ordered field, and let $K/F$ be a field extension. Then there is an ordering on $K$ making the extension $K/F$ ordered if and only if $\sum_i x_i\alpha_i^2\neq-1$ for all choices of $\alpha_i\in K$ and $x_i\in F_{\geq0}$.
 \end{lemma}
@@ -156,9 +156,9 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
 \begin{lemma}
   \label{lem:alg_ext_odd_deg}
   \uses{def:RCF}
-  \lean{IsRealClosed.even_finrank_extension}
+  \lean{IsRealClosed.odd_finrank_extension}
   \leanok
-  Nontrivial finite extensions of $R$ have even degree.
+  There is no nontrivial odd-degree finite extension of $R$.
 \end{lemma}
 \begin{proof}
   \leanok
@@ -168,7 +168,8 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
 \begin{lemma}
   \label{lem:ext_deg_2}
   \uses{def:RCF}
-  \lean{IsRealClosed.isAdjoinRootIOfFinrankExtensionEqTwo}
+  \lean{IsRealClosed.isAdjoinRoot_i_of_isQuadraticExtension}
+  \leanok
   The field $R(i)$ is the unique quadratic extension of $R$.
 \end{lemma}
 \begin{proof}
@@ -178,7 +179,8 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
 \begin{lemma}
   \label{lem:Ri_ext_deg_2}
   \uses{def:RCF}
-  \lean{IsRealClosed.finrank_adjoinRoot_i_extension_neq_two}
+  \lean{IsRealClosed.finrank_neq_two_of_isAdjoinRoot_i}
+  \leanok
   There is no quadratic extension of $R(i)$.
 \end{lemma}
 \begin{proof}
@@ -191,6 +193,7 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
   \label{thm:FTAlg}
   \uses{def:RCF}
   \lean{IsRealClosed.finite_extension_classify}
+  \leanok
   The only finite extensions of $R$ are $R$ itself and $R(i)$.
 \end{theorem}
 \begin{proof}
@@ -203,17 +206,20 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
 \begin{corollary}
   \label{cor:FTAlg_alg}
   \uses{def:RCF}
-  \lean{IsRealClosed.algebraic_extension_classify}
+  \lean{IsRealClosed.instFiniteDimensionalOfIsAlgebraic}
+  \leanok
   The only algebraic extensions of $R$ are $R$ itself and $R(i)$.
 \end{corollary}
 \begin{proof}
   \uses{thm:FTAlg}
+  An infinite algebraic extension contains finite subextensions of arbitrarily large degree.
 \end{proof}
 
 \begin{corollary}
   \label{cor:RCF_ac}
   \uses{def:RCF}
-  \lean{IsRealClosed.isAdjoinRootIOfIsAlgClosure}
+  \lean{IsRealClosed.isAdjoinRoot_i_of_isAlgClosure}
+  \leanok
   $\bar{R}=R(i)$.
 \end{corollary}
 \begin{proof}
@@ -225,7 +231,7 @@ The converse to Theorem \ref{thm:FTAlg} is much easier.
 \begin{lemma}
   \label{lem:FTAlg_converse}
   \uses{def:RCF}
-  \lean{IsRealClosed.of_isAdjoinRoot_i_or_1_extension}
+  \lean{IsRealClosed.of_isAdjoinRoot_i_or_finrank_eq_one}
   \leanok
   Suppose $R$ is an ordered field whose only nontrivial finite extension is $R(i)$. Then $R$ is real closed.
 \end{lemma}
@@ -241,18 +247,24 @@ As before, let $R$ be a real closed field. Theorem \ref{thm:FTAlg} is a powerful
 \begin{lemma}
   \label{lem:RCF_max}
   \uses{def:RCF}
+  \lean{IsRealClosed.maximal_isOrderedField}
+  \leanok
   $R$ is maximal with respect to algebraic extensions by ordered fields.
 \end{lemma}
 \begin{proof}
-  \uses{cor:FTAlg_alg}
-  Since $-1$ is a square in $R(i)$, the field $R(i)$ is not formally real and therefore cannot be ordered. We are done by Theorem \ref{cor:FTAlg_alg}.
+  \uses{cor:FTAlg_alg, thm:ord_iff_real}
+  Since $-1$ is a square in $R(i)$, the field $R(i)$ is not formally real and therefore cannot be ordered (by Theorem \ref{thm:ord_iff_real}). We are done by Corollary \ref{cor:FTAlg_alg}.
 \end{proof}
 
 In particular, $R$ is maximal with respect to ordered algebraic extensions.
 
+The next property is a little less obvious.
+
 \begin{lemma}
   \label{lem:irreds_class}
   \uses{def:RCF}
+  \lean{IsRealClosed.irred_poly_classify}
+  \leanok
   The monic irreducible polynomials over $R[X]$ have form $X-c$ for some $c\in R$ or $(X-a)^2+b^2$ for some $a,b\in R$ with $b\neq0$.
 \end{lemma}
 \begin{proof}
@@ -262,20 +274,20 @@ In particular, $R$ is maximal with respect to ordered algebraic extensions.
   Conversely, linear polynomials over a domain are irreducible by degree, and reducible quadratics have a root. A root of $f=(X-a)^2+b^2$ with $a,b\in R$ is an element $r\in R$ satisfying $(r-a)^2=-b^2$. Since squares are non-negative, if $b\neq0$ then $f$ must be irreducible.
 \end{proof}
 
-The next property is a little less obvious.
-
 \begin{lemma}
   \label{lem:IVP_poly}
   \uses{def:RCF}
-  $R$ satisfies the intermediate value property for polynomials.
+  \lean{IsRealClosed.intermediate_value_property}
+  \leanok
+  Polynomials over $R$ satisfy the intermediate value property.
 \end{lemma}
 \begin{proof}
   \uses{lem:irreds_class}
-  We will prove that, for all $f\in R[X]$ and all $a,b\in R$ with $a<b$, if $f(a)\cdot f(b)<0$, then there is some $c\in(a,b)$ such that $f(c)=0$.
+  We will prove that, for all $f\in R[X]$ and all $a,b\in R$ with $a\leq b$, if $f(a)\leq 0\leq f(b)$, then there is some $c\in[a,b]$ such that $f(c)=0$.
 
-  Fix $a,b\in R$ with $a<b$. First, suppose $f\in R[X]$ is linear. Then $f=m(X-c)$ for some $m,c\in R$ with $m\neq0$; then $f(c)=0$. If $m>0$, then $f(x)<0$ for $x<c$ and $f(x)>0$ for $x>c$, and vice versa if $m<0$. In either case, if $c\notin[a,b]$, then $f(a)\cdot f(b)>0$. Taking into account the cases $c=a$ and $c=b$, if $f(a)\cdot f(b)<0$ then $c\in(a,b)$.
+  Fix $a,b\in R$ with $a\leq b$, and proceed by induction on $\deg f$. If $\deg f=0$, then $f$ is constant and the result is clear. Otherwise, take a monic irreducible factor $g$ of $f$; then $g$ is classified by Lemma \ref{lem:irreds_class}.
 
-  Now suppose $f(a)\cdot f(b)<0$, and proceed by induction on $\deg f$. If $\deg f=0$, write $f=x\in R$; then $f(x)\cdot f(x)=x^2\leq 0$, so, since squares are non-negative, $x=0$ and $f((a+b)/2)=0$. The above validates the property for $\deg f=1$. Now, take a monic irreducible factor $g$ of $f$; then $g$ is classified by Lemma \ref{lem:irreds_class}. If $g=(X-a)^2+b^2$ with $a,b\in R$ and $b\neq0$, then $g$ is everywhere positive. If $g=X-c$ with $c\in R$, then either $c\in(a,b)$ and $g(c)=0$, or $c\notin(a,b)$ and $g(a)$ and $g(b)$ have the same sign (they are nonzero since $f(a)$ and $f(b)$ are). In the second case, $f$ has a root in $(a,b)$; in the first and third cases, $f/g$ satsifies the induction hypothesis, so it has a root in $(a,b)$. In all cases, a factor of $f$ has a root in $(a,b)$, and therfore so does $f$.
+  Observe that, if $g(a)$ and $g(b)$ are both positive, then $f/g$ satisfies the inductive hypothesis, and so has a root in $[a,b]$. If $g=(X-a)^2+b^2$ with $a,b\in R$ and $b\neq0$, then $g$ is everywhere positive. If $g=X-c$ with $c\in R$, then either $c\in[a,b]$ and $g(c)=0$, or $c\notin[a,b]$ and $f(a)$ and $f(b)$ have the same sign. In this last case, either $f/g$ or $f/(-g)$ satsifies the inductive hypothesis. In all cases, $f$ has a root in $[a,b]$.
 \end{proof}
 
 In fact, the converses to Lemmas \ref{lem:RCF_max} and \ref{lem:IVP_poly} also hold!
@@ -283,9 +295,9 @@ In fact, the converses to Lemmas \ref{lem:RCF_max} and \ref{lem:IVP_poly} also h
 \begin{theorem}
   \label{thm:IVP_poly_imp_RCF}
   \uses{def:RCF}
-  \lean{IsRealClosed.of_IntermediateValueProperty}
+  \lean{IsRealClosed.of_intermediateValueProperty}
   \leanok
-  Let $R$ be an ordered field satisfying the intermediate value property for polynomials. Then $R$ is real closed.
+  Let $R$ be an ordered field whose polynomials satisfy the intermediate value property. Then $R$ is real closed.
 \end{theorem}
 \begin{proof}
   \leanok
@@ -299,7 +311,7 @@ In fact, the converses to Lemmas \ref{lem:RCF_max} and \ref{lem:IVP_poly} also h
 \begin{theorem}
   \label{thm:ord_max_imp_RCF}
   \uses{def:RCF}
-  \lean{IsRealClosed.of_maximalIsOrderedAlgebra}
+  \lean{IsRealClosed.of_maximal_isOrderedAlgebra}
   \leanok
   Let $R$ be an ordered field maximal with respect to ordered algebraic extensions. Then $R$ is real closed.
 \end{theorem}
@@ -332,11 +344,13 @@ In summary, we have proved the following characterisation of real closed fields.
 \begin{theorem}
   \label{thm:RCF_tfae}
   \uses{def:RCF}
+  \lean{IsRealClosed.TFAE}
+  \leanok
   Let $R$ be an ordered field. TFAE:
   \begin{enumerate}
     \item $R$ is real closed.
     \item $\bar{R}=R(i)$ (and $-1$ is not a square in $R$).
-    \item $R$ satisfies the intermediate value property for polynomials.
+    \item Polynomials over $R$ satisfy the intermediate value property.
     \item $R$ is maximal with respect to ordered algebraic extensions.
     \item $R$ is maximal with respect to algebraic extensions by ordered fields.
   \end{enumerate}
@@ -459,6 +473,8 @@ We didn't actually need to assume the ordering on $R$ in Lemma \ref{lem:FTAlg_co
 \begin{lemma}
   \label{lem:FTAlg_converse_strong}
   \uses{def:RCF}
+  \lean{very_weak_Artin_Schreier}
+  \leanok
   Suppose $R$ is a field whose only nontrivial algebraic extension is $R(i)$. Then there is a unique field ordering on $R$, and moreover $R$ with this ordering is real closed.
 \end{lemma}
 \begin{proof}
@@ -473,6 +489,7 @@ In fact, we can go further. The following is a weak form of the Artin-Schreier t
 \begin{theorem}
   \label{thm:Artin-Schreier_weak}
   \uses{def:RCF}
+  \lean{weak_Artin_Schreier}
   Let $R$ be a field with $\ch K\neq2$, and suppose $[\bar{R}:R]=2$. Then there is a unique field ordering on $R$, and moreover $R$ with this ordering is real closed.
 \end{theorem}
 \begin{proof}
@@ -487,6 +504,7 @@ We can weaken the hypotheses even further. Here is the full Artin-Schreier theor
 \begin{theorem}[Artin-Schreier Theorem]
   \label{thm:Artin-Schreier}
   \uses{def:RCF}
+  \lean{Artin_Schreier}
   Let $R$ be a field, and suppose $\bar{R}$ is a \textit{finite} extension of $R$. Then there is a unique field ordering on $R$, and moreover $R$ with this ordering is real closed.
 \end{theorem}
 \begin{proof}

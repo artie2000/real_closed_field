@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex print"] 0 "print.aux" "print.bbl" "print" 1766971600.06988 -1
+["bibtex print"] 1766973224.99062 "print.aux" "print.bbl" "print" 1766973469.29887 0
   "./rcf.bib" 1753630972 1442 1e3d105f2fba1aeb267db4f175782f94 ""
   "C:/Users/Artie/AppData/Local/Programs/MiKTeX/bibtex/bst/bibtex/plain.bst" 1291864736 20613 bd3fbfa9f64872b81ac57a0dd2ed855f ""
-  "print.aux" 1766971597 3124 77933056a4c518aa337caf97f370c473 "pdflatex"
+  "print.aux" 1766973466 3124 99e21cacbb854fa4e146f8b428d988a8 "pdflatex"
   (generated)
   "print.bbl"
   "print.blg"
   (rewritten before read)
-["pdflatex"] 1766971593.87328 "c:/Users/Artie/Documents/Lean/real_closed_field/blueprint/src/print.tex" "print.pdf" "print" 1766971600.07173 0
+["pdflatex"] 1766973462.35163 "c:/Users/Artie/Documents/Lean/real_closed_field/blueprint/src/print.tex" "print.pdf" "print" 1766973469.29998 0
   "C:/Users/Artie/AppData/Local/MiKTeX/miktex/data/le/xetex/xelatex.fmt" 1766970064 27012792 3af94ed79c184fff40e1cf7e6526b46e ""
   "C:/Users/Artie/AppData/Local/Programs/MiKTeX/fonts/tfm/adobe/zapfding/pzdr.tfm" 1136772254 1528 7e12f4c0fcf5a072cebdcfbfc610f54c ""
   "C:/Users/Artie/AppData/Local/Programs/MiKTeX/fonts/tfm/public/amsfonts/symbols/msam10.tfm" 1233951854 916 f87d7c45f9c908e672703b83b72241a3 ""
@@ -84,12 +84,12 @@
   "C:/Users/Artie/AppData/Local/Programs/MiKTeX/tex/latex/unicode-math/unicode-math.sty" 1691937353 1474 b42cfbe849cb22ed1c0632800327884f ""
   "C:/Users/Artie/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "c:/Users/Artie/Documents/Lean/real_closed_field/blueprint/src/print.tex" 1749723891 1114 7d1a9aaff3244f31452a0ea8d9b3b7cf ""
-  "content.tex" 1766971576 29552 c48fd57c161da890673f12cffcea55cd ""
+  "content.tex" 1766973451 29581 1830eb9ec4309dc915ffc0d0c6f27b60 ""
   "macros/common.tex" 1749946375 2224 e9118624da81754c4055cf15203f96e4 ""
   "macros/print.tex" 1749720038 1101 87627b2ec24fef68edc71c13f43f7bab ""
-  "print.aux" 1766971597 3124 77933056a4c518aa337caf97f370c473 "pdflatex"
-  "print.bbl" 1766971077 855 35d5722fb5da0649f3964d55da4df46b "bibtex print"
-  "print.out" 1766971597 553 d1123fcc007a9d1a4d61040122a81144 "pdflatex"
+  "print.aux" 1766973466 3124 99e21cacbb854fa4e146f8b428d988a8 "pdflatex"
+  "print.bbl" 1766973225 855 35d5722fb5da0649f3964d55da4df46b "bibtex print"
+  "print.out" 1766973466 553 d1123fcc007a9d1a4d61040122a81144 "pdflatex"
   "print.tex" 1749723891 1114 7d1a9aaff3244f31452a0ea8d9b3b7cf ""
   (generated)
   "print.aux"
