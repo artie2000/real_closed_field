@@ -67,12 +67,12 @@ We can also characterise algebraically whether a field $F$ has a unique ordering
 
 There is a corresponding algebraic characterisation of an ordered field extension.
 
-\begin{lemma}
-  \label{lem:ext_ord_cond}
+\begin{theorem}
+  \label{thm:ext_ord_cond}
   \lean{Field.exists_isOrderedAlgebra_iff_neg_one_notMem_sup}
   \leanok
   Let $F$ be an ordered field, and let $K/F$ be a field extension. Then there is an ordering on $K$ making the extension $K/F$ ordered if and only if $\sum_i x_i\alpha_i^2\neq-1$ for all choices of $\alpha_i\in K$ and $x_i\in F_{\geq0}$.
-\end{lemma}
+\end{theorem}
 
 \begin{lemma}
   \label{lem:ext_ord_functional_suff}
@@ -81,11 +81,11 @@ There is a corresponding algebraic characterisation of an ordered field extensio
   Let $F$ be an ordered field, and let $K/F$ be a field extension. Suppose that there is an $F$-linear functional $\pi:K\to F$ such that, for all $x\in K$, $\pi(x^2)\geq0$. Then there is a field ordering on $K$ making $K/F$ ordered.
 \end{lemma}
 \begin{proof}
-  \uses{lem:ext_ord_cond}
+  \uses{thm:ext_ord_cond}
   \leanok
   Consider the sum $\sum_i x_i\alpha_i^2$ for some $\alpha_i\in K$ and $x_i\in F_{\geq0}$. By $F$-linearity, we compute
   \[\pi\left(\sum_i x_i\alpha_i^2\right)=\sum_i x_i\pi(\alpha_i^2)\geq0.\]
-  Since $\pi(-1)=-1<0$, we are done by Lemma \ref{lem:ext_ord_cond}.
+  Since $\pi(-1)=-1<0$, we are done by Theorem \ref{thm:ext_ord_cond}.
 \end{proof}
 
 \begin{corollary}
@@ -107,9 +107,9 @@ There is a corresponding algebraic characterisation of an ordered field extensio
   Let $F$ be an ordered field, and let $K/F$ be an odd-degree extension. Then there is a field ordering on $K$ making $K/F$ ordered.
 \end{lemma}
 \begin{proof}
-  \uses{lem:ext_ord_cond}
+  \uses{thm:ext_ord_cond}
   \leanok
-  Since $\operatorname{char} R=0$, we can apply the primitive element theorem. Let $K=F(\alpha)$ for some $\alpha\in K$, and let $f$ be the minimal polynomial of $\alpha$ over $K$. Then $\deg f=[K:F]$ is odd. By Lemma \ref{lem:ext_ord_cond}, we need to show that the congruence
+  Since $\operatorname{char} R=0$, we can apply the primitive element theorem. Let $K=F(\alpha)$ for some $\alpha\in K$, and let $f$ be the minimal polynomial of $\alpha$ over $K$. Then $\deg f=[K:F]$ is odd. By Theorem \ref{thm:ext_ord_cond}, we need to show that the congruence
   \[\sum_ia_ig_i^2\equiv-1\bmod f\tag{$\star$}\]
   fails to hold for any non-negative $a_i\in F$ and polynomials $g_i\in F[X]$ each of degree at most $\deg f-1$. Proceed by induction on $\deg f$; if $\deg f=1$, then ($\star$) reduces to an equality of a non-negative element of $F$ with a negative one. Otherwise, suppose for a contradiction that ($\star$) holds. Without loss of generality, we may assume, for all $i$, we have $a_i\neq0$ and that $\deg g_i<\deg f$.
   
@@ -426,7 +426,7 @@ Taking $K=F$ above, we see that the order-embedding of a field into its real clo
 \end{theorem}
 \begin{proof}
   \uses{lem:closure_emb_ext,lem:RCF_max}
-  Let $R_1$ and $R_2$ be real closures of $F$. Applying Zorn's lemma to the set of ordered extensions intermediate between $R_1$ and $F$ having a unique order-preserving $F$-embedding into $R_2$, and using Lemma \ref{lem:closure_emb_ext}, we obtain an intermediate extension $R_1/K/F$ with no nontrivial finite ordered extensions and a unique order-preserving $F$-embedding $\varphi:K\to R_2$. If the ordered algebraic extension $R_2/\varphi(K)$ were nontrivial, then it would contain a nontrivial ordered finite extension, so $\varphi$ must be surjective (and so an $F$-isomorphism). In particular, $K\subseteq R_1$ is real closed; by maximality (\ref{lem:RCF_max}), in fact $K=R_1$ and so $\varphi$ is an $F$-isomorphism between $R_1$ and $R_2$.
+  Let $R_1$ and $R_2$ be real closures of $F$. Applying Zorn's lemma to the set of ordered extensions intermediate between $R_1$ and $F$ having a unique order-preserving $F$-embedding into $R_2$, and using Lemma \ref{lem:closure_emb_ext}, we obtain an intermediate extension $R_1/K/F$ with no nontrivial finite ordered extensions and a unique order-preserving $F$-embedding $\varphi:K\to R_2$. If the ordered algebraic extension $R_2/\varphi(K)$ were nontrivial, then it would contain a nontrivial ordered finite extension, so $\varphi$ must be surjective (and so an $F$-isomorphism). In particular, $K\subseteq R_1$ is real closed; by maximality (Lemma \ref{lem:RCF_max}), in fact $K=R_1$ and so $\varphi$ is an $F$-isomorphism between $R_1$ and $R_2$.
 \end{proof}
 
 \begin{corollary}
