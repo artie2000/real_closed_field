@@ -1,4 +1,4 @@
-name = "Real Closed Field"
+name = "RealClosedField"
 defaultTargets = ["RealClosedField"]
 
 [leanOptions]
