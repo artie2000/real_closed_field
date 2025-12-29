@@ -6,15 +6,11 @@
 % the current file can be a simple sequence of \input. Otherwise It
 % can start with a \section or \chapter for instance.
 
-We follow \cite{Lam1984} for the material on field orderings and the algebraic criterion for field orderability. For the material on real closed fields, we synthesise material from \cite{Bochnak1998}, \cite{Knebusch2022}, \cite{Jacobson2012I} and \cite{Jacobson2012II} as convenient. 
+We synthesise material from \cite{Bochnak1998}, \cite{Knebusch2022}, \cite{Jacobson2012I} and \cite{Jacobson2012II} as convenient. 
 
 Note that the meaning of the notation $F(\sqrt{a})$ depends on whether $a$ is a square in $F$. We take care to write it only in the non-trivial case. The same applies to $F(i)$.
 
 % TODO : either generalise the section on ring orderings, or remove it and just state the existence conditions
-
-\section{Preliminaries}
-
-
 
 \section{Ordered Fields} 
 
@@ -47,7 +43,6 @@ We can also characterise algebraically whether a field $F$ has a unique ordering
 
 \begin{corollary}
   \label{cor:unique_ord_cond_ordered}
-  \uses{def:ordered_field}
   \lean{IsStrictOrderedRing.unique_isStrictOrderedRing_iff}
   \leanok
   Let $F$ be an ordered field. Then $F$ has a unique field ordering if and only if every non-negative element is a sum of squares.
@@ -59,7 +54,6 @@ We can also characterise algebraically whether a field $F$ has a unique ordering
 
 \begin{corollary}
   \label{cor:unique_ord_Q}
-  \uses{def:ordered_field}
   \lean{Rat.unique_isStrictOrderedRing}
   \leanok
   There is a unique field ordering on $\Q$.
@@ -67,12 +61,11 @@ We can also characterise algebraically whether a field $F$ has a unique ordering
 \begin{proof}
   \uses{cor:unique_ord_cond_ordered}
   \leanok
-  Let $x\in\Q$ be non-negative. Then $x=p/q$ for some integers $p\geq0$ and $q>0$, so 
-  \[x=\underbrace{\frac{1}{q^2}+\cdots+\frac{1}{q^2}}_{pq\text{ times}}\]
-  is a sum of squares. We are done by Corollary \ref{cor:unique_ord_cond_ordered}.
+  We use Corollary \ref{cor:unique_ord_cond_ordered}. Let $x\in\Q$ be non-negative. Then $x=p/q$ for some integers $p\geq0$ and $q>0$, so 
+  \[x=\underbrace{\frac{1}{q^2}+\cdots+\frac{1}{q^2}}_{pq\text{ times}}.\]
 \end{proof}
 
-There is a corresponding algebraic characterisation of an ordered field extension. Note that, since real fields have characteristic 0, their algebraic extensions are separable.
+There is a corresponding algebraic characterisation of an ordered field extension.
 
 \begin{lemma}
   \label{lem:ext_ord_cond}
@@ -91,7 +84,7 @@ There is a corresponding algebraic characterisation of an ordered field extensio
   \uses{lem:ext_ord_cond}
   \leanok
   Consider the sum $\sum_i x_i\alpha_i^2$ for some $\alpha_i\in K$ and $x_i\in F_{\geq0}$. By $F$-linearity, we compute
-  \[\pi(\sum_i x_i\alpha_i^2)=\sum_i x_i\pi(\alpha_i^2)\geq0.\]
+  \[\pi\left(\sum_i x_i\alpha_i^2\right)=\sum_i x_i\pi(\alpha_i^2)\geq0.\]
   Since $\pi(-1)=-1<0$, we are done by Lemma \ref{lem:ext_ord_cond}.
 \end{proof}
 
@@ -116,7 +109,7 @@ There is a corresponding algebraic characterisation of an ordered field extensio
 \begin{proof}
   \uses{lem:ext_ord_cond}
   \leanok
-  By the primitive element theorem, $K=F(\alpha)$ for some $\alpha\in K$. Let $f$ be the minimal polynomial of $\alpha$ over $K$; then $\deg f=[K:F]$ is odd. By Lemma \ref{lem:ext_ord_cond}, we need to show that the congruence
+  Since $\operatorname{char} R=0$, we can apply the primitive element theorem. Let $K=F(\alpha)$ for some $\alpha\in K$, and let $f$ be the minimal polynomial of $\alpha$ over $K$. Then $\deg f=[K:F]$ is odd. By Lemma \ref{lem:ext_ord_cond}, we need to show that the congruence
   \[\sum_ia_ig_i^2\equiv-1\bmod f\tag{$\star$}\]
   fails to hold for any non-negative $a_i\in F$ and polynomials $g_i\in F[X]$ each of degree at most $\deg f-1$. Proceed by induction on $\deg f$; if $\deg f=1$, then ($\star$) reduces to an equality of a non-negative element of $F$ with a negative one. Otherwise, suppose for a contradiction that ($\star$) holds. Without loss of generality, we may assume, for all $i$, we have $a_i\neq0$ and that $\deg g_i<\deg f$.
   
@@ -131,7 +124,6 @@ There is an easier way to construct ordered field extensions if we don't care ab
 
 \begin{lemma}
   \label{lem:order_fun_field}
-  \uses{def:ordered_ext}
   Let $F$ be an ordered field, and let $a\in F$. Then there is a unique ordering on the function field $F(X)$ making $F(X)/F$ ordered such that $X>a$ but $b>X$ for $b>a$, and a unique one such that $X<a$ but $b<X$ for $b<a$.
 \end{lemma}
 
@@ -141,7 +133,6 @@ Intuitively, $X$ is infinitesimally close to $a$. When $a=0$, we often write $R(
 
 \begin{definition}
   \label{def:RCF}
-  \uses{def:ordered_field}
   \lean{IsRealClosed}
   \leanok
   A real closed field is an ordered field in which every non-negative element is a square and every odd-degree polynomial has a root.
@@ -181,7 +172,7 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
   The field $R(i)$ is the unique quadratic extension of $R$.
 \end{lemma}
 \begin{proof}
-  Let $K/R$ be a quadratic extension. Since $\text{char}(R)\neq2$, we have $K\cong R(\sqrt{a})$ for some $a\in R$. Since nonnegative elements of $R$ are squares, $a$ is negative and so $-a$ is a square in $R$. Rescaling by $\sqrt{-a}^{-1}$, we get $R(\sqrt{a})\cong R(i)$.
+  Let $K/R$ be a quadratic extension. Since $\operatorname{char}(R)\neq2$, we have $K\cong R(\sqrt{a})$ for some $a\in R$. Since nonnegative elements of $R$ are squares, $a$ is negative and so $-a$ is a square in $R$. Rescaling by $\sqrt{-a}$, we get $R(\sqrt{a})\cong R(i)$.
 \end{proof}
 
 \begin{lemma}
@@ -191,7 +182,7 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
   There is no quadratic extension of $R(i)$.
 \end{lemma}
 \begin{proof}
-  Since $\text{char}R(i)\neq 2$, it suffices to show that every element of $R(i)$ is a square. Indeed, take $x=a+bi\in R(i)$ with $a,b\in R$. If $b=0$, then either $a\geq0$ and so $x$ is a square in $R$, or $a\leq0$ and so $a=(i\sqrt{-a})^2$ is a square in $R$. Now let $b\neq0$. Then we compute $x=(c+di)^2$, where
+  Since $\operatorname{char}R(i)\neq 2$, it suffices to show that every element of $R(i)$ is a square. Indeed, take $x=a+bi\in R(i)$ with $a,b\in R$. If $b=0$, then either $a\geq0$ and so $x$ is a square in $R$, or $a\leq0$ and so $a=(i\sqrt{-a})^2$ is a square in $R$. Now let $b\neq0$. Then we compute $x=(c+di)^2$, where
   \[c=\sqrt{\frac{a+\sqrt{a^2+b^2}}{2}}\text{ and }d=\frac{b}{2c}.\]
   To see that $c$ and $d$ are well-defined elements of $R$, observe that $a^2+b^2>a^2\geq0$ (as $b\neq0$), and so $a+\sqrt{a^2+b^2}>0$. Therefore the square roots above lie in $R$ and $c\neq0$.
 \end{proof}
@@ -340,7 +331,7 @@ In summary, we have proved the following characterisation of real closed fields.
 
 \begin{theorem}
   \label{thm:RCF_tfae}
-  \uses{def:RCF,def:ordered_ext}
+  \uses{def:RCF}
   Let $R$ be an ordered field. TFAE:
   \begin{enumerate}
     \item $R$ is real closed.
@@ -358,7 +349,7 @@ In summary, we have proved the following characterisation of real closed fields.
 
 \begin{definition}
   \label{def:real_closure}
-  \uses{def:ordered_ext,def:RCF}
+  \uses{def:RCF}
   \lean{IsRealClosure}
   \leanok
   Let $F$ be an ordered field. A real closure of $F$ is a real closed ordered algebraic extension of $F$.
@@ -485,10 +476,10 @@ In fact, we can go further. The following is a weak form of the Artin-Schreier t
   Let $R$ be a field with $\ch K\neq2$, and suppose $[\bar{R}:R]=2$. Then there is a unique field ordering on $R$, and moreover $R$ with this ordering is real closed.
 \end{theorem}
 \begin{proof}
-  \uses{lem:FTAlg_converse_strong,lem:deg_2_classify}
+  \uses{lem:FTAlg_converse_strong}
   By Lemma \ref{lem:FTAlg_converse_strong}, it suffices to show that $\bar{R}\cong R(i)$.
 
-  By Lemma \ref{lem:deg_2_classify}, $\bar{R}\cong R(\sqrt{a})$ for some non-square $a\in R$. Since $R(\sqrt{a})$ is algebraically closed, $\sqrt{a}$ is a square in $R(\sqrt{a})$; find $x,y\in R$ such that $\sqrt{a}=(x+y\sqrt{a})^2$. Expanding and comparing coefficients, $x^2+y^2a=0$ and $2xy=1$. Rearranging, $a=-(4x^4)=-1\cdot(2x^2)^2$. In particular, $-1$ is not a square. By Lemma \ref{lem:deg_2_classify}, $R(i)\cong R(\sqrt{a})=\bar{R}$.
+  Since $\operatorname{char}\bar{R}\neq 2$, we have $\bar{R}\cong R(\sqrt{a})$ for some non-square $a\in R$. Since $R(\sqrt{a})$ is algebraically closed, $\sqrt{a}$ is a square in $R(\sqrt{a})$; find $x,y\in R$ such that $\sqrt{a}=(x+y\sqrt{a})^2$. Expanding and comparing coefficients, $x^2+y^2a=0$ and $2xy=1$. Rearranging, $a=-(4x^4)=-1\cdot(2x^2)^2$. Rescaling by $2x^2$, $R(i)\cong R(\sqrt{a})=\bar{R}$.
 \end{proof}
 
 We can weaken the hypotheses even further. Here is the full Artin-Schreier theorem.
