@@ -453,7 +453,7 @@ theorem IsSemireal.of_isAdjoinRoot_i_algebraicClosure {R : Type*} [Field R]
       Polynomial.X_sq_sub_C_irreducible_iff_not_isSquare] at this
   exact this <| isSumSq_of_isSquare hR IsAlgClosed.isSquare (-1 : R) hc
 
-theorem IsSemireal.TFAE_RCF {F : Type u} [Field F] :
+theorem IsSemireal.TFAE_RCF.{u} {F : Type u} [Field F] :
     [IsSemireal F ∧ (∀ x : F, IsSquare x ∨ IsSquare (-x)) ∧
      ∀ {f : F[X]}, Odd f.natDegree → ∃ x, f.IsRoot x,
      IsAdjoinRootMonic' (AlgebraicClosure F) (X ^ 2 + 1 : F[X]),

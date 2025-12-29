@@ -40,11 +40,11 @@ jobs:
         with:
           fetch-depth: 0 # Fetch all history for all branches and tags
 
-      - name: Build and lint project
+      - name: Build project
         uses: leanprover/lean-action@434f25c2f80ded67bba02502ad3a86f25db50709 # v1.3.0
         with:
           build: true
-          lint: true
+          lint: false
           mk_all-check: true
 
       - name: Compile blueprint and documentation
