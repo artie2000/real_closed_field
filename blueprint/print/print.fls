@@ -128,7 +128,7 @@ INPUT .\macros\print.tex
 INPUT macros\print.tex
 INPUT C:\Users\Artie\Documents\Lean\real_closed_field\blueprint\print\print.aux
 INPUT C:\Users\Artie\Documents\Lean\real_closed_field\blueprint\print\print.aux
-INPUT print.aux
+INPUT C:\Users\Artie\Documents\Lean\real_closed_field\blueprint\print\print.aux
 OUTPUT C:\Users\Artie\Documents\Lean\real_closed_field\blueprint\print\print.aux
 INPUT C:\Users\Artie\AppData\Local\Programs\MiKTeX\tex\latex\graphics\graphicx.sty
 INPUT C:\Users\Artie\AppData\Local\Programs\MiKTeX\tex\latex\graphics\graphicx.sty
@@ -152,8 +152,8 @@ INPUT C:\Users\Artie\AppData\Local\Programs\MiKTeX\tex\latex\graphics\mathcolor.
 INPUT C:\Users\Artie\AppData\Local\Programs\MiKTeX\tex\latex\graphics\mathcolor.ltx
 INPUT C:\Users\Artie\Documents\Lean\real_closed_field\blueprint\print\print.out
 INPUT C:\Users\Artie\Documents\Lean\real_closed_field\blueprint\print\print.out
-INPUT print.out
-INPUT print.out
+INPUT C:\Users\Artie\Documents\Lean\real_closed_field\blueprint\print\print.out
+INPUT C:\Users\Artie\Documents\Lean\real_closed_field\blueprint\print\print.out
 INPUT C:\Users\Artie\Documents\Lean\real_closed_field\blueprint\print\print.out
 INPUT C:\Users\Artie\Documents\Lean\real_closed_field\blueprint\print\print.out
 OUTPUT C:\Users\Artie\Documents\Lean\real_closed_field\blueprint\print\print.out
@@ -185,7 +185,7 @@ INPUT C:\Users\Artie\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\sym
 INPUT C:\Users\Artie\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm5.tfm
 INPUT C:\Users\Artie\Documents\Lean\real_closed_field\blueprint\print\print.bbl
 INPUT C:\Users\Artie\Documents\Lean\real_closed_field\blueprint\print\print.bbl
-INPUT print.bbl
-INPUT print.aux
+INPUT C:\Users\Artie\Documents\Lean\real_closed_field\blueprint\print\print.bbl
+INPUT C:\Users\Artie\Documents\Lean\real_closed_field\blueprint\print\print.aux
 INPUT C:\Users\Artie\Documents\Lean\real_closed_field\blueprint\print\print.out
 INPUT C:\Users\Artie\Documents\Lean\real_closed_field\blueprint\print\print.out

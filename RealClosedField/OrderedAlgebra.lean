@@ -7,7 +7,7 @@ import RealClosedField.Prereqs
 import RealClosedField.PrimitiveElement.Quadratic
 import RealClosedField.Algebra.Order.Ring.Ordering.Adjoin
 import RealClosedField.Algebra.Order.Ring.Ordering.Order
-import Mathlib.Algebra.Order.Module.Algebra
+import Mathlib.Algebra.Order.Algebra
 
 attribute [-simp] AdjoinRoot.algebraMap_eq
 

@@ -1,0 +1,1332 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dependency graph</title>
+  <meta name="generator" content="plasTeX" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles/theme-white.css" />
+  <link rel="stylesheet" href="styles/dep_graph.css" />
+  
+  <script type="text/x-mathjax-config">
+  
+    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+  
+  </script>
+
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">  </script>
+
+
+<link rel="stylesheet" href="styles/extra_styles.css" />
+
+</head>
+
+<body>
+<header>
+  <a class="toc" href="index.html">Home</a>
+  <h1 id="doc_title">Dependencies</h1>
+</header>
+<div class="wrapper">
+<div class="content">
+  <div id="Legend">
+    <span id="legend_title" class="title">Legend
+    <div class="btn">
+       <div class="bar"></div>
+       <div class="bar"></div>
+       <div class="bar"></div>
+    </div></span> 
+    <dl class="legend">
+      
+      <dt>Boxes</dt><dd>definitions</dd>
+      
+      <dt>Ellipses</dt><dd>theorems and lemmas</dd>
+      
+      <dt>Blue border</dt><dd>the <em>statement</em> of this result is ready to be formalized; all prerequisites are done</dd>
+      
+      <dt>Orange border</dt><dd>the <em>statement</em> of this result is not ready to be formalized; the blueprint needs more work</dd>
+      
+      <dt>Blue background</dt><dd>the <em>proof</em> of this result is ready to be formalized; all prerequisites are done</dd>
+      
+      <dt>Green border</dt><dd>the <em>statement</em> of this result is formalized</dd>
+      
+      <dt>Green background</dt><dd>the <em>proof</em> of this result is formalized</dd>
+      
+      <dt>Dark green background</dt><dd>the <em>proof</em> of this result and all its ancestors are formalized</dd>
+      
+      <dt>Dark green border</dt><dd>this is in Mathlib</dd>
+      
+    </dl>
+  </div>
+    <div id="graph"></div>
+<div id="statements">
+
+    
+    <div class="dep-modal-container" id="cor:ACF_char_p_no_fin_ind_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="cor:ACF_char_p_no_fin_ind" style="display: none">
+    <div class="thm_thmheading">
+      <span class="corollary_thmcaption">
+      Corollary
+      </span>
+      <span class="corollary_thmlabel">39</span></div>
+    <div class="thm_thmcontent"><p> An algebraically closed field of nonzero characteristic has no finite-index subfields. </p>
+</div>
+
+    <a class="latex_link" href="index.html#cor:ACF_char_p_no_fin_ind">LaTeX</a>
+    
+    
+  
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="cor:ext_ord_to_adj_sqrt_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="cor:ext_ord_to_adj_sqrt" style="display: none">
+    <div class="thm_thmheading">
+      <span class="corollary_thmcaption">
+      Corollary
+      </span>
+      <span class="corollary_thmlabel">8</span></div>
+    <div class="thm_thmcontent"><p>  Let \(F\) be a ordered field, and suppose \(a\in F\) is non-negative (and not a square). Then there is a field ordering on \(F(\sqrt{a})\) making \(F(\sqrt{a})/F\) ordered. </p>
+</div>
+
+    <a class="latex_link" href="index.html#cor:ext_ord_to_adj_sqrt">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/adj_sqrt_ordered">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="cor:FTAlg_alg_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="cor:FTAlg_alg" style="display: none">
+    <div class="thm_thmheading">
+      <span class="corollary_thmcaption">
+      Corollary
+      </span>
+      <span class="corollary_thmlabel">17</span></div>
+    <div class="thm_thmcontent"><p>   The only algebraic extensions of \(R\) are \(R\) itself and \(R(i)\). </p>
+</div>
+
+    <a class="latex_link" href="index.html#cor:FTAlg_alg">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/IsRealClosed.instFiniteDimensionalOfIsAlgebraic">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="cor:RCF_ac_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="cor:RCF_ac" style="display: none">
+    <div class="thm_thmheading">
+      <span class="corollary_thmcaption">
+      Corollary
+      </span>
+      <span class="corollary_thmlabel">18</span></div>
+    <div class="thm_thmcontent"><p>   \(\bar{R}=R(i)\). </p>
+</div>
+
+    <a class="latex_link" href="index.html#cor:RCF_ac">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/IsRealClosed.isAdjoinRoot_i_of_isAlgClosure">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="cor:RCF_no_auto_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="cor:RCF_no_auto" style="display: none">
+    <div class="thm_thmheading">
+      <span class="corollary_thmcaption">
+      Corollary
+      </span>
+      <span class="corollary_thmlabel">33</span></div>
+    <div class="thm_thmcontent"><p>  A real closed field has no nontrivial field automorphisms. </p>
+</div>
+
+    <a class="latex_link" href="index.html#cor:RCF_no_auto">LaTeX</a>
+    
+    
+  
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="cor:unique_ord_cond_ordered_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="cor:unique_ord_cond_ordered" style="display: none">
+    <div class="thm_thmheading">
+      <span class="corollary_thmcaption">
+      Corollary
+      </span>
+      <span class="corollary_thmlabel">4</span></div>
+    <div class="thm_thmcontent"><p>  Let \(F\) be an ordered field. Then \(F\) has a unique field ordering if and only if every non-negative element is a sum of squares. </p>
+</div>
+
+    <a class="latex_link" href="index.html#cor:unique_ord_cond_ordered">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/IsStrictOrderedRing.unique_isStrictOrderedRing_iff">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="cor:unique_ord_Q_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="cor:unique_ord_Q" style="display: none">
+    <div class="thm_thmheading">
+      <span class="corollary_thmcaption">
+      Corollary
+      </span>
+      <span class="corollary_thmlabel">5</span></div>
+    <div class="thm_thmcontent"><p>  There is a unique field ordering on \(\mathbb {Q}\). </p>
+</div>
+
+    <a class="latex_link" href="index.html#cor:unique_ord_Q">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/Rat.unique_isStrictOrderedRing">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:RCF_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:RCF" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">11</span></div>
+    <div class="thm_thmcontent"><p>  A real closed field is an ordered field in which every non-negative element is a square and every odd-degree polynomial has a root. </p>
+</div>
+
+    <a class="latex_link" href="index.html#def:RCF">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/IsRealClosed">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:real_closure_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:real_closure" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">27</span></div>
+    <div class="thm_thmcontent"><p>   Let \(F\) be an ordered field. A real closure of \(F\) is a real closed ordered algebraic extension of \(F\). </p>
+</div>
+
+    <a class="latex_link" href="index.html#def:real_closure">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/IsRealClosure">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="def:semireal_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="def:semireal" style="display: none">
+    <div class="thm_thmheading">
+      <span class="definition_thmcaption">
+      Definition
+      </span>
+      <span class="definition_thmlabel">1</span></div>
+    <div class="thm_thmcontent"><p>  A field is real if \(-1\) is not a sum of squares. </p>
+</div>
+
+    <a class="latex_link" href="index.html#def:semireal">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/IsSemireal">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:ACF_ind_2_RCF_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:ACF_ind_2_RCF" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">25</span></div>
+    <div class="thm_thmcontent"><p>  An algebraically closed field of characteristic 0 has an index-2 real closed subfield. </p>
+</div>
+
+    <a class="latex_link" href="index.html#lem:ACF_ind_2_RCF">LaTeX</a>
+    
+    
+  
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:alg_ext_odd_deg_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:alg_ext_odd_deg" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">13</span></div>
+    <div class="thm_thmcontent"><p>   There is no nontrivial odd-degree finite extension of \(R\). </p>
+</div>
+
+    <a class="latex_link" href="index.html#lem:alg_ext_odd_deg">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/IsRealClosed.odd_finrank_extension">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:closure_emb_ext_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:closure_emb_ext" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">31</span></div>
+    <div class="thm_thmcontent"><p>  Let \(F\) be an ordered field with a real closure \(R\), and let \(K/F\) be a finite ordered extension. Then there is a unique order-preserving \(F\)-homomorphism \(K\to R\). </p>
+</div>
+
+    <a class="latex_link" href="index.html#lem:closure_emb_ext">LaTeX</a>
+    
+    
+  
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:closure_emb_ext_unordered_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:closure_emb_ext_unordered" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">30</span></div>
+    <div class="thm_thmcontent"><p>  Let \(F\) be an ordered field with a real closure \(R\), and let \(K/F\) be a finite ordered extension. Then there is an \(F\)-homomorphism \(K\to R\). </p>
+</div>
+
+    <a class="latex_link" href="index.html#lem:closure_emb_ext_unordered">LaTeX</a>
+    
+    
+  
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:ext_deg_2_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:ext_deg_2" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">14</span></div>
+    <div class="thm_thmcontent"><p>   The field \(R(i)\) is the unique quadratic extension of \(R\). </p>
+</div>
+
+    <a class="latex_link" href="index.html#lem:ext_deg_2">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/IsRealClosed.isAdjoinRoot_i_of_isQuadraticExtension">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:ext_ord_functional_suff_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:ext_ord_functional_suff" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">7</span></div>
+    <div class="thm_thmcontent"><p>  Let \(F\) be an ordered field, and let \(K/F\) be a field extension. Suppose that there is an \(F\)-linear functional \(\pi :K\to F\) such that, for all \(x\in K\), \(\pi (x^2)\geq 0\). Then there is a field ordering on \(K\) making \(K/F\) ordered. </p>
+</div>
+
+    <a class="latex_link" href="index.html#lem:ext_ord_functional_suff">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/Field.exists_isOrderedAlgebra_of_projection">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:ext_ord_odd_deg_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:ext_ord_odd_deg" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">9</span></div>
+    <div class="thm_thmcontent"><p>  Let \(F\) be an ordered field, and let \(K/F\) be an odd-degree extension. Then there is a field ordering on \(K\) making \(K/F\) ordered. </p>
+</div>
+
+    <a class="latex_link" href="index.html#lem:ext_ord_odd_deg">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/odd_deg_ordered">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:FTAlg_converse_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:FTAlg_converse" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">19</span></div>
+    <div class="thm_thmcontent"><p>   Suppose \(R\) is an ordered field whose only nontrivial finite extension is \(R(i)\). Then \(R\) is real closed. </p>
+</div>
+
+    <a class="latex_link" href="index.html#lem:FTAlg_converse">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/IsRealClosed.of_isAdjoinRoot_i_or_finrank_eq_one">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:FTAlg_converse_strong_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:FTAlg_converse_strong" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">36</span></div>
+    <div class="thm_thmcontent"><p>   Suppose \(R\) is a field whose only nontrivial algebraic extension is \(R(i)\). Then there is a unique field ordering on \(R\), and moreover \(R\) with this ordering is real closed. </p>
+</div>
+
+    <a class="latex_link" href="index.html#lem:FTAlg_converse_strong">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/very_weak_Artin_Schreier">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:irreds_class_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:irreds_class" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">21</span></div>
+    <div class="thm_thmcontent"><p>   The monic irreducible polynomials over \(R[X]\) have form \(X-c\) for some \(c\in R\) or \((X-a)^2+b^2\) for some \(a,b\in R\) with \(b\neq 0\). </p>
+</div>
+
+    <a class="latex_link" href="index.html#lem:irreds_class">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/IsRealClosed.irred_poly_classify">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:IVP_poly_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:IVP_poly" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">22</span></div>
+    <div class="thm_thmcontent"><p>   Polynomials over \(R\) satisfy the intermediate value property. </p>
+</div>
+
+    <a class="latex_link" href="index.html#lem:IVP_poly">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/IsRealClosed.intermediate_value_property">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:ord_alg_ext_eq_emb_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:ord_alg_ext_eq_emb" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">34</span></div>
+    <div class="thm_thmcontent"><p>  Let \(F\) be an ordered field with real closure \(R\), and let \(K/F\) be algebraic. Then field orderings on \(K\) making \(K/F\) ordered correspond to \(F\)-homomorphisms \(K\to R\) via the order obtained by restriction from \(R\). </p>
+</div>
+
+    <a class="latex_link" href="index.html#lem:ord_alg_ext_eq_emb">LaTeX</a>
+    
+    
+  
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:order_fun_field_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:order_fun_field" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">10</span></div>
+    <div class="thm_thmcontent"><p> Let \(F\) be an ordered field, and let \(a\in F\). Then there is a unique ordering on the function field \(F(X)\) making \(F(X)/F\) ordered such that \(X{\gt}a\) but \(b{\gt}X\) for \(b{\gt}a\), and a unique one such that \(X{\lt}a\) but \(b{\lt}X\) for \(b{\lt}a\). </p>
+</div>
+
+    <a class="latex_link" href="index.html#lem:order_fun_field">LaTeX</a>
+    
+    
+  
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:RCF_max_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:RCF_max" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">20</span></div>
+    <div class="thm_thmcontent"><p>   \(R\) is maximal with respect to algebraic extensions by ordered fields. </p>
+</div>
+
+    <a class="latex_link" href="index.html#lem:RCF_max">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/IsRealClosed.maximal_isOrderedField">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:RCF_ord_unique_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:RCF_ord_unique" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">12</span></div>
+    <div class="thm_thmcontent"><p>   The ordering on a real closed field is unique. </p>
+</div>
+
+    <a class="latex_link" href="index.html#lem:RCF_ord_unique">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/IsRealClosed.unique_isStrictOrderedRing">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:real_closure_exists_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:real_closure_exists" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">28</span></div>
+    <div class="thm_thmcontent"><p>  Let \(F\) be an ordered field. Then \(F\) has a real closure. </p>
+</div>
+
+    <a class="latex_link" href="index.html#lem:real_closure_exists">LaTeX</a>
+    
+    
+  
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:Ri_ext_deg_2_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:Ri_ext_deg_2" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">15</span></div>
+    <div class="thm_thmcontent"><p>   There is no quadratic extension of \(R(i)\). </p>
+</div>
+
+    <a class="latex_link" href="index.html#lem:Ri_ext_deg_2">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/IsRealClosed.finrank_neq_two_of_isAdjoinRoot_i">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:sumsq_is_sq_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:sumsq_is_sq" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">35</span></div>
+    <div class="thm_thmcontent"><p>  Let \(F\) be a field in which \(-1\) is not a square, and suppose every element of \(F(i)\) is a square. Then sums of squares in \(F\) are squares in \(F\). </p>
+</div>
+
+    <a class="latex_link" href="index.html#lem:sumsq_is_sq">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/isSumSq_of_isSquare">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="lem:unique_ord_cond_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="lem:unique_ord_cond" style="display: none">
+    <div class="thm_thmheading">
+      <span class="lemma_thmcaption">
+      Lemma
+      </span>
+      <span class="lemma_thmlabel">3</span></div>
+    <div class="thm_thmcontent"><p>   Let \(F\) be a real field. There is a unique ordering on \(F\) if and only if, for each \(a\in F\), either \(a\) or \(-a\) is a sum of squares. </p>
+</div>
+
+    <a class="latex_link" href="index.html#lem:unique_ord_cond">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/IsSemireal.existsUnique_isStrictOrderedRing_iff">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="thm:Artin-Schreier_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="thm:Artin-Schreier" style="display: none">
+    <div class="thm_thmheading">
+      <span class="theorem_thmcaption">
+      Theorem
+      </span>
+      <span class="theorem_thmlabel">38</span><span class="theorem_thmtitle">Artin-Schreier Theorem</span></div>
+    <div class="thm_thmcontent"><p>    Let \(R\) be a field, and suppose \(\bar{R}\) is a <i class="itshape">finite</i> extension of \(R\). Then there is a unique field ordering on \(R\), and moreover \(R\) with this ordering is real closed. </p>
+</div>
+
+    <a class="latex_link" href="index.html#thm:Artin-Schreier">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/Artin_Schreier">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="thm:Artin-Schreier_weak_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="thm:Artin-Schreier_weak" style="display: none">
+    <div class="thm_thmheading">
+      <span class="theorem_thmcaption">
+      Theorem
+      </span>
+      <span class="theorem_thmlabel">37</span></div>
+    <div class="thm_thmcontent"><p>   Let \(R\) be a field with \(\operatorname{char}K\neq 2\), and suppose \([\bar{R}:R]=2\). Then there is a unique field ordering on \(R\), and moreover \(R\) with this ordering is real closed. </p>
+</div>
+
+    <a class="latex_link" href="index.html#thm:Artin-Schreier_weak">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/weak_Artin_Schreier">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="thm:ext_ord_cond_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="thm:ext_ord_cond" style="display: none">
+    <div class="thm_thmheading">
+      <span class="theorem_thmcaption">
+      Theorem
+      </span>
+      <span class="theorem_thmlabel">6</span></div>
+    <div class="thm_thmcontent"><p>  Let \(F\) be an ordered field, and let \(K/F\) be a field extension. Then there is an ordering on \(K\) making the extension \(K/F\) ordered if and only if \(\sum _i x_i\alpha _i^2\neq -1\) for all choices of \(\alpha _i\in K\) and \(x_i\in F_{\geq 0}\). </p>
+</div>
+
+    <a class="latex_link" href="index.html#thm:ext_ord_cond">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/Field.exists_isOrderedAlgebra_iff_neg_one_notMem_sup">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="thm:FTAlg_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="thm:FTAlg" style="display: none">
+    <div class="thm_thmheading">
+      <span class="theorem_thmcaption">
+      Theorem
+      </span>
+      <span class="theorem_thmlabel">16</span></div>
+    <div class="thm_thmcontent"><p>   The only finite extensions of \(R\) are \(R\) itself and \(R(i)\). </p>
+</div>
+
+    <a class="latex_link" href="index.html#thm:FTAlg">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/IsRealClosed.finite_extension_classify">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="thm:IVP_poly_imp_RCF_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="thm:IVP_poly_imp_RCF" style="display: none">
+    <div class="thm_thmheading">
+      <span class="theorem_thmcaption">
+      Theorem
+      </span>
+      <span class="theorem_thmlabel">23</span></div>
+    <div class="thm_thmcontent"><p>   Let \(R\) be an ordered field whose polynomials satisfy the intermediate value property. Then \(R\) is real closed. </p>
+</div>
+
+    <a class="latex_link" href="index.html#thm:IVP_poly_imp_RCF">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/IsRealClosed.of_intermediateValueProperty">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="thm:ord_iff_real_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="thm:ord_iff_real" style="display: none">
+    <div class="thm_thmheading">
+      <span class="theorem_thmcaption">
+      Theorem
+      </span>
+      <span class="theorem_thmlabel">2</span></div>
+    <div class="thm_thmcontent"><p>   A field can be ordered if and only if it is real. </p>
+</div>
+
+    <a class="latex_link" href="index.html#thm:ord_iff_real">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/Field.exists_isStrictOrderedRing_iff_isSemireal">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="thm:ord_max_imp_RCF_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="thm:ord_max_imp_RCF" style="display: none">
+    <div class="thm_thmheading">
+      <span class="theorem_thmcaption">
+      Theorem
+      </span>
+      <span class="theorem_thmlabel">24</span></div>
+    <div class="thm_thmcontent"><p>   Let \(R\) be an ordered field maximal with respect to ordered algebraic extensions. Then \(R\) is real closed. </p>
+</div>
+
+    <a class="latex_link" href="index.html#thm:ord_max_imp_RCF">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/IsRealClosed.of_maximal_isOrderedAlgebra">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="thm:Q_alg_unique_fin_ind_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="thm:Q_alg_unique_fin_ind" style="display: none">
+    <div class="thm_thmheading">
+      <span class="theorem_thmcaption">
+      Theorem
+      </span>
+      <span class="theorem_thmlabel">40</span></div>
+    <div class="thm_thmcontent"><p> The finite-index subfields of \(\bar{\mathbb {Q}}\) are isomorphic copies of \(\mathbb {Q}_{\text{alg}}=\bar{\mathbb {Q}}\cap \mathbb {R}\) indexed by \(\operatorname{Gal}(\mathbb {Q}_{\text{alg}}/\mathbb {Q}(i))\). </p>
+</div>
+
+    <a class="latex_link" href="index.html#thm:Q_alg_unique_fin_ind">LaTeX</a>
+    
+    
+  
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="thm:RCF_tfae_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="thm:RCF_tfae" style="display: none">
+    <div class="thm_thmheading">
+      <span class="theorem_thmcaption">
+      Theorem
+      </span>
+      <span class="theorem_thmlabel">26</span></div>
+    <div class="thm_thmcontent"><p>   Let \(R\) be an ordered field. TFAE: </p>
+<ol class="enumerate">
+  <li><p>\(R\) is real closed. </p>
+</li>
+  <li><p>\(\bar{R}=R(i)\) (and \(-1\) is not a square in \(R\)). </p>
+</li>
+  <li><p>Polynomials over \(R\) satisfy the intermediate value property. </p>
+</li>
+  <li><p>\(R\) is maximal with respect to ordered algebraic extensions. </p>
+</li>
+  <li><p>\(R\) is maximal with respect to algebraic extensions by ordered fields. </p>
+</li>
+</ol>
+</div>
+
+    <a class="latex_link" href="index.html#thm:RCF_tfae">LaTeX</a>
+    
+    
+  <a class="lean_link lean_decl" href="https://artie2000.github.io/real_closed_field/docs/find/#doc/IsRealClosed.TFAE">Lean</a>
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="thm:real_closure_unique_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="thm:real_closure_unique" style="display: none">
+    <div class="thm_thmheading">
+      <span class="theorem_thmcaption">
+      Theorem
+      </span>
+      <span class="theorem_thmlabel">32</span></div>
+    <div class="thm_thmcontent"><p>  Let \(F\) be an ordered field. Then the real closure of \(F\) is unique up to unique \(F\)-isomorphism. </p>
+</div>
+
+    <a class="latex_link" href="index.html#thm:real_closure_unique">LaTeX</a>
+    
+    
+  
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+
+
+    
+    <div class="dep-modal-container" id="thm:Sturm_modal">
+      <div class="dep-modal-content">
+          <button class="dep-closebtn">
+<svg  class="icon icon-cross "><use xlink:href="symbol-defs.svg#icon-cross"></use></svg>
+</button>
+        
+  <div class="thm" id="thm:Sturm" style="display: none">
+    <div class="thm_thmheading">
+      <span class="theorem_thmcaption">
+      Theorem
+      </span>
+      <span class="theorem_thmlabel">29</span><span class="theorem_thmtitle">Corollary to Sturm’s Theorem</span></div>
+    <div class="thm_thmcontent"><p>   Let \(F\) be an ordered field, and let \(f\) be a polynomial over \(F\). Then \(f\) has the same number of roots in any real closure of \(F\). </p>
+</div>
+
+    <a class="latex_link" href="index.html#thm:Sturm">LaTeX</a>
+    
+    
+  
+    
+    
+  
+    
+  </div>
+    
+      </div>
+    </div>
+</div>
+</div> <!-- content -->
+</div> <!-- wrapper -->
+<script src="js/jquery.min.js" type="text/javascript"></script>
+
+<script src="js/d3.min.js"></script>
+<script src="js/hpcc.min.js"></script>
+<script src="js/d3-graphviz.js"></script>
+
+<script type="text/javascript">
+const graphContainer = d3.select("#graph");
+const width = graphContainer.node().clientWidth;
+const height = graphContainer.node().clientHeight;
+
+
+graphContainer.graphviz({useWorker: true})
+    .width(width)
+    .height(height)
+    .fit(true)
+    .renderDot(`strict digraph "" {	graph [bgcolor=transparent];	node [label="\N",		penwidth=1.8	];	edge [arrowhead=vee];	"lem:FTAlg_converse_strong"	[color=green,		fillcolor="#A3D6FF",		label=FTAlg_converse_strong,		shape=ellipse,		style=filled];	"thm:Artin-Schreier_weak"	[color=blue,		fillcolor="#A3D6FF",		label="Artin-Schreier_weak",		shape=ellipse,		style=filled];	"lem:FTAlg_converse_strong" -> "thm:Artin-Schreier_weak";	"thm:Artin-Schreier"	[color=blue,		label="Artin-Schreier",		shape=ellipse];	"thm:Artin-Schreier_weak" -> "thm:Artin-Schreier";	"thm:Q_alg_unique_fin_ind"	[color=blue,		label=Q_alg_unique_fin_ind,		shape=ellipse];	"thm:Artin-Schreier" -> "thm:Q_alg_unique_fin_ind";	"cor:ACF_char_p_no_fin_ind"	[color=blue,		label=ACF_char_p_no_fin_ind,		shape=ellipse];	"thm:Artin-Schreier" -> "cor:ACF_char_p_no_fin_ind";	"thm:RCF_tfae"	[color=green,		fillcolor="#A3D6FF",		label=RCF_tfae,		shape=ellipse,		style=filled];	"thm:real_closure_unique"	[color=blue,		label=real_closure_unique,		shape=ellipse];	"lem:ord_alg_ext_eq_emb"	[color=blue,		label=ord_alg_ext_eq_emb,		shape=ellipse];	"thm:real_closure_unique" -> "lem:ord_alg_ext_eq_emb";	"cor:RCF_no_auto"	[color=blue,		label=RCF_no_auto,		shape=ellipse];	"thm:real_closure_unique" -> "cor:RCF_no_auto";	"thm:real_closure_unique" -> "thm:Q_alg_unique_fin_ind";	"lem:IVP_poly"	[color=green,		fillcolor="#A3D6FF",		label=IVP_poly,		shape=ellipse,		style=filled];	"lem:IVP_poly" -> "thm:RCF_tfae";	"def:RCF"	[color=green,		fillcolor="#B0ECA3",		label=RCF,		shape=box,		style=filled];	"lem:ext_deg_2"	[color=green,		fillcolor="#A3D6FF",		label=ext_deg_2,		shape=ellipse,		style=filled];	"def:RCF" -> "lem:ext_deg_2"	[style=dashed];	"lem:FTAlg_converse"	[color=green,		fillcolor="#1CAC78",		label=FTAlg_converse,		shape=ellipse,		style=filled];	"def:RCF" -> "lem:FTAlg_converse"	[style=dashed];	"def:real_closure"	[color=green,		fillcolor="#B0ECA3",		label=real_closure,		shape=box,		style=filled];	"def:RCF" -> "def:real_closure"	[style=dashed];	"lem:Ri_ext_deg_2"	[color=green,		fillcolor="#A3D6FF",		label=Ri_ext_deg_2,		shape=ellipse,		style=filled];	"def:RCF" -> "lem:Ri_ext_deg_2"	[style=dashed];	"lem:RCF_ord_unique"	[color=green,		fillcolor="#9CEC8B",		label=RCF_ord_unique,		shape=ellipse,		style=filled];	"def:RCF" -> "lem:RCF_ord_unique"	[style=dashed];	"thm:ord_max_imp_RCF"	[color=green,		fillcolor="#9CEC8B",		label=ord_max_imp_RCF,		shape=ellipse,		style=filled];	"def:RCF" -> "thm:ord_max_imp_RCF"	[style=dashed];	"thm:IVP_poly_imp_RCF"	[color=green,		fillcolor="#1CAC78",		label=IVP_poly_imp_RCF,		shape=ellipse,		style=filled];	"def:RCF" -> "thm:IVP_poly_imp_RCF"	[style=dashed];	"lem:alg_ext_odd_deg"	[color=green,		fillcolor="#1CAC78",		label=alg_ext_odd_deg,		shape=ellipse,		style=filled];	"def:RCF" -> "lem:alg_ext_odd_deg"	[style=dashed];	"thm:FTAlg"	[color=green,		fillcolor="#A3D6FF",		label=FTAlg,		shape=ellipse,		style=filled];	"lem:ext_deg_2" -> "thm:FTAlg";	"lem:FTAlg_converse" -> "lem:FTAlg_converse_strong";	"lem:FTAlg_converse" -> "thm:RCF_tfae";	"thm:Sturm"	[color=blue,		fillcolor="#A3D6FF",		label=Sturm,		shape=ellipse,		style=filled];	"def:real_closure" -> "thm:Sturm"	[style=dashed];	"lem:real_closure_exists"	[color=blue,		fillcolor="#A3D6FF",		label=real_closure_exists,		shape=ellipse,		style=filled];	"def:real_closure" -> "lem:real_closure_exists"	[style=dashed];	"lem:Ri_ext_deg_2" -> "thm:FTAlg";	"lem:RCF_ord_unique" -> "lem:FTAlg_converse_strong";	"lem:RCF_ord_unique" -> "cor:RCF_no_auto";	"thm:ord_max_imp_RCF" -> "thm:RCF_tfae";	"thm:ord_max_imp_RCF" -> "lem:real_closure_exists";	"lem:ACF_ind_2_RCF"	[color=blue,		label=ACF_ind_2_RCF,		shape=ellipse];	"thm:ord_max_imp_RCF" -> "lem:ACF_ind_2_RCF";	"thm:IVP_poly_imp_RCF" -> "thm:RCF_tfae";	"cor:FTAlg_alg"	[color=green,		fillcolor="#A3D6FF",		label=FTAlg_alg,		shape=ellipse,		style=filled];	"thm:FTAlg" -> "cor:FTAlg_alg";	"lem:irreds_class"	[color=green,		fillcolor="#A3D6FF",		label=irreds_class,		shape=ellipse,		style=filled];	"thm:FTAlg" -> "lem:irreds_class";	"lem:RCF_max"	[color=green,		fillcolor="#A3D6FF",		label=RCF_max,		shape=ellipse,		style=filled];	"lem:RCF_max" -> "thm:RCF_tfae";	"lem:RCF_max" -> "thm:real_closure_unique";	"cor:FTAlg_alg" -> "lem:RCF_max";	"cor:RCF_ac"	[color=green,		fillcolor="#A3D6FF",		label=RCF_ac,		shape=ellipse,		style=filled];	"cor:FTAlg_alg" -> "cor:RCF_ac";	"cor:RCF_ac" -> "thm:RCF_tfae";	"cor:RCF_ac" -> "lem:ACF_ind_2_RCF";	"lem:closure_emb_ext_unordered"	[color=blue,		label=closure_emb_ext_unordered,		shape=ellipse];	"thm:Sturm" -> "lem:closure_emb_ext_unordered";	"lem:real_closure_exists" -> "lem:closure_emb_ext_unordered";	"lem:irreds_class" -> "lem:IVP_poly";	"lem:ext_ord_functional_suff"	[color=green,		fillcolor="#9CEC8B",		label=ext_ord_functional_suff,		shape=ellipse,		style=filled];	"cor:ext_ord_to_adj_sqrt"	[color=green,		fillcolor="#9CEC8B",		label=ext_ord_to_adj_sqrt,		shape=ellipse,		style=filled];	"lem:ext_ord_functional_suff" -> "cor:ext_ord_to_adj_sqrt";	"cor:ext_ord_to_adj_sqrt" -> "thm:ord_max_imp_RCF";	"lem:order_fun_field"	[color=blue,		label=order_fun_field,		shape=ellipse];	"lem:order_fun_field" -> "lem:ACF_ind_2_RCF";	"thm:ord_iff_real"	[color=green,		label=ord_iff_real,		shape=ellipse];	"thm:ord_iff_real" -> "lem:FTAlg_converse_strong";	"thm:ord_iff_real" -> "lem:RCF_max";	"lem:closure_emb_ext"	[color=blue,		label=closure_emb_ext,		shape=ellipse];	"lem:closure_emb_ext" -> "thm:real_closure_unique";	"lem:unique_ord_cond"	[color=green,		label=unique_ord_cond,		shape=ellipse];	"cor:unique_ord_cond_ordered"	[color=green,		fillcolor="#9CEC8B",		label=unique_ord_cond_ordered,		shape=ellipse,		style=filled];	"lem:unique_ord_cond" -> "cor:unique_ord_cond_ordered";	"cor:unique_ord_cond_ordered" -> "lem:RCF_ord_unique";	"cor:unique_ord_Q"	[color=green,		fillcolor="#9CEC8B",		label=unique_ord_Q,		shape=ellipse,		style=filled];	"cor:unique_ord_cond_ordered" -> "cor:unique_ord_Q";	"cor:unique_ord_Q" -> "thm:Q_alg_unique_fin_ind";	"lem:closure_emb_ext_unordered" -> "lem:closure_emb_ext";	"def:semireal"	[color=green,		fillcolor="#B0ECA3",		label=semireal,		shape=box,		style=filled];	"def:semireal" -> "thm:ord_iff_real"	[style=dashed];	"def:semireal" -> "lem:unique_ord_cond"	[style=dashed];	"lem:ext_ord_odd_deg"	[color=green,		fillcolor="#9CEC8B",		label=ext_ord_odd_deg,		shape=ellipse,		style=filled];	"lem:ext_ord_odd_deg" -> "thm:ord_max_imp_RCF";	"lem:ext_ord_odd_deg" -> "thm:FTAlg";	"thm:ext_ord_cond"	[color=green,		label=ext_ord_cond,		shape=ellipse];	"thm:ext_ord_cond" -> "lem:ext_ord_functional_suff";	"thm:ext_ord_cond" -> "lem:ext_ord_odd_deg";	"lem:sumsq_is_sq"	[color=green,		fillcolor="#1CAC78",		label=sumsq_is_sq,		shape=ellipse,		style=filled];	"lem:sumsq_is_sq" -> "lem:FTAlg_converse_strong";}`)
+    .on("end", interactive);
+
+latexLabelEscaper = function(label) {
+  return label.replace(/\./g, '\\.').replace(/:/g, '\\:')
+}
+
+clickNode = function() {
+  $("#statements div").hide()
+  var node_id = $('text', this).text();
+  $('.thm').hide();
+  $('#'+latexLabelEscaper(node_id)).show().children().show();
+}
+function interactive() {
+    $("span#legend_title").on("click", function () {
+           $(this).siblings('dl').toggle();
+        })
+
+    d3.selectAll('.node')
+        .attr('pointer-events', 'fill')
+        .on('click', function () {
+           var title = d3.select(this).selectAll('title').text().trim();
+           $('#statements > div').hide()
+           $('.thm').hide();
+           $('#'+latexLabelEscaper(title)+'_modal').show().children().show().children().show();
+           $('#statements').show()
+        });
+
+    d3.selectAll('.dep-closebtn').on('click', function() {
+        var modal =
+            d3.select(this).node().parentNode.parentNode.parentNode ;
+        d3.select(modal).style('display', 'none');
+    });
+}
+
+</script>
+
+</body>
+</html>
