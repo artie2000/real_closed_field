@@ -142,7 +142,7 @@ theorem aeval_modByMonic_minpoly {R S : Type*} [CommRing R] [Ring S] [Algebra R 
 theorem aeval_apply_X {A B : Type*} [CommSemiring A] [Semiring B] [Algebra A B]
     (φ : A[X] →ₐ[A] B) : aeval (φ X) = φ := by ext; simp
 
-theorem degree_sub_lt' {R : Type u} [Ring R] {p q : Polynomial R}
+theorem degree_sub_lt' {R : Type*} [Ring R] {p q : Polynomial R}
     (hd : p.degree = q.degree) (hq0 : q ≠ 0) (hlc : p.leadingCoeff = q.leadingCoeff) :
     (p - q).degree < q.degree := by
   rw [← degree_neg, neg_sub]

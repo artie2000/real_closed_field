@@ -52,28 +52,23 @@ theorem Polynomial.natDegree_eq_iff_degree_eq_of_atLeastTwo
   degree_eq_iff_natDegree_eq_of_pos (Nat.pos_of_neZero n)
 
 @[simp]
-theorem Polynomial.natDegree_add_one {R : Type u} [Semiring R] {p : Polynomial R} :
+theorem Polynomial.natDegree_add_one {R : Type*} [Semiring R] {p : Polynomial R} :
     (p + 1).natDegree = p.natDegree := by
   simp [← C_1, -map_one]
 
 @[simp]
-theorem Polynomial.natDegree_one_add {R : Type u} [Semiring R] {p : Polynomial R} :
+theorem Polynomial.natDegree_one_add {R : Type*} [Semiring R] {p : Polynomial R} :
     (1 + p).natDegree = p.natDegree := by
   simp [← C_1, -map_one]
 
 @[simp]
-theorem Polynomial.natDegree_normalize {R : Type u} [Field R] {p : Polynomial R} [DecidableEq R] :
+theorem Polynomial.natDegree_normalize {R : Type*} [Field R] {p : Polynomial R} [DecidableEq R] :
     (normalize p).natDegree = p.natDegree :=
   natDegree_eq_of_degree_eq degree_normalize
 
-open Polynomial in
-example {R : Type u} [CommRing R] (a b : R) :
-    ((X - C a) ^ 2 + C b ^ 2) = (X ^ 2 + C b ^ 2).comp (X - C a) := by
-  simp
-
 @[simp]
 theorem Polynomial.natDegree_X_sub_C_sq_add_C_sq
-    {R : Type u} [CommRing R] [NoZeroDivisors R] [Nontrivial R] (a b : R) :
+    {R : Type*} [CommRing R] [NoZeroDivisors R] [Nontrivial R] (a b : R) :
     ((X - C a) ^ 2 + C b ^ 2).natDegree = 2 := by
   rw [show ((X - C a) ^ 2 + C b ^ 2) = (X ^ 2 + C b ^ 2).comp (X - C a) by simp,
       Polynomial.natDegree_comp]
@@ -81,7 +76,7 @@ theorem Polynomial.natDegree_X_sub_C_sq_add_C_sq
 
 @[simp]
 theorem Polynomial.monic_X_sub_C_sq_add_C_sq
-    {R : Type u} [CommRing R] [NoZeroDivisors R] [Nontrivial R] (a b : R) :
+    {R : Type*} [CommRing R] [NoZeroDivisors R] [Nontrivial R] (a b : R) :
     ((X - C a) ^ 2 + C b ^ 2).Monic := by
   rw [show ((X - C a) ^ 2 + C b ^ 2) = (X ^ 2 + C b ^ 2).comp (X - C a) by simp,
       Monic, Polynomial.leadingCoeff_comp (by simp)]
@@ -361,7 +356,7 @@ theorem Module.nonempty_algEquiv_iff_finrank_eq_one
 theorem IsAlgClosed.isSquare {k : Type*} [Field k] [IsAlgClosed k] (x : k) : IsSquare x :=
   IsAlgClosed.exists_eq_mul_self x
 
-theorem IsAlgClosed.of_finiteDimensional_imp_finrank_eq_one (k : Type u) [Field k]
+theorem IsAlgClosed.of_finiteDimensional_imp_finrank_eq_one.{u} (k : Type u) [Field k]
     (H : ∀ (l : Type u), [Field l] → [Algebra k l] → [FiniteDimensional k l] →
           Module.finrank k l = 1) :
     IsAlgClosed k :=

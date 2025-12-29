@@ -1,8 +1,12 @@
-name = "RealClosedField"
+name = "real-closed-field"
+keywords = ["math","algebra"]
+homepage = "https://artie2000.github.io/real_closed_field/"
+reservoir = true
+license = "Apache-2.0"
 defaultTargets = ["RealClosedField"]
 
 [leanOptions]
-pp.unicode.fun = true # pretty-prints `fun a ↦ b`
+pp.unicode.fun = true
 autoImplicit = false
 
 [[require]]
@@ -14,4 +18,4 @@ name = "checkdecls"
 git = "https://github.com/PatrickMassot/checkdecls.git"
 
 [[lean_lib]]
-name = "Real Closed Field"
+name = "RealClosedField"
