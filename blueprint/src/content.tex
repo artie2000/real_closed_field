@@ -30,7 +30,7 @@ We can also characterise algebraically whether a field $F$ has a unique ordering
   \label{lem:unique_ord_cond}
   \lean{IsSemireal.existsUnique_isStrictOrderedRing_iff}
   \leanok
-  Let $F$ be a real field. There is a unique ordering on $F$ if and only if, for each $a\in F$, either $a$ or $-a$ is a sum of squares.
+  Let $F$ be a real field. There is a unique ordering on $F$ if and only if, for each $a\in F$, either $a$ or $-a$ is a sum of squares. In this ordering, the non-negative elements are precisely the squares in $F$.
 \end{lemma}
 \begin{proof}
   \leanok
@@ -107,7 +107,7 @@ There is a corresponding algebraic characterisation of an ordered field extensio
 \begin{proof}
   \uses{thm:ext_ord_cond}
   \leanok
-  Since $\operatorname{char} R=0$, we can apply the primitive element theorem. Let $K=F(\alpha)$ for some $\alpha\in K$, and let $f$ be the minimal polynomial of $\alpha$ over $K$. Then $\deg f=[K:F]$ is odd. By Theorem \ref{thm:ext_ord_cond}, we need to show that the congruence
+  Since $\ch R=0$, we can apply the primitive element theorem. Let $K=F(\alpha)$ for some $\alpha\in K$, and let $f$ be the minimal polynomial of $\alpha$ over $K$. Then $\deg f=[K:F]$ is odd. By Theorem \ref{thm:ext_ord_cond}, we need to show that the congruence
   \[\sum_ia_ig_i^2\equiv-1\bmod f\tag{$\star$}\]
   fails to hold for any non-negative $a_i\in F$ and polynomials $g_i\in F[X]$ each of degree at most $\deg f-1$. Proceed by induction on $\deg f$; if $\deg f=1$, then ($\star$) reduces to an equality of a non-negative element of $F$ with a negative one. Otherwise, suppose for a contradiction that ($\star$) holds. Without loss of generality, we may assume, for all $i$, we have $a_i\neq0$ and that $\deg g_i<\deg f$.
   
@@ -133,23 +133,48 @@ Intuitively, $X$ is infinitesimally close to $a$. When $a=0$, we often write $R(
   \label{def:RCF}
   \lean{IsRealClosed}
   \leanok
-  A real closed field is an ordered field in which every non-negative element is a square and every odd-degree polynomial has a root.
+  A field $F$ is real closed if
+  \begin{enumerate}
+    \item for every nonzero $x$ in $F$, exactly one of $x$ or $-x$ is a square in $F$, and
+    \item every odd-degree polynomial over $F$ has a root in $F$.
+  \end{enumerate}
 \end{definition}
+
+\begin{lemma}
+  \label{lem:RCF_of_ord}
+  \uses{def:RCF}
+  An ordered field is real closed iff
+  \begin{enumerate}
+    \item every non-negative element is a square, and
+    \item every odd-degree polynomial over $F$ has a root in $F$.
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+  Squares in an ordered field are non-negative.
+\end{proof}
+
+Fix a real closed field $R$.
+
+\begin{lemma}
+  \label{lem:RCF_real}
+  \uses{def:RCF}
+  $R$ is real.
+\end{lemma}
+\begin{proof}
+  Exactly one of $1$ and $-1$ is a square, so $-1$ is not a square.
+\end{proof}
 
 \begin{lemma}
   \label{lem:RCF_ord_unique}
   \uses{def:RCF}
-  \lean{IsRealClosed.unique_isStrictOrderedRing}
-  \leanok
-  The ordering on a real closed field is unique.
+  $R$ has a unique ordering making it an ordered field. In this ordering, the non-negative elements are exactly the squares.
 \end{lemma}
 \begin{proof}
-  \leanok
-  \uses{cor:unique_ord_cond_ordered}
-  Follows directly from Corollary \ref{cor:unique_ord_cond_ordered}.
+  \uses{lem:unique_ord_cond, lem:RCF_real}
+  This is Lemma \ref{lem:unique_ord_cond}.
 \end{proof}
 
-Fix a real closed field $R$. In what follows, all algebraic extensions are given up to $R$-isomorphism, as is conventional. Observe that, since $-1$ is not a square in $R$, $R(i)/R$ is a quadratic extension. We show that this is the \textbf{only} nontrivial algebraic extension of $R$.
+In what follows, all algebraic extensions are given up to $R$-isomorphism, as is conventional. Observe that, since $-1$ is not a square in $R$, $R(i)/R$ is a quadratic extension. We will show this is the \textbf{only} nontrivial algebraic extension of $R$.
 
 \begin{lemma}
   \label{lem:alg_ext_odd_deg}
@@ -172,7 +197,7 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
 \end{lemma}
 \begin{proof}
   \leanok
-  Let $K/R$ be a quadratic extension. Since $\operatorname{char}(R)\neq2$, we have $K\cong R(\sqrt{a})$ for some $a\in R$. Since nonnegative elements of $R$ are squares, $a$ is negative and so $-a$ is a square in $R$. Rescaling by $\sqrt{-a}$, we get $R(\sqrt{a})\cong R(i)$.
+  Let $K/R$ be a quadratic extension. Since $\ch R\neq2$, we have $K\cong R(\sqrt{a})$ for some $a\in R$. Since $a$ cannot be a square in $R$, we know $-a$ must be one. Rescaling by $\sqrt{-a}$, we get $R(\sqrt{a})\cong R(i)$.
 \end{proof}
 
 \begin{lemma}
@@ -183,10 +208,11 @@ Fix a real closed field $R$. In what follows, all algebraic extensions are given
   There is no quadratic extension of $R(i)$.
 \end{lemma}
 \begin{proof}
+  \uses{lem:RCF_real,thm:ord_iff_real}
   \leanok
-  Since $\operatorname{char}R(i)\neq 2$, it suffices to show that every element of $R(i)$ is a square. Indeed, take $x=a+bi\in R(i)$ with $a,b\in R$. If $b=0$, then either $a\geq0$ and so $x$ is a square in $R$, or $a\leq0$ and so $a=(i\sqrt{-a})^2$ is a square in $R$. Now let $b\neq0$. Then we compute $x=(c+di)^2$, where
+  Since $\operatorname{char}R(i)\neq 2$, it suffices to show that every element of $R(i)$ is a square. Observe that every $x\in R$ is a square in $R(i)$: if $x$ is not a square in $R$, then $-x$ is, and so $x=(i\sqrt{-x})^2$. Further, since the negation of a sum of squares cannot be a square in $R$ (otherwise, dividng through and rearranging, $-1$ is a sum of squares), sums of squares in $R$ are squares in $R$. Now, fix $x=a+bi\in R(i)$ with $a,b\in R$. If $b=0$, then $a=x$ is a square in $R(i)$. Otherwise, we have $x=(c+di)^2$, where
   \[c=\sqrt{\frac{a+\sqrt{a^2+b^2}}{2}}\text{ and }d=\frac{b}{2c}.\]
-  To see that $c$ and $d$ are well-defined elements of $R$, observe that $a^2+b^2>a^2\geq0$ (as $b\neq0$), and so $a+\sqrt{a^2+b^2}>0$. Therefore the square roots above lie in $R$ and $c\neq0$.
+  Note that $d$ is well-defined because, if $c=0$, then $-a=\sqrt{a^2+b^2}$ and so $b=0$.
 \end{proof}
 
 \begin{theorem}
@@ -236,11 +262,11 @@ The converse to Theorem \ref{thm:FTAlg} is much easier.
   \uses{def:RCF}
   \lean{IsRealClosed.of_isAdjoinRoot_i_or_finrank_eq_one}
   \leanok
-  Suppose $R$ is an ordered field whose only nontrivial finite extension is $R(i)$. Then $R$ is real closed.
+  Suppose $R$ is a field whose only nontrivial finite extension is $R(i)$. Then $R$ is real closed.
 \end{lemma}
 \begin{proof}
   \leanok
-  Let $a\in R$ be non-negative. If $a$ is not a square, then $R(\sqrt{a})\cong R(i)$. Suppose $i$ maps to $x+y\sqrt{a}$ for some $x,y\in R$; then $-1=x^2+ay^2+2xy\sqrt{a}$. Comparing coefficients, $-1=x^2+ay^2\geq0$.$_\#$ Therefore $a$ is a square in $R$.
+  Let $a$ in $R$, and suppose $a$ is not a square. Then $R(\sqrt{a})\cong R(i)$. Suppose $i$ maps to $x+y\sqrt{a}$ for some $x,y\in R$; then $-1=x^2+ay^2+2xy\sqrt{a}$. Comparing coefficients, we get $-1=x^2+ay^2$. Since $-1$ is not a square, $y$ must be nonzero, and so $-a=(x/y)^2$ is a square.
 
   Now, fix a nonlinear odd-degree polynomial $f\in R[X]$. Then $R[X]/(f)$ cannot be a field since $R$ has no nontrivial odd-degree extensions, and so $f$ must be reducible. We are done by induction on the degree.
 \end{proof}
@@ -250,17 +276,22 @@ As before, let $R$ be a real closed field. Theorem \ref{thm:FTAlg} is a powerful
 \begin{lemma}
   \label{lem:RCF_max}
   \uses{def:RCF}
-  \lean{IsRealClosed.maximal_isOrderedField}
-  \leanok
-  $R$ is maximal with respect to algebraic extensions by ordered fields.
+  $R$ has no nontrivial real algebraic extensions.
 \end{lemma}
 \begin{proof}
-  \uses{cor:FTAlg_alg, thm:ord_iff_real}
-  \leanok
-  Since $-1$ is a square in $R(i)$, the field $R(i)$ is not formally real and therefore cannot be ordered (by Theorem \ref{thm:ord_iff_real}). We are done by Corollary \ref{cor:FTAlg_alg}.
+  \uses{cor:FTAlg_alg}
+  The field $R(i)$ is not real since $-1$ is a square in it. We are done by Corollary \ref{cor:FTAlg_alg}.
 \end{proof}
 
-In particular, $R$ is maximal with respect to ordered algebraic extensions.
+\begin{corollary}
+  \label{lem:RCF_max_ord}
+  \uses{def:RCF,lem:RCF_ord_unique}
+  $R$ has no nontrivial ordered algebraic extensions (with respect to the unique order).
+\end{corollary}
+\begin{proof}
+  \uses{lem:RCF_max,thm:ord_iff_real}
+  Since ordered fields are real, we are done by Lemma \ref{lem:RCF_max}.
+\end{proof}
 
 The next property is a little less obvious.
 
@@ -281,10 +312,10 @@ The next property is a little less obvious.
 
 \begin{lemma}
   \label{lem:IVP_poly}
-  \uses{def:RCF}
+  \uses{def:RCF, lem:RCF_ord_unique}
   \lean{IsRealClosed.intermediate_value_property}
   \leanok
-  Polynomials over $R$ satisfy the intermediate value property.
+  Polynomials over $R$ satisfy the intermediate value property (with respect to the unique order).
 \end{lemma}
 \begin{proof}
   \uses{lem:irreds_class}
@@ -302,12 +333,11 @@ In fact, the converses to Lemmas \ref{lem:RCF_max} and \ref{lem:IVP_poly} also h
   \label{thm:IVP_poly_imp_RCF}
   \uses{def:RCF}
   \lean{IsRealClosed.of_intermediateValueProperty}
-  \leanok
   Let $R$ be an ordered field whose polynomials satisfy the intermediate value property. Then $R$ is real closed.
 \end{theorem}
 \begin{proof}
-  \leanok
-  Let $a\in R$ be non-negative, and consider the polynomial $f=X^2-a$. Then $f(0)=-a\leq0$, but $f(a+1)=a^2+a+1>0$. By the intermediate value property, $f$ has a root in $R$, and so $a$ is a square in $R$.
+  \uses{lem:RCF_of_ord}
+  We use Lemma \ref{lem:RCF_of_ord}. Let $a\in R$ be non-negative, and consider the polynomial $f=X^2-a$. Then $f(0)=-a\leq0$, but $f(a+1)=a^2+a+1>0$. By the intermediate value property, $f$ has a root in $R$, and so $a$ is a square in $R$.
 
   Let $f$ be an odd-degree polynomial over $R$. Write $f=a_nX^n+\cdots+a_0$. We will show $f$ has a root in $R$. Replacing $f$ by $-f$ if necessary, we may assume $a_n>0$. For $x>1$, we compute
   \[f(x)\geq x^{n-1}(a_nx-n\max_i|a_i|).\]
@@ -318,18 +348,26 @@ In fact, the converses to Lemmas \ref{lem:RCF_max} and \ref{lem:IVP_poly} also h
   \label{thm:ord_max_imp_RCF}
   \uses{def:RCF}
   \lean{IsRealClosed.of_maximal_isOrderedAlgebra}
-  \leanok
-  Let $R$ be an ordered field maximal with respect to ordered algebraic extensions. Then $R$ is real closed.
+  Let $R$ be an ordered field with no nontrivial ordered algebraic extensions. Then $R$ is real closed.
 \end{theorem}
 \begin{proof}
-  \leanok
-  \uses{cor:ext_ord_to_adj_sqrt,lem:ext_ord_odd_deg}
-  Let $a\in R$ be non-negative, and suppose $a$ is not a square. By Corollary \ref{cor:ext_ord_to_adj_sqrt}, there is an ordering making the nontrivial extension $R(\sqrt{a})/R$ ordered, contradicting maximality.$_\#$ Therefore $a$ is a square in $R$.
+  \uses{lem:RCF_of_ord,cor:ext_ord_to_adj_sqrt,lem:ext_ord_odd_deg}
+  We use Lemma \ref{lem:RCF_of_ord}. 
 
-  By induction on degree, it suffices to show that irreducible odd-degree polynomials over $R$ are all linear. Let $f\in R[X]$ be such a polynomial, and consider the odd-degree field extension $R_f=R[X]/(f)$. By Lemma \ref{lem:ext_ord_odd_deg}, there is an ordering making $R_f/R$ an ordered extension; by maximality, $R_f\cong R$, and therefore $\deg f=[R_f:R]=1$.
+  Let $a\in R$ be non-negative, and suppose $a$ is not a square. By Corollary \ref{cor:ext_ord_to_adj_sqrt}, there is an ordering making the nontrivial extension $R(\sqrt{a})/R$ ordered.$_\#$ Therefore $a$ is a square in $R$.
+
+  By induction on degree, it suffices to show that irreducible odd-degree polynomials over $R$ are all linear. Let $f\in R[X]$ be such a polynomial, and consider the odd-degree field extension $R_f=R[X]/(f)$. By Lemma \ref{lem:ext_ord_odd_deg}, there is an ordering making $R_f/R$ an ordered extension. Therefore $\deg f=[R_f:R]=1$.
 \end{proof}
 
-In particular, an ordered field maximal with respect to algebraic extensions by ordered fields is real closed.
+\begin{corollary}
+  \label{cor:real_max_imp_RCF}
+  \uses{def:RCF}
+  Let $R$ be a real field with no nontrivial real algebraic extensions. Then $R$ is real closed.
+\end{corollary}
+\begin{proof}
+  \uses{thm:ord_iff_real,thm:ord_max_imp_RCF}
+  Since ordered fields are real, we are done by Theorem \ref{thm:ord_max_imp_RCF}.
+\end{proof}
 
 Theorem \ref{thm:ord_max_imp_RCF} gives us a way to ``construct'' real closed fields.
 
@@ -345,25 +383,34 @@ Theorem \ref{thm:ord_max_imp_RCF} gives us a way to ``construct'' real closed fi
   Apply Zorn's lemma to obtain a maximal ordered subfield $R\subseteq C$; then $\bar{R}=C$. By Theorem \ref{thm:ord_max_imp_RCF}, $R$ must be real closed. By Corollary \ref{cor:RCF_ac}, $C\cong R(i)$, and so $[C:R]=2$.
 \end{proof}
 
-In summary, we have proved the following characterisation of real closed fields.
+In summary, we have proved the following characterisations of real closed fields.
 
 \begin{theorem}
   \label{thm:RCF_tfae}
   \uses{def:RCF}
-  \lean{IsRealClosed.TFAE}
-  \leanok
-  Let $R$ be an ordered field. TFAE:
+  Let $R$ be a real field. TFAE:
   \begin{enumerate}
     \item $R$ is real closed.
     \item $\bar{R}=R(i)$ (and $-1$ is not a square in $R$).
-    \item Polynomials over $R$ satisfy the intermediate value property.
-    \item $R$ is maximal with respect to ordered algebraic extensions.
-    \item $R$ is maximal with respect to algebraic extensions by ordered fields.
+    \item $R$ has no nontrivial real algebraic extensions.
   \end{enumerate}
 \end{theorem}
 \begin{proof}
-  \uses{cor:RCF_ac,lem:FTAlg_converse,lem:IVP_poly,thm:IVP_poly_imp_RCF,lem:RCF_max,thm:ord_max_imp_RCF}
-  \leanok
+  \uses{cor:RCF_ac,lem:FTAlg_converse,lem:RCF_max,cor:real_max_imp_RCF}
+\end{proof}
+
+\begin{theorem}
+  \label{thm:RCF_tfae_ord}
+  \uses{def:RCF}
+  Let $R$ be an ordered field. TFAE:
+  \begin{enumerate}
+    \item $R$ is real closed.
+    \item Polynomials over $R$ satisfy the intermediate value property.
+    \item $R$ is maximal with respect to ordered algebraic extensions.
+  \end{enumerate}
+\end{theorem}
+\begin{proof}
+  \uses{lem:IVP_poly,thm:IVP_poly_imp_RCF,lem:RCF_max_ord,thm:ord_max_imp_RCF}
 \end{proof}
 
 \section{Real Closures}
@@ -464,48 +511,20 @@ Uniqueness of algebraic closures allows us to classify ordered algebraic extensi
 
 \section{The Artin-Schreier Theorem}
 
-We didn't actually need to assume the ordering on $R$ in Lemma \ref{lem:FTAlg_converse}.
-
-\begin{lemma}
-  \label{lem:sumsq_is_sq}
-  \lean{isSumSq_of_isSquare}
-  \leanok
-  Let $F$ be a field in which $-1$ is not a square, and suppose every element of $F(i)$ is a square. Then sums of squares in $F$ are squares in $F$.
-\end{lemma}
-\begin{proof}
-  \leanok
-  Given $a,b\in F$, find $c,d\in F$ such that $a+bi=(c+di)^2$ in $F(i)$. Then $a=c^2-d^2$ and $b=2cd$, so $a^2+b^2=(c^2+d^2)^2$ is a square in $F$. By induction, every sum of squares in $F$ is a square in $F$.
-\end{proof}
-
-\begin{lemma}
-  \label{lem:FTAlg_converse_strong}
-  \uses{def:RCF}
-  \lean{very_weak_Artin_Schreier}
-  \leanok
-  Suppose $R$ is a field whose only nontrivial algebraic extension is $R(i)$. Then there is a unique field ordering on $R$, and moreover $R$ with this ordering is real closed.
-\end{lemma}
-\begin{proof}
-  \uses{thm:ord_iff_real,lem:FTAlg_converse,lem:RCF_ord_unique,lem:sumsq_is_sq}
-  \leanok
-  We are very nearly done by Theorem \ref{thm:ord_iff_real}, Lemma \ref{lem:FTAlg_converse}, and Corollary \ref{lem:RCF_ord_unique}; it remains to show that $R$ is real.
-
-  We have $\bar{R}\cong R(i)$. Since $R(i)/R$ is nontrivial, $-1$ is not a square in $R$. Since every element of $R(i)$ is a square, Lemma \ref{lem:sumsq_is_sq} says that $-1$ is not a sum of squares in $R$.
-\end{proof}
-
-In fact, we can go further. The following is a weak form of the Artin-Schreier theorem. Removing the condition on characteristic is possible, but requires some more involved algebra.
+We can go much further than Lemma \ref{lem:FTAlg_converse}. The following is a weak form of the Artin-Schreier theorem. Removing the condition on characteristic is possible, but requires some more involved algebra.
 
 \begin{theorem}
   \label{thm:Artin-Schreier_weak}
   \uses{def:RCF}
   \lean{weak_Artin_Schreier}
   \leanok
-  Let $R$ be a field with $\ch K\neq2$, and suppose $[\bar{R}:R]=2$. Then there is a unique field ordering on $R$, and moreover $R$ with this ordering is real closed.
+  Let $R$ be a field with $\ch K\neq2$, and suppose $[\bar{R}:R]=2$. Then $R$ is real closed.
 \end{theorem}
 \begin{proof}
   \uses{lem:FTAlg_converse_strong}
   By Lemma \ref{lem:FTAlg_converse_strong}, it suffices to show that $\bar{R}\cong R(i)$.
 
-  Since $\operatorname{char}\bar{R}\neq 2$, we have $\bar{R}\cong R(\sqrt{a})$ for some non-square $a\in R$. Since $R(\sqrt{a})$ is algebraically closed, $\sqrt{a}$ is a square in $R(\sqrt{a})$; find $x,y\in R$ such that $\sqrt{a}=(x+y\sqrt{a})^2$. Expanding and comparing coefficients, $x^2+y^2a=0$ and $2xy=1$. Rearranging, $a=-(4x^4)=-1\cdot(2x^2)^2$. Rescaling by $2x^2$, $R(i)\cong R(\sqrt{a})=\bar{R}$.
+  Since $\ch\bar{R}\neq 2$, we have $\bar{R}\cong R(\sqrt{a})$ for some non-square $a\in R$. Since $R(\sqrt{a})$ is algebraically closed, $\sqrt{a}$ is a square in $R(\sqrt{a})$; find $x,y\in R$ such that $\sqrt{a}=(x+y\sqrt{a})^2$. Expanding and comparing coefficients, $x^2+y^2a=0$ and $2xy=1$. Rearranging, $a=-(4x^4)=-1\cdot(2x^2)^2$. Rescaling by $2x^2$, $R(i)\cong R(\sqrt{a})=\bar{R}$.
 \end{proof}
 
 We can weaken the hypotheses even further. Here is the full Artin-Schreier theorem.
@@ -515,7 +534,7 @@ We can weaken the hypotheses even further. Here is the full Artin-Schreier theor
   \uses{def:RCF}
   \lean{Artin_Schreier}
   \leanok
-  Let $R$ be a field, and suppose $\bar{R}$ is a \textit{finite} extension of $R$. Then there is a unique field ordering on $R$, and moreover $R$ with this ordering is real closed.
+  Let $R$ be a field, and suppose $\bar{R}$ is a \textit{finite} extension of $R$. Then $R$ is real closed.
 \end{theorem}
 \begin{proof}
   \uses{thm:Artin-Schreier_weak}
