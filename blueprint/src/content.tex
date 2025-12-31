@@ -133,15 +133,28 @@ Intuitively, $X$ is infinitesimally close to $a$. When $a=0$, we often write $R(
   \label{def:RCF}
   \lean{IsRealClosed}
   \leanok
-  A field $F$ is real closed if
+  A real closed field $F$ is a real field such that
   \begin{enumerate}
-    \item for every nonzero $x$ in $F$, exactly one of $x$ or $-x$ is a square in $F$, and
+    \item for all $x$ in $F$, either $x$ or $-x$ is a square in $F$, and
     \item every odd-degree polynomial over $F$ has a root in $F$.
   \end{enumerate}
 \end{definition}
 
 \begin{lemma}
-  \label{lem:RCF_of_ord}
+  \label{lem:RCF_minimal_ax}
+  \uses{def:RCF}
+  An field $F$ is real closed iff
+  \begin{enumerate}
+    \item for all nonzero $x$ in $F$, exactly one of $x$ and $-x$ is a square, and
+    \item every odd-degree polynomial over $F$ has a root in $F$.
+  \end{enumerate}
+\end{lemma}
+\begin{proof}
+  For the reverse direction, exactly one of $1$ and $-1$ is a square, so $-1$ is not a square.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:RCF_ord_ax}
   \uses{def:RCF}
   An ordered field is real closed iff
   \begin{enumerate}
@@ -150,19 +163,10 @@ Intuitively, $X$ is infinitesimally close to $a$. When $a=0$, we often write $R(
   \end{enumerate}
 \end{lemma}
 \begin{proof}
-  Squares in an ordered field are non-negative.
+  For the reverse direction, squares in an ordered field are non-negative.
 \end{proof}
 
 Fix a real closed field $R$.
-
-\begin{lemma}
-  \label{lem:RCF_real}
-  \uses{def:RCF}
-  $R$ is real.
-\end{lemma}
-\begin{proof}
-  Exactly one of $1$ and $-1$ is a square, so $-1$ is not a square.
-\end{proof}
 
 \begin{lemma}
   \label{lem:RCF_ord_unique}
@@ -170,7 +174,7 @@ Fix a real closed field $R$.
   $R$ has a unique ordering making it an ordered field. In this ordering, the non-negative elements are exactly the squares.
 \end{lemma}
 \begin{proof}
-  \uses{lem:unique_ord_cond, lem:RCF_real}
+  \uses{lem:unique_ord_cond}
   This is Lemma \ref{lem:unique_ord_cond}.
 \end{proof}
 
@@ -192,11 +196,9 @@ In what follows, all algebraic extensions are given up to $R$-isomorphism, as is
   \label{lem:ext_deg_2}
   \uses{def:RCF}
   \lean{IsRealClosed.isAdjoinRoot_i_of_isQuadraticExtension}
-  \leanok
   The field $R(i)$ is the unique quadratic extension of $R$.
 \end{lemma}
 \begin{proof}
-  \leanok
   Let $K/R$ be a quadratic extension. Since $\ch R\neq2$, we have $K\cong R(\sqrt{a})$ for some $a\in R$. Since $a$ cannot be a square in $R$, we know $-a$ must be one. Rescaling by $\sqrt{-a}$, we get $R(\sqrt{a})\cong R(i)$.
 \end{proof}
 
@@ -204,12 +206,9 @@ In what follows, all algebraic extensions are given up to $R$-isomorphism, as is
   \label{lem:Ri_ext_deg_2}
   \uses{def:RCF}
   \lean{IsRealClosed.finrank_neq_two_of_isAdjoinRoot_i}
-  \leanok
   There is no quadratic extension of $R(i)$.
 \end{lemma}
 \begin{proof}
-  \uses{lem:RCF_real,thm:ord_iff_real}
-  \leanok
   Since $\operatorname{char}R(i)\neq 2$, it suffices to show that every element of $R(i)$ is a square. Observe that every $x\in R$ is a square in $R(i)$: if $x$ is not a square in $R$, then $-x$ is, and so $x=(i\sqrt{-x})^2$. Further, since the negation of a sum of squares cannot be a square in $R$ (otherwise, dividng through and rearranging, $-1$ is a sum of squares), sums of squares in $R$ are squares in $R$. Now, fix $x=a+bi\in R(i)$ with $a,b\in R$. If $b=0$, then $a=x$ is a square in $R(i)$. Otherwise, we have $x=(c+di)^2$, where
   \[c=\sqrt{\frac{a+\sqrt{a^2+b^2}}{2}}\text{ and }d=\frac{b}{2c}.\]
   Note that $d$ is well-defined because, if $c=0$, then $-a=\sqrt{a^2+b^2}$ and so $b=0$.
@@ -258,15 +257,29 @@ In what follows, all algebraic extensions are given up to $R$-isomorphism, as is
 The converse to Theorem \ref{thm:FTAlg} is much easier.
 
 \begin{lemma}
-  \label{lem:FTAlg_converse}
-  \uses{def:RCF}
-  \lean{IsRealClosed.of_isAdjoinRoot_i_or_finrank_eq_one}
+  \label{lem:sumsq_is_sq}
+  \lean{isSumSq_of_isSquare}
   \leanok
-  Suppose $R$ is a field whose only nontrivial finite extension is $R(i)$. Then $R$ is real closed.
+  Let $F$ be a field in which $-1$ is not a square, and suppose every element of $F(i)$ is a square. Then sums of squares in $F$ are squares in $F$.
 \end{lemma}
 \begin{proof}
   \leanok
-  Let $a$ in $R$, and suppose $a$ is not a square. Then $R(\sqrt{a})\cong R(i)$. Suppose $i$ maps to $x+y\sqrt{a}$ for some $x,y\in R$; then $-1=x^2+ay^2+2xy\sqrt{a}$. Comparing coefficients, we get $-1=x^2+ay^2$. Since $-1$ is not a square, $y$ must be nonzero, and so $-a=(x/y)^2$ is a square.
+  Given $a,b\in F$, find $c,d\in F$ such that $a+bi=(c+di)^2$ in $F(i)$. Then $a=c^2-d^2$ and $b=2cd$, so $a^2+b^2=(c^2+d^2)^2$ is a square in $F$. By induction, every sum of squares in $F$ is a square in $F$.
+\end{proof}
+
+In particular, $F$ as in the last lemma is real.
+
+\begin{lemma}
+  \label{lem:FTAlg_converse}
+  \uses{def:RCF}
+  \lean{IsRealClosed.of_isAdjoinRoot_i_or_finrank_eq_one}
+  Suppose $R$ is a field whose only nontrivial finite extension is $R(i)$. Then $R$ is real closed.
+\end{lemma}
+\begin{proof}
+  \uses{lem:sumsq_is_sq}
+  By Lemma \ref{lem:sumsq_is_sq}, $R$ is real.
+
+  Take a non-square $a$ in $R$. Then $R(\sqrt{a})\cong R(i)$. Suppose $i$ maps to $x+y\sqrt{a}$ for some $x,y\in R$; then $-1=x^2+ay^2+2xy\sqrt{a}$. Comparing coefficients, we get $-1=x^2+ay^2$. Since $-1$ is not a square, $y$ must be nonzero, and so $-a=(x/y)^2$ is a square.
 
   Now, fix a nonlinear odd-degree polynomial $f\in R[X]$. Then $R[X]/(f)$ cannot be a field since $R$ has no nontrivial odd-degree extensions, and so $f$ must be reducible. We are done by induction on the degree.
 \end{proof}
@@ -336,8 +349,8 @@ In fact, the converses to Lemmas \ref{lem:RCF_max} and \ref{lem:IVP_poly} also h
   Let $R$ be an ordered field whose polynomials satisfy the intermediate value property. Then $R$ is real closed.
 \end{theorem}
 \begin{proof}
-  \uses{lem:RCF_of_ord}
-  We use Lemma \ref{lem:RCF_of_ord}. Let $a\in R$ be non-negative, and consider the polynomial $f=X^2-a$. Then $f(0)=-a\leq0$, but $f(a+1)=a^2+a+1>0$. By the intermediate value property, $f$ has a root in $R$, and so $a$ is a square in $R$.
+  \uses{lem:RCF_ord_ax}
+  We use Lemma \ref{lem:RCF_ord_ax}. Let $a\in R$ be non-negative, and consider the polynomial $f=X^2-a$. Then $f(0)=-a\leq0$, but $f(a+1)=a^2+a+1>0$. By the intermediate value property, $f$ has a root in $R$, and so $a$ is a square in $R$.
 
   Let $f$ be an odd-degree polynomial over $R$. Write $f=a_nX^n+\cdots+a_0$. We will show $f$ has a root in $R$. Replacing $f$ by $-f$ if necessary, we may assume $a_n>0$. For $x>1$, we compute
   \[f(x)\geq x^{n-1}(a_nx-n\max_i|a_i|).\]
@@ -351,8 +364,8 @@ In fact, the converses to Lemmas \ref{lem:RCF_max} and \ref{lem:IVP_poly} also h
   Let $R$ be an ordered field with no nontrivial ordered algebraic extensions. Then $R$ is real closed.
 \end{theorem}
 \begin{proof}
-  \uses{lem:RCF_of_ord,cor:ext_ord_to_adj_sqrt,lem:ext_ord_odd_deg}
-  We use Lemma \ref{lem:RCF_of_ord}. 
+  \uses{lem:RCF_ord_ax,cor:ext_ord_to_adj_sqrt,lem:ext_ord_odd_deg}
+  We use Lemma \ref{lem:RCF_ord_ax}. 
 
   Let $a\in R$ be non-negative, and suppose $a$ is not a square. By Corollary \ref{cor:ext_ord_to_adj_sqrt}, there is an ordering making the nontrivial extension $R(\sqrt{a})/R$ ordered.$_\#$ Therefore $a$ is a square in $R$.
 
@@ -388,11 +401,11 @@ In summary, we have proved the following characterisations of real closed fields
 \begin{theorem}
   \label{thm:RCF_tfae}
   \uses{def:RCF}
-  Let $R$ be a real field. TFAE:
+  Let $R$ be a field. TFAE:
   \begin{enumerate}
     \item $R$ is real closed.
     \item $\bar{R}=R(i)$ (and $-1$ is not a square in $R$).
-    \item $R$ has no nontrivial real algebraic extensions.
+    \item $R$ is real, but has no nontrivial real algebraic extensions.
   \end{enumerate}
 \end{theorem}
 \begin{proof}
