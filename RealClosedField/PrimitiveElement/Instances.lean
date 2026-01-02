@@ -51,6 +51,19 @@ variable {f} in
 theorem isAdjoinRootMonic' (hf : f.Monic) : IsAdjoinRootMonic' (AdjoinRoot f) f :=
   ⟨isAdjoinRoot' f, hf⟩
 
+variable {f} in
+@[simp]
+theorem finrank [Nontrivial R] (hf : f.Monic) : Module.finrank R (AdjoinRoot f) = f.natDegree :=
+  (AdjoinRoot.isAdjoinRootMonic' hf).finrank_eq_natDegree
+
+variable {f} in
+theorem finite [Nontrivial R] (hf : f.Monic) : Module.Finite R (AdjoinRoot f):=
+  (AdjoinRoot.isAdjoinRootMonic' hf).finite
+
+variable {f} in
+theorem free [Nontrivial R] (hf : f.Monic) : Module.Free R (AdjoinRoot f):=
+  (AdjoinRoot.isAdjoinRootMonic' hf).free
+
 end AdjoinRoot
 
 theorem Field.exists_isIntegralUniqueGen (F E : Type*) [Field F] [Field E] [Algebra F E]

@@ -4,9 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
 import RealClosedField.PrimitiveElement.Instances
-import Mathlib.Algebra.Group.Subgroup.Even
+import Mathlib.Algebra.Ring.Parity -- better `simp` lemmas
 import Mathlib.Data.Finsupp.Notation
 import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
+import Mathlib.Algebra.Ring.SumsOfSquares
 
 -- TODO : upstream
 theorem Polynomial.X_sq_sub_C_irreducible_iff_not_isSquare {F : Type*} [Field F] (a : F) :
@@ -252,7 +253,7 @@ theorem IsAdjoinRootMonic'.of_isIntegralGenSqrt_of_isSquare_div {r₁ : L} {a₁
     have mz : m ≠ 0 := fun hc ↦ h.ne_zero (by simp_all)
     use (algebraMap _ _ m⁻¹) * r₁
     refine { IsIntegralUnique.of_sqrt (fun hc ↦ h.not_isSquare (by aesop)) ?_,
-            h.algberaMap_mul (inv_ne_zero mz) with }
+            h.algebraMap_mul (inv_ne_zero mz) with }
     calc
       (algebraMap _ _ m⁻¹ * r₁) ^ 2 = algebraMap _ _ m⁻¹ ^ 2 * r₁ ^ 2 := by ring
       _ = algebraMap _ _ (m⁻¹ ^ 2 * a₁) := by simp [h.sq_root]
@@ -278,5 +279,25 @@ noncomputable def deg_2_classify (hK : ringChar K ≠ 2) :
       (IsIntegralGenSqrt.ne_zero ⟨(Classical.choose_spec (Algebra.IsQuadraticExtension.exists_isAdjoinRootMonic_X_pow_two_sub_C L hK)).pe⟩)⟧
   left_inv := sorry
   right_inv := sorry
+
+
+-- TODO : move downstream?
+open Polynomial algebraMap in
+theorem isSquare_of_isSumSq_of_forall_adjoinRoot_i_isSquare
+    (hL : IsAdjoinRootMonic' L (X ^ 2 + 1 : K[X])) (h : ∀ x : L, IsSquare x)
+    {a : K} (ha : IsSumSq a) : IsSquare a := by
+  rw [← AddSubmonoid.mem_sumSq, ← AddSubmonoid.closure_isSquare] at ha
+  have hL' : IsIntegralGenSqrt _ (-1 : K) := ⟨by simpa using hL.pe⟩
+  induction ha using AddSubmonoid.closure_induction with
+  | zero => simp
+  | mem a ha => exact ha
+  | add _ _ _ _ iha ihb =>
+      rcases iha with ⟨a, rfl⟩
+      rcases ihb with ⟨b, rfl⟩
+      rcases h (algebraMap _ _ a + algebraMap _ _ b * hL.root) with ⟨x, hx⟩
+      rw [hL'.ext_elem_iff] at hx
+      use hL'.coeff x 0 ^ 2 + hL'.coeff x 1 ^ 2
+      rw [(by simpa using hx 0 : a = _), (by simpa using hx 1 : b = _)]
+      ring
 
 end Field

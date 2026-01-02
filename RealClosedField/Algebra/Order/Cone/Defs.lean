@@ -30,6 +30,7 @@ namespace AddSubmonoid
 
 variable {G : Type*} [AddGroup G] (M : AddSubmonoid G)
 
+-- TODO : make generic again
 /-- Typeclass for submonoids with zero support. -/
 class IsCone (M : AddSubmonoid G) : Prop where
   eq_zero_of_mem_of_neg_mem {x} (hx₁ : x ∈ M) (hx₂ : -x ∈ M) : x = 0 := by aesop

@@ -3,9 +3,10 @@ Copyright (c) 2025 Artie Khovanov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
-import RealClosedField.Algebra.Ring.Semireal
+import RealClosedField.Algebra.Ring.IsSemireal
 import RealClosedField.Algebra.Order.Ring.Ordering.Adjoin
 import RealClosedField.Algebra.Order.Ring.Ordering.Order
+import RealClosedField.PrimitiveElement.Quadratic
 
 variable {F : Type*} [Field F]
 
@@ -21,24 +22,23 @@ theorem Field.exists_isStrictOrderedRing_iff_isSemireal :
             ⟨choose exO, inferInstance⟩⟩
 
 variable (F) in
-noncomputable def IsSemireal.toLinearOrder [IsSemireal F] : LinearOrder F :=
+noncomputable def LinearOrder.ofIsSemireal [IsSemireal F] : LinearOrder F :=
   (Field.exists_isStrictOrderedRing_iff_isSemireal.mpr inferInstance).choose
 
 variable (F) in
-instance IsSemireal.toIsStrictOrderedRing [IsSemireal F] :
-    letI := IsSemireal.toLinearOrder F
+instance IsStrictOrderedRing.ofIsSemireal [IsSemireal F] :
+    letI := LinearOrder.ofIsSemireal F
     IsStrictOrderedRing F :=
   (Field.exists_isStrictOrderedRing_iff_isSemireal.mpr inferInstance).choose_spec
 
-theorem IsSemireal.existsUnique_isStrictOrderedRing [IsSemireal F]
+noncomputable def IsSemireal.unique_isStrictOrderedRing [IsSemireal F]
     (h : ∀ x : F, IsSumSq x ∨ IsSumSq (-x)) :
-    ∃! _ : LinearOrder F, IsStrictOrderedRing F := by
-  let l := Field.ringOrderingLinearOrderEquiv F
+    Unique {l : LinearOrder F // IsStrictOrderedRing F} where
+  default := Field.ringOrderingLinearOrderEquiv F
     ⟨Subsemiring.sumSq F, { toHasMemOrNegMem := ⟨by simpa using h⟩, toIsPrime := inferInstance }⟩
-  refine ⟨l.val, l.property, fun l' hl' => ?_⟩
-  · simp only [l]
+  uniq l' := by
+    rcases l' with ⟨l', hl'⟩
     generalize_proofs
-    have : IsStrictOrderedRing F := hl' -- for typeclass search
     ext x y
     suffices x ≤ y ↔ IsSumSq (y - x) by simp [this]
     refine ⟨fun hxy => ?_, fun hxy => by linarith [IsSumSq.nonneg hxy]⟩
@@ -62,8 +62,11 @@ theorem IsSemireal.isSumSq_or_isSumSq_neg [IsSemireal F]
       h.unique inferInstance inferInstance
 
 theorem IsSemireal.existsUnique_isStrictOrderedRing_iff [IsSemireal F] :
-    (∃! _ : LinearOrder F, IsStrictOrderedRing F) ↔ ∀ x : F, IsSumSq x ∨ IsSumSq (-x) :=
-  ⟨IsSemireal.isSumSq_or_isSumSq_neg, IsSemireal.existsUnique_isStrictOrderedRing⟩
+    (∃! _ : LinearOrder F, IsStrictOrderedRing F) ↔ ∀ x : F, IsSumSq x ∨ IsSumSq (-x) where
+  mp := IsSemireal.isSumSq_or_isSumSq_neg
+  mpr h := by
+    rw [← unique_subtype_iff_existsUnique]
+    exact .intro <| IsSemireal.unique_isStrictOrderedRing h
 
 theorem IsStrictOrderedRing.unique_isStrictOrderedRing_iff [LinearOrder F] [IsStrictOrderedRing F] :
     (∃! _ : LinearOrder F, IsStrictOrderedRing F) ↔ ∀ x : F, 0 ≤ x → IsSumSq x := by
@@ -80,9 +83,17 @@ noncomputable def Rat.unique_isStrictOrderedRing :
   default := ⟨inferInstance, inferInstance⟩
   uniq := by
     suffices ∃! l : LinearOrder ℚ, @IsStrictOrderedRing ℚ _ (l.toPartialOrder) from fun ⟨l, hl⟩ ↦
-      Subtype.ext <| ExistsUnique.unique this hl inferInstance
+      Subtype.ext <| this.unique hl inferInstance
     rw [IsStrictOrderedRing.unique_isStrictOrderedRing_iff]
     intro x hx
     rw [show x = ∑ i ∈ Finset.range (x.num.toNat * x.den), (1 / (x.den : ℚ)) ^ 2 by
       simp; field_simp; simp; norm_cast; simpa]
     simp
+
+open Polynomial in
+theorem IsSemireal.of_forall_adjoinRoot_i_isSquare {K : Type*} [Field K] [Algebra F K]
+    (hK : IsAdjoinRootMonic' K (X ^ 2 + 1 : F[X]))
+    (h : ∀ x : K, IsSquare x) : IsSemireal F :=
+  .of_not_isSumSq_neg_one fun hc ↦ by
+    have hK' : IsIntegralGenSqrt _ (-1 : F) := ⟨by simpa using hK.pe⟩
+    exact hK'.not_isSquare <| isSquare_of_isSumSq_of_forall_adjoinRoot_i_isSquare hK h hc

@@ -256,7 +256,7 @@ theorem add_algebraMap (r : R) : IsGenerator R (x + (algebraMap _ _ r)) :=
     nth_rw 2 [show x = x + (algebraMap _ _ r) - (algebraMap _ _ r) by simp]
     exact Subalgebra.sub_mem (adjoin R {x + (algebraMap _ _ r)}) (by aesop) (by aesop)
 
-theorem algberaMap_mul {F : Type*} [Field F] [Algebra F S] {x : S} (hx : IsGenerator F x)
+theorem algebraMap_mul {F : Type*} [Field F] [Algebra F S] {x : S} (hx : IsGenerator F x)
     {r : F} (hr : r ≠ 0) : IsGenerator F ((algebraMap _ _ r) * x) :=
   hx.of_root_mem_adjoin <| by
     nth_rw 2 [show x = (algebraMap _ _ r⁻¹) * ((algebraMap _ _ r) * x) by
