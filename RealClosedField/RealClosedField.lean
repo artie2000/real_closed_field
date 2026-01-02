@@ -42,6 +42,11 @@ theorem of_isAdjoinRoot_i_or_finrank_eq_one
     (h : ∀ K : Type u, [Field K] → [Algebra R K] → [FiniteDimensional R K] →
        IsAdjoinRootMonic' K (X ^ 2 + 1 : R[X]) ∨ Module.finrank R K = 1) :
     IsRealClosed R := by
+  have finrank_le (K : Type u) [Field K] [Algebra R K] [FiniteDimensional R K] :
+      Module.finrank R K ≤ 2 := by
+    rcases h K with (hK | hK)
+    · simp [hK.finrank_eq_natDegree]
+    · simp [hK]
   have : Fact (Irreducible (X ^ 2 + 1 : R[X])) := Fact.mk <| by
     simpa [← X_sq_sub_C_irreducible_iff_not_isSquare] using hR
   have := AdjoinRoot.finite (f := (X ^ 2 + 1 : R[X])) (by simp [Monic])
@@ -50,10 +55,14 @@ theorem of_isAdjoinRoot_i_or_finrank_eq_one
     by_contra hi
     rw [← X_sq_sub_C_irreducible_iff_not_isSquare] at hi
     have := Fact.mk hi
-    let φ := (algebraMap (AdjoinRoot (X ^ 2 + 1 : R[X])) (AdjoinRoot (X ^ 2 - C x))).comp
-              (algebraMap R (AdjoinRoot (X ^ 2 + 1 : R[X])))
-    algebraize [φ]
-    sorry
+    have := AdjoinRoot.finite (f := X ^ 2 - C x) (by simp [Monic])
+    let : Module R (AdjoinRoot (X ^ 2 - C x)) := inferInstance -- TODO : remove this shortcut instance
+    let := Module.Finite.trans
+      (R := R) (AdjoinRoot (X ^ 2 + 1 : R[X])) (AdjoinRoot (X ^ 2 - C x))
+    have fk_mul := Module.finrank_mul_finrank
+      R (AdjoinRoot (X ^ 2 + 1 : R[X])) (AdjoinRoot (X ^ 2 - C x))
+    have := finrank_le (AdjoinRoot (X ^ 2 - C x))
+    simp [← fk_mul, Monic] at this
   refine { (?_ : IsSemireal R) with
             isSquare_or_isSquare_neg x := ?_,
             exists_isRoot_of_odd_natDegree {f} hf := ?_ }
@@ -81,13 +90,10 @@ theorem of_isAdjoinRoot_i_or_finrank_eq_one
   · refine Polynomial.has_root_of_monic_odd_natDegree_imp_not_irreducible ?_ hf
     intro f hf_monic hf_odd hf_deg hf_irr
     have iu := AdjoinRoot.isIntegralUniqueGen hf_monic
-    rw [← (show _ = f.natDegree by simpa using iu.finrank_eq_natDegree)] at *
+    rw [← iu.finrank_eq_natDegree] at *
     have := Fact.mk hf_irr
     have := Module.finite_of_finrank_pos hf_odd.pos
-    rcases h (AdjoinRoot f) with (ar' | fr)
-    · simp [ar'.finrank_eq_natDegree] at hf_odd
-      grind
-    · exact hf_deg fr
+    grind [finrank_le (AdjoinRoot f)]
 
 theorem of_isAdjoinRoot_i_isAlgClosure {K : Type*} [Field K] [Algebra R K] [IsAlgClosure R K]
     (h : IsAdjoinRootMonic' K (X ^ 2 + 1 : R[X])) : IsRealClosed R := by
@@ -215,7 +221,7 @@ theorem isSquare_algebraMap_of_isAdjoinRoot_i (hK : IsAdjoinRootMonic' K (X ^ 2 
     (x : R) : IsSquare (algebraMap _ K x) := by
   let i := hK.root -- prevents the `X ^ 2 + 1` argument being rewritten
   have iu : IsIntegralGenSqrt i (-1 : R) := ⟨by simpa using hK.pe⟩
-  rcases (isSquare_or_isSquare_neg x) with (pos | neg)
+  rcases isSquare_or_isSquare_neg x with (pos | neg)
   · rcases pos with ⟨r, rfl⟩
     exact ⟨algebraMap _ _ r, by simp⟩
   · rcases neg with ⟨r, hr⟩

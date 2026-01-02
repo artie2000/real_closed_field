@@ -143,35 +143,44 @@ Intuitively, $X$ is infinitesimally close to $a$. When $a=0$, we often write $R(
 \begin{lemma}
   \label{lem:RCF_ord_ax}
   \uses{def:RCF}
-  An ordered field is real closed iff
+  \lean{IsRealClosed.of_orderedField}
+  \leanok
+  An ordered field is real closed if
   \begin{enumerate}
     \item every non-negative element is a square, and
     \item every odd-degree polynomial over $F$ has a root in $F$.
   \end{enumerate}
 \end{lemma}
 \begin{proof}
-  For the reverse direction, squares in an ordered field are non-negative.
+  \leanok
+  Squares in an ordered field are non-negative.
 \end{proof}
 
 Fix a real closed field $R$.
 
 \begin{lemma}
-  \label{lem:sum_sq_is_sq}
+  \label{lem:RCF_sumsq_is_sq}
   \uses{def:RCF}
+  \lean{IsRealClosed.isSquare_of_isSumSq}
+  \leanok
   Every sum of squares in $R$ is a square in $R$.
 \end{lemma}
 \begin{proof}
+  \leanok
   If the negative of a sum of squares is a square, then, dividing through, $-1$ is a sum of squares, contradicting the realness of $R$.
 \end{proof}
 
 \begin{lemma}
   \label{lem:RCF_ord_unique}
   \uses{def:RCF}
+  \lean{IsRealClosed.nonneg_iff_isSquare}
+  \leanok
   $R$ has a unique ordering making it an ordered field. In this ordering, the non-negative elements are exactly the squares.
 \end{lemma}
 \begin{proof}
-  \uses{lem:unique_ord_cond,lem:sum_sq_is_sq}
-  Follows directly from Lemmas \ref{lem:unique_ord_cond} and \ref{lem:sum_sq_is_sq}.
+  \uses{lem:unique_ord_cond,lem:RCF_sumsq_is_sq}
+  \leanok
+  Follows directly from Lemmas \ref{lem:unique_ord_cond} and \ref{lem:RCF_sumsq_is_sq}.
 \end{proof}
 
 In what follows, all algebraic extensions are given up to $R$-isomorphism, as is conventional. Observe that, since $-1$ is not a square in $R$, $R(i)/R$ is a quadratic extension. We will show this is the \textbf{only} nontrivial algebraic extension of $R$.
@@ -192,9 +201,11 @@ In what follows, all algebraic extensions are given up to $R$-isomorphism, as is
   \label{lem:ext_deg_2}
   \uses{def:RCF}
   \lean{IsRealClosed.isAdjoinRoot_i_of_isQuadraticExtension}
+  \leanok
   The field $R(i)$ is the unique quadratic extension of $R$.
 \end{lemma}
 \begin{proof}
+  \leanok
   Let $K/R$ be a quadratic extension. Since $\ch R\neq2$, we have $K\cong R(\sqrt{a})$ for some $a\in R$. Since $a$ cannot be a square in $R$, we know $-a$ must be one. Rescaling by $\sqrt{-a}$, we get $R(\sqrt{a})\cong R(i)$.
 \end{proof}
 
@@ -202,13 +213,15 @@ In what follows, all algebraic extensions are given up to $R$-isomorphism, as is
   \label{lem:Ri_ext_deg_2}
   \uses{def:RCF}
   \lean{IsRealClosed.finrank_neq_two_of_isAdjoinRoot_i}
+  \leanok
   There is no quadratic extension of $R(i)$.
 \end{lemma}
 \begin{proof}
-  \uses{lem:sum_sq_is_sq}
+  \uses{lem:RCF_sumsq_is_sq}
+  \leanok
   Since $\operatorname{char}R(i)\neq 2$, it suffices to show that every element of $R(i)$ is a square. Observe that every $x\in R$ is a square in $R(i)$: if $x$ is not a square in $R$, then $-x$ is, and so $x=(i\sqrt{-x})^2$. Now, fix $x=a+bi\in R(i)$ with $a,b\in R$. If $b=0$, then $a=x$ is a square in $R(i)$. Otherwise, we have $x=(c+di)^2$, where
   \[c=\sqrt{\frac{a+\sqrt{a^2+b^2}}{2}}\text{ and }d=\frac{b}{2c}.\]
-  Note that $\sqrt{a^2+b^2}$ is in $R$ by Lemma \ref{lem:sum_sq_is_sq}, and $c\neq0$ because otherwise $-a=\sqrt{a^2+b^2}$ and so $b=0$.$_\#$
+  To see these are well-defined elements of $R(i)$, note that $\sqrt{a^2+b^2}$ is in $R$ by Lemma \ref{lem:RCF_sumsq_is_sq} and that $c\neq0$ because otherwise $-a=\sqrt{a^2+b^2}$ and so $b=0$.$_\#$
 \end{proof}
 
 \begin{theorem}
@@ -270,15 +283,28 @@ In particular, $F$ as in the last lemma is real.
   \label{lem:FTAlg_converse}
   \uses{def:RCF}
   \lean{IsRealClosed.of_isAdjoinRoot_i_or_finrank_eq_one}
+  \leanok
   Suppose $R$ is a field with unique nontrivial finite extension $R(i)$. Then $R$ is real closed.
 \end{lemma}
 \begin{proof}
   \uses{lem:sumsq_is_sq}
+  \leanok
   Since $R(i)$ has no quadratic extensions, we can apply Lemma \ref{lem:sumsq_is_sq}: sums of squares in $R$ are squares in $R$, and $R$ is real.
 
-  Take a non-square $a$ in $R$. Then $R(\sqrt{a})\cong R(i)$. Suppose $i$ maps to $x+y\sqrt{a}$ for some $x,y\in R$; then $-1=x^2+ay^2+2xy\sqrt{a}$. Comparing coefficients, we get $-1=x^2+ay^2$. Since $-1$ is not a square, $y$ must be nonzero, and so $-a=(x/y)^2+(1/y)^2$ is a square.
+  Take a non-square $a\in R$; then $R(\sqrt{a})\cong R(i)$. Suppose $i$ maps to $x+y\sqrt{a}$ for some $x,y\in R$. Then $-1=x^2+ay^2+2xy\sqrt{a}$; comparing coefficients, we get $-1=x^2+ay^2$. Since $-1$ is not a square, $y$ must be nonzero, and so $-a=(x/y)^2+(1/y)^2$ is a square.
 
   Now, fix a nonlinear odd-degree polynomial $f\in R[X]$. Then $R[X]/(f)$ cannot be a field since $R$ has no nontrivial odd-degree extensions, and so $f$ must be reducible. We are done by induction on the degree.
+\end{proof}
+
+\begin{corollary}
+  \label{lem:FTAlg_converse_alg_closure}
+  \uses{def:RCF}
+  \lean{IsRealClosed.of_isAdjoinRoot_i_isAlgClosure}
+  \leanok
+  Suppose $R$ is a field with nontrivial algebraic closure $R(i)$. Then $R$ is real closed.
+\end{corollary}
+\begin{proof}
+  \uses{lem:FTAlg_converse}
 \end{proof}
 
 As before, let $R$ be a real closed field. Theorem \ref{thm:FTAlg} is a powerful tool for deriving more of its properties.
@@ -286,20 +312,26 @@ As before, let $R$ be a real closed field. Theorem \ref{thm:FTAlg} is a powerful
 \begin{lemma}
   \label{lem:RCF_max}
   \uses{def:RCF}
+  \lean{IsRealClosed.maximal_isSemireal}
+  \leanok
   $R$ has no nontrivial real algebraic extensions.
 \end{lemma}
 \begin{proof}
   \uses{cor:FTAlg_alg}
+  \leanok
   The field $R(i)$ is not real since $-1$ is a square in it. We are done by Corollary \ref{cor:FTAlg_alg}.
 \end{proof}
 
 \begin{corollary}
   \label{lem:RCF_max_ord}
   \uses{def:RCF,lem:RCF_ord_unique}
+  \lean{IsRealClosed.maximal_isSemireal}
+  \leanok
   $R$ has no nontrivial ordered algebraic extensions (with respect to the unique order).
 \end{corollary}
 \begin{proof}
   \uses{lem:RCF_max,thm:ord_iff_real}
+  \leanok
   Since ordered fields are real, we are done by Lemma \ref{lem:RCF_max}.
 \end{proof}
 
@@ -343,10 +375,12 @@ In fact, the converses to Lemmas \ref{lem:RCF_max} and \ref{lem:IVP_poly} also h
   \label{thm:IVP_poly_imp_RCF}
   \uses{def:RCF}
   \lean{IsRealClosed.of_intermediateValueProperty}
+  \leanok
   Let $R$ be an ordered field whose polynomials satisfy the intermediate value property. Then $R$ is real closed.
 \end{theorem}
 \begin{proof}
   \uses{lem:RCF_ord_ax}
+  \leanok
   We use Lemma \ref{lem:RCF_ord_ax}. Let $a\in R$ be non-negative, and consider the polynomial $f=X^2-a$. Then $f(0)=-a\leq0$, but $f(a+1)=a^2+a+1>0$. By the intermediate value property, $f$ has a root in $R$, and so $a$ is a square in $R$.
 
   Let $f$ be an odd-degree polynomial over $R$. Write $f=a_nX^n+\cdots+a_0$. We will show $f$ has a root in $R$. Replacing $f$ by $-f$ if necessary, we may assume $a_n>0$. For $x>1$, we compute
@@ -358,10 +392,12 @@ In fact, the converses to Lemmas \ref{lem:RCF_max} and \ref{lem:IVP_poly} also h
   \label{thm:ord_max_imp_RCF}
   \uses{def:RCF}
   \lean{IsRealClosed.of_maximal_isOrderedAlgebra}
+  \leanok
   Let $R$ be an ordered field with no nontrivial ordered algebraic extensions. Then $R$ is real closed.
 \end{theorem}
 \begin{proof}
   \uses{lem:RCF_ord_ax,cor:ext_ord_to_adj_sqrt,lem:ext_ord_odd_deg}
+  \leanok
   We use Lemma \ref{lem:RCF_ord_ax}. 
 
   Let $a\in R$ be non-negative, and suppose $a$ is not a square. By Corollary \ref{cor:ext_ord_to_adj_sqrt}, there is an ordering making the nontrivial extension $R(\sqrt{a})/R$ ordered.$_\#$ Therefore $a$ is a square in $R$.
@@ -372,10 +408,13 @@ In fact, the converses to Lemmas \ref{lem:RCF_max} and \ref{lem:IVP_poly} also h
 \begin{corollary}
   \label{cor:real_max_imp_RCF}
   \uses{def:RCF}
+  \lean{IsRealClosed.of_maximal_isSemireal}
+  \leanok
   Let $R$ be a real field with no nontrivial real algebraic extensions. Then $R$ is real closed.
 \end{corollary}
 \begin{proof}
   \uses{thm:ord_iff_real,thm:ord_max_imp_RCF}
+  \leanok
   Since $R$ can be ordered and ordered fields are real, we are done by Theorem \ref{thm:ord_max_imp_RCF}.
 \end{proof}
 
@@ -393,34 +432,40 @@ Theorem \ref{thm:ord_max_imp_RCF} gives us a way to ``construct'' real closed fi
   Apply Zorn's lemma to obtain a maximal ordered subfield $R\subseteq C$; then $\bar{R}=C$. By Theorem \ref{thm:ord_max_imp_RCF}, $R$ must be real closed. By Corollary \ref{cor:RCF_ac}, $C\cong R(i)$, and so $[C:R]=2$.
 \end{proof}
 
-In summary, we have proved the following characterisations of real closed fields.
+In summary, we have the following characterisations of real closed fields.
 
 \begin{theorem}
   \label{thm:RCF_tfae}
   \uses{def:RCF}
+  \lean{IsRealClosed.TFAE}
+  \leanok
   Let $R$ be a field. TFAE:
   \begin{enumerate}
     \item $R$ is real closed.
-    \item $\bar{R}=R(i)$ (and $-1$ is not a square in $R$).
+    \item $\bar{R}=R(i)$ (and $R(i)\neq R$).
     \item $R$ is real, but has no nontrivial real algebraic extensions.
   \end{enumerate}
 \end{theorem}
 \begin{proof}
-  \uses{cor:RCF_ac,lem:FTAlg_converse,lem:RCF_max,cor:real_max_imp_RCF}
+  \uses{cor:RCF_ac,lem:FTAlg_converse_alg_closure,lem:RCF_max,cor:real_max_imp_RCF}
+  \leanok
 \end{proof}
 
 \begin{theorem}
   \label{thm:RCF_tfae_ord}
   \uses{def:RCF}
+  \lean{IsRealClosed.TFAE_orderedField}
+  \leanok
   Let $R$ be an ordered field. TFAE:
   \begin{enumerate}
     \item $R$ is real closed.
-    \item Polynomials over $R$ satisfy the intermediate value property.
     \item $R$ is maximal with respect to ordered algebraic extensions.
+    \item Polynomials over $R$ satisfy the intermediate value property.
   \end{enumerate}
 \end{theorem}
 \begin{proof}
   \uses{lem:IVP_poly,thm:IVP_poly_imp_RCF,lem:RCF_max_ord,thm:ord_max_imp_RCF}
+  \leanok
 \end{proof}
 
 \section{Real Closures}
@@ -521,7 +566,7 @@ Uniqueness of algebraic closures allows us to classify ordered algebraic extensi
 
 \section{The Artin-Schreier Theorem}
 
-We can go much further than Lemma \ref{lem:FTAlg_converse}. The following is a weak form of the Artin-Schreier theorem. Removing the condition on characteristic is possible, but requires some more involved algebra.
+We can go much further than Lemma \ref{lem:FTAlg_converse_alg_closure}. The following is a weak form of the Artin-Schreier theorem. Removing the condition on characteristic is possible, but requires some more involved algebra.
 
 \begin{theorem}
   \label{thm:Artin-Schreier_weak}
@@ -531,8 +576,8 @@ We can go much further than Lemma \ref{lem:FTAlg_converse}. The following is a w
   Let $R$ be a field with $\ch K\neq2$, and suppose $[\bar{R}:R]=2$. Then $R$ is real closed.
 \end{theorem}
 \begin{proof}
-  \uses{lem:FTAlg_converse}
-  By Lemma \ref{lem:FTAlg_converse}, it suffices to show that $\bar{R}\cong R(i)$.
+  \uses{lem:FTAlg_converse_alg_closure}
+  By Lemma \ref{lem:FTAlg_converse_alg_closure}, it suffices to show that $\bar{R}\cong R(i)$.
 
   Since $\ch\bar{R}\neq 2$, we have $\bar{R}\cong R(\sqrt{a})$ for some non-square $a\in R$. Since $R(\sqrt{a})$ is algebraically closed, $\sqrt{a}$ is a square in $R(\sqrt{a})$; find $x,y\in R$ such that $\sqrt{a}=(x+y\sqrt{a})^2$. Expanding and comparing coefficients, $x^2+y^2a=0$ and $2xy=1$. Rearranging, $a=-(4x^4)=-1\cdot(2x^2)^2$. Rescaling by $2x^2$, $R(i)\cong R(\sqrt{a})=\bar{R}$.
 \end{proof}
