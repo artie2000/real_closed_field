@@ -524,3 +524,13 @@ theorem weak_Artin_Schreier {R : Type*} [Field R] (hR_char : ringChar R ≠ 2)
 theorem Artin_Schreier {R : Type*} [Field R]
     (hR : FiniteDimensional R (AlgebraicClosure R)) : IsRealClosed R :=
   sorry
+
+namespace IsRealClosure
+
+universe u
+
+variable {R : Type u} [Field R] [LinearOrder R] [IsStrictOrderedRing R]
+
+def RealClosure : Type u :=
+
+end IsRealClosure
