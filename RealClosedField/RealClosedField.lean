@@ -534,13 +534,13 @@ variable {R : Type u} [Field R] [LinearOrder R] [IsStrictOrderedRing R]
 -- TODO : "order extension" partial order on ordered subfields, to apply Zorn on
 
 -- wrong def
-variable (R) in
+/- variable (R) in
 noncomputable def realClosure (K : Type v) [Field K] [Algebra R K] : IntermediateField R K :=
   Classical.choose <| zorn_le₀
     {L : IntermediateField R K | ∃ l : LinearOrder L, IsStrictOrderedRing L ∧ IsOrderedModule R L}
     fun c hc hc_chain ↦ by
   use sSup c
   refine ⟨?_, fun _ ↦ le_sSup⟩
-  simp
+  simp -/
 
 end IsRealClosure
