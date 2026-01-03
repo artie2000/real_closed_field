@@ -1,4 +1,5 @@
 name = "real-closed-field"
+description = "Formalisation of the theory of real closed fields in Lean 4."
 keywords = ["math","algebra"]
 homepage = "https://artie2000.github.io/real_closed_field/"
 reservoir = true
