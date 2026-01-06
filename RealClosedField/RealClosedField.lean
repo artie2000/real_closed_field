@@ -12,16 +12,16 @@ attribute [simp] IsSquare.sq
 
 open Polynomial
 
-/-- A field `F` is real closed if
-   1. `F` is real
-   2. for all `x ∈ F`, either `x` or `-x` is a square
+/-- A field `R` is real closed if
+   1. `R` is real
+   2. for all `x ∈ R`, either `x` or `-x` is a square
    3. every odd-degree polynomial has a root.
 -/
 class IsRealClosed (R : Type*) [Field R] : Prop extends IsSemireal R where
   isSquare_or_isSquare_neg (x : R) : IsSquare x ∨ IsSquare (-x)
   exists_isRoot_of_odd_natDegree {f : R[X]} (hf : Odd f.natDegree) : ∃ x, f.IsRoot x
 
-attribute [aesop safe forward] IsRealClosed.isSquare_or_isSquare_neg
+attribute [aesop 90% forward] IsRealClosed.isSquare_or_isSquare_neg
 
 /-- A real closure of an ordered field is a real closed ordered algebraic extension. -/
 class IsRealClosure (K R : Type*) [Field K] [Field R] [LinearOrder K] [LinearOrder R] [Algebra K R]
