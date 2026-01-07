@@ -36,6 +36,16 @@ variable {R : Type u} [Field R]
 
 /-! # Sufficient conditions to be real closed -/
 
+theorem mk' [IsSemireal R]
+    (isSquare_of_not_isSquare_neg : ∀ {x : R}, ¬ IsSquare (-x) → IsSquare x)
+    (exists_isRoot_of_odd_natDegree :
+      ∀ {f : R[X]}, 1 < f.natDegree → Odd f.natDegree → ∃ x, f.IsRoot x) :
+    IsRealClosed R where
+  isSquare_or_isSquare_neg := by grind
+  exists_isRoot_of_odd_natDegree {f} hodd := by
+    by_cases hf : f.natDegree = 1
+    · exact?
+
 -- TODO : idiomatic way to say a disjunction is saturated?
 theorem of_isAdjoinRoot_i_or_finrank_eq_one
     (hR : ¬ IsSquare (-1 : R))
@@ -106,7 +116,7 @@ theorem of_isAdjoinRoot_i_isAlgClosure {K : Type*} [Field K] [Algebra R K] [IsAl
       exact Or.inr hK
     · exact Or.inl (h.map hK.some.symm)
 
-theorem of_orderedField [LinearOrder R] [IsStrictOrderedRing R]
+theorem of_linearOrderedField [LinearOrder R] [IsStrictOrderedRing R]
     (isSquare_of_nonneg : ∀ {x : R}, 0 ≤ x → IsSquare x)
     (exists_isRoot_of_odd_natDegree : ∀ {f : R[X]}, Odd f.natDegree → ∃ x, f.IsRoot x) :
     IsRealClosed R where
@@ -120,7 +130,7 @@ theorem of_intermediateValueProperty [LinearOrder R] [IsStrictOrderedRing R]
     (h : ∀ {f : R[X]} {x y : R}, x ≤ y → 0 ≤ f.eval x → f.eval y ≤ 0 →
        ∃ z ∈ Set.Icc x y, f.eval z = 0) :
     IsRealClosed R := by
-  refine .of_orderedField (fun {x} hx ↦ ?_) (fun {f} hf ↦ ?_)
+  refine .of_linearOrderedField (fun {x} hx ↦ ?_) (fun {f} hf ↦ ?_)
   · have : x ≤ (x + 1) ^ 2 := by
       suffices 0 ≤ 1 + x + x ^ 2 by linear_combination this
       positivity
@@ -138,7 +148,7 @@ theorem of_maximal_isOrderedAlgebra [LinearOrder R] [IsStrictOrderedRing R]
     (h : ∀ K : Type u, [Field K] → [LinearOrder K] → [IsStrictOrderedRing K] → [Algebra R K] →
            [Algebra.IsAlgebraic R K] → [IsOrderedModule R K] → Module.finrank R K = 1) :
     IsRealClosed R := by
-  refine .of_orderedField (fun {x} hx ↦ ?_) (fun {f} hf ↦ ?_)
+  refine .of_linearOrderedField (fun {x} hx ↦ ?_) (fun {f} hf ↦ ?_)
   · by_contra hx₂
     have ar := AdjoinRoot.isAdjoinRootMonic' (f := X ^ 2 - C x) (by simp [Monic])
     have := ar.finite
@@ -163,13 +173,16 @@ theorem of_maximal_isSemireal [IsSemireal R]
   let := LinearOrder.ofIsSemireal R
   .of_maximal_isOrderedAlgebra fun K ↦ by exact h K
 
-section properties
+section IsRealClosed
 
 variable [IsRealClosed R]
 
 -- TODO : proper sqrt operation + API?
 
-theorem isSquare_of_isSumSq {x : R} (hx : IsSumSq x) : IsSquare x := by
+@[aesop 50%]
+theorem _root_.IsSquare.of_not_isSquare_neg {x : R} (hx : ¬ IsSquare (-x)) : IsSquare x := by aesop
+
+theorem _root_.IsSquare.of_isSumSq {x : R} (hx : IsSumSq x) : IsSquare x := by
   suffices IsSquare (-x) → x = 0 by aesop
   exact (IsFormallyReal.eq_zero_of_isSumSq_of_neg_isSumSq hx <| IsSquare.isSumSq ·)
 
@@ -422,7 +435,7 @@ theorem irred_poly_classify {f : R[X]} (hf : f.Monic) :
       exact hb <| IsFormallyReal.eq_zero_of_mul_self <|
         IsFormallyReal.eq_zero_of_add_left (s₁ :=  (r - a) ^ 2) (by aesop) (by aesop) (by simpa [pow_two] using hc)
 
-section ordered
+section LinearOrderedField
 
 variable (R) in
 noncomputable def unique_isStrictOrderedRing :
@@ -485,9 +498,9 @@ theorem intermediate_value_property {f : R[X]} {x y : R}
         have pos : ∀ z, 0 < g.eval z := fun z ↦ by simp [g_eq]; positivity
         linarith [hdiv g hg_i.natDegree_pos hg_d (pos y), pos x]
 
-end ordered
+end LinearOrderedField
 
-end properties
+end IsRealClosed
 
 variable (R) in
 theorem TFAE :
@@ -502,7 +515,7 @@ theorem TFAE :
   tfae_finish
 
 variable (R) in
-theorem TFAE_orderedField [LinearOrder R] [IsStrictOrderedRing R] :
+theorem TFAE_linearOrderedField [LinearOrder R] [IsStrictOrderedRing R] :
     [IsRealClosed R,
     (∀ K : Type u, [Field K] → [LinearOrder K] → [IsStrictOrderedRing K] → [Algebra R K] →
       [Algebra.IsAlgebraic R K] → [IsOrderedModule R K] → Module.finrank R K = 1),

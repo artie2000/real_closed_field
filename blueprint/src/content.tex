@@ -143,7 +143,7 @@ Intuitively, $X$ is infinitesimally close to $a$. When $a=0$, we often write $R(
 \begin{lemma}
   \label{lem:RCF_ord_ax}
   \uses{def:RCF}
-  \lean{IsRealClosed.of_orderedField}
+  \lean{IsRealClosed.of_linearOrderedField}
   \leanok
   An ordered field is real closed if
   \begin{enumerate}
@@ -161,7 +161,7 @@ Fix a real closed field $R$.
 \begin{lemma}
   \label{lem:RCF_sumsq_is_sq}
   \uses{def:RCF}
-  \lean{IsRealClosed.isSquare_of_isSumSq}
+  \lean{IsSquare.of_isSumSq}
   \leanok
   Every sum of squares in $R$ is a square in $R$.
 \end{lemma}
@@ -455,7 +455,7 @@ In summary, we have the following characterisations of real closed fields.
 \begin{theorem}
   \label{thm:RCF_tfae_ord}
   \uses{def:RCF}
-  \lean{IsRealClosed.TFAE_orderedField}
+  \lean{IsRealClosed.TFAE_linearOrderedField}
   \leanok
   Let $R$ be an ordered field. TFAE:
   \begin{enumerate}
