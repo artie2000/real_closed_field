@@ -13,9 +13,9 @@ attribute [simp] IsSquare.sq
 open Polynomial
 
 /-- A field `R` is real closed if
-   1. `R` is real
-   2. for all `x ∈ R`, either `x` or `-x` is a square
-   3. every odd-degree polynomial has a root.
+    1. `R` is real
+    2. for all `x ∈ R`, either `x` or `-x` is a square
+    3. every odd-degree polynomial has a root.
 -/
 class IsRealClosed (R : Type*) [Field R] : Prop extends IsSemireal R where
   isSquare_or_isSquare_neg (x : R) : IsSquare x ∨ IsSquare (-x)
