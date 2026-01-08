@@ -207,7 +207,7 @@ theorem Algebra.IsQuadraticExtension.exists_isAdjoinRootMonic_X_pow_two_sub_C
     have : s = (algebraMap K L) ((b + h.coeff (s ^ 2) 1) / 2) := by
       simp [map_ofNat]
       have : (2 : L) ≠ 0 := Ring.two_ne_zero (by simpa [Algebra.ringChar_eq K L] using hK)
-      linear_combination (norm := (field_simp; ring)) - hb / 2
+      linear_combination (norm := field) - hb / 2
     rw [this]
     exact Subalgebra.algebraMap_mem ..
   · have : s ^ 2 =
