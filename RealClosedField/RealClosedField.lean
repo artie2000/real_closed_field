@@ -179,6 +179,7 @@ variable [IsRealClosed R]
 
 -- TODO : proper sqrt operation + API?
 
+-- TODO : iff version for nonzero
 @[aesop 50%]
 theorem _root_.IsSquare.of_not_isSquare_neg {x : R} (hx : ¬ IsSquare (-x)) : IsSquare x := by aesop
 
