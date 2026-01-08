@@ -11,23 +11,23 @@ import Mathlib.Algebra.Order.Algebra
 
 attribute [-simp] AdjoinRoot.algebraMap_eq
 
--- TODO : `Submodule (Subsemiring.nonneg R)` support for ordered modules
-
 variable {F K : Type*} [Field F] [LinearOrder F] [IsStrictOrderedRing F] [Field K] [Algebra F K]
 
 namespace Field
 
-/- TODO : generalise to extensions of ordered rings using `IsCone` -/
+-- TODO : generalise to ordered extensions of rings :
+--        correspondence between `Subalgebra (.nonneg R) S` (with `IsPointed`)
+--        and `IsOrderedModule R S`
 
 variable (F K) in
 open Classical in
 open scoped algebraMap in
-noncomputable def ringOrderingOrderedAlgebraEquiv :
+noncomputable def isOrderingOrderedAlgebraEquiv :
     Equiv {O : Subsemiring K // O.IsOrdering ∧ (Subsemiring.nonneg F).map (algebraMap F K) ≤ O}
           {l : LinearOrder K // IsStrictOrderedRing K ∧ IsOrderedModule F K} where
   toFun := fun ⟨O, hO, hO₂⟩ =>
-    letI l := (ringOrderingLinearOrderEquiv K ⟨O, hO⟩).1
-    letI hl := (ringOrderingLinearOrderEquiv K ⟨O, hO⟩).2
+    letI l := (isOrderingLinearOrderEquiv K ⟨O, hO⟩).1
+    letI hl := (isOrderingLinearOrderEquiv K ⟨O, hO⟩).2
     ⟨l, ⟨inferInstance, .of_algebraMap_mono <| by
       rw [monotone_iff_map_nonneg]
       intro a ha
@@ -35,7 +35,7 @@ noncomputable def ringOrderingOrderedAlgebraEquiv :
       · simpa [l] using (show Set.Ici (0 : F) ⊆ _ by simpa using hO₂) ha
       · exact fun _ _ h ↦ h⟩⟩
   invFun := fun ⟨l, hl⟩ =>
-    let O := (ringOrderingLinearOrderEquiv K).symm ⟨l, hl.1⟩
+    let O := (isOrderingLinearOrderEquiv K).symm ⟨l, hl.1⟩
     ⟨O, O.property, fun x hx => by
     rcases hl with ⟨hl, hl₂⟩
     have : ∀ b : F, 0 ≤ b → 0 ≤ (b : K) := fun _ h ↦ by
@@ -45,23 +45,23 @@ noncomputable def ringOrderingOrderedAlgebraEquiv :
   right_inv := fun ⟨_, _, _⟩ => by ext; simp
 
 @[simp]
-theorem ringOrderingOrderedAlgebraEquiv_apply_coe
+theorem isOrderingOrderedAlgebraEquiv_apply_coe
     (O : Subsemiring K) (hO : O.IsOrdering)
     (hO₂ : Subsemiring.map (algebraMap F K) (Subsemiring.nonneg F) ≤ O) :
-    (ringOrderingOrderedAlgebraEquiv F K ⟨O, hO, hO₂⟩ : LinearOrder K) =
-    ringOrderingLinearOrderEquiv K ⟨O, hO⟩ := rfl
+    (isOrderingOrderedAlgebraEquiv F K ⟨O, hO, hO₂⟩ : LinearOrder K) =
+    isOrderingLinearOrderEquiv K ⟨O, hO⟩ := rfl
 
 @[simp]
-theorem ringOrderingOrderedAlgebraEquiv_symm_apply_coe
+theorem isOrderingOrderedAlgebraEquiv_symm_apply_coe
     (l : LinearOrder K) (hl : IsStrictOrderedRing K) (hl₂ : IsOrderedModule F K) :
-    ((ringOrderingOrderedAlgebraEquiv F K).symm ⟨l, hl, hl₂⟩ : Subsemiring K) =
-    (ringOrderingLinearOrderEquiv K).symm ⟨l, hl⟩ := rfl
+    ((isOrderingOrderedAlgebraEquiv F K).symm ⟨l, hl, hl₂⟩ : Subsemiring K) =
+    (isOrderingLinearOrderEquiv K).symm ⟨l, hl⟩ := rfl
 
 open Classical Subsemiring in
 theorem exists_isOrderedAlgebra_iff_neg_one_notMem_sup :
     (∃ _ : LinearOrder K, IsStrictOrderedRing K ∧ IsOrderedModule F K) ↔
     -1 ∉ ((Subsemiring.nonneg F).map (algebraMap F K) ⊔ Subsemiring.sumSq K) := by
-  rw [Equiv.exists_subtype_congr (ringOrderingOrderedAlgebraEquiv F K).symm]
+  rw [Equiv.exists_subtype_congr (isOrderingOrderedAlgebraEquiv F K).symm]
   set P := (Subsemiring.nonneg F).map (algebraMap F K) ⊔ Subsemiring.sumSq K with hP
   refine ⟨fun ⟨O, hO, hO₂⟩ hc => ?_, fun h => ?_⟩
   · suffices P ≤ O from IsPreordering.neg_one_notMem _ (this hc)

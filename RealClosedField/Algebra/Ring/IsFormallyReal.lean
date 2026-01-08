@@ -3,7 +3,7 @@ Copyright (c) 2024 Artie Khovanov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
-import RealClosedField.Algebra.Order.Cone.Defs
+import RealClosedField.Algebra.Ring.Subsemiring.Support
 import Mathlib.Algebra.Ring.SumsOfSquares
 
 -- TODO : upstream
@@ -80,7 +80,16 @@ theorem eq_zero_of_isSumSq_of_neg_isSumSq [NonUnitalNonAssocRing R] [IsFormallyR
     {s : R} (h₁ : IsSumSq s) (h₂ : IsSumSq (-s)) : s = 0 :=
   IsFormallyReal.eq_zero_of_add_right h₁ h₂ (by simp)
 
-instance [CommRing R] [IsFormallyReal R] : (AddSubmonoid.sumSq R).IsCone where
+instance [CommRing R] [IsFormallyReal R] : (AddSubmonoid.sumSq R).IsPointed where
   eq_zero_of_mem_of_neg_mem {_} := by simpa using eq_zero_of_isSumSq_of_neg_isSumSq
+
+-- TODO : upstream to `Mathlib.Algebra.Ring.SumsOfSquares`
+@[simp]
+theorem Subsemiring.sumSq_toAddSubmonoid {T : Type*} [CommSemiring T] :
+    (Subsemiring.sumSq T).toAddSubmonoid = .sumSq T :=
+  show (Subsemiring.sumSq T).toNonUnitalSubsemiring.toAddSubmonoid = .sumSq T by simp
+
+instance [CommRing R] [IsFormallyReal R] : (Subsemiring.sumSq R).IsPointed := by
+  simpa using (inferInstance : (AddSubmonoid.sumSq R).IsPointed)
 
 end IsFormallyReal

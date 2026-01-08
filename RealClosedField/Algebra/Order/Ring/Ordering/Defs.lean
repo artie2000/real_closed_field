@@ -3,7 +3,7 @@ Copyright (c) 2024 Florent Schaffhauser. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Florent Schaffhauser, Artie Khovanov
 -/
-import RealClosedField.Algebra.Order.Support
+import RealClosedField.Algebra.Ring.Subsemiring.Support
 import Mathlib.Algebra.Ring.SumsOfSquares
 
 /-!
@@ -35,7 +35,7 @@ variable {R : Type*} [CommRing R] (S : Subsemiring R)
 An ordering `O` on a ring `R` is a subsemiring of `R` such that `O ∪ -O = R` and
 the support `O ∩ -O` of `O` forms a prime ideal.
 -/
-class IsOrdering extends S.HasMemOrNegMem, S.support.IsPrime
+class IsOrdering extends S.IsSpanning, S.support.IsPrime
 
 /-- A preordering on a ring `R` is a subsemiring of `R` that contains all squares, but not `-1`. -/
 class IsPreordering (S : Subsemiring R) : Prop where
@@ -69,7 +69,7 @@ protected theorem pow_two_mem (x : R) : x ^ 2 ∈ S := by aesop
 end IsPreordering
 
 variable {S} in
-theorem IsPreordering.of_support_neq_top [S.HasMemOrNegMem] (h : S.support ≠ ⊤) :
+theorem IsPreordering.of_support_neq_top [S.IsSpanning] (h : S.support ≠ ⊤) :
     S.IsPreordering where
   mem_of_isSquare x := by
     rcases x with ⟨y, rfl⟩
@@ -77,7 +77,7 @@ theorem IsPreordering.of_support_neq_top [S.HasMemOrNegMem] (h : S.support ≠ �
     | inl h => aesop
     | inr h => simpa using (show -y * -y ∈ S by aesop (config := { enableSimp := false }))
   neg_one_notMem hc := by
-    have : 1 ∈ S.support := by simp [AddSubmonoid.mem_support, hc]
+    have : 1 ∈ S.support := by simp [mem_support, hc]
     exact h (by simpa [Ideal.eq_top_iff_one])
 
 /- An ordering is a preordering. -/

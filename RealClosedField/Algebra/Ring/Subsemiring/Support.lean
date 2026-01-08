@@ -118,8 +118,6 @@ theorem map_toAddSubmonoid : (P.map f).toAddSubmonoid = P.toAddSubmonoid.map f.t
 
 end upstream
 
-section Ring
-
 variable {R R' : Type*} [Ring R] [Ring R'] (f : R →+* R')
          (S T : Subsemiring R) (S' : Subsemiring R') {s : Set (Subsemiring R)}
 
@@ -221,14 +219,6 @@ theorem HasIdealSupport.map (hf : Function.Surjective f)
     have := smul_mem_support x' ha'
     aesop
 
-end HasIdealSupport
-
-end Ring
-
-section CommRing
-
-variable {R S : Type*} [Ring R] [Ring S] (f : R →+* S) (S : Subsemiring R) [S.HasIdealSupport]
-
 variable {f S} in
 @[simp]
 theorem map_support (hf : Function.Surjective f) (hsupp : RingHom.ker f ≤ S.support) :
@@ -239,7 +229,7 @@ theorem map_support (hf : Function.Surjective f) (hsupp : RingHom.ker f ≤ S.su
   apply_fun (x ∈ ·) at this
   simpa [Ideal.mem_map_iff_of_surjective f hf]
 
-end CommRing
+end HasIdealSupport
 
 end Subsemiring
 

@@ -114,8 +114,8 @@ attribute [aesop safe forward, aesop safe apply] mem_or_inv_mem
 theorem IsMulSpanning.of_le {M N : Submonoid G} [M.IsMulSpanning] (h : M ≤ N) :
     N.IsMulSpanning where
 
-@[to_additive]
-theorem IsMulSpanning.maximal [M.IsMulPointed] [M.IsMulSpanning] :
+@[to_additive IsSpanning.maximal_isPointed]
+theorem IsMulSpanning.maximal_isMulPointed [M.IsMulPointed] [M.IsMulSpanning] :
     Maximal IsMulPointed M :=
   ⟨inferInstance, fun N hN h ↦ by rw [SetLike.le_def] at h ⊢; aesop⟩
 

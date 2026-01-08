@@ -254,7 +254,7 @@ theorem isSquare_of_isAdjoinRoot_i (hK : IsAdjoinRootMonic' K (X ^ 2 + 1 : R[X])
   · rw [zero]
     suffices IsSquare (algebraMap _ _ (hRi.coeff x 0)) by aesop
     exact isSquare_algebraMap_of_isAdjoinRoot_i R hK _
-  · rcases isSquare_of_isSumSq (x := (hRi.coeff x 0) ^ 2 + (hRi.coeff x 1) ^ 2) (by aesop)
+  · rcases IsSquare.of_isSumSq (x := (hRi.coeff x 0) ^ 2 + (hRi.coeff x 1) ^ 2) (by aesop)
       with ⟨r₁, hr₁⟩
     apply_fun algebraMap R K at hr₁
     simp only [map_add, map_pow, ← pow_two] at hr₁

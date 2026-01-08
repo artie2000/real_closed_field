@@ -3,7 +3,6 @@ Copyright (c) 2024 Florent Schaffhauser. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Florent Schaffhauser, Artie Khovanov
 -/
-import RealClosedField.Algebra.Order.Cone.Defs
 import RealClosedField.Algebra.Order.Ring.Ordering.Defs
 import Mathlib.Tactic.FieldSimp
 import Mathlib.Tactic.LinearCombination
@@ -39,18 +38,18 @@ theorem unitsInv_mem {a : Rˣ} (ha : ↑a ∈ P) : ↑a⁻¹ ∈ P := by
   have : (a * (a⁻¹ * a⁻¹) : R) ∈ P := by aesop (config := { enableSimp := false })
   simp_all
 
-theorem one_notMem_supportAddSubgroup : 1 ∉ P.supportAddSubgroup :=
+theorem one_notMem_toAddSubmonoid_support : 1 ∉ P.toAddSubmonoid.support :=
   fun h => P.neg_one_notMem h.2
 
 theorem one_notMem_support [P.HasIdealSupport] : 1 ∉ P.support := by
-  simpa using one_notMem_supportAddSubgroup P
+  simpa using one_notMem_toAddSubmonoid_support P
 
-theorem supportAddSubgroup_ne_top : P.supportAddSubgroup ≠ ⊤ :=
-  fun h => one_notMem_supportAddSubgroup P (by simp [h])
+theorem toAddSubmonoid_support_ne_top : P.toAddSubmonoid.support ≠ ⊤ :=
+  fun h => one_notMem_toAddSubmonoid_support P (by simp [h])
 
 theorem support_ne_top [P.HasIdealSupport] : P.support ≠ ⊤ := by
   apply_fun Submodule.toAddSubgroup
-  simpa using supportAddSubgroup_ne_top P
+  simpa using toAddSubmonoid_support_ne_top P
 
 variable {P} in
 theorem isOrdering_iff :
@@ -63,7 +62,7 @@ theorem isOrdering_iff :
       Ideal.IsPrime.mem_or_mem inferInstance (by aesop)
     aesop
   mpr h :=
-    have : P.HasMemOrNegMem := ⟨by simp [h]⟩
+    have : P.IsSpanning := ⟨by simp [h]⟩
     { this with
       ne_top' := IsPreordering.support_ne_top P
       mem_or_mem' {x} {y} := by
@@ -89,13 +88,13 @@ instance [h : Fact (IsUnit (2 : R))] : P.HasIdealSupport := hasIdealSupport_of_i
 
 end IsPreordering
 
-instance [Nontrivial R] [P.HasMemOrNegMem] [P.IsCone] : P.IsPreordering :=
+instance [Nontrivial R] [P.IsSpanning] [P.IsPointed] : P.IsPreordering :=
   .of_support_neq_top (by simp)
 
-instance [IsDomain R] [P.HasMemOrNegMem] [P.IsCone] : P.IsOrdering where
+instance [IsDomain R] [P.IsSpanning] [P.IsPointed] : P.IsOrdering where
   __ : P.support.IsPrime := by simpa using Ideal.bot_prime
 
-theorem IsPreordering.ofIsCone [Nontrivial R] [P.IsCone] (h : .sumSq R ≤ P) : P.IsPreordering where
+theorem IsPreordering.ofIsPointed [Nontrivial R] [P.IsPointed] (h : .sumSq R ≤ P) : P.IsPreordering where
 
 -- PR SPLIT ↑1 ↓2
 
@@ -123,27 +122,28 @@ theorem IsPreordering.sSup  {S : Set (Subsemiring R)}
     simpa [mem_sSup_of_directedOn hSn hSd] using (fun x hx ↦ have := hS _ hx; neg_one_notMem x)
 
 instance [P'.IsOrdering] : IsOrdering (P'.comap f) where
-  __ : (P'.comap f).HasMemOrNegMem := by
-    simpa using (inferInstance : (P'.toAddSubmonoid.comap f.toAddMonoidHom).HasMemOrNegMem)
+  __ : (P'.comap f).IsSpanning := by
+    simpa using (inferInstance : (P'.toAddSubmonoid.comap f.toAddMonoidHom).IsSpanning)
   __ : (P'.comap f).support.IsPrime := by
     simpa [-RingHom.toAddMonoidHom_eq_coe] using
-      (inferInstance : (Ideal.comap f P'.toAddSubmonoid.support).IsPrime)
+      (inferInstance : (Ideal.comap f P'.support).IsPrime)
 
 instance [P'.IsPreordering] : (P'.comap f).IsPreordering where
 
 variable {f P} in
 theorem IsOrdering.map [P.IsOrdering] (hf : Function.Surjective f)
     (hsupp : RingHom.ker f ≤ P.support) : IsOrdering (P.map f) where
-  __ : (P.map f).HasMemOrNegMem := by
-    simpa using AddSubmonoid.HasMemOrNegMem.map P.toAddSubmonoid (f := f.toAddMonoidHom) hf
+  __ : (P.map f).IsSpanning := by
+    simpa using AddSubmonoid.IsSpanning.map P.toAddSubmonoid (f := f.toAddMonoidHom) hf
   __ : (P.map f).support.IsPrime := by
-    have := AddSubmonoid.map_support hf hsupp
-    simp at this
-    simpa [this] using Ideal.map_isPrime_of_surjective hf hsupp
+    have : (P.toAddSubmonoid.map f.toAddMonoidHom).support =
+           (P.support.toAddSubgroup).map f.toAddMonoidHom := by
+      simpa using AddSubmonoid.map_support (f := f.toAddMonoidHom) hsupp
+    simpa [this, *] using Ideal.map_isPrime_of_surjective hf hsupp
 
 variable {f P} in
 theorem IsPreordering.map [P.IsPreordering] (hf : Function.Surjective f)
-    (hsupp : f.toAddMonoidHom.ker ≤ P.supportAddSubgroup) : (P.map f).IsPreordering where
+    (hsupp : f.toAddMonoidHom.ker ≤ P.toAddSubmonoid.support) : (P.map f).IsPreordering where
   mem_of_isSquare hx := by
     rcases isSquare_subset_image_isSquare hf hx with ⟨x, hx, hfx⟩
     exact ⟨x, by aesop⟩
@@ -170,7 +170,7 @@ theorem inv_mem {a : F} (ha : a ∈ P) : a⁻¹ ∈ P := by
   field_simp at mem
   simp_all
 
-instance : P.IsCone where
+instance : P.IsPointed where
   eq_zero_of_mem_of_neg_mem {x} _ _ := by
     by_contra
     have mem : -x * x⁻¹ ∈ P := by aesop (erase simp neg_mul)
