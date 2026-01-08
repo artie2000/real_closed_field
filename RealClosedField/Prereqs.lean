@@ -106,10 +106,8 @@ theorem Polynomial.has_root_of_odd_natDegree_imp_not_irreducible {F : Type*} [Fi
     rcases hdeg with rfl
     have : f ≠ 0 := fun _ ↦ by simp_all
     by_cases hdeg1 : f.natDegree = 1
-    · simp_rw [← Polynomial.mem_roots ‹f ≠ 0›]
-      rw [Polynomial.roots_degree_eq_one
-        (by simpa [Polynomial.natDegree_eq_one_iff_degree_eq_one] using hdeg1)]
-      simp
+    · exact Polynomial.exists_root_of_degree_eq_one
+        (f.natDegree_eq_one_iff_degree_eq_one.eq ▸ hdeg1)
     · rcases (by simpa [h _ hf hdeg1] using
           irreducible_or_factor (Polynomial.not_isUnit_of_natDegree_pos f (Odd.pos hf))) with
         ⟨a, ha, b, hb, hfab⟩
