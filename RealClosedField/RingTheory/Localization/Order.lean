@@ -52,8 +52,8 @@ instance {R : Type*} [LinearOrderedCommSemiring R] {s : Submonoid R} (hs : 0 ∉
 
 instance {R : Type} [LinearOrderedCommRing R] [NoZeroDivisors R] :
     LinearOrderedField (FractionRing R) where
-  __ := (inferInstance : Field (FractionRing R))
-  __ := (inferInstance : CancelCommMonoidWithZero R)
-  __ := (inferInstance : LinearOrderedCommGroupWithZero (FractionRing R))
+  __ := inferInstanceAs (Field (FractionRing R))
+  __ := inferInstanceAs CancelCommMonoidWithZero R
+  __ := inferInstanceAs (LinearOrderedCommGroupWithZero (FractionRing R))
 
 #min_imports

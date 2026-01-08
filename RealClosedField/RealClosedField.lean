@@ -37,14 +37,12 @@ variable {R : Type u} [Field R]
 /-! # Sufficient conditions to be real closed -/
 
 theorem mk' [IsSemireal R]
-    (isSquare_of_not_isSquare_neg : ∀ {x : R}, ¬ IsSquare (-x) → IsSquare x)
-    (exists_isRoot_of_odd_natDegree :
-      ∀ {f : R[X]}, 1 < f.natDegree → Odd f.natDegree → ∃ x, f.IsRoot x) :
+    (h₁ : ∀ {x : R}, ¬ IsSquare (-x) → IsSquare x)
+    (h₂ : ∀ {f : R[X]}, f.Monic → Odd f.natDegree → f.natDegree ≠ 1 → ¬(Irreducible f)) :
     IsRealClosed R where
   isSquare_or_isSquare_neg := by grind
-  exists_isRoot_of_odd_natDegree {f} hodd := by
-    by_cases hf : f.natDegree = 1
-    · exact?
+  exists_isRoot_of_odd_natDegree :=
+    Polynomial.has_root_of_monic_odd_natDegree_imp_not_irreducible h₂
 
 -- TODO : idiomatic way to say a disjunction is saturated?
 theorem of_isAdjoinRoot_i_or_finrank_eq_one

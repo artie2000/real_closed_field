@@ -90,6 +90,6 @@ theorem Subsemiring.sumSq_toAddSubmonoid {T : Type*} [CommSemiring T] :
   show (Subsemiring.sumSq T).toNonUnitalSubsemiring.toAddSubmonoid = .sumSq T by simp
 
 instance [CommRing R] [IsFormallyReal R] : (Subsemiring.sumSq R).IsPointed := by
-  simpa using (inferInstance : (AddSubmonoid.sumSq R).IsPointed)
+  simpa using inferInstanceAs (AddSubmonoid.sumSq R).IsPointed
 
 end IsFormallyReal

@@ -240,10 +240,10 @@ section downstream
 variable (R : Type*) [Ring R]
 
 instance [LinearOrder R] [IsOrderedRing R] : (Subsemiring.nonneg R).IsSpanning :=
-  (inferInstance : (AddSubmonoid.nonneg R).IsSpanning)
+  inferInstanceAs (AddSubmonoid.nonneg R).IsSpanning
 
 instance [PartialOrder R] [IsOrderedRing R] : (Subsemiring.nonneg R).IsPointed :=
-  (inferInstance : (AddSubmonoid.nonneg R).IsPointed)
+  inferInstanceAs (AddSubmonoid.nonneg R).IsPointed
 
 variable {R} (S : Subsemiring R) [S.IsPointed]
 
@@ -351,7 +351,7 @@ theorem RingHom.ker_toAddSubgroup {R S : Type*} [Ring R] [Ring S] (f : R →+* S
 instance : (O.map (Ideal.Quotient.mk O.support)).IsPointed where
   supportAddSubgroup_eq_bot := by
     have : (O.toAddSubmonoid.map (Ideal.Quotient.mk O.support).toAddMonoidHom).HasIdealSupport := by
-      simpa using (inferInstance : (O.map (Ideal.Quotient.mk O.support)).HasIdealSupport)
+      simpa using inferInstanceAs (O.map (Ideal.Quotient.mk O.support)).HasIdealSupport
     have fact : (Ideal.Quotient.mk O.support).toAddMonoidHom.ker = O.supportAddSubgroup := by
       have := Ideal.mk_ker (I := O.support)
       apply_fun Submodule.toAddSubgroup at this

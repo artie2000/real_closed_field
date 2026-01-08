@@ -153,4 +153,4 @@ theorem maximal_isPreordering_iff_isOrdering {F : Type*} [Field F] {O : Subsemir
   mp h := .of_maximal_isPreordering h
   mpr _ := ⟨inferInstance, fun O' _ ↦ by
     simpa using (AddSubmonoid.IsSpanning.maximal_isPointed O.toAddSubmonoid).le_of_ge
-      (inferInstance : O'.IsPointed)⟩
+      (inferInstanceAs O'.IsPointed)⟩

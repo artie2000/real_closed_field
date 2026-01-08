@@ -123,10 +123,10 @@ theorem IsPreordering.sSup  {S : Set (Subsemiring R)}
 
 instance [P'.IsOrdering] : IsOrdering (P'.comap f) where
   __ : (P'.comap f).IsSpanning := by
-    simpa using (inferInstance : (P'.toAddSubmonoid.comap f.toAddMonoidHom).IsSpanning)
+    simpa using inferInstanceAs (P'.toAddSubmonoid.comap f.toAddMonoidHom).IsSpanning
   __ : (P'.comap f).support.IsPrime := by
     simpa [-RingHom.toAddMonoidHom_eq_coe] using
-      (inferInstance : (Ideal.comap f P'.support).IsPrime)
+      inferInstanceAs (Ideal.comap f P'.support).IsPrime
 
 instance [P'.IsPreordering] : (P'.comap f).IsPreordering where
 

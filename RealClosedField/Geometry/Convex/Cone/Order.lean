@@ -101,11 +101,11 @@ variable (M)
 
 instance [LinearOrder M] [IsOrderedAddMonoid M] [IsOrderedModule R M] :
     (PointedCone.positive R M).IsSpanning := -- TODO : rename to `nonneg`?
-  (inferInstance : (AddSubmonoid.nonneg M).IsSpanning)
+  inferInstanceAs (AddSubmonoid.nonneg M).IsSpanning
 
 instance [PartialOrder M] [IsOrderedAddMonoid M] [IsOrderedModule R M] :
     (PointedCone.positive R M).IsPointed :=
-  (inferInstance : (AddSubmonoid.nonneg M).IsPointed)
+  inferInstanceAs (AddSubmonoid.nonneg M).IsPointed
 
 variable {M} (C : PointedCone R M) [C.IsPointed]
 
