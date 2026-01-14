@@ -28,8 +28,6 @@ The names for these concepts are taken from the theory of convex cones.
 
 -/
 
--- TODO : Convex Cone version
-
 -- TODO : add to_additive cleanups AddPointed -> Pointed, AddSpanning -> Spanning
 
 namespace AddSubmonoid
@@ -119,11 +117,7 @@ theorem IsMulSpanning.maximal_isMulPointed [M.IsMulPointed] [M.IsMulSpanning] :
     Maximal IsMulPointed M :=
   ⟨inferInstance, fun N hN h ↦ by rw [SetLike.le_def] at h ⊢; aesop⟩
 
-end Submonoid
-
 -- PR SPLIT ↑1 ↓2
-
-namespace Submonoid
 
 section Group
 

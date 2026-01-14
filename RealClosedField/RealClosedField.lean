@@ -36,8 +36,9 @@ variable {R : Type u} [Field R]
 
 /-! # Sufficient conditions to be real closed -/
 
+-- TODO : make use of this constructor
 theorem mk' [IsSemireal R]
-    (h₁ : ∀ {x : R}, ¬ IsSquare (-x) → IsSquare x)
+    (h₁ : ∀ {x : R}, ¬ IsSquare x → IsSquare (-x))
     (h₂ : ∀ {f : R[X]}, f.Monic → Odd f.natDegree → f.natDegree ≠ 1 → ¬(Irreducible f)) :
     IsRealClosed R where
   isSquare_or_isSquare_neg := by grind
@@ -71,13 +72,9 @@ theorem of_isAdjoinRoot_i_or_finrank_eq_one
       R (AdjoinRoot (X ^ 2 + 1 : R[X])) (AdjoinRoot (X ^ 2 - C x))
     have := finrank_le (AdjoinRoot (X ^ 2 - C x))
     simp [← fk_mul, Monic] at this
-  refine { (?_ : IsSemireal R) with
-            isSquare_or_isSquare_neg x := ?_,
-            exists_isRoot_of_odd_natDegree {f} hf := ?_ }
-  · exact .of_forall_adjoinRoot_i_isSquare hK hK₂
-  · suffices (¬ IsSquare x → IsSquare (-x)) by tauto
-    intro hx
-    have iu : IsIntegralGenSqrt (AdjoinRoot.root (X ^ 2 - C x)) x :=
+  have := IsSemireal.of_forall_adjoinRoot_i_isSquare hK hK₂
+  refine .mk' (fun {x} hx ↦ ?_) (fun {f} hf_monic hf_odd hf_deg hf_irr ↦ ?_)
+  · have iu : IsIntegralGenSqrt (AdjoinRoot.root (X ^ 2 - C x)) x :=
       ⟨AdjoinRoot.isIntegralUniqueGen (by simp [Monic])⟩
     have := iu.finite
     have : Fact (Irreducible (X ^ 2 - C x)) := Fact.mk <| by
@@ -95,9 +92,7 @@ theorem of_isAdjoinRoot_i_or_finrank_eq_one
         linear_combination - cl
       exact isSquare_of_isSumSq_of_forall_adjoinRoot_i_isSquare hK hK₂ (by aesop)
     · simp [iu.finrank] at fr
-  · refine Polynomial.has_root_of_monic_odd_natDegree_imp_not_irreducible ?_ hf
-    intro f hf_monic hf_odd hf_deg hf_irr
-    have iu := AdjoinRoot.isIntegralUniqueGen hf_monic
+  · have iu := AdjoinRoot.isIntegralUniqueGen hf_monic
     rw [← iu.finrank_eq_natDegree] at *
     have := Fact.mk hf_irr
     have := Module.finite_of_finrank_pos hf_odd.pos
@@ -124,6 +119,12 @@ theorem of_linearOrderedField [LinearOrder R] [IsStrictOrderedRing R]
     · exact Or.inl <| isSquare_of_nonneg (by linarith)
   exists_isRoot_of_odd_natDegree := exists_isRoot_of_odd_natDegree
 
+theorem of_linearOrderedField' [LinearOrder R] [IsStrictOrderedRing R]
+    (h₁ : ∀ {x : R}, 0 ≤ x → IsSquare x)
+    (h₂ : ∀ {f : R[X]}, f.Monic → Odd f.natDegree → f.natDegree ≠ 1 → ¬(Irreducible f)) :
+    IsRealClosed R :=
+  .of_linearOrderedField h₁ <| Polynomial.has_root_of_monic_odd_natDegree_imp_not_irreducible h₂
+
 theorem of_intermediateValueProperty [LinearOrder R] [IsStrictOrderedRing R]
     (h : ∀ {f : R[X]} {x y : R}, x ≤ y → 0 ≤ f.eval x → f.eval y ≤ 0 →
        ∃ z ∈ Set.Icc x y, f.eval z = 0) :
@@ -146,7 +147,7 @@ theorem of_maximal_isOrderedAlgebra [LinearOrder R] [IsStrictOrderedRing R]
     (h : ∀ K : Type u, [Field K] → [LinearOrder K] → [IsStrictOrderedRing K] → [Algebra R K] →
            [Algebra.IsAlgebraic R K] → [IsOrderedModule R K] → Module.finrank R K = 1) :
     IsRealClosed R := by
-  refine .of_linearOrderedField (fun {x} hx ↦ ?_) (fun {f} hf ↦ ?_)
+  refine .of_linearOrderedField' (fun {x} hx ↦ ?_) (fun {f} hf_monic hf_odd hf_deg hf_irr ↦ ?_)
   · by_contra hx₂
     have ar := AdjoinRoot.isAdjoinRootMonic' (f := X ^ 2 - C x) (by simp [Monic])
     have := ar.finite
@@ -155,9 +156,7 @@ theorem of_maximal_isOrderedAlgebra [LinearOrder R] [IsStrictOrderedRing R]
     rcases adj_sqrt_ordered hx hx₂ with ⟨_, _, _⟩
     have := h (AdjoinRoot (X ^ 2 - C x))
     simp [ar.finrank_eq_natDegree] at this
-  · refine Polynomial.has_root_of_monic_odd_natDegree_imp_not_irreducible ?_ hf
-    intro f hf_monic hf_odd hf_deg hf_irr
-    have ar := AdjoinRoot.isAdjoinRootMonic' hf_monic
+  · have ar := AdjoinRoot.isAdjoinRootMonic' hf_monic
     rw [← ar.finrank_eq_natDegree] at *
     have := ar.finite
     have := Fact.mk hf_irr
@@ -397,8 +396,6 @@ theorem irred_poly_classify {f : R[X]} (hf : f.Monic) :
   mp h := by
     have := Fact.mk h
     have := hf.finite_adjoinRoot
-    have finrk : Module.finrank R (AdjoinRoot f) = f.natDegree := by simpa using
-      (AdjoinRoot.powerBasis hf.ne_zero).finrank -- TODO : add this lemma in my notation
     rcases finite_extension_classify R (AdjoinRoot f) with (sq | triv)
     · apply Or.inr
       have iu : IsIntegralGenSqrt _ (-1 : R) := ⟨by simpa using sq.pe⟩
@@ -409,12 +406,12 @@ theorem irred_poly_classify {f : R[X]} (hf : f.Monic) :
         simp only [AdjoinRoot.algebraMap_eq, hc, map_zero, zero_mul, add_zero] at eq_root
         nth_rw 1 [← AdjoinRoot.mk_X, ← AdjoinRoot.mk_C, AdjoinRoot.mk_eq_mk] at eq_root
         have := Polynomial.natDegree_le_of_dvd eq_root (by apply_fun natDegree; simp)
-        simp [iu.finrank, ← finrk] at this
+        simp [iu.finrank, ← AdjoinRoot.finrank hf] at this
       · suffices AdjoinRoot.mk f ((X - C (iu.coeff (AdjoinRoot.root f) 0)) ^ 2 +
                                  C (iu.coeff (AdjoinRoot.root f) 1) ^ 2) = 0 by
           rw [AdjoinRoot.mk_eq_zero] at this
           exact Polynomial.eq_of_dvd_of_natDegree_le_of_leadingCoeff this
-            (by simp [iu.finrank, ← finrk]) (by simp [hf])
+            (by simp [iu.finrank, ← AdjoinRoot.finrank hf]) (by simp [hf])
         simp [← AdjoinRoot.algebraMap_eq]
         nth_rw 1 [eq_root]
         ring_nf
@@ -432,7 +429,15 @@ theorem irred_poly_classify {f : R[X]} (hf : f.Monic) :
       suffices (r - a) ^ 2 + b ^ 2 ≠ 0 by simp [this]
       intro hc
       exact hb <| IsFormallyReal.eq_zero_of_mul_self <|
-        IsFormallyReal.eq_zero_of_add_left (s₁ :=  (r - a) ^ 2) (by aesop) (by aesop) (by simpa [pow_two] using hc)
+        IsFormallyReal.eq_zero_of_add_left (s₁ :=  (r - a) ^ 2) (by aesop) (by aesop)
+          (by simpa [pow_two] using hc)
+
+open Classical in
+theorem irred_poly_natDegree {f : R[X]} (hf : Irreducible f) : f.natDegree ≤ 2 := by
+  rw [← f.natDegree_normalize]
+  rcases (irred_poly_classify (Polynomial.monic_normalize (Irreducible.ne_zero hf))).mp
+    (by simpa using hf) with (h | ⟨_, _ , _, h⟩) <;>
+    simp [h]
 
 section LinearOrderedField
 

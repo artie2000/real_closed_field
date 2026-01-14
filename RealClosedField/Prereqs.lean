@@ -67,6 +67,12 @@ theorem Polynomial.natDegree_normalize {R : Type*} [Field R] {p : Polynomial R} 
   natDegree_eq_of_degree_eq degree_normalize
 
 @[simp]
+theorem Polynomial.irreducible_normalize_iff
+    {R : Type*} [Field R] {p : Polynomial R} [DecidableEq R] :
+    Irreducible (normalize p) ↔ Irreducible p :=
+  Associated.irreducible_iff (normalize_associated p)
+
+@[simp]
 theorem Polynomial.natDegree_X_sub_C_sq_add_C_sq
     {R : Type*} [CommRing R] [NoZeroDivisors R] [Nontrivial R] (a b : R) :
     ((X - C a) ^ 2 + C b ^ 2).natDegree = 2 := by
@@ -100,7 +106,7 @@ theorem Polynomial.exists_odd_natDegree_monic_irreducible_factor
 
 open scoped Polynomial in
 theorem Polynomial.has_root_of_odd_natDegree_imp_not_irreducible {F : Type*} [Field F]
-    (h : ∀ f : F[X], Odd f.natDegree → f.natDegree ≠ 1 → ¬(Irreducible f))
+    (h : ∀ {f : F[X]}, Odd f.natDegree → f.natDegree ≠ 1 → ¬(Irreducible f))
     {f : F[X]} (hf : Odd f.natDegree) : ∃ x, f.IsRoot x := by
   induction hdeg : f.natDegree using Nat.strong_induction_on generalizing f with | h n ih =>
     rcases hdeg with rfl
@@ -108,7 +114,7 @@ theorem Polynomial.has_root_of_odd_natDegree_imp_not_irreducible {F : Type*} [Fi
     by_cases hdeg1 : f.natDegree = 1
     · exact Polynomial.exists_root_of_degree_eq_one
         (f.natDegree_eq_one_iff_degree_eq_one.eq ▸ hdeg1)
-    · rcases (by simpa [h _ hf hdeg1] using
+    · rcases (by simpa [h hf hdeg1] using
           irreducible_or_factor (Polynomial.not_isUnit_of_natDegree_pos f (Odd.pos hf))) with
         ⟨a, ha, b, hb, hfab⟩
       have : a ≠ 0 := fun _ ↦ by simp_all
@@ -128,12 +134,11 @@ theorem Polynomial.has_root_of_odd_natDegree_imp_not_irreducible {F : Type*} [Fi
 open scoped Polynomial in
 open Classical in -- for `normalize` instance
 theorem Polynomial.has_root_of_monic_odd_natDegree_imp_not_irreducible {F : Type*} [Field F]
-    (h : ∀ f : F[X], f.Monic → Odd f.natDegree → f.natDegree ≠ 1 → ¬(Irreducible f))
+    (h : ∀ {f : F[X]}, f.Monic → Odd f.natDegree → f.natDegree ≠ 1 → ¬(Irreducible f))
     {f : F[X]} (hf : Odd f.natDegree) : ∃ x, f.IsRoot x := by
-  refine has_root_of_odd_natDegree_imp_not_irreducible (fun f hf₁ hf₂ hf₃ ↦ ?_) hf
-  exact h (normalize f) (Polynomial.monic_normalize (Irreducible.ne_zero hf₃))
-    (by simpa using hf₁) (by simpa using hf₂)
-    (by rw [Associated.irreducible_iff (normalize_associated f)]; exact hf₃)
+  refine has_root_of_odd_natDegree_imp_not_irreducible (fun {f} hf₁ hf₂ hf₃ ↦ ?_) hf
+  exact h (Polynomial.monic_normalize (Irreducible.ne_zero hf₃))
+    (by simpa using hf₁) (by simpa using hf₂) (by simpa using hf₃)
 
 section poly_estimate
 
