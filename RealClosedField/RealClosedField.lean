@@ -427,10 +427,9 @@ theorem irred_poly_classify {f : R[X]} (hf : f.Monic) :
           Polynomial.roots_eq_zero_iff_isRoot_eq_bot hf.ne_zero]
       ext r
       suffices (r - a) ^ 2 + b ^ 2 ≠ 0 by simp [this]
-      intro hc
-      exact hb <| IsFormallyReal.eq_zero_of_mul_self <|
-        IsFormallyReal.eq_zero_of_add_left (s₁ :=  (r - a) ^ 2) (by aesop) (by aesop)
-          (by simpa [pow_two] using hc)
+      contrapose! hb
+      rw [← sq_eq_zero_iff]
+      simpa using IsFormallyReal.eq_zero_of_add_left (by aesop) (by aesop) hb
 
 open Classical in
 theorem irred_poly_natDegree {f : R[X]} (hf : Irreducible f) : f.natDegree ≤ 2 := by
