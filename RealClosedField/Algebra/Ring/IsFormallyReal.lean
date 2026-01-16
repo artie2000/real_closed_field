@@ -94,10 +94,23 @@ instance [Ring R] [LinearOrder R] [IsStrictOrderedRing R] : IsFormallyReal R :=
 
 variable {R}
 
-theorem eq_zero_of_mul_self [AddCommMonoid R] [Mul R] [IsFormallyReal R] {a : R} (ha : a * a = 0) :
-    a = 0 := by
-  by_contra! hc
-  exact IsFormallyReal.not_isSumPosSq_zero (ha.symm ▸ IsSumNonzeroSq.sq hc)
+theorem IsReduced.of_sq_eq_zero_imp_eq_zero {R : Type*} [Semiring R]
+    (h : ∀ {a : R}, a ^ 2 = 0 → a = 0) : IsReduced R where
+  eq_zero x nx := by
+    have ind : ∀ {k}, x ^ (2 ^ k) = 0 → x = 0 := fun {k} hk ↦ by
+      induction k with
+      | zero => simp_all
+      | succ k ih =>
+      rw [Nat.pow_succ', mul_comm, pow_mul] at hk
+      exact ih (h hk)
+    rcases nx with ⟨n, hx⟩
+    exact ind <| pow_eq_zero_of_le Nat.lt_two_pow_self.le hx
+
+instance [Ring R] [IsFormallyReal R] : IsReduced R :=
+  IsReduced.of_sq_eq_zero_imp_eq_zero fun {a} ha ↦ by
+    by_contra! hc
+    exact IsFormallyReal.not_isSumPosSq_zero <| by
+      simpa [← pow_two, ha] using IsSumNonzeroSq.sq hc
 
 theorem eq_zero_of_add_right [NonUnitalNonAssocSemiring R] [IsFormallyReal R]
     {s₁ s₂ : R} (hs₁ : IsSumSq s₁) (hs₂ : IsSumSq s₂) (h : s₁ + s₂ = 0) : s₁ = 0 := by
