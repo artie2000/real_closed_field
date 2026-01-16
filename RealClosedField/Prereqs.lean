@@ -6,6 +6,7 @@ Authors: Artie Khovanov
 import Mathlib.FieldTheory.Galois.Basic
 import Mathlib.GroupTheory.Sylow
 import Mathlib.Tactic.Qify
+import Mathlib.Algebra.Order.Algebra
 
 /- Lemmas that should be upstreamed to Mathlib -/
 
@@ -255,6 +256,7 @@ theorem sign_change (hdeg: Odd f.natDegree) : ∃ x y, f.eval x < 0 ∧ 0 < f.ev
 
 end poly_estimate
 
+-- Mathlib.LinearAlgebra.Domension.Free
 theorem Module.finrank_dvd_finrank (F K A : Type*) [Semiring F] [Ring K] [AddCommGroup A]
     [Module F K] [Module K A] [Module F A] [IsScalarTower F K A] [Nontrivial A]
     [StrongRankCondition F] [StrongRankCondition K] [Module.Free F K] [Module.Free K A]
@@ -262,6 +264,7 @@ theorem Module.finrank_dvd_finrank (F K A : Type*) [Semiring F] [Ring K] [AddCom
     Module.finrank F K = Module.finrank F A / Module.finrank K A :=
   Nat.eq_div_of_mul_eq_left finrank_pos.ne' (finrank_mul_finrank ..)
 
+-- Mathlib.LinearAlgebra.Domension.Free
 theorem Module.finrank_dvd_finrank' (F K A : Type*) [Ring F] [Ring K] [AddCommMonoid A]
     [Module F K] [Module K A] [Module F A] [IsScalarTower F K A] [Nontrivial K]
     [StrongRankCondition F] [StrongRankCondition K] [Module.Free F K] [Module.Free K A]
@@ -347,6 +350,13 @@ theorem IsOrderedModule.of_algebraMap_mono {R A : Type*} [CommSemiring R] [Preor
   smul_le_smul_of_nonneg_right _ ha _ _ hb := by
     simpa [Algebra.smul_def] using mul_le_mul_of_nonneg_right (h hb) ha
 
+-- `Algebra.Order.Module.Algebra`
+theorem isOrderedModule_iff_algebraMap_mono {R A : Type*} [CommSemiring R] [PartialOrder R]
+    [IsOrderedRing R] [Semiring A] [PartialOrder A] [IsOrderedRing A] [Algebra R A] :
+    IsOrderedModule R A ↔ Monotone (algebraMap R A) where
+  mp _ := algebraMap_mono _
+  mpr := IsOrderedModule.of_algebraMap_mono
+
 theorem Module.nonempty_algEquiv_iff_finrank_eq_one
     {R S : Type*} [CommSemiring R] [StrongRankCondition R] [Semiring S] [Algebra R S]
     [Module.Free R S] : Nonempty (R ≃ₐ[R] S) ↔ Module.finrank R S = 1 where
@@ -356,9 +366,11 @@ theorem Module.nonempty_algEquiv_iff_finrank_eq_one
   mpr h := ⟨AlgEquiv.ofBijective (Algebra.ofId R S)
     (bijective_algebraMap_of_linearEquiv (Module.nonempty_linearEquiv_of_finrank_eq_one h).some)⟩
 
+-- replace `exists_eq_mul_self` in `Mathlib.FieldTheory.IsAlgClosed.Basic`
 theorem IsAlgClosed.isSquare {k : Type*} [Field k] [IsAlgClosed k] (x : k) : IsSquare x :=
   IsAlgClosed.exists_eq_mul_self x
 
+-- `Mathlib.FieldTheory.IsAlgClosed.Basic`
 theorem IsAlgClosed.of_finiteDimensional_imp_finrank_eq_one.{u} (k : Type u) [Field k]
     (H : ∀ (l : Type u), [Field l] → [Algebra k l] → [FiniteDimensional k l] →
           Module.finrank k l = 1) :
