@@ -108,7 +108,7 @@ theorem eq_zero_of_add_right [NonUnitalNonAssocSemiring R] [IsFormallyReal R]
   exact IsFormallyReal.not_isSumPosSq_zero (h ▸ IsSumNonzeroSq.add hs₁ hs₂)
 
 theorem eq_zero_of_add_left [NonUnitalNonAssocSemiring R] [IsFormallyReal R]
-    {s₁ s₂ : R} (hs₁ : IsSumSq s₁) (hs₂ : IsSumSq s₂) (h : s₁ + s₂ = 0): s₂ = 0 := by
+    {s₁ s₂ : R} (hs₁ : IsSumSq s₁) (hs₂ : IsSumSq s₂) (h : s₁ + s₂ = 0) : s₂ = 0 := by
   simp_all [eq_zero_of_add_right hs₁ hs₂ h]
 
 theorem eq_zero_of_isSumSq_of_neg_isSumSq [NonUnitalNonAssocRing R] [IsFormallyReal R]
