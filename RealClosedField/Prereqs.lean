@@ -10,20 +10,25 @@ import Mathlib.Algebra.Order.Algebra
 
 /- Lemmas that should be upstreamed to Mathlib -/
 
+-- generalise and upstream after `SetLike` LE refactor
 @[aesop 70%]
 theorem mem_sup_of_mem_left {R : Type*} [Semiring R] {a b : Subsemiring R} {x : R} :
     x ∈ a → x ∈ a ⊔ b := by gcongr; exact le_sup_left
 
+-- generalise and upstream after `SetLike` LE refactor
 @[aesop 70%]
 theorem mem_sup_of_mem_right {R : Type*} [Semiring R] {a b : Subsemiring R} {x : R} :
     x ∈ b → x ∈ a ⊔ b := by gcongr; exact le_sup_right
 
+-- Mathlib.RingTheory.Ideal.Maximal
 theorem Ideal.irreducible_of_isMaximal_span_singleton {R : Type*} [CommRing R] [IsDomain R] {m : R}
     (hm : m ≠ 0) (hmax : (span {m}).IsMaximal) : Irreducible m :=
   ((span_singleton_prime hm).mp hmax.isPrime).irreducible
 
-theorem Ideal.span_singleton_irreducible {R : Type*} [CommRing R] [IsPrincipalIdealRing R]
-    [IsDomain R] {m : R} (hm : m ≠ 0) : (span {m}).IsMaximal ↔ Irreducible m where
+-- Mathlib.RingTheory.Ideal.Maximal
+theorem Ideal.span_singleton_maximal_iff_irreducible
+    {R : Type*} [CommRing R] [IsPrincipalIdealRing R] [IsDomain R] {m : R} (hm : m ≠ 0) :
+    (span {m}).IsMaximal ↔ Irreducible m where
   mp := irreducible_of_isMaximal_span_singleton hm
   mpr := PrincipalIdealRing.isMaximal_of_irreducible
 
@@ -42,36 +47,40 @@ theorem Ideal.Quotient.irreducible_iff_isField
   mp := Ideal.Quotient.isField_of_irreducible
   mpr := Ideal.Quotient.irreducible_of_isField hm
 
-theorem Polynomial.natDegree_eq_one_iff_degree_eq_one
+-- Mathlib.Algebra.Polynomial.Degree.Definitions
+theorem Polynomial.degree_eq_one_iff_natDegree_eq_one
     {R : Type*} [Semiring R] {p : Polynomial R} :
     p.degree = 1 ↔ p.natDegree = 1 :=
   degree_eq_iff_natDegree_eq_of_pos (Nat.zero_lt_one)
 
-theorem Polynomial.natDegree_eq_iff_degree_eq_of_atLeastTwo
+-- Mathlib.Algebra.Polynomial.Degree.Definitions
+theorem Polynomial.degree_eq_iff_natDegree_eq_of_atLeastTwo
     {R : Type*} [Semiring R] {p : Polynomial R} {n : ℕ} [Nat.AtLeastTwo n] :
     p.degree = n ↔ p.natDegree = n :=
   degree_eq_iff_natDegree_eq_of_pos (Nat.pos_of_neZero n)
 
+-- Mathlib.Algebra.Polynomial.Degree.Operations
 @[simp]
 theorem Polynomial.natDegree_add_one {R : Type*} [Semiring R] {p : Polynomial R} :
-    (p + 1).natDegree = p.natDegree := by
-  simp [← C_1, -map_one]
+    (p + 1).natDegree = p.natDegree := natDegree_add_C
 
+-- Mathlib.Algebra.Polynomial.Degree.Operations
 @[simp]
 theorem Polynomial.natDegree_one_add {R : Type*} [Semiring R] {p : Polynomial R} :
-    (1 + p).natDegree = p.natDegree := by
-  simp [← C_1, -map_one]
+    (1 + p).natDegree = p.natDegree := natDegree_C_add
 
+-- Mathlib.Algebra.Polynomial.FieldDivision
 @[simp]
 theorem Polynomial.natDegree_normalize {R : Type*} [Field R] {p : Polynomial R} [DecidableEq R] :
     (normalize p).natDegree = p.natDegree :=
   natDegree_eq_of_degree_eq degree_normalize
 
+-- Mathlib.Algebra.GCDMonoid.Basic
 @[simp]
-theorem Polynomial.irreducible_normalize_iff
-    {R : Type*} [Field R] {p : Polynomial R} [DecidableEq R] :
-    Irreducible (normalize p) ↔ Irreducible p :=
-  Associated.irreducible_iff (normalize_associated p)
+theorem irreducible_normalize_iff {α : Type*}
+    [CancelCommMonoidWithZero α] [NormalizationMonoid α] (x : α) :
+    Irreducible (normalize x) ↔ Irreducible x :=
+  Associated.irreducible_iff (normalize_associated x)
 
 @[simp]
 theorem Polynomial.natDegree_X_sub_C_sq_add_C_sq
@@ -114,7 +123,7 @@ theorem Polynomial.has_root_of_odd_natDegree_imp_not_irreducible {F : Type*} [Fi
     have : f ≠ 0 := fun _ ↦ by simp_all
     by_cases hdeg1 : f.natDegree = 1
     · exact Polynomial.exists_root_of_degree_eq_one
-        (f.natDegree_eq_one_iff_degree_eq_one.eq ▸ hdeg1)
+        (f.degree_eq_one_iff_natDegree_eq_one.eq ▸ hdeg1)
     · rcases (by simpa [h hf hdeg1] using
           irreducible_or_factor (Polynomial.not_isUnit_of_natDegree_pos f (Odd.pos hf))) with
         ⟨a, ha, b, hb, hfab⟩
@@ -256,7 +265,7 @@ theorem sign_change (hdeg: Odd f.natDegree) : ∃ x y, f.eval x < 0 ∧ 0 < f.ev
 
 end poly_estimate
 
--- Mathlib.LinearAlgebra.Domension.Free
+-- Mathlib.LinearAlgebra.Dimension.Free
 theorem Module.finrank_dvd_finrank (F K A : Type*) [Semiring F] [Ring K] [AddCommGroup A]
     [Module F K] [Module K A] [Module F A] [IsScalarTower F K A] [Nontrivial A]
     [StrongRankCondition F] [StrongRankCondition K] [Module.Free F K] [Module.Free K A]
@@ -264,7 +273,7 @@ theorem Module.finrank_dvd_finrank (F K A : Type*) [Semiring F] [Ring K] [AddCom
     Module.finrank F K = Module.finrank F A / Module.finrank K A :=
   Nat.eq_div_of_mul_eq_left finrank_pos.ne' (finrank_mul_finrank ..)
 
--- Mathlib.LinearAlgebra.Domension.Free
+-- Mathlib.LinearAlgebra.Dimension.Free
 theorem Module.finrank_dvd_finrank' (F K A : Type*) [Ring F] [Ring K] [AddCommMonoid A]
     [Module F K] [Module K A] [Module F A] [IsScalarTower F K A] [Nontrivial K]
     [StrongRankCondition F] [StrongRankCondition K] [Module.Free F K] [Module.Free K A]
@@ -341,7 +350,7 @@ theorem IsGalois.exists_intermediateField_ge_card_pow_prime_mul_of_card_pow_prim
       Nat.mul_div_right _ (by positivity)] at dvd
   exact dvd
 
--- `Algebra.Order.Module.Algebra`
+-- `Algebra.Order.Module.Algebra` PRed
 theorem IsOrderedModule.of_algebraMap_mono {R A : Type*} [CommSemiring R] [Preorder R]
     [Semiring A] [PartialOrder A] [PosMulMono A] [MulPosMono A] [Algebra R A]
     (h : Monotone (algebraMap R A)) : IsOrderedModule R A where
@@ -350,7 +359,7 @@ theorem IsOrderedModule.of_algebraMap_mono {R A : Type*} [CommSemiring R] [Preor
   smul_le_smul_of_nonneg_right _ ha _ _ hb := by
     simpa [Algebra.smul_def] using mul_le_mul_of_nonneg_right (h hb) ha
 
--- `Algebra.Order.Module.Algebra`
+-- `Algebra.Order.Module.Algebra` PRed
 theorem isOrderedModule_iff_algebraMap_mono {R A : Type*} [CommSemiring R] [PartialOrder R]
     [IsOrderedRing R] [Semiring A] [PartialOrder A] [IsOrderedRing A] [Algebra R A] :
     IsOrderedModule R A ↔ Monotone (algebraMap R A) where
