@@ -1,1 +1,2 @@
-* aesop intro on inequalities
+* aesop intro on inequalities (unsafe, high)
+* aesop ext on set equality hypotheses (unsafe, med)

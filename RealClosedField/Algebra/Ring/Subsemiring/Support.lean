@@ -30,16 +30,16 @@ namespace Subsemiring
 
 variable (S : Subsemiring R)
 
-@[aesop 50% apply, aesop safe forward (immediate := [hx₁])]
-theorem eq_zero_of_mem_of_neg_mem [S.IsPointed] {x : R} (hx₁ : x ∈ S) (hx₂ : -x ∈ S) : x = 0 :=
-  S.toAddSubmonoid.eq_zero_of_mem_of_neg_mem hx₁ hx₂
+@[aesop safe forward (immediate := [hS, hx₁])]
+theorem eq_zero_of_mem_of_neg_mem (hS : S.IsPointed) {x : R} (hx₁ : x ∈ S) (hx₂ : -x ∈ S) : x = 0 :=
+  hS.eq_zero_of_mem_of_neg_mem hx₁ hx₂
 
-@[aesop safe forward (immediate := [hx₂])]
+@[aesop safe forward (immediate := [hS, hx₂])]
 alias eq_zero_of_mem_of_neg_mem₂ := eq_zero_of_mem_of_neg_mem -- for Aesop
 
-@[aesop safe forward, aesop safe apply]
-theorem mem_or_neg_mem [S.IsSpanning] : ∀ a, a ∈ S ∨ -a ∈ S :=
-  S.toAddSubmonoid.mem_or_neg_mem
+@[aesop safe forward]
+theorem mem_or_neg_mem (hS : S.IsSpanning) : ∀ a, a ∈ S ∨ -a ∈ S :=
+  hS.mem_or_neg_mem
 
 /-- Typeclass to track when the support of a subsemiring forms an ideal. -/
 class HasIdealSupport : Prop where
@@ -84,7 +84,7 @@ theorem toAddSubmonoid_support : S.toAddSubmonoid.support = S.support.toAddSubgr
 
 end HasIdealSupport
 
-instance [S.IsSpanning] : S.HasIdealSupport where
+instance (hS : S.IsSpanning) : S.HasIdealSupport where
   smul_mem_support x a ha := by
     have := S.mem_or_neg_mem x
     have : ∀ x y, -x ∈ S → -y ∈ S → x * y ∈ S := fun _ _ hx hy ↦ by simpa using mul_mem hx hy
@@ -121,21 +121,21 @@ end upstream
 variable {R R' : Type*} [Ring R] [Ring R'] (f : R →+* R')
          (S T : Subsemiring R) (S' : Subsemiring R') {s : Set (Subsemiring R)}
 
-instance [S.IsPointed] : S.HasIdealSupport where
+instance (hS : S.IsPointed) : S.HasIdealSupport where
 
 @[simp]
-theorem support_eq_bot [S.IsPointed] : S.support = ⊥ := by
+theorem support_eq_bot (hS : S.IsPointed) : S.support = ⊥ := by
   apply_fun Submodule.toAddSubgroup using Submodule.toAddSubgroup_injective
   simp [← toAddSubmonoid_support]
 
 @[aesop simp, aesop safe forward]
-theorem IsPointed.neg_one_notMem [Nontrivial R] [S.IsPointed] : -1 ∉ S := fun hc ↦ by
+theorem IsPointed.neg_one_notMem [Nontrivial R] (hS : S.IsPointed) : -1 ∉ S := fun hc ↦ by
   simpa [S.eq_zero_of_mem_of_neg_mem (by simp) hc] using zero_ne_one' R
 
 instance [S'.IsSpanning] : (S'.comap f).IsSpanning where
 
 variable {f} in
-theorem IsSpanning.map [S.IsSpanning] (hf : Function.Surjective f) : (S.map f).IsSpanning :=
+theorem IsSpanning.map (hS : S.IsSpanning) (hf : Function.Surjective f) : (S.map f).IsSpanning :=
   AddSubmonoid.IsSpanning.map S.toAddSubmonoid (f := f.toAddMonoidHom) hf
 
 section HasIdealSupport
@@ -245,7 +245,7 @@ instance [LinearOrder R] [IsOrderedRing R] : (Subsemiring.nonneg R).IsSpanning :
 instance [PartialOrder R] [IsOrderedRing R] : (Subsemiring.nonneg R).IsPointed :=
   inferInstanceAs (AddSubmonoid.nonneg R).IsPointed
 
-variable {R} (S : Subsemiring R) [S.IsPointed]
+variable {R} (S : Subsemiring R) (hS : S.IsPointed)
 
 theorem IsOrderedRing.mkOfSubsemiring :
     letI _ := PartialOrder.mkOfAddSubmonoid S.toAddSubmonoid
@@ -336,7 +336,7 @@ section Quot
 
 -- TODO : group and partial versions
 
-variable {R : Type*} [CommRing R] (O : Subsemiring R) [O.IsSpanning]
+variable {R : Type*} [CommRing R] (O : Subsemiring R) (hO : O.IsSpanning)
 
 instance : (O.map (Ideal.Quotient.mk O.support)).IsSpanning :=
   AddSubmonoid.IsSpanning.map O.toAddSubmonoid

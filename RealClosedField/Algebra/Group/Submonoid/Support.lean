@@ -15,7 +15,7 @@ import Mathlib.Algebra.Order.Group.Unbundled.Basic -- TODO : downstream
 
 Let `G` be an (additive) group, and let `M` be a submonoid of `G`.
 The *support* of `M` is `M ∩ -M`, the largest subgroup of `M`.
-A submonoid `C` is *pointed*, or a *positive cone*, if it has zero support.
+A submonoid `C` is *pointed*, or a *positive cone*, if it has trivial support.
 A submonoid `C` is *spanning* if the subgroup it generates is `G` itself.
 
 The names for these concepts are taken from the theory of convex cones.
@@ -23,34 +23,12 @@ The names for these concepts are taken from the theory of convex cones.
 ## Main definitions
 
 * `AddSubmonoid.support`: the support of a submonoid.
-* `AddSubmonoid.IsPointed`: typeclass for submonoids with zero support.
+* `AddSubmonoid.IsPointed`: typeclass for submonoids with trivial support.
 * `AddSubmonoid.IsSpanning`: typeclass for submonoids generating the whole group.
 
 -/
 
 -- TODO : add to_additive cleanups AddPointed -> Pointed, AddSpanning -> Spanning
-
-namespace AddSubmonoid
-
-variable {G : Type*} [AddGroup G] (M : AddSubmonoid G)
-
-/-- Typeclass for submonoids of a group with zero support. -/
-class IsPointed (M : AddSubmonoid G) : Prop where
-  eq_zero_of_mem_of_neg_mem {x} (hx₁ : x ∈ M) (hx₂ : -x ∈ M) : x = 0 := by aesop
-
-export IsPointed (eq_zero_of_mem_of_neg_mem)
-
-attribute [aesop 50% apply, aesop safe forward (immediate := [hx₁])] eq_zero_of_mem_of_neg_mem
-
-/-- Typeclass for submonoids `M` of a group `G` such that `M` generates `G` as a subgroup. -/
-class IsSpanning (M : AddSubmonoid G) : Prop where
-  mem_or_neg_mem (M) (a : G) : a ∈ M ∨ -a ∈ M := by aesop
-
-export IsSpanning (mem_or_neg_mem)
-
-attribute [aesop safe forward, aesop safe apply] mem_or_neg_mem
-
-end AddSubmonoid
 
 namespace Submonoid
 
@@ -70,52 +48,65 @@ def mulSupport : Subgroup G where
   inv_mem' := by aesop
 
 variable {M} in
-@[to_additive (attr := aesop simp)]
+@[to_additive (attr := simp)]
 theorem mem_mulSupport {x} : x ∈ M.mulSupport ↔ x ∈ M ∧ x⁻¹ ∈ M := .rfl
 
-@[to_additive]
+@[to_additive (attr := simp)]
 theorem coe_mulSupport : M.mulSupport = (M ∩ M⁻¹ : Set G) := rfl
 
-variable {G : Type*} [Group G] (M : Submonoid G)
+variable {M}
 
-/-- Typeclass for submonoids of a group with zero support. -/
-@[to_additive IsPointed]
-class IsMulPointed (M : Submonoid G) : Prop where
-  eq_one_of_mem_of_inv_mem {x} (hx₁ : x ∈ M) (hx₂ : x⁻¹ ∈ M) : x = 1 := by aesop
+variable (M) in
+/-- A submonoid is pointed if it has trivial support. -/
+@[to_additive IsPointed /-- A submonoid is pointed if it has trivial support. -/]
+def IsMulPointed := ∀ x ∈ M, x⁻¹ ∈ M → x = 1
 
-export IsMulPointed (eq_one_of_mem_of_inv_mem)
+namespace IsMulPointed
 
-attribute [aesop 50% apply, aesop safe forward (immediate := [hx₁])] eq_one_of_mem_of_inv_mem
+@[to_additive (attr := aesop 90%)]
+theorem mk (h : ∀ x ∈ M, x⁻¹ ∈ M → x = 1) : M.IsMulPointed := h -- for Aesop
 
-@[to_additive (attr := aesop safe forward (immediate := [hx₂]))]
+@[to_additive (attr := aesop safe forward (immediate := [hM, hx₁]))]
+theorem eq_one_of_mem_of_inv_mem (hM : M.IsMulPointed)
+    {x : G} (hx₁ : x ∈ M) (hx₂ : x⁻¹ ∈ M) : x = 1 := hM _ hx₁ hx₂
+
+@[to_additive (attr := aesop safe forward (immediate := [hM, hx₂]))]
 alias eq_one_of_mem_of_inv_mem₂ := eq_one_of_mem_of_inv_mem -- for Aesop
 
 @[to_additive (attr := simp)]
-theorem mulSupport_eq_bot [M.IsMulPointed] : M.mulSupport = ⊥ := by ext; aesop
+theorem mulSupport_eq_bot (hM : M.IsMulPointed) : M.mulSupport = ⊥ := by aesop
 
 @[to_additive]
-theorem IsMulPointed.of_mulSupport_eq_bot (h : M.mulSupport = ⊥) : M.IsMulPointed where
-  eq_one_of_mem_of_inv_mem {x} := by
-    apply_fun (x ∈ ·) at h
-    aesop
+theorem of_mulSupport_eq_bot (h : M.mulSupport = ⊥) : M.IsMulPointed := fun x ↦ by
+  apply_fun (x ∈ ·) at h
+  aesop
 
-/-- Typeclass for submonoids `M` of a group `G` such that `M` generates `G` as a subgroup. -/
-@[to_additive IsSpanning]
-class IsMulSpanning {G : Type*} [Group G] (M : Submonoid G) : Prop where
-  mem_or_inv_mem (M) (a : G) : a ∈ M ∨ a⁻¹ ∈ M := by aesop
+end IsMulPointed
 
-export IsMulSpanning (mem_or_inv_mem)
+variable (M) in
+/-- A submonoid `M` of a group `G` is spanning if `M` generates `G` as a subgroup. -/
+@[to_additive IsSpanning
+/-- A submonoid `M` of a group `G` is spanning if `M` generates `G` as a subgroup. -/]
+def IsMulSpanning := ∀ a : G, a ∈ M ∨ a⁻¹ ∈ M
 
-attribute [aesop safe forward, aesop safe apply] mem_or_inv_mem
+namespace IsMulSpanning
+
+@[to_additive (attr := aesop 90%)]
+theorem mk (h : ∀ a : G, a ∈ M ∨ a⁻¹ ∈ M) : M.IsMulSpanning := h -- for Aesop
+
+@[to_additive (attr := aesop safe forward)]
+theorem mem_or_inv_mem (hM : M.IsMulSpanning) (a : G) : a ∈ M ∨ a⁻¹ ∈ M := by aesop
 
 @[to_additive]
-theorem IsMulSpanning.of_le {M N : Submonoid G} [M.IsMulSpanning] (h : M ≤ N) :
-    N.IsMulSpanning where
+theorem of_le {N : Submonoid G} (hM : M.IsMulSpanning) (h : M ≤ N) :
+    N.IsMulSpanning := by aesop
 
-@[to_additive IsSpanning.maximal_isPointed]
-theorem IsMulSpanning.maximal_isMulPointed [M.IsMulPointed] [M.IsMulSpanning] :
+@[to_additive maximal_isPointed]
+theorem maximal_isMulPointed (hMp : M.IsMulPointed) (hMs : M.IsMulSpanning) :
     Maximal IsMulPointed M :=
-  ⟨inferInstance, fun N hN h ↦ by rw [SetLike.le_def] at h ⊢; aesop⟩
+  ⟨hMp, fun N hN h ↦ by rw [SetLike.le_def] at h ⊢; aesop⟩
+
+end IsMulSpanning
 
 -- PR SPLIT ↑1 ↓2
 
@@ -126,7 +117,7 @@ variable {G H : Type*} [Group G] [Group H] (f : G →* H) (M N : Submonoid G) (M
 
 variable {M N} in
 @[to_additive]
-theorem mulSupport_mono (h : M ≤ N) : M.mulSupport ≤ N.mulSupport := fun _ ↦ by aesop -- TODO : aesop intro on inequalities
+theorem mulSupport_mono (h : M ≤ N) : M.mulSupport ≤ N.mulSupport := fun _ ↦ by aesop
 
 @[to_additive (attr := simp)]
 theorem mulSupport_inf : (M ⊓ N).mulSupport = M.mulSupport ⊓ N.mulSupport := by aesop
@@ -135,19 +126,18 @@ theorem mulSupport_inf : (M ⊓ N).mulSupport = M.mulSupport ⊓ N.mulSupport :=
 theorem mulSupport_sInf (s : Set (Submonoid G)) :
     (sInf s).mulSupport = InfSet.sInf (mulSupport '' s) := by aesop
 
-@[to_additive]
-instance [M'.IsMulSpanning] : (M'.comap f).IsMulSpanning where
+@[to_additive (attr := aesop 90%)]
+theorem IsMulSpanning.comap (hM' : M'.IsMulSpanning) : (M'.comap f).IsMulSpanning := by aesop
 
 @[to_additive (attr := simp)]
 theorem comap_mulSupport : (M'.comap f).mulSupport = (M'.mulSupport).comap f := by aesop
 
 variable {f} in
 @[to_additive]
-theorem IsMulSpanning.map [M.IsMulSpanning] (hf : Function.Surjective f) :
-    (M.map f).IsMulSpanning where
-  mem_or_inv_mem x := by
-    obtain ⟨x', rfl⟩ := hf x
-    aesop
+theorem IsMulSpanning.map (hM : M.IsMulSpanning) (hf : Function.Surjective f) :
+    (M.map f).IsMulSpanning := fun x ↦ by
+  obtain ⟨x', rfl⟩ := hf x
+  aesop
 
 end Group
 
@@ -175,14 +165,14 @@ variable (G : Type*) [CommGroup G]
 -- TODO : downstream to `Mathlib.Algebra.Order.Monoid.Submonoid` or further
 
 @[to_additive]
-instance [PartialOrder G] [IsOrderedMonoid G] : (Submonoid.oneLE G).IsMulPointed where
-  eq_one_of_mem_of_inv_mem := by simp_all [ge_antisymm_iff]
+theorem Submonoid.oneLE.isMulPointed [PartialOrder G] [IsOrderedMonoid G] :
+    (oneLE G).IsMulPointed := by aesop (add simp ge_antisymm_iff)
 
 @[to_additive]
-instance [LinearOrder G] [IsOrderedMonoid G] : (Submonoid.oneLE G).IsMulSpanning where
-  mem_or_inv_mem := by simpa using le_total (1 : G)
+theorem Submonoid.oneLE.isMulSpanning [LinearOrder G] [IsOrderedMonoid G] :
+    (oneLE G).IsMulSpanning := by aesop (add safe le_total)
 
-variable {G} (M : Submonoid G) [M.IsMulPointed]
+variable {G} {M : Submonoid G} (hM : M.IsMulPointed)
 
 /-- Construct a partial order by designating a submonoid with zero support in an abelian group. -/
 @[to_additive
@@ -192,18 +182,18 @@ abbrev PartialOrder.mkOfSubmonoid : PartialOrder G where
   le_refl a := by simp [one_mem]
   le_trans a b c nab nbc := by simpa using mul_mem nbc nab
   le_antisymm a b nab nba := by
-    simpa [div_eq_one, eq_comm] using M.eq_one_of_mem_of_inv_mem nab (by simpa using nba)
+    simpa [div_eq_one, eq_comm] using hM.eq_one_of_mem_of_inv_mem nab (by simpa using nba)
 
-variable {M} in
+variable {hM} in
 @[to_additive (attr := simp)]
 theorem PartialOrder.mkOfSubmonoid_le_iff {a b : G} :
-    (mkOfSubmonoid M).le a b ↔ b / a ∈ M := .rfl
+    (mkOfSubmonoid hM).le a b ↔ b / a ∈ M := .rfl
 
 @[to_additive]
 theorem IsOrderedMonoid.mkOfSubmonoid :
-    letI _ := PartialOrder.mkOfSubmonoid M
+    letI _ := PartialOrder.mkOfSubmonoid hM
     IsOrderedMonoid G :=
-  letI _ := PartialOrder.mkOfSubmonoid M
+  letI _ := PartialOrder.mkOfSubmonoid hM
   { mul_le_mul_left := fun a b nab c ↦ by simpa [· ≤ ·] using nab }
 
 /-- Construct a linear order by designating
@@ -211,9 +201,10 @@ theorem IsOrderedMonoid.mkOfSubmonoid :
 @[to_additive
 /-- Construct a linear order by designating
     a maximal submonoid with zero support in an abelian group. -/]
-abbrev LinearOrder.mkOfSubmonoid [M.IsMulSpanning] [DecidablePred (· ∈ M)] : LinearOrder G where
-  __ := PartialOrder.mkOfSubmonoid M
-  le_total a b := by simpa using M.mem_or_inv_mem (b / a)
+abbrev LinearOrder.mkOfSubmonoid (hMs : M.IsMulSpanning) [DecidablePred (· ∈ M)] :
+    LinearOrder G where
+  __ := PartialOrder.mkOfSubmonoid hM
+  le_total a b := by simpa using hMs.mem_or_inv_mem (b / a)
   toDecidableLE _ := _
 
 namespace CommGroup
@@ -227,15 +218,15 @@ variable (G) in
 noncomputable def submonoidPartialOrderEquiv :
     Equiv {C : Submonoid G // C.IsMulPointed}
           {o : PartialOrder G // IsOrderedMonoid G} where
-  toFun := fun ⟨C, _⟩ => ⟨.mkOfSubmonoid C, .mkOfSubmonoid _⟩
-  invFun := fun ⟨_, _⟩ => ⟨.oneLE G, inferInstance⟩
+  toFun := fun ⟨_, hC⟩ => ⟨.mkOfSubmonoid hC, .mkOfSubmonoid _⟩
+  invFun := fun ⟨_, _⟩ => ⟨.oneLE G, Submonoid.oneLE.isMulPointed G⟩
   left_inv := fun ⟨_, _⟩ => by ext; simp
   right_inv := fun ⟨_, _⟩ => by ext; simp
 
 @[to_additive (attr := simp)]
 theorem submonoidPartialOrderEquiv_apply
     (C : Submonoid G) (h : C.IsMulPointed) :
-    submonoidPartialOrderEquiv G ⟨C, h⟩ = PartialOrder.mkOfSubmonoid C := rfl
+    submonoidPartialOrderEquiv G ⟨C, h⟩ = PartialOrder.mkOfSubmonoid h := rfl
 
 @[to_additive (attr := simp)]
 theorem submonoidPartialOrderEquiv_symm_apply (o : PartialOrder G) (h : IsOrderedMonoid G) :
@@ -251,9 +242,8 @@ variable (G) in
 noncomputable def submonoidLinearOrderEquiv :
     Equiv {C : Submonoid G // C.IsMulPointed ∧ C.IsMulSpanning}
           {o : LinearOrder G // IsOrderedMonoid G} where
-  toFun := fun ⟨C, hC⟩ => have := hC.1; have := hC.2;
-    ⟨.mkOfSubmonoid C, .mkOfSubmonoid C⟩
-  invFun := fun ⟨_, _⟩ => ⟨.oneLE G, inferInstance, inferInstance⟩
+  toFun := fun ⟨C, hC⟩ => ⟨.mkOfSubmonoid hC.1 hC.2, .mkOfSubmonoid hC.1⟩
+  invFun := fun ⟨_, _⟩ => ⟨.oneLE G, Submonoid.oneLE.isMulPointed G, Submonoid.oneLE.isMulSpanning G⟩
   left_inv := fun ⟨_, _, _⟩ => by ext; simp
   right_inv := fun ⟨_, _⟩ => by ext; simp
 
@@ -261,8 +251,7 @@ open Classical in
 @[to_additive (attr := simp)]
 theorem submonoidLinearOrderEquiv_apply
     (C : Submonoid G) (h : C.IsMulPointed ∧ C.IsMulSpanning) :
-    submonoidLinearOrderEquiv G ⟨C, h⟩ =
-    have := h.1; have := h.2; LinearOrder.mkOfSubmonoid C := rfl
+    submonoidLinearOrderEquiv G ⟨C, h⟩ = LinearOrder.mkOfSubmonoid h.1 h.2 := rfl
 
 @[to_additive (attr := simp)]
 theorem submonoidLinearOrderEquiv_symm_apply (l : LinearOrder G) (h : IsOrderedMonoid G) :
