@@ -413,7 +413,6 @@ lemma B_2_60 (p q : Polynomial R) (a b: R) (hab : a < b)
   simp only [cross, variation] at *
   linarith
 
-set_option maxHeartbeats 500000 in
 lemma changes_smods_congr (p q : Polynomial R) (a a' : R) (haa' : a ≠ a') (hpa : eval a p ≠ 0)
     (no_root : ∀ p' ∈ sturmSeq p q, ∀ x : R, ((a < x ∧ x ≤ a') ∨ (a' ≤ x ∧ x < a)) → eval x p' ≠ 0) :
     seqVar (seqEval a (sturmSeq p q)) = seqVar (seqEval a' (sturmSeq p q)) := by
@@ -441,12 +440,12 @@ lemma changes_smods_congr (p q : Polynomial R) (a a' : R) (haa' : a ≠ a') (hpa
     let r2 := -(q%r1)
     have : eval a p = - (eval a r1) := by
       have h1 := EuclideanDomain.quotient_mul_add_remainder_eq p q
-      have h2 : r1 = EuclideanDomain.remainder (-p) q := by rfl
+      have h2 : r1 = EuclideanDomain.remainder (-p) q := rfl
       have : eval a p = eval a (q * EuclideanDomain.quotient p q + EuclideanDomain.remainder p q) := by
         congr
         exact (Eq.symm h1)
       rw [this]
-      simp [hq2]
+      simp only [eval_add, eval_mul, hq2, zero_mul, zero_add]
       rw [h2]
       have : ∀ p q : Polynomial R, EuclideanDomain.remainder p q = p % q := by intros p q; rfl
       rw [this, this (-p) q, mod_minus]
@@ -454,7 +453,10 @@ lemma changes_smods_congr (p q : Polynomial R) (a a' : R) (haa' : a ≠ a') (hpa
     have : eval a r1 = -eval a p := by linarith
     have h_eval_r : eval a r1 ≠ 0 := by rw [this]; exact neg_ne_zero.mpr hpa
     have r_neq_0 : r1 ≠ 0 := eval_non_zero r1 a h_eval_r
-    have eval_a_eval_r : eval a p * eval a r1 < 0 := by rw [this]; simp; exact hpa
+    have eval_a_eval_r : eval a p * eval a r1 < 0 := by
+      rw [this]
+      simp only [mul_neg, Left.neg_neg_iff, mul_self_pos, ne_eq]
+      exact hpa
     obtain ⟨ps, hps1, hps2⟩ : ∃ ps, sturmSeq p q = p :: q :: r1 :: ps ∧ sturmSeq r1 r2 = r1 :: ps := by
       unfold sturmSeq
       simp [p_neq_0, r_neq_0]
@@ -466,7 +468,8 @@ lemma changes_smods_congr (p q : Polynomial R) (a a' : R) (haa' : a ≠ a') (hpa
       next h => exact r_neq_0 h
       next h =>
         congr <;> exact mod_minus q r1
-    have : List.length (sturmSeq r1 r2) < List.length (sturmSeq p q) := by simp [hps1, hps2]
+    have : List.length (sturmSeq r1 r2) < List.length (sturmSeq p q) := by simp only [hps2,
+      List.length_cons, hps1, add_lt_add_iff_right, lt_add_iff_pos_right, Nat.ofNat_pos]
     have no_root_2_aux := no_root
     rw [hps1] at no_root_2_aux
     have no_root_2 : ∀ p' ∈ sturmSeq r1 r2, ∀ (x : R), a < x ∧ x ≤ a' ∨ a' ≤ x ∧ x < a → eval x p' ≠ 0 := by
@@ -474,7 +477,7 @@ lemma changes_smods_congr (p q : Polynomial R) (a a' : R) (haa' : a ≠ a') (hpa
       clear * - no_root_2_aux
       intros p' hp'
       have : p' ∈ p :: q :: r1 :: ps := by
-        simp
+        simp only [List.mem_cons]
         right
         right
         simp at hp'
@@ -485,7 +488,8 @@ lemma changes_smods_congr (p q : Polynomial R) (a a' : R) (haa' : a ≠ a') (hpa
       rw [hps1, hps2, seqEval, seqEval]
       simp only [hq2, seqVar, BEq.rfl, ↓reduceIte]
       rw [seqEval, seqVar]
-      simp [h_eval_r]
+      simp only [beq_iff_eq, h_eval_r, ↓reduceIte, ite_eq_left_iff, not_lt, Nat.right_eq_add,
+        one_ne_zero, imp_false, not_le]
       exact eval_a_eval_r
     have rec_a' : seqVar (seqEval a' (sturmSeq p q)) = 1 + seqVar (seqEval a' (sturmSeq r1 r2)) := by
       have hp1 : eval a p * eval a' p ≥ 0 := by
@@ -509,19 +513,30 @@ lemma changes_smods_congr (p q : Polynomial R) (a a' : R) (haa' : a ≠ a') (hpa
         rw [hps1] at no_root
         apply no_root r1
         · simp only [List.mem_cons, true_or, or_true]
-        · aesop
+        · rcases lt_trichotomy a a' with h1 | h2 | h3
+          · left
+            exact And.intro h1 (le_refl _)
+          · exact False.elim (haa' h2)
+          · right
+            exact And.intro (le_refl _) h3
       have ev_neq_0_q : eval a' q ≠ 0 := by
         rw [hps1] at no_root
         apply no_root q
         · simp only [List.mem_cons, true_or, or_true]
-        · aesop
+        · rcases lt_trichotomy a a' with h1 | h2 | h3
+          · left
+            exact And.intro h1 (le_refl _)
+          · exact False.elim (haa' h2)
+          · right
+            exact And.intro (le_refl _) h3
       rw [hps1, hps2]
       rw [seqEval, seqEval, seqEval]
       rw [seqVar]
-      simp [ev_neq_0_q]
+      simp only [beq_iff_eq, ev_neq_0_q, ↓reduceIte]
       split_ifs
       next H =>
-        simp [seqVar, ev_neq_0_r1]
+        simp only [seqVar, beq_iff_eq, ev_neq_0_r1, ↓reduceIte, Nat.add_left_cancel_iff,
+          ite_eq_right_iff, Nat.add_eq_right, one_ne_zero, imp_false, not_lt, ge_iff_le]
         by_contra!
         have : (eval a' p * eval a' q) * (eval a' q * eval a' r1) > 0 := mul_pos_of_neg_of_neg H this
         have h1 : (eval a' p * eval a' r1) * (eval a' q * eval a' q) > 0 := by linarith
@@ -532,8 +547,9 @@ lemma changes_smods_congr (p q : Polynomial R) (a a' : R) (haa' : a ≠ a') (hpa
         have : eval a p * eval a r1 ≥ 0 := (mul_nonneg_iff_of_pos_right h_pos).mp this
         linarith
       next H =>
-        simp [seqVar, ev_neq_0_r1]
-        simp at H
+        simp only [seqVar, beq_iff_eq, ev_neq_0_r1, ↓reduceIte, ite_eq_left_iff, not_lt,
+          Nat.right_eq_add, one_ne_zero, imp_false, not_le, gt_iff_lt]
+        simp only [not_lt] at H
         by_contra!
         have : 0 ≤ (eval a' p * eval a' q) * (eval a' q * eval a' r1) := Left.mul_nonneg H this
         have h1 : 0 ≤ (eval a' p * eval a' r1) * (eval a' q * eval a' q) := by linarith
