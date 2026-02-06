@@ -1,2 +1,2 @@
 * aesop intro on inequalities (unsafe, high)
-* aesop ext on set equality hypotheses (unsafe, med)
+* surjective power map lemmas for IsAlgClosed, IsRealClosed
