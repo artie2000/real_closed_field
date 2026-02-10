@@ -88,13 +88,13 @@ instance [h : Fact (IsUnit (2 : R))] : P.HasIdealSupport := hasIdealSupport_of_i
 
 end IsPreordering
 
-instance [Nontrivial R] [P.IsSpanning] [P.IsPointed] : P.IsPreordering :=
+instance [Nontrivial R] (hP : P.IsSpanning) (hP : P.IsPointed) : P.IsPreordering :=
   .of_support_neq_top (by simp)
 
-instance [IsDomain R] [P.IsSpanning] [P.IsPointed] : P.IsOrdering where
+instance [IsDomain R] (hP : P.IsSpanning) (hP : P.IsPointed) : P.IsOrdering where
   __ : P.support.IsPrime := by simpa using Ideal.bot_prime
 
-theorem IsPreordering.ofIsPointed [Nontrivial R] [P.IsPointed] (h : .sumSq R ≤ P) : P.IsPreordering where
+theorem IsPreordering.ofIsPointed [Nontrivial R] (hP : P.IsPointed) (h : .sumSq R ≤ P) : P.IsPreordering where
 
 -- PR SPLIT ↑1 ↓2
 

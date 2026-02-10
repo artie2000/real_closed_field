@@ -21,14 +21,14 @@ namespace PointedCone
 variable (C : PointedCone R M)
 
 @[aesop 50% apply, aesop safe forward (immediate := [hx₁])]
-theorem eq_zero_of_mem_of_neg_mem [C.IsPointed] {x : M} (hx₁ : x ∈ C) (hx₂ : -x ∈ C) : x = 0 :=
+theorem eq_zero_of_mem_of_neg_mem (hC : C.IsPointed) {x : M} (hx₁ : x ∈ C) (hx₂ : -x ∈ C) : x = 0 :=
   C.toAddSubmonoid.eq_zero_of_mem_of_neg_mem hx₁ hx₂
 
 @[aesop safe forward (immediate := [hx₂])]
 alias eq_zero_of_mem_of_neg_mem₂ := eq_zero_of_mem_of_neg_mem -- for Aesop
 
 @[aesop safe forward, aesop safe apply]
-theorem mem_or_neg_mem [C.IsSpanning] : ∀ a, a ∈ C ∨ -a ∈ C :=
+theorem mem_or_neg_mem (hC : C.IsSpanning) : ∀ a, a ∈ C ∨ -a ∈ C :=
   C.toAddSubmonoid.mem_or_neg_mem
 
 /--
@@ -56,14 +56,14 @@ variable {M M' : Type*} [AddCommGroup M] [Module R M] [AddCommGroup M'] [Module 
          (C D : PointedCone R M) (C' : PointedCone R M') {s : Set (PointedCone R M)}
 
 @[simp]
-theorem lineal_eq_bot [C.IsPointed] : C.lineal = ⊥ := by
+theorem lineal_eq_bot (hC : C.IsPointed) : C.lineal = ⊥ := by
   apply_fun Submodule.toAddSubgroup using Submodule.toAddSubgroup_injective
   simp [← support_eq]
 
 instance [C'.IsSpanning] : (C'.comap f).IsSpanning where
 
 variable {f} in
-theorem IsSpanning.map [C.IsSpanning] (hf : Function.Surjective f) : (C.map f).IsSpanning :=
+theorem IsSpanning.map (hC : C.IsSpanning) (hf : Function.Surjective f) : (C.map f).IsSpanning :=
   AddSubmonoid.IsSpanning.map C.toAddSubmonoid (f := f.toAddMonoidHom) hf
 
 theorem IsPointed.of_lineal_eq_bot (h : C.lineal = ⊥) : C.IsPointed where
@@ -107,7 +107,7 @@ instance [PartialOrder M] [IsOrderedAddMonoid M] [IsOrderedModule R M] :
     (PointedCone.positive R M).IsPointed :=
   inferInstanceAs (AddSubmonoid.nonneg M).IsPointed
 
-variable {M} (C : PointedCone R M) [C.IsPointed]
+variable {M} (C : PointedCone R M) (hC : C.IsPointed)
 
 theorem IsOrderedModule.mkOfPointedCone :
     letI _ := PartialOrder.mkOfAddSubmonoid C.toAddSubmonoid
