@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 Pedro Saccomani, Sarah Pereira and Tomaz Mascarenhas. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Pedro Saccomani, Sarah Pereira, Tomaz Mascarenhas
+-/
 import RealClosedField.SturmTarski.Utils
 
 open Polynomial Set Filter Classical

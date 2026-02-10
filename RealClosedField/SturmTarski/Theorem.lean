@@ -1,3 +1,8 @@
+/-
+Copyright (c) 2026 Pedro Saccomani, Sarah Pereira and Tomaz Mascarenhas. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Pedro Saccomani, Sarah Pereira, Tomaz Mascarenhas
+-/
 import RealClosedField.SturmTarski.SturmSeq
 
 noncomputable section
@@ -9,8 +14,8 @@ variable [Field R] [IsRealClosed R]
 
 theorem sturm_tarski_interval (a b : R) (p q : Polynomial R) (hab : a < b) (hpa : eval a p ≠ 0) (hpb : eval b p ≠ 0) :
     tarskiQuery p q a b = seqVarSturm_ab p (derivative p * q) a b := by
-  rw [B_2_58 p (derivative p * q) a b hpa hpb hab]
-  rw [B_2_57 p q a b]
+  rw [cauchyIndex_sturmSeq p (derivative p * q) a b hpa hpb hab]
+  rw [cauchyIndex_poly_taq p q a b]
 
 def rootsAbove (f : Polynomial R) (a : R) : Finset R :=
   f.roots.toFinset.filter (fun x => x > a)
