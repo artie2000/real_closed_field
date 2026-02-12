@@ -191,3 +191,26 @@ theorem sturm_tarski_R (p q : Polynomial R) :
     rw [taq_taq, changes_changes]
     exact sturm_tarski_interval lb ub p q lb_ub lb_neq_0 ub_neq_0
 
+theorem sturm_interval (a b : R) (p : Polynomial R) (hab : a < b) (hpa : eval a p ≠ 0) (hpb : eval b p ≠ 0) :
+    Finset.card (rootsInInterval p a b) = seqVarSturm_ab p (derivative p) a b := by
+  have := sturm_tarski_interval a b p 1 hab hpa hpb
+  simp [tarskiQuery, sgn] at this
+  exact this
+
+theorem sturm_above (a : R) (p : Polynomial R) (hpa : eval a p ≠ 0) :
+    Finset.card (rootsAbove p a) = seqVarAboveSturm p (derivative p) a := by
+  have := sturm_tarski_above a p 1 hpa
+  simp [tarskiQuery_above, sgn] at this
+  exact this
+
+theorem sturm_below (b : R) (p : Polynomial R) (hpa : eval b p ≠ 0) :
+    Finset.card (rootsBelow p b) = seqVarBelowSturm p (derivative p) b := by
+  have := sturm_tarski_below b p 1 hpa
+  simp [tarskiQuery_below, sgn] at this
+  exact this
+
+theorem sturm_R (p : Polynomial R) :
+    Finset.card p.roots.toFinset = seqVarRSturm p (derivative p) := by
+  have := sturm_tarski_R p 1
+  simp [tarskiQuery_R, sgn] at this
+  exact this
