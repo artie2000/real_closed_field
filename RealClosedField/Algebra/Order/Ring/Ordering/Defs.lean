@@ -36,7 +36,7 @@ An ordering `O` on a ring `R` is a subsemiring of `R` such that `O ∪ -O = R` a
 the support `O ∩ -O` of `O` forms a prime ideal.
 -/
 class IsOrdering (S : Subsemiring R) : Prop where--extends S.IsSpanning, S.support.IsPrime
-  isSpanning : S.IsSpanning
+  isSpanning (S) : S.IsSpanning
   support_ne_top (S) : S.toAddSubmonoid.support ≠ ⊤
   mem_support_or_mem_support :
     ∀ {x y : R}, x * y ∈ S.toAddSubmonoid.support →
@@ -106,6 +106,6 @@ theorem IsPreordering.of_support_neq_top
 
 /- An ordering is a preordering. -/
 instance [S.IsOrdering] : S.IsPreordering :=
-  .of_support_neq_top IsOrdering.isSpanning (Ideal.IsPrime.ne_top inferInstance)
+  .of_support_neq_top (IsOrdering.isSpanning S) (Ideal.IsPrime.ne_top inferInstance)
 
 end Subsemiring

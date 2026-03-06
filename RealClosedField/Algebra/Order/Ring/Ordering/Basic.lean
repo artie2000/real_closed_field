@@ -24,7 +24,7 @@ namespace Subsemiring
 section CommRing
 
 variable {R S : Type*} [CommRing R] [CommRing S] (f : R →+* S)
-         (P : Subsemiring R) (P' : Subsemiring S)
+        (P : Subsemiring R) (P' : Subsemiring S)
 
 namespace IsPreordering
 
@@ -91,14 +91,17 @@ instance [h : Fact (IsUnit (2 : R))] : P.HasIdealSupport := hasIdealSupport_of_i
 
 end IsPreordering
 
+variable {P} in
 theorem IsPreordering.of_isSpanning_of_isPointed [Nontrivial R]
     (hP₁ : P.IsSpanning) (hP₂ : P.IsPointed) : P.IsPreordering :=
   .of_support_neq_top hP₁ (by simp [*])
 
+variable {P} in
 instance IsOrdering.of_isSpanning_of_isPointed [IsDomain R]
     (hP₁ : P.IsSpanning) (hP₂ : P.IsPointed) : P.IsOrdering := .mk' hP₁ <| by
   simpa [*] using Ideal.bot_prime
 
+variable {P} in
 theorem IsPreordering.of_isPointed [Nontrivial R]
     (hP : P.IsPointed) (h : .sumSq R ≤ P) : P.IsPreordering where
 
@@ -128,7 +131,7 @@ theorem IsPreordering.sSup  {S : Set (Subsemiring R)}
     simpa [mem_sSup_of_directedOn hSn hSd] using (fun x hx ↦ have := hS _ hx; neg_one_notMem x)
 
 instance [P'.IsOrdering] : IsOrdering (P'.comap f) := .mk'
-  (isSpanning_comap f IsOrdering.isSpanning)
+  (isSpanning_comap f (IsOrdering.isSpanning P'))
   (by simpa using inferInstanceAs (Ideal.comap f P'.support).IsPrime)
 
 instance [P'.IsPreordering] : (P'.comap f).IsPreordering where
@@ -136,7 +139,7 @@ instance [P'.IsPreordering] : (P'.comap f).IsPreordering where
 variable {f P} in
 theorem IsOrdering.map [P.IsOrdering] (hf : Function.Surjective f)
     (hsupp : RingHom.ker f ≤ P.support) : IsOrdering (P.map f) := mk'
-  (isSpanning_map IsOrdering.isSpanning hf) <| by
+  (isSpanning_map (IsOrdering.isSpanning P) hf) <| by
     simpa [*] using Ideal.map_isPrime_of_surjective hf hsupp
 
 variable {f P} in
