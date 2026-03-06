@@ -35,7 +35,29 @@ variable {R : Type*} [CommRing R] (S : Subsemiring R)
 An ordering `O` on a ring `R` is a subsemiring of `R` such that `O ∪ -O = R` and
 the support `O ∩ -O` of `O` forms a prime ideal.
 -/
-class IsOrdering extends S.IsSpanning, S.support.IsPrime
+class IsOrdering (S : Subsemiring R) : Prop where--extends S.IsSpanning, S.support.IsPrime
+  isSpanning : S.IsSpanning
+  support_ne_top (S) : S.toAddSubmonoid.support ≠ ⊤
+  mem_support_or_mem_support :
+    ∀ {x y : R}, x * y ∈ S.toAddSubmonoid.support →
+      x ∈ S.toAddSubmonoid.support ∨ y ∈ S.toAddSubmonoid.support
+
+attribute [aesop safe forward] IsOrdering.isSpanning
+
+-- TODO : see if workaround (next three theorems) can be removed
+
+instance [i : S.IsOrdering] : S.HasIdealSupport := i.isSpanning.hasIdealSupport
+
+instance IsOrdering.support_isPrime [i : S.IsOrdering] : S.support.IsPrime where
+  ne_top' := by simpa using i.support_ne_top
+  mem_or_mem' := i.mem_support_or_mem_support
+
+variable {S} in
+theorem IsOrdering.mk' (hS₁ : S.IsSpanning) (hS₂ : have := hS₁.hasIdealSupport; S.support.IsPrime) :
+    S.IsOrdering where
+  isSpanning := hS₁
+  support_ne_top := by simpa [hS₁.hasIdealSupport] using hS₂.ne_top
+  mem_support_or_mem_support := hS₂.mem_or_mem
 
 /-- A preordering on a ring `R` is a subsemiring of `R` that contains all squares, but not `-1`. -/
 class IsPreordering (S : Subsemiring R) : Prop where
@@ -69,19 +91,21 @@ protected theorem pow_two_mem (x : R) : x ^ 2 ∈ S := by aesop
 end IsPreordering
 
 variable {S} in
-theorem IsPreordering.of_support_neq_top (hS : S.IsSpanning) (h : S.support ≠ ⊤) :
+theorem IsPreordering.of_support_neq_top
+    (hS : S.IsSpanning) (h : have := hS.hasIdealSupport; S.support ≠ ⊤) :
     S.IsPreordering where
   mem_of_isSquare x := by
     rcases x with ⟨y, rfl⟩
-    cases S.mem_or_neg_mem y with
+    cases S.mem_or_neg_mem hS y with
     | inl h => aesop
     | inr h => simpa using (show -y * -y ∈ S by aesop (config := { enableSimp := false }))
   neg_one_notMem hc := by
+    have := hS.hasIdealSupport
     have : 1 ∈ S.support := by simp [mem_support, hc]
     exact h (by simpa [Ideal.eq_top_iff_one])
 
 /- An ordering is a preordering. -/
 instance [S.IsOrdering] : S.IsPreordering :=
-  .of_support_neq_top (Ideal.IsPrime.ne_top inferInstance)
+  .of_support_neq_top IsOrdering.isSpanning (Ideal.IsPrime.ne_top inferInstance)
 
 end Subsemiring

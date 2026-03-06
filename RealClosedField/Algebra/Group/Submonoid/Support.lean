@@ -73,13 +73,18 @@ theorem eq_one_of_mem_of_inv_mem (hM : M.IsMulPointed)
 @[to_additive (attr := aesop safe forward (immediate := [hM, hx₂]))]
 alias eq_one_of_mem_of_inv_mem₂ := eq_one_of_mem_of_inv_mem -- for Aesop
 
+@[to_additive]
+theorem _root_.isMulPointed_iff_mulSupport_eq_bot : M.IsMulPointed ↔ M.mulSupport = ⊥ where
+  mp := by aesop
+  mpr h := fun x ↦ by
+    apply_fun (x ∈ ·) at h
+    aesop
+
 @[to_additive (attr := simp)]
-theorem mulSupport_eq_bot (hM : M.IsMulPointed) : M.mulSupport = ⊥ := by aesop
+alias ⟨mulSupport_eq_bot, _⟩ := isMulPointed_iff_mulSupport_eq_bot
 
 @[to_additive]
-theorem of_mulSupport_eq_bot (h : M.mulSupport = ⊥) : M.IsMulPointed := fun x ↦ by
-  apply_fun (x ∈ ·) at h
-  aesop
+alias ⟨_, of_mulSupport_eq_bot⟩ := isMulPointed_iff_mulSupport_eq_bot
 
 end IsMulPointed
 
@@ -126,13 +131,14 @@ theorem mulSupport_inf : (M ⊓ N).mulSupport = M.mulSupport ⊓ N.mulSupport :=
 theorem mulSupport_sInf (s : Set (Submonoid G)) :
     (sInf s).mulSupport = InfSet.sInf (mulSupport '' s) := by aesop
 
+variable {M'} in
 @[to_additive (attr := aesop 90%)]
 theorem IsMulSpanning.comap (hM' : M'.IsMulSpanning) : (M'.comap f).IsMulSpanning := by aesop
 
 @[to_additive (attr := simp)]
 theorem comap_mulSupport : (M'.comap f).mulSupport = (M'.mulSupport).comap f := by aesop
 
-variable {f} in
+variable {f M} in
 @[to_additive]
 theorem IsMulSpanning.map (hM : M.IsMulSpanning) (hf : Function.Surjective f) :
     (M.map f).IsMulSpanning := fun x ↦ by

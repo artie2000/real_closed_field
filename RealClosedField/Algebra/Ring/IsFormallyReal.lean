@@ -119,8 +119,10 @@ theorem eq_zero_of_isSumSq_of_neg_isSumSq [NonUnitalNonAssocRing R] [IsFormallyR
     {s : R} (h₁ : IsSumSq s) (h₂ : IsSumSq (-s)) : s = 0 :=
   IsFormallyReal.eq_zero_of_add_right h₁ h₂ (by simp)
 
-instance [CommRing R] [IsFormallyReal R] : (AddSubmonoid.sumSq R).IsPointed where
-  eq_zero_of_mem_of_neg_mem {_} := by simpa using eq_zero_of_isSumSq_of_neg_isSumSq
+variable (R) in
+theorem AddSubmonoid.sumSq.isPointed [CommRing R] [IsFormallyReal R] :
+    (AddSubmonoid.sumSq R).IsPointed := fun _ ↦ by
+  simpa using eq_zero_of_isSumSq_of_neg_isSumSq
 
 -- TODO : upstream to `Mathlib.Algebra.Ring.SumsOfSquares`
 @[simp]
@@ -128,7 +130,9 @@ theorem Subsemiring.sumSq_toAddSubmonoid {T : Type*} [CommSemiring T] :
     (Subsemiring.sumSq T).toAddSubmonoid = .sumSq T :=
   show (Subsemiring.sumSq T).toNonUnitalSubsemiring.toAddSubmonoid = .sumSq T by simp
 
-instance [CommRing R] [IsFormallyReal R] : (Subsemiring.sumSq R).IsPointed := by
-  simpa using inferInstanceAs (AddSubmonoid.sumSq R).IsPointed
+variable (R) in
+theorem Subsemiring.sumSq.isPointed [CommRing R] [IsFormallyReal R] :
+    (Subsemiring.sumSq R).IsPointed := by
+  simpa using AddSubmonoid.sumSq.isPointed R
 
 end IsFormallyReal

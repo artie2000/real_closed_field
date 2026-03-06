@@ -23,7 +23,8 @@ namespace Subsemiring
 
 section CommRing
 
-variable {R S : Type*} [CommRing R] [CommRing S] (f : R →+* S) (P : Subsemiring R) (P' : Subsemiring S)
+variable {R S : Type*} [CommRing R] [CommRing S] (f : R →+* S)
+         (P : Subsemiring R) (P' : Subsemiring S)
 
 namespace IsPreordering
 
@@ -56,22 +57,24 @@ theorem isOrdering_iff :
     P.IsOrdering ↔ ∀ a b : R, -(a * b) ∈ P → a ∈ P ∨ b ∈ P where
   mp _ a b _ := by
     by_contra
-    have : ∀ (a : R), a ∈ P ∨ -a ∈ P := P.mem_or_neg_mem
+    have : ∀ (a : R), a ∈ P ∨ -a ∈ P := by aesop
     have : a * b ∈ P := by simpa using mul_mem (by grind : -a ∈ P) (by grind : -b ∈ P)
     have : a ∈ P.support ∨ b ∈ P.support :=
       Ideal.IsPrime.mem_or_mem inferInstance (by aesop)
     aesop
   mpr h :=
-    have : P.IsSpanning := ⟨by simp [h]⟩
-    { this with
-      ne_top' := IsPreordering.support_ne_top P
+    have : P.IsSpanning := by aesop
+    .mk' this {
+      ne_top' :=
+        have := this.hasIdealSupport
+        IsPreordering.support_ne_top P
       mem_or_mem' {x} {y} := by
         by_contra
         have := h (-x) y
         have := h (-x) (-y)
         have := h x y
         have := h x (-y)
-        cases (by aesop : x ∈ P ∨ -x ∈ P) <;> aesop
+        cases (by simp_all : x ∈ P ∨ -x ∈ P) <;> aesop
     }
 
 theorem hasIdealSupport_of_isUnit_two (h : IsUnit (2 : R)) : P.HasIdealSupport where
@@ -88,13 +91,16 @@ instance [h : Fact (IsUnit (2 : R))] : P.HasIdealSupport := hasIdealSupport_of_i
 
 end IsPreordering
 
-instance [Nontrivial R] (hP : P.IsSpanning) (hP : P.IsPointed) : P.IsPreordering :=
-  .of_support_neq_top (by simp)
+theorem IsPreordering.of_isSpanning_of_isPointed [Nontrivial R]
+    (hP₁ : P.IsSpanning) (hP₂ : P.IsPointed) : P.IsPreordering :=
+  .of_support_neq_top hP₁ (by simp [*])
 
-instance [IsDomain R] (hP : P.IsSpanning) (hP : P.IsPointed) : P.IsOrdering where
-  __ : P.support.IsPrime := by simpa using Ideal.bot_prime
+instance IsOrdering.of_isSpanning_of_isPointed [IsDomain R]
+    (hP₁ : P.IsSpanning) (hP₂ : P.IsPointed) : P.IsOrdering := .mk' hP₁ <| by
+  simpa [*] using Ideal.bot_prime
 
-theorem IsPreordering.ofIsPointed [Nontrivial R] (hP : P.IsPointed) (h : .sumSq R ≤ P) : P.IsPreordering where
+theorem IsPreordering.of_isPointed [Nontrivial R]
+    (hP : P.IsPointed) (h : .sumSq R ≤ P) : P.IsPreordering where
 
 -- PR SPLIT ↑1 ↓2
 
@@ -121,25 +127,17 @@ theorem IsPreordering.sSup  {S : Set (Subsemiring R)}
   neg_one_notMem := by
     simpa [mem_sSup_of_directedOn hSn hSd] using (fun x hx ↦ have := hS _ hx; neg_one_notMem x)
 
-instance [P'.IsOrdering] : IsOrdering (P'.comap f) where
-  __ : (P'.comap f).IsSpanning := by
-    simpa using inferInstanceAs (P'.toAddSubmonoid.comap f.toAddMonoidHom).IsSpanning
-  __ : (P'.comap f).support.IsPrime := by
-    simpa [-RingHom.toAddMonoidHom_eq_coe] using
-      inferInstanceAs (Ideal.comap f P'.support).IsPrime
+instance [P'.IsOrdering] : IsOrdering (P'.comap f) := .mk'
+  (isSpanning_comap f IsOrdering.isSpanning)
+  (by simpa using inferInstanceAs (Ideal.comap f P'.support).IsPrime)
 
 instance [P'.IsPreordering] : (P'.comap f).IsPreordering where
 
 variable {f P} in
 theorem IsOrdering.map [P.IsOrdering] (hf : Function.Surjective f)
-    (hsupp : RingHom.ker f ≤ P.support) : IsOrdering (P.map f) where
-  __ : (P.map f).IsSpanning := by
-    simpa using AddSubmonoid.IsSpanning.map P.toAddSubmonoid (f := f.toAddMonoidHom) hf
-  __ : (P.map f).support.IsPrime := by
-    have : (P.toAddSubmonoid.map f.toAddMonoidHom).support =
-           (P.support.toAddSubgroup).map f.toAddMonoidHom := by
-      simpa using AddSubmonoid.map_support (f := f.toAddMonoidHom) hsupp
-    simpa [this, *] using Ideal.map_isPrime_of_surjective hf hsupp
+    (hsupp : RingHom.ker f ≤ P.support) : IsOrdering (P.map f) := mk'
+  (isSpanning_map IsOrdering.isSpanning hf) <| by
+    simpa [*] using Ideal.map_isPrime_of_surjective hf hsupp
 
 variable {f P} in
 theorem IsPreordering.map [P.IsPreordering] (hf : Function.Surjective f)
@@ -170,15 +168,15 @@ theorem inv_mem {a : F} (ha : a ∈ P) : a⁻¹ ∈ P := by
   field_simp at mem
   simp_all
 
-instance : P.IsPointed where
-  eq_zero_of_mem_of_neg_mem {x} _ _ := by
-    by_contra
-    have mem : -x * x⁻¹ ∈ P := by aesop (erase simp neg_mul)
-    field_simp at mem
-    exact P.neg_one_notMem mem
+theorem isPointed : P.IsPointed := fun {x} _ _ ↦ by
+  by_contra
+  have mem : -x * x⁻¹ ∈ P := by aesop (erase simp neg_mul)
+  field_simp at mem
+  exact P.neg_one_notMem mem
 
+instance : P.HasIdealSupport := (IsPreordering.isPointed P).hasIdealSupport
 
-instance : P.support.IsPrime := by simpa using Ideal.bot_prime
+instance : P.support.IsPrime := by simpa [IsPreordering.isPointed P] using Ideal.bot_prime
 
 end IsPreordering
 

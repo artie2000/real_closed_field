@@ -28,11 +28,11 @@ variable {R : Type*} [Ring R]
 
 namespace Subsemiring
 
-variable (S : Subsemiring R)
+variable {S : Subsemiring R}
 
 @[aesop safe forward (immediate := [hS, hx₁])]
-theorem eq_zero_of_mem_of_neg_mem (hS : S.IsPointed) {x : R} (hx₁ : x ∈ S) (hx₂ : -x ∈ S) : x = 0 :=
-  hS.eq_zero_of_mem_of_neg_mem hx₁ hx₂
+theorem eq_zero_of_mem_of_neg_mem (hS : S.IsPointed) {x : R}
+    (hx₁ : x ∈ S) (hx₂ : -x ∈ S) : x = 0 := hS.eq_zero_of_mem_of_neg_mem hx₁ hx₂
 
 @[aesop safe forward (immediate := [hS, hx₂])]
 alias eq_zero_of_mem_of_neg_mem₂ := eq_zero_of_mem_of_neg_mem -- for Aesop
@@ -41,6 +41,7 @@ alias eq_zero_of_mem_of_neg_mem₂ := eq_zero_of_mem_of_neg_mem -- for Aesop
 theorem mem_or_neg_mem (hS : S.IsSpanning) : ∀ a, a ∈ S ∨ -a ∈ S :=
   hS.mem_or_neg_mem
 
+variable (S) in
 /-- Typeclass to track when the support of a subsemiring forms an ideal. -/
 class HasIdealSupport : Prop where
   smul_mem_support (x : R) {a : R} (ha : a ∈ S.support) :
@@ -48,7 +49,6 @@ class HasIdealSupport : Prop where
 
 export HasIdealSupport (smul_mem_support)
 
-variable {S} in
 theorem hasIdealSupport_iff :
     S.HasIdealSupport ↔ ∀ x a : R, a ∈ S → -a ∈ S → x * a ∈ S ∧ -(x * a) ∈ S where
   mp _ := have := S.smul_mem_support; by aesop
@@ -68,25 +68,28 @@ theorem neg_smul_mem (x : R) {a : R} (h₁a : a ∈ S) (h₂a : -a ∈ S) : -(x 
   have := S.smul_mem_support
   aesop
 
+variable (S) in
 /-- The support `S ∩ -S` of a subsemiring `S` of a ring `R`, as an ideal. -/
 def support : Ideal R where
   __ := S.toAddSubmonoid.support
   smul_mem' := by aesop
 
-variable {S} in
 @[aesop simp]
 theorem mem_support {x} : x ∈ S.support ↔ x ∈ S ∧ -x ∈ S := .rfl
 
+variable (S) in
 theorem coe_support : S.support = (S : Set R) ∩ -(S : Set R) := rfl
 
+variable (S) in
 @[simp]
 theorem toAddSubmonoid_support : S.toAddSubmonoid.support = S.support.toAddSubgroup := rfl
 
 end HasIdealSupport
 
-instance (hS : S.IsSpanning) : S.HasIdealSupport where
+@[aesop safe forward, aesop 50%]
+theorem _root_.AddSubmonoid.IsSpanning.hasIdealSupport (hS : S.IsSpanning) : S.HasIdealSupport where
   smul_mem_support x a ha := by
-    have := S.mem_or_neg_mem x
+    have := S.mem_or_neg_mem hS x
     have : ∀ x y, -x ∈ S → -y ∈ S → x * y ∈ S := fun _ _ hx hy ↦ by simpa using mul_mem hx hy
     aesop (add 80% this)
 
@@ -118,34 +121,40 @@ theorem map_toAddSubmonoid : (P.map f).toAddSubmonoid = P.toAddSubmonoid.map f.t
 
 end upstream
 
-variable {R R' : Type*} [Ring R] [Ring R'] (f : R →+* R')
-         (S T : Subsemiring R) (S' : Subsemiring R') {s : Set (Subsemiring R)}
+variable {R R' : Type*} [Ring R] [Ring R'] {f : R →+* R'}
+         {S T : Subsemiring R} {S' : Subsemiring R'} {s : Set (Subsemiring R)}
 
-instance (hS : S.IsPointed) : S.HasIdealSupport where
+@[aesop safe forward, aesop 50%]
+theorem _root_.AddSubmonoid.IsPointed.hasIdealSupport (hS : S.IsPointed) : S.HasIdealSupport where
 
 @[simp]
-theorem support_eq_bot (hS : S.IsPointed) : S.support = ⊥ := by
+theorem support_eq_bot (hS : S.IsPointed) :
+    have := hS.hasIdealSupport
+    S.support = ⊥ := by
   apply_fun Submodule.toAddSubgroup using Submodule.toAddSubgroup_injective
-  simp [← toAddSubmonoid_support]
+  rw [← toAddSubmonoid_support, hS.support_eq_bot, Submodule.bot_toAddSubgroup]
 
 @[aesop simp, aesop safe forward]
-theorem IsPointed.neg_one_notMem [Nontrivial R] (hS : S.IsPointed) : -1 ∉ S := fun hc ↦ by
-  simpa [S.eq_zero_of_mem_of_neg_mem (by simp) hc] using zero_ne_one' R
+theorem _root_.AddSubmonoid.IsPointed.neg_one_notMem [Nontrivial R]
+    (hS : S.IsPointed) : -1 ∉ S := fun hc ↦ by
+  simpa [S.eq_zero_of_mem_of_neg_mem hS (by simp) hc] using zero_ne_one' R
 
-instance [S'.IsSpanning] : (S'.comap f).IsSpanning where
+variable (f) in
+theorem isSpanning_comap (hS' : S'.IsSpanning) : (S'.comap f).IsSpanning :=
+  hS'.comap f.toAddMonoidHom
 
-variable {f} in
-theorem IsSpanning.map (hS : S.IsSpanning) (hf : Function.Surjective f) : (S.map f).IsSpanning :=
-  AddSubmonoid.IsSpanning.map S.toAddSubmonoid (f := f.toAddMonoidHom) hf
+theorem isSpanning_map (hS : S.IsSpanning) (hf : Function.Surjective f) : (S.map f).IsSpanning :=
+  hS.map (f := f.toAddMonoidHom) hf
 
 section HasIdealSupport
 
 variable [S.HasIdealSupport] [T.HasIdealSupport] [S'.HasIdealSupport]
+         (f S T S')
 
-theorem IsPointed.of_support_eq_bot (h : S.support = ⊥) : S.IsPointed where
-  eq_zero_of_mem_of_neg_mem {x} := by
-    apply_fun (x ∈ ·) at h
-    aesop
+variable {S} in
+theorem isPointed_of_support_eq_bot (h : S.support = ⊥) : S.IsPointed := fun x ↦ by
+  apply_fun (x ∈ ·) at h
+  aesop
 
 variable {S T} in
 theorem support_mono (h : S ≤ T) : S.support ≤ T.support := fun _ ↦ by aesop
@@ -202,11 +211,7 @@ instance : (S'.comap f).HasIdealSupport where
   smul_mem_support x a ha := by simpa using smul_mem_support (f x) (by simpa using ha)
 
 @[simp]
-theorem comap_support : (S'.comap f).support = (S'.support).comap f := by
-  ext x
-  have := S'.toAddSubmonoid.comap_support f.toAddMonoidHom
-  apply_fun (x ∈ ·) at this
-  simpa [-AddSubmonoid.comap_support]
+theorem comap_support : (S'.comap f).support = (S'.support).comap f := by aesop
 
 variable {f S} in
 theorem HasIdealSupport.map (hf : Function.Surjective f)
@@ -239,19 +244,19 @@ section downstream
 
 variable (R : Type*) [Ring R]
 
-instance [LinearOrder R] [IsOrderedRing R] : (Subsemiring.nonneg R).IsSpanning :=
-  inferInstanceAs (AddSubmonoid.nonneg R).IsSpanning
+theorem Subsemiring.nonneg.isPointed [PartialOrder R] [IsOrderedRing R] :
+    (Subsemiring.nonneg R).IsPointed := AddSubmonoid.nonneg.isAddPointed R
 
-instance [PartialOrder R] [IsOrderedRing R] : (Subsemiring.nonneg R).IsPointed :=
-  inferInstanceAs (AddSubmonoid.nonneg R).IsPointed
+theorem Subsemiring.nonneg.isSpanning [LinearOrder R] [IsOrderedRing R] :
+    (Subsemiring.nonneg R).IsSpanning := AddSubmonoid.nonneg.isAddSpanning R
 
-variable {R} (S : Subsemiring R) (hS : S.IsPointed)
+variable {R} {S : Subsemiring R} (hS : S.IsPointed)
 
 theorem IsOrderedRing.mkOfSubsemiring :
-    letI _ := PartialOrder.mkOfAddSubmonoid S.toAddSubmonoid
+    letI _ := PartialOrder.mkOfAddSubmonoid hS
     IsOrderedRing R :=
-  letI _ := PartialOrder.mkOfAddSubmonoid S.toAddSubmonoid
-  haveI := IsOrderedAddMonoid.mkOfAddSubmonoid S.toAddSubmonoid
+  letI _ := PartialOrder.mkOfAddSubmonoid hS
+  haveI := IsOrderedAddMonoid.mkOfAddSubmonoid hS
   haveI : ZeroLEOneClass R := ⟨by simp⟩
   .of_mul_nonneg fun x y xnn ynn ↦ show _ ∈ S by simpa using Subsemiring.mul_mem _ xnn ynn
 
@@ -263,15 +268,15 @@ variable (R) in
 noncomputable def isPointedPartialOrderEquiv :
     Equiv {C : Subsemiring R // C.IsPointed}
           {o : PartialOrder R // IsOrderedRing R} where
-  toFun := fun ⟨C, _⟩ => ⟨.mkOfAddSubmonoid C.toAddSubmonoid, .mkOfSubsemiring _⟩
-  invFun := fun ⟨_, _⟩ => ⟨.nonneg R, inferInstance⟩
+  toFun := fun ⟨_, hC⟩ => ⟨.mkOfAddSubmonoid hC, .mkOfSubsemiring _⟩
+  invFun := fun ⟨_, _⟩ => ⟨.nonneg R, Subsemiring.nonneg.isPointed R⟩
   left_inv := fun ⟨_, _⟩ => by ext; simp
   right_inv := fun ⟨_, _⟩ => by ext; simp
 
 @[simp]
 theorem isPointedPartialOrderEquiv_apply
     (C : Subsemiring R) (h : C.IsPointed) :
-    isPointedPartialOrderEquiv R ⟨C, h⟩ = PartialOrder.mkOfAddSubmonoid C.toAddSubmonoid := rfl
+    isPointedPartialOrderEquiv R ⟨C, h⟩ = PartialOrder.mkOfAddSubmonoid h := rfl
 
 @[simp]
 theorem isPointedPartialOrderEquiv_symm_apply (o : PartialOrder R) (h : IsOrderedRing R) :
@@ -284,9 +289,9 @@ open Classical in
 noncomputable def isPointedLinearOrderEquiv :
     Equiv {C : Subsemiring R // C.IsPointed ∧ C.IsSpanning}
           {o : LinearOrder R // IsOrderedRing R} where
-  toFun := fun ⟨C, hC⟩ => have := hC.1; have := hC.2;
-    ⟨.mkOfAddSubmonoid C.toAddSubmonoid, .mkOfSubsemiring C⟩
-  invFun := fun ⟨_, _⟩ => ⟨.nonneg R, by infer_instance, by infer_instance⟩
+  toFun := fun ⟨C, hC⟩ => ⟨.mkOfAddSubmonoid hC.1 hC.2, .mkOfSubsemiring hC.1⟩
+  invFun := fun ⟨_, _⟩ =>
+    ⟨.nonneg R, Subsemiring.nonneg.isPointed R, Subsemiring.nonneg.isSpanning R⟩
   left_inv := fun ⟨_, _, _⟩ => by ext; simp
   right_inv := fun ⟨_, _⟩ => by ext; simp
 
@@ -294,8 +299,7 @@ open Classical in
 @[simp]
 theorem isPointedLinearOrderEquiv_apply
     (C : Subsemiring R) (h : C.IsPointed ∧ C.IsSpanning) :
-    isPointedLinearOrderEquiv R ⟨C, h⟩ =
-    have := h.1; have := h.2; LinearOrder.mkOfAddSubmonoid C.toAddSubmonoid := rfl
+    isPointedLinearOrderEquiv R ⟨C, h⟩ = LinearOrder.mkOfAddSubmonoid h.1 h.2 := rfl
 
 @[simp]
 theorem isPointedLinearOrderEquiv_symm_apply (o : LinearOrder R) (h : IsOrderedRing R) :
