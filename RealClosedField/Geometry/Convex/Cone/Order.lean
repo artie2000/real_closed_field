@@ -18,7 +18,7 @@ variable {M : Type*} [AddCommGroup M] [Module R M]
 
 namespace PointedCone
 
-variable (C : PointedCone R M)
+variable {C : PointedCone R M}
 
 @[aesop 50% apply, aesop safe forward (immediate := [hx₁])]
 theorem eq_zero_of_mem_of_neg_mem (hC : C.IsPointed) {x : M} (hx₁ : x ∈ C) (hx₂ : -x ∈ C) : x = 0 :=
@@ -31,6 +31,7 @@ alias eq_zero_of_mem_of_neg_mem₂ := eq_zero_of_mem_of_neg_mem -- for Aesop
 theorem mem_or_neg_mem (hC : C.IsSpanning) : ∀ a, a ∈ C ∨ -a ∈ C :=
   C.toAddSubmonoid.mem_or_neg_mem
 
+variable (C) in
 /--
 The lineality space of a convex cone over a ring `R` is the biggest `R`-submodule it contains.
 -/
@@ -42,12 +43,13 @@ def lineal : Submodule R M where
     · have hr := le_of_lt <| neg_pos_of_neg <| lt_of_not_ge hr
       simpa using And.intro (C.smul_mem hr hx.2) (C.smul_mem hr hx.1)
 
-variable {S} in
 @[aesop simp]
 theorem mem_lineal {x} : x ∈ C.lineal ↔ x ∈ C ∧ -x ∈ C := .rfl
 
+variable (C) in
 theorem coe_lineal : C.lineal = (C : Set M) ∩ -(C : Set M) := rfl
 
+variable (C) in
 @[simp]
 theorem support_eq : C.support = C.lineal.toAddSubgroup := rfl
 

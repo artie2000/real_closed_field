@@ -35,7 +35,7 @@ noncomputable def IsSemireal.unique_isStrictOrderedRing [IsSemireal F]
     (h : ∀ x : F, IsSumSq x ∨ IsSumSq (-x)) :
     Unique {l : LinearOrder F // IsStrictOrderedRing F} where
   default := Field.isOrderingLinearOrderEquiv F
-    ⟨Subsemiring.sumSq F, { toIsSpanning := ⟨by simpa using h⟩, toIsPrime := inferInstance }⟩
+    ⟨Subsemiring.sumSq F, .mk' (by simpa using h) inferInstance⟩
   uniq l' := by
     rcases l' with ⟨l', hl'⟩
     generalize_proofs
@@ -58,7 +58,7 @@ theorem IsSemireal.isSumSq_or_isSumSq_neg [IsSemireal F]
     Subsemiring.IsPreordering.neg_one_notMem_closure_insert_of_neg_notMem
       (by simp_all : -(-x) ∉ (Subsemiring.sumSq F)) with ⟨O₂, hle₂, hO₂, hx₂⟩
   exact (show O₁ ≠ O₂ from fun h => show x ≠ 0 by aesop <|
-    O₁.eq_zero_of_mem_of_neg_mem hx₁ (by simp_all)) <|
+    (Subsemiring.IsPreordering.isPointed O₁).eq_zero_of_mem_of_neg_mem hx₁ (by simp_all)) <|
       h.unique inferInstance inferInstance
 
 theorem IsSemireal.existsUnique_isStrictOrderedRing_iff [IsSemireal F] :

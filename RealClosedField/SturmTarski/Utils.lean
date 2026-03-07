@@ -13,8 +13,7 @@ import Mathlib.Data.Real.StarOrdered
 import Mathlib.Topology.Algebra.Polynomial
 import Mathlib.Tactic
 
-import RealClosedField
-import RealClosedField.Algebra.Order.Field.IsSemireal
+import RealClosedField.RealClosedField
 
 open Set Polynomial Filter Classical
 
@@ -984,4 +983,3 @@ lemma root_list_lb (ps : List (Polynomial R)) (b : R) (h0 : 0 ∉ ps) :
           apply hlb3
           · linarith
           · exact hmem
-

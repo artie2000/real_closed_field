@@ -1,12 +1,11 @@
 /-
-Copyright (c) 2025 Artie Khovanov. All rights reserved.
+Copyright (c) 2026 Artie Khovanov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
 
-import Mathlib.Algebra.Group.Pointwise.Set.Basic
-import Mathlib.Algebra.Group.Subgroup.Ker
-import Mathlib.Algebra.Group.Submonoid.Membership
+import Mathlib.Algebra.Group.Subgroup.Pointwise
+import Mathlib.Algebra.Group.Subgroup.Lattice
 import Mathlib.Algebra.Order.Monoid.Submonoid -- TODO : downstream
 import Mathlib.Algebra.Order.Group.Unbundled.Basic -- TODO : downstream
 
@@ -14,8 +13,8 @@ import Mathlib.Algebra.Order.Group.Unbundled.Basic -- TODO : downstream
 # Supports of submonoids
 
 Let `G` be an (additive) group, and let `M` be a submonoid of `G`.
-The *support* of `M` is `M ∩ -M`, the largest subgroup of `M`.
-A submonoid `C` is *pointed*, or a *positive cone*, if it has trivial support.
+The *support* of `M` is `M ∩ -M`, the largest subgroup of `G` contained in `M`.
+A submonoid `C` is *pointed*, or a *positive cone*, if it has zero support.
 A submonoid `C` is *spanning* if the subgroup it generates is `G` itself.
 
 The names for these concepts are taken from the theory of convex cones.
@@ -23,7 +22,7 @@ The names for these concepts are taken from the theory of convex cones.
 ## Main definitions
 
 * `AddSubmonoid.support`: the support of a submonoid.
-* `AddSubmonoid.IsPointed`: typeclass for submonoids with trivial support.
+* `AddSubmonoid.IsPointed`: typeclass for submonoids with zero support.
 * `AddSubmonoid.IsSpanning`: typeclass for submonoids generating the whole group.
 
 -/
@@ -32,19 +31,19 @@ The names for these concepts are taken from the theory of convex cones.
 
 namespace Submonoid
 
+open scoped Pointwise
+
 variable {G : Type*} [Group G] (M : Submonoid G)
 
 /--
 The support of a submonoid `M` of a group `G` is `M ∩ M⁻¹`,
-the largest subgroup contained in `M`.
+the largest subgroup of `G` contained in `M`.
 -/
-@[to_additive
+@[to_additive (attr := simps!)
 /-- The support of a submonoid `M` of a group `G` is `M ∩ -M`,
-the largest subgroup contained in `M`. -/]
+the largest subgroup of `G` contained in `M`. -/]
 def mulSupport : Subgroup G where
-  carrier := M ∩ M⁻¹
-  one_mem' := by aesop
-  mul_mem' := by aesop
+  toSubmonoid := M ⊓ M⁻¹
   inv_mem' := by aesop
 
 variable {M} in
@@ -52,13 +51,19 @@ variable {M} in
 theorem mem_mulSupport {x} : x ∈ M.mulSupport ↔ x ∈ M ∧ x⁻¹ ∈ M := .rfl
 
 @[to_additive (attr := simp)]
-theorem coe_mulSupport : M.mulSupport = (M ∩ M⁻¹ : Set G) := rfl
+theorem mulSupport_toSubmonoid : M.mulSupport.toSubmonoid = M ⊓ M⁻¹ := rfl
+
+@[to_additive]
+/- The support of a submonoid is the largest subgroup it contains. -/
+theorem _root_.Subgroup.gc_toSubmonoid_mulSupport :
+    GaloisConnection (α := Subgroup G) Subgroup.toSubmonoid mulSupport :=
+  fun _ _ ↦ ⟨fun _ _ ↦ by aesop, fun h _ hx ↦ (h hx).1⟩
 
 variable {M}
 
 variable (M) in
-/-- A submonoid is pointed if it has trivial support. -/
-@[to_additive IsPointed /-- A submonoid is pointed if it has trivial support. -/]
+/-- A submonoid is pointed if it has zero support. -/
+@[to_additive IsPointed /-- A submonoid is pointed if it has zero support. -/]
 def IsMulPointed := ∀ x ∈ M, x⁻¹ ∈ M → x = 1
 
 namespace IsMulPointed

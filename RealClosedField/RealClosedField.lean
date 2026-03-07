@@ -420,7 +420,7 @@ theorem irred_poly_classify {f : R[X]} (hf : f.Monic) :
   mpr h := by
     rcases h with (lin | quad)
     · exact Polynomial.irreducible_of_degree_eq_one
-        (by simpa [Polynomial.natDegree_eq_one_iff_degree_eq_one] using lin)
+        (by simpa [Polynomial.degree_eq_one_iff_natDegree_eq_one] using lin)
     · rcases quad with ⟨a, b, hb, rfl⟩
       have h_deg : ((X - C a) ^ 2 + C b ^ 2).natDegree = 2 := by simp
       rw [hf.irreducible_iff_roots_eq_zero_of_degree_le_three (by omega) (by omega),
