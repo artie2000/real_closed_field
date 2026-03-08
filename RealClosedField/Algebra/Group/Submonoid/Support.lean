@@ -232,7 +232,7 @@ noncomputable def submonoidPartialOrderEquiv :
   toFun := fun ⟨_, hC⟩ => ⟨.mkOfSubmonoid hC, .mkOfSubmonoid _⟩
   invFun := fun ⟨_, _⟩ => ⟨.oneLE G, Submonoid.oneLE.isMulPointed G⟩
   left_inv := fun ⟨_, _⟩ => by ext; simp
-  right_inv := fun ⟨_, _⟩ => by ext; simp
+  right_inv := fun ⟨_, _⟩ => by ext; simp [LE.le] -- TODO : figure out why [LE.le] works!
 
 @[to_additive (attr := simp)]
 theorem submonoidPartialOrderEquiv_apply

@@ -271,7 +271,7 @@ noncomputable def isPointedPartialOrderEquiv :
   toFun := fun ⟨_, hC⟩ => ⟨.mkOfAddSubmonoid hC, .mkOfSubsemiring _⟩
   invFun := fun ⟨_, _⟩ => ⟨.nonneg R, Subsemiring.nonneg.isPointed R⟩
   left_inv := fun ⟨_, _⟩ => by ext; simp
-  right_inv := fun ⟨_, _⟩ => by ext; simp
+  right_inv := fun ⟨_, _⟩ => by ext; simp [LE.le]
 
 @[simp]
 theorem isPointedPartialOrderEquiv_apply

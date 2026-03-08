@@ -78,7 +78,7 @@ theorem Polynomial.natDegree_normalize {R : Type*} [Field R] {p : Polynomial R} 
 -- Mathlib.Algebra.GCDMonoid.Basic
 @[simp]
 theorem irreducible_normalize_iff {α : Type*}
-    [CancelCommMonoidWithZero α] [NormalizationMonoid α] (x : α) :
+    [CommMonoidWithZero α] [IsCancelMulZero α] [NormalizationMonoid α] (x : α) :
     Irreducible (normalize x) ↔ Irreducible x :=
   Associated.irreducible_iff (normalize_associated x)
 
@@ -271,7 +271,7 @@ theorem Module.finrank_dvd_finrank (F K A : Type*) [Semiring F] [Ring K] [AddCom
     [StrongRankCondition F] [StrongRankCondition K] [Module.Free F K] [Module.Free K A]
     [Module.Finite K A] [NoZeroSMulDivisors K A] :
     Module.finrank F K = Module.finrank F A / Module.finrank K A :=
-  Nat.eq_div_of_mul_eq_left finrank_pos.ne' (finrank_mul_finrank ..)
+  Nat.eq_div_of_mul_eq_left ((finrank_pos_iff_of_free ..).mpr ‹_›).ne' (finrank_mul_finrank ..)
 
 -- Mathlib.LinearAlgebra.Dimension.Free
 theorem Module.finrank_dvd_finrank' (F K A : Type*) [Ring F] [Ring K] [AddCommMonoid A]
@@ -279,7 +279,7 @@ theorem Module.finrank_dvd_finrank' (F K A : Type*) [Ring F] [Ring K] [AddCommMo
     [StrongRankCondition F] [StrongRankCondition K] [Module.Free F K] [Module.Free K A]
     [Module.Finite F K] [NoZeroSMulDivisors F K] :
     Module.finrank K A = Module.finrank F A / Module.finrank F K :=
-  Nat.eq_div_of_mul_eq_right finrank_pos.ne' (finrank_mul_finrank ..)
+  Nat.eq_div_of_mul_eq_right ((finrank_pos_iff_of_free ..).mpr ‹_›).ne' (finrank_mul_finrank ..)
 
 theorem IsGalois.exists_intermediateField_of_pow_prime_dvd
     {K L : Type*} [Field K] [Field L] [Algebra K L] [FiniteDimensional K L] [IsGalois K L]
