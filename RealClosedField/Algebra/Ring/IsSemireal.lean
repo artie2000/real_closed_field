@@ -28,15 +28,6 @@ not.
 
 -/
 
--- TODO : upstream
-@[simp]
-theorem Nat.isSumSq (n : ℕ) : IsSumSq n := by induction n <;> aesop
-
--- TODO : upstream
-@[simp, aesop safe]
-theorem IsSumSq.natCast {R : Type*} [NonAssocSemiring R] (n : ℕ) : IsSumSq (n : R) := by
-  induction n <;> aesop
-
 variable (R : Type*)
 
 /--

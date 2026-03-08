@@ -121,7 +121,7 @@ theorem modByMonic_self {R : Type*} [Ring R] {p : R[X]} (hp : p.Monic) : p %ₘ 
 
 theorem dvd_modByMonic_sub {R : Type*} [Ring R] (p q : R[X]) : q ∣ (p %ₘ q - p) := by
   by_cases h : q.Monic
-  · simp [modByMonic_eq_sub_mul_div, h]
+  · simp [modByMonic_eq_sub_mul_div]
   · simp [modByMonic_eq_of_not_monic, h]
 
 theorem dvd_iff_dvd_modByMonic {R : Type*} [Ring R] {p q : R[X]} :
@@ -525,7 +525,7 @@ theorem of_unique_of_degree_le_degree_minpoly (hx : IsIntegral R x)
   simpa [modByMonic_eq_zero_iff_dvd (minpoly.monic hx), ← Ideal.mem_span_singleton] using
     h (minpoly R x + g %ₘ minpoly R x)
     (Monic.add_of_left (minpoly.monic hx) ‹_›)
-    (by simp_all [Polynomial.modByMonic_eq_sub_mul_div _ (minpoly.monic hx)])
+    (by simp_all [Polynomial.modByMonic_eq_sub_mul_div])
     (by rw [degree_add_eq_left_of_degree_lt ‹_›])
 
 variable (h : IsIntegralUnique x g)
@@ -654,7 +654,7 @@ theorem of_basis [Module.Finite R S] {n} (B : Module.Basis (Fin n) R S)
       simpa [f_deg] using natDegree_modByMonic_lt g f_monic (fun hc ↦ by clear f_def; simp_all)
     rw [← modByMonic_eq_zero_iff_dvd f_monic,
         Polynomial.ext_iff_natDegree_le (n := n - 1) (by omega) (by simp)]
-    rw [← aeval_modByMonic_eq_self_of_root f_monic aeval_f, ← B.forall_coord_eq_zero_iff,
+    rw [← aeval_modByMonic_eq_self_of_root aeval_f, ← B.forall_coord_eq_zero_iff,
         aeval_eq_sum_range' this, Finset.sum_range, Fin.forall_iff] at hg
     simp_rw [← hB, B.coord_apply, map_sum, map_smul, B.repr_self] at hg
     simpa [Finsupp.single_eq_pi_single, ← Nat.le_pred_iff_lt n_pos] using hg
