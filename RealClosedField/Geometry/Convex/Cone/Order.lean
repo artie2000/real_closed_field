@@ -22,14 +22,13 @@ variable {C : PointedCone R M}
 
 @[aesop 50% apply, aesop safe forward (immediate := [hx₁])]
 theorem eq_zero_of_mem_of_neg_mem (hC : C.IsPointed) {x : M} (hx₁ : x ∈ C) (hx₂ : -x ∈ C) : x = 0 :=
-  C.toAddSubmonoid.eq_zero_of_mem_of_neg_mem hx₁ hx₂
+  hC.eq_zero_of_mem_of_neg_mem hx₁ hx₂
 
 @[aesop safe forward (immediate := [hx₂])]
 alias eq_zero_of_mem_of_neg_mem₂ := eq_zero_of_mem_of_neg_mem -- for Aesop
 
 @[aesop safe forward, aesop safe apply]
-theorem mem_or_neg_mem (hC : C.IsSpanning) : ∀ a, a ∈ C ∨ -a ∈ C :=
-  C.toAddSubmonoid.mem_or_neg_mem
+theorem mem_or_neg_mem (hC : C.IsSpanning) : ∀ a, a ∈ C ∨ -a ∈ C := hC.mem_or_neg_mem
 
 variable (C) in
 /--

@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2025 Artie Khovanov. All rights reserved.
+Copyright (c) 2026 Artie Khovanov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
@@ -19,10 +19,6 @@ If `S - S = S`, then the support of `S` forms an ideal.
 * `Subsemiring.support`: the support of a subsemiring, as an ideal.
 
 -/
-
--- TODO : minimise duplication in proofs; ensure duplication in theorems
-
-section Ring
 
 variable {R : Type*} [Ring R]
 
@@ -94,6 +90,8 @@ theorem _root_.AddSubmonoid.IsSpanning.hasIdealSupport (hS : S.IsSpanning) : S.H
     aesop (add 80% this)
 
 -- PR SPLIT ↑1 ↓2
+
+-- TODO : minimise duplication in proofs; ensure duplication in theorems
 
 section upstream
 
