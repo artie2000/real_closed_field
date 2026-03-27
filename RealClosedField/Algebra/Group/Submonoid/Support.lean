@@ -173,7 +173,7 @@ section downstream
 
 variable (G : Type*) [CommGroup G]
 
--- TODO : downstream to `Mathlib.Algebra.Order.Monoid.Submonoid` or further
+-- TODO : downstream to `Mathlib.Algebra.Group.Subgroup.Order` or further
 
 @[to_additive]
 theorem Submonoid.oneLE.isMulPointed [PartialOrder G] [IsOrderedMonoid G] :
