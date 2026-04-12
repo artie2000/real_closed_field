@@ -47,29 +47,29 @@ theorem Ideal.Quotient.irreducible_iff_isField
   mp := Ideal.Quotient.isField_of_irreducible
   mpr := Ideal.Quotient.irreducible_of_isField hm
 
--- Mathlib.Algebra.Polynomial.Degree.Definitions
+-- PR
 theorem Polynomial.degree_eq_one_iff_natDegree_eq_one
     {R : Type*} [Semiring R] {p : Polynomial R} :
     p.degree = 1 ↔ p.natDegree = 1 :=
   degree_eq_iff_natDegree_eq_of_pos (Nat.zero_lt_one)
 
--- Mathlib.Algebra.Polynomial.Degree.Definitions
+-- PR
 theorem Polynomial.degree_eq_iff_natDegree_eq_of_atLeastTwo
     {R : Type*} [Semiring R] {p : Polynomial R} {n : ℕ} [Nat.AtLeastTwo n] :
     p.degree = n ↔ p.natDegree = n :=
   degree_eq_iff_natDegree_eq_of_pos (Nat.pos_of_neZero n)
 
--- Mathlib.Algebra.Polynomial.Degree.Operations
+-- PR
 @[simp]
 theorem Polynomial.natDegree_add_one {R : Type*} [Semiring R] {p : Polynomial R} :
     (p + 1).natDegree = p.natDegree := natDegree_add_C
 
--- Mathlib.Algebra.Polynomial.Degree.Operations
+-- PR
 @[simp]
 theorem Polynomial.natDegree_one_add {R : Type*} [Semiring R] {p : Polynomial R} :
     (1 + p).natDegree = p.natDegree := natDegree_C_add
 
--- Mathlib.Algebra.Polynomial.FieldDivision
+-- PR
 @[simp]
 theorem Polynomial.natDegree_normalize {R : Type*} [Field R] {p : Polynomial R} [DecidableEq R] :
     (normalize p).natDegree = p.natDegree :=
@@ -82,21 +82,15 @@ theorem irreducible_normalize_iff {α : Type*}
     Irreducible (normalize x) ↔ Irreducible x :=
   Associated.irreducible_iff (normalize_associated x)
 
-@[simp]
+-- TODO : use tactic in application
 theorem Polynomial.natDegree_X_sub_C_sq_add_C_sq
     {R : Type*} [CommRing R] [NoZeroDivisors R] [Nontrivial R] (a b : R) :
-    ((X - C a) ^ 2 + C b ^ 2).natDegree = 2 := by
-  rw [show ((X - C a) ^ 2 + C b ^ 2) = (X ^ 2 + C b ^ 2).comp (X - C a) by simp,
-      Polynomial.natDegree_comp]
-  simp [← map_pow]
+    ((X - C a) ^ 2 + C b ^ 2).natDegree = 2 := by compute_degree!
 
-@[simp]
+-- TODO : use tactic in application
 theorem Polynomial.monic_X_sub_C_sq_add_C_sq
     {R : Type*} [CommRing R] [NoZeroDivisors R] [Nontrivial R] (a b : R) :
-    ((X - C a) ^ 2 + C b ^ 2).Monic := by
-  rw [show ((X - C a) ^ 2 + C b ^ 2) = (X ^ 2 + C b ^ 2).comp (X - C a) by simp,
-      Monic, Polynomial.leadingCoeff_comp (by simp)]
-  simp [← map_pow]
+    ((X - C a) ^ 2 + C b ^ 2).Monic := by monicity!
 
 open scoped Polynomial in
 theorem Polynomial.exists_odd_natDegree_monic_irreducible_factor
@@ -349,22 +343,6 @@ theorem IsGalois.exists_intermediateField_ge_card_pow_prime_mul_of_card_pow_prim
   rw [hL, hNrk, ← Nat.pow_sub_mul_pow _ hm'₂, mul_assoc,
       Nat.mul_div_right _ (by positivity)] at dvd
   exact dvd
-
--- `Algebra.Order.Module.Algebra` PRed
-theorem IsOrderedModule.of_algebraMap_mono {R A : Type*} [CommSemiring R] [Preorder R]
-    [Semiring A] [PartialOrder A] [PosMulMono A] [MulPosMono A] [Algebra R A]
-    (h : Monotone (algebraMap R A)) : IsOrderedModule R A where
-  smul_le_smul_of_nonneg_left _ ha _ _ hb := by
-    simpa [Algebra.smul_def] using mul_le_mul_of_nonneg_left hb (by simpa using h ha)
-  smul_le_smul_of_nonneg_right _ ha _ _ hb := by
-    simpa [Algebra.smul_def] using mul_le_mul_of_nonneg_right (h hb) ha
-
--- `Algebra.Order.Module.Algebra` PRed
-theorem isOrderedModule_iff_algebraMap_mono {R A : Type*} [CommSemiring R] [PartialOrder R]
-    [IsOrderedRing R] [Semiring A] [PartialOrder A] [IsOrderedRing A] [Algebra R A] :
-    IsOrderedModule R A ↔ Monotone (algebraMap R A) where
-  mp _ := algebraMap_mono _
-  mpr := IsOrderedModule.of_algebraMap_mono
 
 theorem Module.nonempty_algEquiv_iff_finrank_eq_one
     {R S : Type*} [CommSemiring R] [StrongRankCondition R] [Semiring S] [Algebra R S]

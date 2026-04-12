@@ -17,9 +17,9 @@ open Polynomial algebraMap
 ## Preliminaries
 -/
 
---TODO : move preliminaries to right places
-
 -- TODO : make base ring argument in `Polynomial.aeval` explicit
+
+-- ⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠ everything below this PR'd
 
 namespace AlgHom
 
@@ -108,7 +108,6 @@ namespace Polynomial
 theorem aeval_dvd {S T : Type*} [CommSemiring S] [Semiring T] [Algebra S T]
     {p q : Polynomial S} (a : T) : p ∣ q → p.aeval a ∣ q.aeval a := _root_.map_dvd (aeval a)
 
--- TODO : replace non-primed version
 theorem aeval_eq_zero_of_dvd_aeval_eq_zero'
     {S T : Type*} [CommSemiring S] [Semiring T] [Algebra S T]
     {p q : Polynomial S} (h₁ : p ∣ q) {a : T} (h₂ : p.aeval a = 0) :
@@ -124,44 +123,39 @@ theorem dvd_modByMonic_sub {R : Type*} [Ring R] (p q : R[X]) : q ∣ (p %ₘ q -
   · simp [modByMonic_eq_sub_mul_div]
   · simp [modByMonic_eq_of_not_monic, h]
 
-theorem dvd_iff_dvd_modByMonic {R : Type*} [Ring R] {p q : R[X]} :
+theorem dvd_modByMonic_iff_dvd {R : Type*} [Ring R] {p q : R[X]} :
     q ∣ p %ₘ q ↔ q ∣ p := by
   simpa using dvd_iff_dvd_of_dvd_sub <| dvd_modByMonic_sub p q
 
--- TODO : replace non-primed version
-theorem aeval_modByMonic_eq_self_of_root'
-    {R S : Type*} [CommRing R] [Ring S] [Algebra R S] (p : R[X]) {q : R[X]} {x : S}
-    (hx : q.aeval x = 0) : (p %ₘ q).aeval x = p.aeval x := by
-  simpa [sub_eq_zero, hx] using aeval_dvd x <| dvd_modByMonic_sub p q
-
 theorem aeval_modByMonic_minpoly {R S : Type*} [CommRing R] [Ring S] [Algebra R S]
     (p : R[X]) (x : S) : (p %ₘ minpoly R x).aeval x = p.aeval x :=
-  aeval_modByMonic_eq_self_of_root' _ (minpoly.aeval ..)
+  aeval_modByMonic_eq_self_of_root (minpoly.aeval ..)
 
-@[simp]
-theorem aeval_apply_X {A B : Type*} [CommSemiring A] [Semiring B] [Algebra A B]
-    (φ : A[X] →ₐ[A] B) : aeval (φ X) = φ := by ext; simp
-
-theorem degree_sub_lt' {R : Type*} [Ring R] {p q : Polynomial R}
+theorem degree_sub_lt_right {R : Type*} [Ring R] {p q : Polynomial R}
     (hd : p.degree = q.degree) (hq0 : q ≠ 0) (hlc : p.leadingCoeff = q.leadingCoeff) :
     (p - q).degree < q.degree := by
   rw [← degree_neg, neg_sub]
   exact degree_sub_lt hd.symm hq0 hlc.symm
 
-lemma natDegree_le_of_monic_of_dvd {R : Type*} [Semiring R] {p q : R[X]}
+theorem Monic.natDegree_le_of_dvd {R : Type*} [Semiring R] {p q : R[X]}
     (hp : p.Monic) (hq : q ≠ 0) (hdvd : p ∣ q) : p.natDegree ≤ q.natDegree := by
   obtain ⟨r, rfl⟩ := hdvd
   obtain rfl | hr := eq_or_ne r 0
   · simp_all
   simp [hp.natDegree_mul' hr]
 
+-- ⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠ everything above this this PR'd
+
+-- Mathlib.Algebra.Polynomial.AlgebraMap
+@[simp]
+theorem aeval_apply_X {A B : Type*} [CommSemiring A] [Semiring B] [Algebra A B]
+    (φ : A[X] →ₐ[A] B) : aeval (φ X) = φ := by ext; simp
+
 theorem eq_of_ideal_span_eq_of_monic {R : Type*} [CommSemiring R] {p q : R[X]}
     (hp : p.Monic) (hq : q.Monic) (h : Ideal.span {p} = Ideal.span {q}) : p = q := by
   nontriviality R
-  have p_dvd_q := Ideal.span_singleton_le_span_singleton.mp (le_of_eq h.symm)
-  have q_dvd_p := Ideal.span_singleton_le_span_singleton.mp (le_of_eq h)
-  exact eq_of_monic_of_dvd_of_natDegree_le hq hp q_dvd_p
-    (natDegree_le_of_monic_of_dvd hp hq.ne_zero p_dvd_q)
+  exact eq_of_monic_of_dvd_of_natDegree_le hq hp (Ideal.span_singleton_le_span_singleton.mp h.le) <|
+    hp.natDegree_le_of_dvd hq.ne_zero <| Ideal.span_singleton_le_span_singleton.mp h.symm.le
 
 end Polynomial
 
@@ -688,7 +682,7 @@ noncomputable def repr : S →ₗ[R] R[X] where
 
 @[simp]
 theorem aeval_repr (y : S) : aeval x (h.repr y) = y := by
-  simp [repr, aeval_modByMonic_eq_self_of_root' _ h.aeval_gen,
+  simp [repr, aeval_modByMonic_eq_self_of_root h.aeval_gen,
         Classical.choose_spec (h.aeval_surjective _)]
 
 @[simp]
@@ -736,7 +730,7 @@ theorem repr_root_pow_algebraMap :
   rw [show x ^ g.natDegree = (X ^ g.natDegree : R[X]).aeval x by simp, repr_aeval,
       show X ^ g.natDegree %ₘ g = (X ^ g.natDegree - g) %ₘ g by simp [sub_modByMonic, h.monic],
       modByMonic_eq_self_iff h.monic]
-  exact Polynomial.degree_sub_lt' (by simp [degree_eq_natDegree h.monic.ne_zero])
+  exact Polynomial.degree_sub_lt_right (by simp [degree_eq_natDegree h.monic.ne_zero])
     h.monic.ne_zero (by simp [h.monic.leadingCoeff])
 
 theorem degree_repr_le [Nontrivial R] (y : S) :
@@ -772,7 +766,7 @@ theorem liftEquivAroots_symm_apply (φ : S →ₐ[R] T) :
 theorem liftEquivAroots_apply_apply {y : T} (hy : y ∈ g.aroots T) (z : S) :
     h.liftEquivAroots ⟨y, hy⟩ z = h.lift (y := y) (by simp_all) z := by simp [liftEquivAroots]
 
-noncomputable def fintypeAlgHom : Fintype (S →ₐ[R] T) :=
+noncomputable abbrev fintypeAlgHom : Fintype (S →ₐ[R] T) :=
   letI := Classical.decEq T
   Fintype.ofEquiv _ h.liftEquivAroots
 
@@ -853,7 +847,7 @@ theorem coeff_ofNat [Nontrivial S] (n : ℕ) [Nat.AtLeastTwo n] :
     h.coeff ofNat(n) = Pi.single 0 (n : R) := by simpa using h.coeff_algebraMap n
 
 noncomputable def basis : Basis (Fin g.natDegree) R S := Basis.ofRepr
-  { toFun y := (h.repr y).toFinsupp.comapDomain _ Fin.val_injective.injOn
+  { toFun y := (h.repr y).toFinsupp.coeff.comapDomain _ Fin.val_injective.injOn
     invFun f := (ofFinsupp (f.mapDomain Fin.val)).aeval x
     left_inv y := by
       simp only
@@ -1013,6 +1007,7 @@ theorem nontrivial (hf : f ≠ 1) : Nontrivial S := by
 noncomputable def liftEquivAroots {T : Type*} [CommRing T] [IsDomain T] [Algebra R T] :
     { y : T // y ∈ f.aroots T } ≃ (S →ₐ[R] T) := h.pe.liftEquivAroots
 
+@[reducible]
 noncomputable def fintypeAlgHom {T : Type*} [CommRing T] [IsDomain T] [Algebra R T] :
     Fintype (S →ₐ[R] T) := h.pe.fintypeAlgHom
 
