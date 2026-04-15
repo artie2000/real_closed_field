@@ -243,10 +243,10 @@ section downstream
 variable (R : Type*) [Ring R]
 
 theorem Subsemiring.nonneg.isPointed [PartialOrder R] [IsOrderedRing R] :
-    (Subsemiring.nonneg R).IsPointed := AddSubmonoid.nonneg.isAddPointed R
+    (Subsemiring.nonneg R).IsPointed := AddSubmonoid.nonneg.isPointed R
 
 theorem Subsemiring.nonneg.isSpanning [LinearOrder R] [IsOrderedRing R] :
-    (Subsemiring.nonneg R).IsSpanning := AddSubmonoid.nonneg.isAddSpanning R
+    (Subsemiring.nonneg R).IsSpanning := AddSubmonoid.nonneg.isSpanning R
 
 variable {R} {S : Subsemiring R} (hS : S.IsPointed)
 

@@ -317,7 +317,7 @@ theorem finite_extension_rank_le [FiniteDimensional R K] : Module.finrank R K â‰
     (IntermediateField.inclusion hN_ge).comp_algebraMap.symm
   have := Module.Finite.of_restrictScalars_finite R M N
   apply finrank_neq_two_of_isAdjoinRoot_i R (isAdjoinRoot_i_of_isQuadraticExtension R M) N
-  rw [Module.finrank_dvd_finrank' R M N, hM, hN]
+  rw [Module.finrank_div_finrank' R M N, hM, hN]
   simp_all
 
 theorem rank_eq_one_of_isAdjoinRoot_i (hK : IsAdjoinRootMonic' K (X ^ 2 + 1 : R[X])) (L : Type*)
