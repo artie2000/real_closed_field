@@ -22,8 +22,7 @@ All orderings are preorderings.
 
 ## References
 
-- *An introduction to real algebra*, by T.Y. Lam. Rocky Mountain J. Math. 14(4): 767-814 (1984).
-[lam_1984](https://doi.org/10.1216/RMJ-1984-14-4-767)
+- [*An introduction to real algebra*, T.Y. Lam][lam_1984]
 
 -/
 
@@ -91,7 +90,7 @@ protected theorem pow_two_mem (x : R) : x ^ 2 ∈ S := by aesop
 end IsPreordering
 
 variable {S} in
-theorem IsPreordering.of_support_neq_top
+theorem IsPreordering.of_support_ne_top
     (hS : S.IsSpanning) (h : have := hS.hasIdealSupport; S.support ≠ ⊤) :
     S.IsPreordering where
   mem_of_isSquare x := by
@@ -106,6 +105,6 @@ theorem IsPreordering.of_support_neq_top
 
 /- An ordering is a preordering. -/
 instance [S.IsOrdering] : S.IsPreordering :=
-  .of_support_neq_top (IsOrdering.isSpanning S) (Ideal.IsPrime.ne_top inferInstance)
+  .of_support_ne_top (IsOrdering.isSpanning S) (Ideal.IsPrime.ne_top inferInstance)
 
 end Subsemiring

@@ -12,7 +12,7 @@ import Mathlib.Algebra.Ring.Subsemiring.Order -- TODO : downstream
 # Supports of subsemirings
 
 Let `R` be a ring, and let `S` be a subsemiring of `R`.
-If `S - S = S`, then the support of `S` forms an ideal.
+If `S` generates `R` as a subring, then the support of `S` forms an ideal.
 
 ## Main definitions
 
@@ -66,15 +66,13 @@ theorem neg_smul_mem (x : R) {a : R} (h₁a : a ∈ S) (h₂a : -a ∈ S) : -(x 
 
 variable (S) in
 /-- The support `S ∩ -S` of a subsemiring `S` of a ring `R`, as an ideal. -/
+@[simps!]
 def support : Ideal R where
   __ := S.toAddSubmonoid.support
   smul_mem' := by aesop
 
 @[aesop simp]
 theorem mem_support {x} : x ∈ S.support ↔ x ∈ S ∧ -x ∈ S := .rfl
-
-variable (S) in
-theorem coe_support : S.support = (S : Set R) ∩ -(S : Set R) := rfl
 
 variable (S) in
 @[simp]
@@ -88,6 +86,21 @@ theorem _root_.AddSubmonoid.IsSpanning.hasIdealSupport (hS : S.IsSpanning) : S.H
     have := S.mem_or_neg_mem hS x
     have : ∀ x y, -x ∈ S → -y ∈ S → x * y ∈ S := fun _ _ hx hy ↦ by simpa using mul_mem hx hy
     aesop (add 80% this)
+
+@[aesop safe forward, aesop 50%]
+theorem _root_.AddSubmonoid.IsPointed.hasIdealSupport (hS : S.IsPointed) : S.HasIdealSupport where
+
+@[simp]
+theorem support_eq_bot (hS : S.IsPointed) :
+    have := hS.hasIdealSupport
+    S.support = ⊥ := by
+  apply_fun Submodule.toAddSubgroup using Submodule.toAddSubgroup_injective
+  rw [← toAddSubmonoid_support, hS.support_eq_bot, Submodule.bot_toAddSubgroup]
+
+@[aesop simp, aesop safe forward]
+theorem _root_.AddSubmonoid.IsPointed.neg_one_notMem [Nontrivial R]
+    (hS : S.IsPointed) : -1 ∉ S := fun hc ↦ by
+  simpa [S.eq_zero_of_mem_of_neg_mem hS (by simp) hc] using zero_ne_one' R
 
 -- PR SPLIT ↑1 ↓2
 
@@ -121,21 +134,6 @@ end upstream
 
 variable {R R' : Type*} [Ring R] [Ring R'] {f : R →+* R'}
          {S T : Subsemiring R} {S' : Subsemiring R'} {s : Set (Subsemiring R)}
-
-@[aesop safe forward, aesop 50%]
-theorem _root_.AddSubmonoid.IsPointed.hasIdealSupport (hS : S.IsPointed) : S.HasIdealSupport where
-
-@[simp]
-theorem support_eq_bot (hS : S.IsPointed) :
-    have := hS.hasIdealSupport
-    S.support = ⊥ := by
-  apply_fun Submodule.toAddSubgroup using Submodule.toAddSubgroup_injective
-  rw [← toAddSubmonoid_support, hS.support_eq_bot, Submodule.bot_toAddSubgroup]
-
-@[aesop simp, aesop safe forward]
-theorem _root_.AddSubmonoid.IsPointed.neg_one_notMem [Nontrivial R]
-    (hS : S.IsPointed) : -1 ∉ S := fun hc ↦ by
-  simpa [S.eq_zero_of_mem_of_neg_mem hS (by simp) hc] using zero_ne_one' R
 
 variable (f) in
 theorem isSpanning_comap (hS' : S'.IsSpanning) : (S'.comap f).IsSpanning :=

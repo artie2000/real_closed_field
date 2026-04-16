@@ -14,8 +14,7 @@ under certain operations.
 
 ## References
 
-- *An introduction to real algebra*, by T.Y. Lam. Rocky Mountain J. Math. 14(4): 767-814 (1984).
-[lam_1984](https://doi.org/10.1216/RMJ-1984-14-4-767)
+- [*An introduction to real algebra*, T.Y. Lam][lam_1984]
 
 -/
 
@@ -94,12 +93,12 @@ end IsPreordering
 variable {P} in
 theorem IsPreordering.of_isSpanning_of_isPointed [Nontrivial R]
     (hP₁ : P.IsSpanning) (hP₂ : P.IsPointed) : P.IsPreordering :=
-  .of_support_neq_top hP₁ (by simp [*])
+  .of_support_ne_top hP₁ (by simp [*])
 
 variable {P} in
 instance IsOrdering.of_isSpanning_of_isPointed [IsDomain R]
     (hP₁ : P.IsSpanning) (hP₂ : P.IsPointed) : P.IsOrdering := .mk' hP₁ <| by
-  simpa [*] using Ideal.bot_prime
+  simpa [*] using Ideal.isPrime_bot
 
 variable {P} in
 theorem IsPreordering.of_isPointed [Nontrivial R]
@@ -179,7 +178,7 @@ theorem isPointed : P.IsPointed := fun {x} _ _ ↦ by
 
 instance : P.HasIdealSupport := (IsPreordering.isPointed P).hasIdealSupport
 
-instance : P.support.IsPrime := by simpa [IsPreordering.isPointed P] using Ideal.bot_prime
+instance : P.support.IsPrime := by simpa [IsPreordering.isPointed P] using Ideal.isPrime_bot
 
 end IsPreordering
 
