@@ -92,7 +92,7 @@ end IsPreordering
 
 variable {S} in
 theorem IsPreordering.of_support_neq_top
-    (hS : S.IsSpanning) (h : have := hS.hasIdealSupport; S.support ≠ ⊤) :
+    (hS : S.IsSpanning) (h : have := hS.hasIdealSupport; S.support ≠ ⊤) : -- TODO : change to S ≠ ⊤
     S.IsPreordering where
   mem_of_isSquare x := by
     rcases x with ⟨y, rfl⟩
