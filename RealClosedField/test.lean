@@ -20,3 +20,7 @@ theorem works {R : Type*} [AddMonoid R] [Mul R]
 variable {K : Type*} [Field K] [IsAlgClosed K]
 -- variable {R : Type*} [CommRing R] [IsDomain R] [Algebra K R]
 variable {L : Type*} [Field L] [Algebra K L]
+
+variable {X : Type} [TopologicalSpace X] {s : Set X}
+
+#synth TopologicalSpace s

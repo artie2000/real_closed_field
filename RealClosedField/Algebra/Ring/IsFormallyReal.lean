@@ -127,8 +127,7 @@ theorem AddSubmonoid.sumSq.isPointed [CommRing R] [IsFormallyReal R] :
 -- TODO : upstream to `Mathlib.Algebra.Ring.SumsOfSquares`
 @[simp]
 theorem Subsemiring.sumSq_toAddSubmonoid {T : Type*} [CommSemiring T] :
-    (Subsemiring.sumSq T).toAddSubmonoid = .sumSq T :=
-  show (Subsemiring.sumSq T).toNonUnitalSubsemiring.toAddSubmonoid = .sumSq T by simp
+    (Subsemiring.sumSq T).toAddSubmonoid = .sumSq T := by ext; simp
 
 variable (R) in
 theorem Subsemiring.sumSq.isPointed [CommRing R] [IsFormallyReal R] :
