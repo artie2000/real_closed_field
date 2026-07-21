@@ -115,7 +115,7 @@ theorem exists_le_isOrdering (P : Subsemiring R) [P.IsPreordering] :
   have ⟨_, _, hO⟩ : ∃ O, P ≤ O ∧ Maximal IsPreordering O := by
     refine zorn_le_nonempty₀ {P : Subsemiring R | IsPreordering P} ?_ P (by simpa)
     exact fun S hS hc Q hQ =>
-      ⟨_, IsPreordering.sSup (Set.nonempty_of_mem hQ) hc.directedOn hS, CompleteLattice.le_sSup S⟩
+      ⟨_, IsPreordering.sSup (Set.nonempty_of_mem hQ) hc.directedOn hS, fun _ h ↦ le_sSup h⟩
   ⟨_, ‹_›, .of_maximal_isPreordering hO⟩
 
 theorem exists_le_isOrdering_and_mem

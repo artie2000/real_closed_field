@@ -63,7 +63,7 @@ variable {M}
 
 variable (M) in
 /-- A submonoid is pointed if it has zero support. -/
-@[to_additive IsPointed /-- A submonoid is pointed if it has zero support. -/]
+@[to_additive /-- A submonoid is pointed if it has zero support. -/]
 def IsMulPointed := ∀ x ∈ M, x⁻¹ ∈ M → x = 1
 
 namespace IsMulPointed
@@ -95,7 +95,7 @@ end IsMulPointed
 
 variable (M) in
 /-- A submonoid `M` of a group `G` is spanning if `M` generates `G` as a subgroup. -/
-@[to_additive IsSpanning
+@[to_additive
 /-- A submonoid `M` of a group `G` is spanning if `M` generates `G` as a subgroup. -/]
 def IsMulSpanning := ∀ a : G, a ∈ M ∨ a⁻¹ ∈ M
 
@@ -111,7 +111,7 @@ theorem mem_or_inv_mem (hM : M.IsMulSpanning) (a : G) : a ∈ M ∨ a⁻¹ ∈ M
 theorem of_le {N : Submonoid G} (hM : M.IsMulSpanning) (h : M ≤ N) :
     N.IsMulSpanning := by aesop
 
-@[to_additive maximal_isPointed]
+@[to_additive]
 theorem maximal_isMulPointed (hMp : M.IsMulPointed) (hMs : M.IsMulSpanning) :
     Maximal IsMulPointed M :=
   ⟨hMp, fun N hN h ↦ by rw [SetLike.le_def] at h ⊢; aesop⟩

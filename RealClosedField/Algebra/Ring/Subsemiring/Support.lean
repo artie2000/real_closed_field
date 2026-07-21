@@ -113,18 +113,21 @@ section upstream
 variable {R S : Type*} [Semiring R] [Semiring S] (f : R →+* S)
          (P : Subsemiring R) (Q : Subsemiring S)
 
+
+--  existing `comap_toSubmonoid` had RHS in a bad form for `simp` - `Submonoid.mem_mk` doesn't work
 @[simp]
 theorem comap_toSubmonoid' : (Q.comap f).toSubmonoid = Q.toSubmonoid.comap f.toMonoidHom := by
-  ext; simp
+  ext; simp [-comap_toSubmonoid]
 
 @[simp]
 theorem comap_toAddSubmonoid :
     (Q.comap f).toAddSubmonoid = Q.toAddSubmonoid.comap f.toAddMonoidHom := by
   ext; simp
 
+-- existing `map_toSubmonoid` had RHS in a bad form for `simp` - `Submonoid.mem_mk` doesn't work
 @[simp]
 theorem map_toSubmonoid' : (P.map f).toSubmonoid = P.toSubmonoid.map f.toMonoidHom := by
-  ext; simp
+  ext; simp [-map_toSubmonoid]
 
 @[simp]
 theorem map_toAddSubmonoid : (P.map f).toAddSubmonoid = P.toAddSubmonoid.map f.toAddMonoidHom := by
@@ -188,7 +191,7 @@ theorem support_sSup (hsn : s.Nonempty) (hsd : DirectedOn (· ≤ ·) s)
   generalize_proofs
   ext x
   rw [Submodule.mem_sSup_of_directed]
-  · simp only [mem_support, mem_sSup_of_directedOn, Set.mem_setOf_eq, ↓existsAndEq, true_and,
+  · simp only [mem_support, mem_sSup_of_directedOn, Set.mem_ofPred_eq, ↓existsAndEq, true_and,
       exists_and_left, exists_prop, hsn, hsd]
     refine ⟨?_, by aesop⟩
     rintro ⟨⟨_, hx₁, _⟩, ⟨_, hx₂, _⟩⟩
@@ -204,7 +207,7 @@ theorem support_sSup (hsn : s.Nonempty) (hsd : DirectedOn (· ≤ ·) s)
     exact ⟨z.support, by aesop (add safe apply support_mono)⟩
 
 instance : (S'.comap f).HasIdealSupport where
-  smul_mem_support x a ha := by simpa using smul_mem_support (f x) (by simpa using ha)
+  smul_mem_support x a ha := by simpa using smul_mem_support (S := S') (f x) (by simpa using ha)
 
 @[simp]
 theorem comap_support : (S'.comap f).support = (S'.support).comap f := by aesop

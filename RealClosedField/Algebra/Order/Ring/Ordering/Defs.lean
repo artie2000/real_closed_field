@@ -28,83 +28,99 @@ All orderings are preorderings.
 
 namespace Subsemiring
 
-variable {R : Type*} [CommRing R] (S : Subsemiring R)
+variable {R : Type*} [CommRing R]
 
 /--
 An ordering `O` on a ring `R` is a subsemiring of `R` such that `O ∪ -O = R` and
 the support `O ∩ -O` of `O` forms a prime ideal.
 -/
-class IsOrdering (S : Subsemiring R) : Prop where--extends S.IsSpanning, S.support.IsPrime
-  isSpanning (S) : S.IsSpanning
-  support_ne_top (S) : S.toAddSubmonoid.support ≠ ⊤
+structure IsOrdering (S : Subsemiring R) : Prop where
+  isSpanning : S.IsSpanning
+  support_ne_top : S.toAddSubmonoid.support ≠ ⊤
   mem_support_or_mem_support :
     ∀ {x y : R}, x * y ∈ S.toAddSubmonoid.support →
       x ∈ S.toAddSubmonoid.support ∨ y ∈ S.toAddSubmonoid.support
 
-attribute [aesop safe forward] IsOrdering.isSpanning
+attribute [grind →] IsOrdering.isSpanning
 
--- TODO : see if workaround (next three theorems) can be removed
+namespace IsOrdering
 
-instance [i : S.IsOrdering] : S.HasIdealSupport := i.isSpanning.hasIdealSupport
+@[simps!]
+def supportIdeal {S : Subsemiring R} (hS : S.IsOrdering) : Ideal R where
+  __ : AddSubgroup R := S.toAddSubmonoid.support
+  smul_mem' x a ha := by
+    have := hS.isSpanning.mem_or_neg_mem x
+    have : ∀ x y, -x ∈ S → -y ∈ S → x * y ∈ S := fun _ _ hx hy ↦ by simpa using mul_mem hx hy
+    aesop
 
-instance IsOrdering.support_isPrime [i : S.IsOrdering] : S.support.IsPrime where
-  ne_top' := by simpa using i.support_ne_top
-  mem_or_mem' := i.mem_support_or_mem_support
+@[simp]
+theorem mem_supportIdeal {S : Subsemiring R} (hS : S.IsOrdering) (x : R) :
+    x ∈ hS.supportIdeal ↔ x ∈ S.toAddSubmonoid.support := .rfl
 
-variable {S} in
-theorem IsOrdering.mk' (hS₁ : S.IsSpanning) (hS₂ : have := hS₁.hasIdealSupport; S.support.IsPrime) :
-    S.IsOrdering where
-  isSpanning := hS₁
-  support_ne_top := by simpa [hS₁.hasIdealSupport] using hS₂.ne_top
-  mem_support_or_mem_support := hS₂.mem_or_mem
+@[simp]
+theorem supportIdeal_toAddSubgroup {S : Subsemiring R} (hS : S.IsOrdering) :
+    hS.supportIdeal.toAddSubgroup = S.toAddSubmonoid.support := rfl
+
+theorem support_isPrime {S : Subsemiring R} (hS : S.IsOrdering) :
+    hS.supportIdeal.IsPrime where
+  ne_top' := by
+    apply_fun Submodule.toAddSubgroup
+    simpa using hS.support_ne_top
+  mem_or_mem' := hS.mem_support_or_mem_support
+
+end IsOrdering
 
 /-- A preordering on a ring `R` is a subsemiring of `R` that contains all squares, but not `-1`. -/
-class IsPreordering (S : Subsemiring R) : Prop where
-  mem_of_isSquare (S) {x} (hx : IsSquare x) : x ∈ S := by aesop
-  neg_one_notMem (S) : -1 ∉ S := by aesop
+structure IsPreordering (S : Subsemiring R) : Prop where
+  mem_of_isSquare (S) {x} (hx : IsSquare x) : x ∈ S := by grind
+  neg_one_notMem (S) : -1 ∉ S := by grind
 
 export IsPreordering (mem_of_isSquare)
 export IsPreordering (neg_one_notMem)
 
-attribute [aesop simp, aesop safe forward] neg_one_notMem
+attribute [grind →] neg_one_notMem
 
-section IsPreordering
+namespace IsPreordering
 
-variable [IsPreordering S]
-
-@[aesop 80% (rule_sets := [SetLike])]
-protected theorem mem_of_isSumSq {x : R} (hx : IsSumSq x) : x ∈ S := by
+-- TODO : change to grind
+@[aesop 80% (rule_sets := [SetLike]), grind ←]
+protected theorem mem_of_isSumSq {S : Subsemiring R} (hS : IsPreordering S)
+    {x : R} (hx : IsSumSq x) : x ∈ S := by
   induction hx with
   | zero => simp
   | sq_add => aesop (add unsafe mem_of_isSquare)
 
-theorem sumSq_le {R : Type*} [CommRing R] (S : Subsemiring R) [IsPreordering S] :
+theorem sumSq_le {R : Type*} [CommRing R] {S : Subsemiring R} (hS : IsPreordering S) :
     Subsemiring.sumSq R ≤ S := fun _ ↦ by aesop
 
-@[simp]
-protected theorem mul_self_mem (x : R) : x * x ∈ S := by aesop
+@[simp, grind ←]
+protected theorem mul_self_mem {S : Subsemiring R} (hS : IsPreordering S) (x : R) :
+    x * x ∈ S := by aesop
 
-@[simp]
-protected theorem pow_two_mem (x : R) : x ^ 2 ∈ S := by aesop
+@[simp, grind ←]
+protected theorem pow_two_mem {S : Subsemiring R} (hS : IsPreordering S) (x : R) :
+    x ^ 2 ∈ S := by aesop
 
 end IsPreordering
 
 variable {S} in
-theorem IsPreordering.of_support_ne_top
-    (hS : S.IsSpanning) (h : have := hS.hasIdealSupport; S.support ≠ ⊤) : -- TODO : change to S ≠ ⊤
+theorem IsPreordering.of_ne_top
+    {S : Subsemiring R} (hS : S.IsSpanning) (h : S ≠ ⊤) :
     S.IsPreordering where
   mem_of_isSquare x := by
     rcases x with ⟨y, rfl⟩
     cases S.mem_or_neg_mem hS y with
     | inl h => aesop
     | inr h => simpa using (show -y * -y ∈ S by aesop (config := { enableSimp := false }))
-  neg_one_notMem hc := by
-    have := hS.hasIdealSupport
-    have : 1 ∈ S.support := by simp [mem_support, hc]
-    exact h (by simpa [Ideal.eq_top_iff_one])
+  neg_one_notMem hc := h <| by
+    rw [Subsemiring.eq_top_iff']
+    intro x
+    rcases hS.mem_or_neg_mem x with (hx | hx)
+    · simpa using hx
+    · simpa using mul_mem hc hx
 
 /- An ordering is a preordering. -/
-instance [S.IsOrdering] : S.IsPreordering :=
-  .of_support_ne_top (IsOrdering.isSpanning S) (Ideal.IsPrime.ne_top inferInstance)
+theorem isPreordering_of_isOrdering {S : Subsemiring R} (hS : S.IsOrdering) : S.IsPreordering :=
+  .of_ne_top hS.isSpanning (hS.support_isPrime.ne_top)
 
 end Subsemiring
