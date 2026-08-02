@@ -5,6 +5,7 @@ Authors: Florent Schaffhauser, Artie Khovanov
 -/
 import RealClosedField.Algebra.Ring.Subsemiring.Support
 import Mathlib.Algebra.Ring.SumsOfSquares
+import Mathlib.Topology.Compactness.Compact
 
 /-!
 # Ring orderings
@@ -61,7 +62,7 @@ theorem mem_supportIdeal {S : Subsemiring R} (hS : S.IsOrdering) (x : R) :
 theorem supportIdeal_toAddSubgroup {S : Subsemiring R} (hS : S.IsOrdering) :
     hS.supportIdeal.toAddSubgroup = S.toAddSubmonoid.support := rfl
 
-theorem support_isPrime {S : Subsemiring R} (hS : S.IsOrdering) :
+theorem supportIdeal_isPrime {S : Subsemiring R} (hS : S.IsOrdering) :
     hS.supportIdeal.IsPrime where
   ne_top' := by
     apply_fun Submodule.toAddSubgroup
@@ -119,8 +120,22 @@ theorem IsPreordering.of_ne_top
     · simpa using hx
     · simpa using mul_mem hc hx
 
+-- TODO : move to right place
+@[simp]
+theorem top_toSubmonoid :
+    (⊤ : Subsemiring R).toSubmonoid = ⊤ := rfl
+
+-- TODO : move to right place
+@[simp]
+theorem top_toAddSubmonoid :
+    (⊤ : Subsemiring R).toAddSubmonoid = ⊤ := rfl
+
 /- An ordering is a preordering. -/
 theorem isPreordering_of_isOrdering {S : Subsemiring R} (hS : S.IsOrdering) : S.IsPreordering :=
-  .of_ne_top hS.isSpanning (hS.support_isPrime.ne_top)
+    .of_ne_top hS.isSpanning <| fun hc ↦ by
+  have := hS.supportIdeal_isPrime.ne_top
+  apply_fun Submodule.toAddSubgroup at this
+    using Submodule.toAddSubgroup_injective (R := R) (M := R)
+  simp [hc] at this
 
 end Subsemiring

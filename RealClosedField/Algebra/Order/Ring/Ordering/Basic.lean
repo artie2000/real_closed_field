@@ -23,33 +23,23 @@ namespace Subsemiring
 section CommRing
 
 variable {R S : Type*} [CommRing R] [CommRing S] (f : R →+* S)
-        (P : Subsemiring R) (P' : Subsemiring S)
+        {P : Subsemiring R} (P' : Subsemiring S)
 
 namespace IsPreordering
 
-variable [P.IsPreordering]
+theorem of_le (hP : P.IsPreordering) {Q : Subsemiring R} (hPQ : P ≤ Q) (hQ : -1 ∉ Q) :
+    Q.IsPreordering where
 
-variable {P} in
-theorem of_le {Q : Subsemiring R} (hPQ : P ≤ Q) (hQ : -1 ∉ Q) : Q.IsPreordering where
-
-variable {P} in
 @[aesop 90% (rule_sets := [SetLike])]
-theorem unitsInv_mem {a : Rˣ} (ha : ↑a ∈ P) : ↑a⁻¹ ∈ P := by
+theorem unitsInv_mem (hP : P.IsPreordering) {a : Rˣ} (ha : ↑a ∈ P) : ↑a⁻¹ ∈ P := by
   have : (a * (a⁻¹ * a⁻¹) : R) ∈ P := by aesop (config := { enableSimp := false })
   simp_all
 
-theorem one_notMem_toAddSubmonoid_support : 1 ∉ P.toAddSubmonoid.support :=
+theorem one_notMem_toAddSubmonoid_support : 1 ∉ hP.support :=
   fun h => P.neg_one_notMem h.2
-
-theorem one_notMem_support [P.HasIdealSupport] : 1 ∉ P.support := by
-  simpa using one_notMem_toAddSubmonoid_support P
 
 theorem toAddSubmonoid_support_ne_top : P.toAddSubmonoid.support ≠ ⊤ :=
   fun h => one_notMem_toAddSubmonoid_support P (by simp [h])
-
-theorem support_ne_top [P.HasIdealSupport] : P.support ≠ ⊤ := by
-  apply_fun Submodule.toAddSubgroup
-  simpa using toAddSubmonoid_support_ne_top P
 
 variable {P} in
 theorem isOrdering_iff :

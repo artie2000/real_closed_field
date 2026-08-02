@@ -125,6 +125,12 @@ section Group
 variable {G H : Type*} [Group G] [Group H] (f : G →* H) (M N : Submonoid G) (M' : Submonoid H)
          {s : Set (Submonoid G)}
 
+@[to_additive (attr := simp)]
+theorem mulSupport_bot : (⊥ : Submonoid G).mulSupport = ⊥ := by aesop
+
+@[to_additive (attr := simp)]
+theorem mulSupport_top : (⊤ : Submonoid G).mulSupport = ⊤ := by aesop
+
 variable {M N} in
 @[to_additive]
 theorem mulSupport_mono (h : M ≤ N) : M.mulSupport ≤ N.mulSupport := fun _ ↦ by aesop
