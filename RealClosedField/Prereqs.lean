@@ -27,59 +27,59 @@ theorem irreducible_normalize_iff {α : Type*}
     Irreducible (normalize x) ↔ Irreducible x :=
   Associated.irreducible_iff (normalize_associated x)
 
+-- #44287
 open scoped Polynomial in
 theorem Polynomial.exists_odd_natDegree_monic_irreducible_factor
     {F : Type*} [Field F] {f : F[X]} (hf : Odd f.natDegree) :
     ∃ g : F[X], (Odd g.natDegree) ∧ g.Monic ∧ Irreducible g ∧ g ∣ f := by
   induction h : f.natDegree using Nat.strong_induction_on generalizing f with | h n ih =>
-    have hu : ¬ IsUnit f := Polynomial.not_isUnit_of_natDegree_pos _ (Odd.pos hf)
-    rcases Polynomial.exists_monic_irreducible_factor f hu with ⟨g, g_monic, g_irred, g_div⟩
+    have hu : ¬ IsUnit f := not_isUnit_of_natDegree_pos _ (Odd.pos hf)
+    rcases exists_monic_irreducible_factor f hu with ⟨g, g_monic, g_irred, g_div⟩
     by_cases g_deg : Odd g.natDegree
     · exact ⟨g, g_deg, g_monic, g_irred, g_div⟩
     · rcases g_div with ⟨k, rfl⟩
-      have : (g * k).natDegree = g.natDegree + k.natDegree :=
-        Polynomial.natDegree_mul g_irred.ne_zero (fun _ ↦ by simp_all)
+      have : (g * k).natDegree = g.natDegree + k.natDegree := natDegree_mul (by grind) (by grind)
       rcases ih k.natDegree (by lia [Irreducible.natDegree_pos]) (by grind) rfl
         with ⟨l, h₁, h₂, h₃, h₄⟩
       exact ⟨l, h₁, h₂, h₃, dvd_trans h₄ (by simp)⟩
 
+-- #44287
 open scoped Polynomial in
 theorem Polynomial.exists_root_of_odd_natDegree_imp_not_irreducible {F : Type*} [Field F]
     (h : ∀ {g : F[X]}, Odd g.natDegree → g.natDegree ≠ 1 → ¬ Irreducible g)
     {f : F[X]} (hf : Odd f.natDegree) : ∃ x, f.IsRoot x := by
   induction hdeg : f.natDegree using Nat.strong_induction_on generalizing f with | h n ih =>
     subst hdeg
-    have : f ≠ 0 := fun _ ↦ by simp_all
     by_cases hdeg1 : f.natDegree = 1
-    · exact Polynomial.exists_root_of_degree_eq_one <| by
+    · exact exists_root_of_degree_eq_one <| by
         simpa [← degree_eq_iff_natDegree_eq_of_neZero] using hdeg1
-    · rcases irreducible_or_factor (Polynomial.not_isUnit_of_natDegree_pos f (by grind)) with
+    · rcases irreducible_or_factor (not_isUnit_of_natDegree_pos f (by grind)) with
           _ | ⟨a, b, ha, hb, rfl⟩
       · grind
-      have : a ≠ 0 := fun _ ↦ by simp_all
-      have : b ≠ 0 := fun _ ↦ by simp_all
-      have hsum : (a * b).natDegree = a.natDegree + b.natDegree := Polynomial.natDegree_mul ‹_› ‹_›
-      have hodd : Odd a.natDegree ∨ Odd b.natDegree := by grind
+      have hsum : (a * b).natDegree = a.natDegree + b.natDegree :=
+        natDegree_mul (by grind) (by grind)
       wlog h : Odd a.natDegree generalizing a b
-      · rw [mul_comm, add_comm, Or.comm] at *
+      · rw [mul_comm, add_comm] at *
         apply this b a <;> grind
       · have : b.natDegree ≠ 0 := fun _ ↦ by
-          simp_all [Polynomial.isUnit_iff_degree_eq_zero, Polynomial.degree_eq_natDegree]
+          simp_all [isUnit_iff_degree_eq_zero, degree_eq_natDegree (show b ≠ 0 by grind)]
         rcases ih a.natDegree (by lia) h rfl with ⟨r, hr⟩
         exact ⟨r, hr.dvd (by simp)⟩
 
+-- #44287
 open scoped Polynomial in
 open Classical in -- for `normalize` instance
-theorem Polynomial.has_root_of_monic_odd_natDegree_imp_not_irreducible {F : Type*} [Field F]
+theorem Polynomial.exists_root_of_monic_odd_natDegree_imp_not_irreducible {F : Type*} [Field F]
     (h : ∀ {g : F[X]}, g.Monic → Odd g.natDegree → g.natDegree ≠ 1 → ¬ Irreducible g)
     {f : F[X]} (hf : Odd f.natDegree) : ∃ x, f.IsRoot x := by
   refine exists_root_of_odd_natDegree_imp_not_irreducible (fun {f} hf₁ hf₂ hf₃ ↦ ?_) hf
   exact h (monic_normalize (Irreducible.ne_zero hf₃))
     (by simpa using hf₁) (by simpa using hf₂) (by simpa using hf₃)
 
+-- #44299
 theorem IsGalois.exists_intermediateField_of_pow_prime_dvd
     {K L : Type*} [Field K] [Field L] [Algebra K L] [FiniteDimensional K L] [IsGalois K L]
-    {p n : ℕ} (hp : Nat.Prime p) (hn : p ^ n ∣ Module.finrank K L):
+    {p n : ℕ} (hp : Nat.Prime p) (hn : p ^ n ∣ Module.finrank K L) :
     ∃ M : IntermediateField K L, Module.finrank M L = p ^ n := by
   have := Fact.mk hp
   rw [← IsGalois.card_aut_eq_finrank K L] at hn
@@ -87,6 +87,7 @@ theorem IsGalois.exists_intermediateField_of_pow_prime_dvd
   exact ⟨IntermediateField.fixedField H,
         by simpa [IntermediateField.finrank_fixedField_eq_card] using hH⟩
 
+-- #44299
 theorem IsGalois.exists_intermediateField_of_card_pow_prime_mul
     {K L : Type*} [Field K] [Field L] [Algebra K L] [FiniteDimensional K L] [IsGalois K L]
     {p n a : ℕ} (hp : Nat.Prime p) (hn : Module.finrank K L = p ^ n * a) {m : ℕ} (hm : m ≤ n) :
@@ -97,6 +98,7 @@ theorem IsGalois.exists_intermediateField_of_card_pow_prime_mul
   rw [← Module.finrank_div_finrank_cancel_right_of_nontrivial _ _ L, hn, hM,
       ← Nat.pow_sub_mul_pow _ hm, mul_assoc, Nat.mul_div_right _ (by positivity [hp.pos])]
 
+-- #44299
 theorem Sylow.exists_subgroup_le_card_pow_prime_of_card_pow_prime
     {G : Type*} [Group G] {m n p : ℕ} (hp : Nat.Prime p)
     {H : Subgroup G} (hH : Nat.card H = p ^ n) (hm : m ≤ n) :
@@ -110,6 +112,7 @@ theorem Sylow.exists_subgroup_le_card_pow_prime_of_card_pow_prime
   rw [Subgroup.card_map_of_injective (Subgroup.subtype_injective H)]
   exact hH'
 
+-- #44299
 theorem IsGalois.exists_intermediateField_ge_card_pow_prime_of_card_pow_prime
     {K L : Type*} [Field K] [Field L] [Algebra K L] [FiniteDimensional K L] [IsGalois K L]
     {m n p : ℕ} (hp : Nat.Prime p) {M : IntermediateField K L}
@@ -122,6 +125,7 @@ theorem IsGalois.exists_intermediateField_ge_card_pow_prime_of_card_pow_prime
         by simpa [IntermediateField.le_iff_le] using hH'₁,
         by simpa [IntermediateField.finrank_fixedField_eq_card] using hH'₂⟩
 
+-- #44299
 theorem IsGalois.exists_intermediateField_ge_card_pow_prime_mul_of_card_pow_prime_mul
     {K L : Type*} [Field K] [Field L] [Algebra K L] [FiniteDimensional K L] [IsGalois K L]
     {p n a : ℕ} (hp : Nat.Prime p) (hL : Module.finrank K L = p ^ n * a)
@@ -141,6 +145,7 @@ theorem IsGalois.exists_intermediateField_ge_card_pow_prime_mul_of_card_pow_prim
       ← Nat.pow_sub_mul_pow _ hm'₂, mul_assoc, Nat.mul_div_right _ (by positivity)]
 
 -- replace `exists_eq_mul_self` in Mathlib.FieldTheory.IsAlgClosed.Basic
+-- `IsSepClosed` also
 theorem IsAlgClosed.isSquare {k : Type*} [Field k] [IsAlgClosed k] (x : k) : IsSquare x :=
   IsAlgClosed.exists_eq_mul_self x
 

@@ -6,12 +6,12 @@ Authors: Artie Khovanov
 
 import Mathlib.Algebra.Group.Submonoid.Support
 import Mathlib.Algebra.Group.Subgroup.Ker
-import Mathlib.Algebra.Order.Monoid.Submonoid -- TODO : downstream
-import Mathlib.Algebra.Order.Group.Unbundled.Basic -- TODO : downstream
+import Mathlib.Algebra.Order.Monoid.Submonoid
+import Mathlib.Algebra.Order.Group.Unbundled.Basic
 
 namespace Submonoid
 
-open scoped Pointwise
+-- begin #37252
 
 section Group
 
@@ -28,28 +28,31 @@ variable {M N} in
 @[to_additive]
 theorem mulSupport_mono (h : M ≤ N) : M.mulSupport ≤ N.mulSupport := fun _ ↦ by
   have := mem_of_le_of_mem h
-  simp_all
+  grind [mem_mulSupport]
 
 @[to_additive (attr := simp)]
-theorem mulSupport_inf : (M ⊓ N).mulSupport = M.mulSupport ⊓ N.mulSupport := by ext; grind [mem_mulSupport]
+theorem mulSupport_inf : (M ⊓ N).mulSupport = M.mulSupport ⊓ N.mulSupport := by
+  ext
+  grind [mem_mulSupport, Subgroup.mem_inf]
 
 @[to_additive (attr := simp)]
 theorem mulSupport_sInf (s : Set (Submonoid G)) :
-    (sInf s).mulSupport = InfSet.sInf (mulSupport '' s) := by aesop
+    (sInf s).mulSupport = InfSet.sInf (mulSupport '' s) := by ext; simp; grind
 
 variable {M'} in
-@[to_additive (attr := aesop 90%)]
-theorem IsMulSpanning.comap (hM' : M'.IsMulSpanning) : (M'.comap f).IsMulSpanning := by aesop
+@[to_additive]
+theorem IsMulSpanning.comap (hM' : M'.IsMulSpanning) : (M'.comap f).IsMulSpanning := by
+  grind [IsMulSpanning, mem_comap]
 
 @[to_additive (attr := simp)]
-theorem comap_mulSupport : (M'.comap f).mulSupport = (M'.mulSupport).comap f := by aesop
+theorem comap_mulSupport : (M'.comap f).mulSupport = (M'.mulSupport).comap f := by ext; simp
 
 variable {f M} in
 @[to_additive]
 theorem IsMulSpanning.map (hM : M.IsMulSpanning) (hf : Function.Surjective f) :
     (M.map f).IsMulSpanning := fun x ↦ by
   obtain ⟨x', rfl⟩ := hf x
-  aesop
+  grind [IsMulSpanning, mem_map]
 
 end Group
 
@@ -62,27 +65,30 @@ variable {f M} in
 theorem map_mulSupport (hsupp : f.ker ≤ M.mulSupport) :
     (M.map f).mulSupport = (M.mulSupport).map f := by
   ext
-  refine ⟨fun ⟨⟨a, ⟨ha₁, ha₂⟩⟩, ⟨b, ⟨hb₁, hb₂⟩⟩⟩ => ?_, by aesop⟩
-  have : (a * b)⁻¹ * b ∈ M := by exact mul_mem (hsupp (show f (a * b) = 1 by simp_all)).2 hb₁
-  aesop
+  refine ⟨fun ⟨⟨a, ⟨ha₁, ha₂⟩⟩, ⟨b, ⟨hb₁, hb₂⟩⟩⟩ => ?_,
+    by grind [Subgroup.mem_map, mem_map, mem_mulSupport]⟩
+  have : (a * b)⁻¹ * b ∈ M := mul_mem (hsupp (show f (a * b) = 1 by simp_all)).2 hb₁
+  grind [mem_mulSupport, SetLike.mem_coe, mul_inv_rev, inv_mul_cancel_comm, Subgroup.mem_map]
 
 end CommGroup
 
 end Submonoid
 
-section downstream
+-- end #37252
+
+section downstream -- `Mathlib.Algebra.Order.Group.Cone`
+
+-- begin #37298
 
 variable (G : Type*) [CommGroup G]
 
--- TODO : downstream to `Mathlib.Algebra.Group.Subgroup.Order` or further
-
 @[to_additive]
 theorem Submonoid.oneLE.isMulPointed [PartialOrder G] [IsOrderedMonoid G] :
-    (oneLE G).IsMulPointed := by aesop (add simp ge_antisymm_iff)
+    (oneLE G).IsMulPointed := by simp_all [IsMulPointed, ge_antisymm_iff]
 
 @[to_additive]
 theorem Submonoid.oneLE.isMulSpanning [LinearOrder G] [IsOrderedMonoid G] :
-    (oneLE G).IsMulSpanning := by aesop (add safe le_total)
+    (oneLE G).IsMulSpanning := by simp_all [IsMulSpanning, le_total]
 
 variable {G} {M : Submonoid G} (hM : M.IsMulPointed)
 
@@ -118,6 +124,8 @@ abbrev LinearOrder.mkOfSubmonoid (hMs : M.IsMulSpanning) [DecidablePred (· ∈ 
   __ := PartialOrder.mkOfSubmonoid hM
   le_total a b := by simpa using hMs.mem_or_inv_mem (b / a)
   toDecidableLE _ := _
+
+-- end #37298
 
 namespace CommGroup
 
@@ -170,5 +178,3 @@ theorem submonoidLinearOrderEquiv_symm_apply (l : LinearOrder G) (h : IsOrderedM
     (submonoidLinearOrderEquiv G).symm ⟨l, h⟩ = Submonoid.oneLE G := rfl
 
 end CommGroup
-
-end downstream
