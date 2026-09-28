@@ -10,14 +10,14 @@ import Mathlib.Algebra.Order.Algebra
 
 /- Lemmas that should be upstreamed to Mathlib -/
 
--- generalise and upstream after `SetLike` LE refactor
+-- #44253
 @[aesop 70%]
-theorem mem_sup_of_mem_left {R : Type*} [Semiring R] {a b : Subsemiring R} {x : R} :
+theorem mem_sup_left {R : Type*} [Semiring R] {a b : Subsemiring R} {x : R} :
     x ∈ a → x ∈ a ⊔ b := by gcongr; exact le_sup_left
 
--- generalise and upstream after `SetLike` LE refactor
+-- #44253
 @[aesop 70%]
-theorem mem_sup_of_mem_right {R : Type*} [Semiring R] {a b : Subsemiring R} {x : R} :
+theorem mem_sup_right {R : Type*} [Semiring R] {a b : Subsemiring R} {x : R} :
     x ∈ b → x ∈ a ⊔ b := by gcongr; exact le_sup_right
 
 -- Mathlib.RingTheory.Ideal.Maximal
@@ -42,34 +42,12 @@ theorem Ideal.Quotient.irreducible_iff_isField
   mp := Ideal.Quotient.isField_of_irreducible
   mpr := Ideal.Quotient.irreducible_of_isField hm
 
--- PR
-theorem Polynomial.degree_eq_one_iff_natDegree_eq_one
-    {R : Type*} [Semiring R] {p : Polynomial R} :
-    p.degree = 1 ↔ p.natDegree = 1 :=
-  degree_eq_iff_natDegree_eq_of_pos (Nat.zero_lt_one)
-
--- PR
-theorem Polynomial.degree_eq_iff_natDegree_eq_of_atLeastTwo
-    {R : Type*} [Semiring R] {p : Polynomial R} {n : ℕ} [Nat.AtLeastTwo n] :
-    p.degree = n ↔ p.natDegree = n :=
-  degree_eq_iff_natDegree_eq_of_pos (Nat.pos_of_neZero n)
-
 -- Mathlib.Algebra.GCDMonoid.Basic
 @[simp]
 theorem irreducible_normalize_iff {α : Type*}
     [CommMonoidWithZero α] [IsCancelMulZero α] [NormalizationMonoid α] (x : α) :
     Irreducible (normalize x) ↔ Irreducible x :=
   Associated.irreducible_iff (normalize_associated x)
-
--- TODO : use tactic in application
-theorem Polynomial.natDegree_X_sub_C_sq_add_C_sq
-    {R : Type*} [CommRing R] [NoZeroDivisors R] [Nontrivial R] (a b : R) :
-    ((X - C a) ^ 2 + C b ^ 2).natDegree = 2 := by compute_degree!
-
--- TODO : use tactic in application
-theorem Polynomial.monic_X_sub_C_sq_add_C_sq
-    {R : Type*} [CommRing R] [NoZeroDivisors R] [Nontrivial R] (a b : R) :
-    ((X - C a) ^ 2 + C b ^ 2).Monic := by monicity!
 
 open scoped Polynomial in
 theorem Polynomial.exists_odd_natDegree_monic_irreducible_factor
@@ -95,8 +73,8 @@ theorem Polynomial.has_root_of_odd_natDegree_imp_not_irreducible {F : Type*} [Fi
     rcases hdeg with rfl
     have : f ≠ 0 := fun _ ↦ by simp_all
     by_cases hdeg1 : f.natDegree = 1
-    · exact Polynomial.exists_root_of_degree_eq_one
-        (f.degree_eq_one_iff_natDegree_eq_one.eq ▸ hdeg1)
+    · exact Polynomial.exists_root_of_degree_eq_one <| by
+        simpa [← degree_eq_iff_natDegree_eq_of_neZero] using hdeg1
     · rcases (by simpa [h hf hdeg1] using
           irreducible_or_factor (Polynomial.not_isUnit_of_natDegree_pos f (Odd.pos hf))) with
         ⟨a, ha, b, hb, hfab⟩
@@ -238,22 +216,6 @@ theorem sign_change (hdeg: Odd f.natDegree) : ∃ x y, f.eval x < 0 ∧ 0 < f.ev
 
 end poly_estimate
 
--- PR
-theorem Module.finrank_div_finrank (F K A : Type*) [Semiring F] [Ring K] [AddCommGroup A]
-    [Module F K] [Module K A] [Module F A] [IsScalarTower F K A] [Nontrivial A]
-    [StrongRankCondition F] [StrongRankCondition K] [Module.Free F K] [Module.Free K A]
-    [Module.Finite K A] [NoZeroSMulDivisors K A] :
-    Module.finrank F K = Module.finrank F A / Module.finrank K A :=
-  Nat.eq_div_of_mul_eq_left ((finrank_pos_iff_of_free ..).mpr ‹_›).ne' (finrank_mul_finrank ..)
-
--- PR
-theorem Module.finrank_div_finrank_left (F K A : Type*) [Ring F] [Ring K] [AddCommMonoid A]
-    [Module F K] [Module K A] [Module F A] [IsScalarTower F K A] [Nontrivial K]
-    [StrongRankCondition F] [StrongRankCondition K] [Module.Free F K] [Module.Free K A]
-    [Module.Finite F K] [NoZeroSMulDivisors F K] :
-    Module.finrank K A = Module.finrank F A / Module.finrank F K :=
-  Nat.eq_div_of_mul_eq_right ((finrank_pos_iff_of_free ..).mpr ‹_›).ne' (finrank_mul_finrank ..)
-
 theorem IsGalois.exists_intermediateField_of_pow_prime_dvd
     {K L : Type*} [Field K] [Field L] [Algebra K L] [FiniteDimensional K L] [IsGalois K L]
     {p n : ℕ} (hp : Nat.Prime p) (hn : p ^ n ∣ Module.finrank K L):
@@ -271,10 +233,8 @@ theorem IsGalois.exists_intermediateField_of_card_pow_prime_mul
   rcases IsGalois.exists_intermediateField_of_pow_prime_dvd hp
     (by rw [hn]; exact Nat.pow_dvd_of_le_of_pow_dvd (by simp : n - m ≤ n) (by simp)) with ⟨M, hM⟩
   use M
-  have dvd := Module.finrank_div_finrank K M L
-  rw [hn, hM, ← Nat.pow_sub_mul_pow _ hm, mul_assoc,
-      Nat.mul_div_right _ (by positivity [hp.pos])] at dvd
-  exact dvd
+  rw [← Module.finrank_div_finrank_cancel_right_of_nontrivial _ _ L, hn, hM,
+      ← Nat.pow_sub_mul_pow _ hm, mul_assoc, Nat.mul_div_right _ (by positivity [hp.pos])]
 
 theorem Sylow.exists_subgroup_le_card_pow_prime_of_card_pow_prime
     {G : Type*} [Group G] {m n p : ℕ} (hp : Nat.Prime p)
@@ -311,27 +271,13 @@ theorem IsGalois.exists_intermediateField_ge_card_pow_prime_mul_of_card_pow_prim
   · exact ⟨M, by simp, by simp_all⟩
   have : 0 < p := hp.pos
   have : Module.finrank (↥M) L = p ^ (n - m) := by
-    have dvd := Module.finrank_div_finrank_left K M L
-    rw [hM, hL, ← Nat.pow_sub_mul_pow _ (by omega : m ≤ n), mul_assoc,
-        Nat.mul_div_left _ (by positivity)] at dvd
-    exact dvd
+    rw [← Module.finrank_div_finrank_cancel_left_of_nontrivial K, hM, hL,
+        ← Nat.pow_sub_mul_pow _ (by omega : m ≤ n), mul_assoc, Nat.mul_div_left _ (by positivity)]
   rcases IsGalois.exists_intermediateField_ge_card_pow_prime_of_card_pow_prime hp (M := M)
     (n := n - m) (m := n - m') this (by omega) with ⟨N, hN, hNrk⟩
   refine ⟨N, hN, ?_⟩
-  have dvd := Module.finrank_div_finrank K N L
-  rw [hL, hNrk, ← Nat.pow_sub_mul_pow _ hm'₂, mul_assoc,
-      Nat.mul_div_right _ (by positivity)] at dvd
-  exact dvd
-
--- PR (different proof)
-theorem Algebra.nonempty_algEquiv_iff_finrank_eq_one
-    {R S : Type*} [CommSemiring R] [StrongRankCondition R] [Semiring S] [Algebra R S]
-    [Module.Free R S] : Nonempty (R ≃ₐ[R] S) ↔ Module.finrank R S = 1 where
-  mp h := by
-    rw [← Algebra.finrank_eq_of_equiv_equiv (RingEquiv.refl _) h.some.toRingEquiv (by ext; simp)]
-    simp
-  mpr h := ⟨AlgEquiv.ofBijective (Algebra.ofId R S)
-    (bijective_algebraMap_of_linearEquiv (Module.nonempty_linearEquiv_of_finrank_eq_one h).some)⟩
+  rw [← Module.finrank_div_finrank_cancel_right_of_nontrivial _ _ L, hL, hNrk,
+      ← Nat.pow_sub_mul_pow _ hm'₂, mul_assoc, Nat.mul_div_right _ (by positivity)]
 
 -- replace `exists_eq_mul_self` in Mathlib.FieldTheory.IsAlgClosed.Basic
 theorem IsAlgClosed.isSquare {k : Type*} [Field k] [IsAlgClosed k] (x : k) : IsSquare x :=
@@ -346,7 +292,7 @@ theorem IsAlgClosed.of_finiteDimensional_imp_finrank_eq_one.{u} (k : Type u) [Fi
     have := Fact.mk f_irr
     have := f_monic.finite_adjoinRoot
     have := H (AdjoinRoot f)
-    rw [← Algebra.nonempty_algEquiv_iff_finrank_eq_one] at this
+    rw [← Module.nonempty_algEquiv_iff_finrank_eq_one] at this
     use this.some.symm (AdjoinRoot.root f)
     rw [← Polynomial.coe_aeval_eq_eval, Polynomial.aeval_algHom_apply]
     simp
