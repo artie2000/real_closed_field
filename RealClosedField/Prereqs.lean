@@ -21,11 +21,6 @@ theorem mem_sup_of_mem_right {R : Type*} [Semiring R] {a b : Subsemiring R} {x :
     x ∈ b → x ∈ a ⊔ b := by gcongr; exact le_sup_right
 
 -- Mathlib.RingTheory.Ideal.Maximal
-theorem Ideal.irreducible_of_isMaximal_span_singleton {R : Type*} [CommRing R] [IsDomain R] {m : R}
-    (hm : m ≠ 0) (hmax : (span {m}).IsMaximal) : Irreducible m :=
-  ((span_singleton_prime hm).mp hmax.isPrime).irreducible
-
--- Mathlib.RingTheory.Ideal.Maximal
 theorem Ideal.span_singleton_maximal_iff_irreducible
     {R : Type*} [CommRing R] [IsPrincipalIdealRing R] [IsDomain R] {m : R} (hm : m ≠ 0) :
     (span {m}).IsMaximal ↔ Irreducible m where
@@ -58,22 +53,6 @@ theorem Polynomial.degree_eq_iff_natDegree_eq_of_atLeastTwo
     {R : Type*} [Semiring R] {p : Polynomial R} {n : ℕ} [Nat.AtLeastTwo n] :
     p.degree = n ↔ p.natDegree = n :=
   degree_eq_iff_natDegree_eq_of_pos (Nat.pos_of_neZero n)
-
--- PR
-@[simp]
-theorem Polynomial.natDegree_add_one {R : Type*} [Semiring R] {p : Polynomial R} :
-    (p + 1).natDegree = p.natDegree := natDegree_add_C
-
--- PR
-@[simp]
-theorem Polynomial.natDegree_one_add {R : Type*} [Semiring R] {p : Polynomial R} :
-    (1 + p).natDegree = p.natDegree := natDegree_C_add
-
--- PR
-@[simp]
-theorem Polynomial.natDegree_normalize {R : Type*} [Field R] {p : Polynomial R} [DecidableEq R] :
-    (normalize p).natDegree = p.natDegree :=
-  natDegree_eq_of_degree_eq degree_normalize
 
 -- Mathlib.Algebra.GCDMonoid.Basic
 @[simp]
@@ -172,7 +151,7 @@ theorem estimate (hdeg : f.natDegree ≠ 0) {x : F} (hx : 1 ≤ x) :
   intro i hi
   calc
     -M * x ^ (f.natDegree - 1) ≤ -M * x ^ i :=
-      mul_le_mul_of_nonpos_left (by gcongr; exacts [hx, by omega]) (by simpa using hM₀)
+      mul_le_mul_of_nonpos_left (by gcongr; omega) (by simpa using hM₀)
     _ ≤ f.coeff i * x ^ i := by gcongr; exact neg_le_of_abs_le (hM _ hi)
 
 variable {f} in
