@@ -136,7 +136,7 @@ theorem coeff_pow_two (x) :
   ext i
   by_cases! hi : i < 2
   · interval_cases i <;> simp <;> ring
-  · simp [show i ≠ 0 ∧ i ≠ 1 by omega]
+  · simp [show i ≠ 0 ∧ i ≠ 1 by lia]
 
 end CommRing
 

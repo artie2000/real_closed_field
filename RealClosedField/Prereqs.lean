@@ -20,7 +20,7 @@ theorem mem_sup_left {R : Type*} [Semiring R] {a b : Subsemiring R} {x : R} :
 theorem mem_sup_right {R : Type*} [Semiring R] {a b : Subsemiring R} {x : R} :
     x ∈ b → x ∈ a ⊔ b := by gcongr; exact le_sup_right
 
--- Mathlib.Algebra.GCDMonoid.Basic
+-- #44287
 @[simp]
 theorem irreducible_normalize_iff {α : Type*}
     [CommMonoidWithZero α] [IsCancelMulZero α] [NormalizationMonoid α] (x : α) :
@@ -32,51 +32,49 @@ theorem Polynomial.exists_odd_natDegree_monic_irreducible_factor
     {F : Type*} [Field F] {f : F[X]} (hf : Odd f.natDegree) :
     ∃ g : F[X], (Odd g.natDegree) ∧ g.Monic ∧ Irreducible g ∧ g ∣ f := by
   induction h : f.natDegree using Nat.strong_induction_on generalizing f with | h n ih =>
-    have hu : ¬IsUnit f := Polynomial.not_isUnit_of_natDegree_pos _ (Odd.pos hf)
+    have hu : ¬ IsUnit f := Polynomial.not_isUnit_of_natDegree_pos _ (Odd.pos hf)
     rcases Polynomial.exists_monic_irreducible_factor f hu with ⟨g, g_monic, g_irred, g_div⟩
     by_cases g_deg : Odd g.natDegree
     · exact ⟨g, g_deg, g_monic, g_irred, g_div⟩
-    · rcases g_div with ⟨k, hk⟩
-      have : f.natDegree = g.natDegree + k.natDegree := by
-        simpa [hk] using Polynomial.natDegree_mul (g_irred.ne_zero) (fun _ ↦ by simp_all)
-      have := Irreducible.natDegree_pos g_irred
-      rcases ih k.natDegree (by omega) (by grind) rfl with ⟨l, h₁, h₂, h₃, h₄⟩
-      exact ⟨l, h₁, h₂, h₃, dvd_trans h₄ (dvd_iff_exists_eq_mul_left.mpr ⟨g, hk⟩)⟩
+    · rcases g_div with ⟨k, rfl⟩
+      have : (g * k).natDegree = g.natDegree + k.natDegree :=
+        Polynomial.natDegree_mul g_irred.ne_zero (fun _ ↦ by simp_all)
+      rcases ih k.natDegree (by lia [Irreducible.natDegree_pos]) (by grind) rfl
+        with ⟨l, h₁, h₂, h₃, h₄⟩
+      exact ⟨l, h₁, h₂, h₃, dvd_trans h₄ (by simp)⟩
 
 open scoped Polynomial in
-theorem Polynomial.has_root_of_odd_natDegree_imp_not_irreducible {F : Type*} [Field F]
-    (h : ∀ {f : F[X]}, Odd f.natDegree → f.natDegree ≠ 1 → ¬(Irreducible f))
+theorem Polynomial.exists_root_of_odd_natDegree_imp_not_irreducible {F : Type*} [Field F]
+    (h : ∀ {g : F[X]}, Odd g.natDegree → g.natDegree ≠ 1 → ¬ Irreducible g)
     {f : F[X]} (hf : Odd f.natDegree) : ∃ x, f.IsRoot x := by
   induction hdeg : f.natDegree using Nat.strong_induction_on generalizing f with | h n ih =>
-    rcases hdeg with rfl
+    subst hdeg
     have : f ≠ 0 := fun _ ↦ by simp_all
     by_cases hdeg1 : f.natDegree = 1
     · exact Polynomial.exists_root_of_degree_eq_one <| by
         simpa [← degree_eq_iff_natDegree_eq_of_neZero] using hdeg1
-    · rcases (by simpa [h hf hdeg1] using
-          irreducible_or_factor (Polynomial.not_isUnit_of_natDegree_pos f (Odd.pos hf))) with
-        ⟨a, ha, b, hb, hfab⟩
+    · rcases irreducible_or_factor (Polynomial.not_isUnit_of_natDegree_pos f (by grind)) with
+          _ | ⟨a, b, ha, hb, rfl⟩
+      · grind
       have : a ≠ 0 := fun _ ↦ by simp_all
       have : b ≠ 0 := fun _ ↦ by simp_all
-      have hsum : f.natDegree = a.natDegree + b.natDegree := by
-        simpa [hfab] using Polynomial.natDegree_mul ‹_› ‹_›
+      have hsum : (a * b).natDegree = a.natDegree + b.natDegree := Polynomial.natDegree_mul ‹_› ‹_›
       have hodd : Odd a.natDegree ∨ Odd b.natDegree := by grind
       wlog h : Odd a.natDegree generalizing a b
-      · exact this b ‹_› a ‹_› (by simpa [mul_comm] using hfab) ‹_› ‹_›
-          (by simpa [add_comm] using hsum) (by simp_all) (by simpa [h] using hodd)
-      · have : b.natDegree ≠ 0 := fun hc ↦ by
-          rw [Polynomial.isUnit_iff_degree_eq_zero, Polynomial.degree_eq_natDegree ‹_›] at hb
-          exact hb (by simpa using hc)
-        rcases ih a.natDegree (by omega) h rfl with ⟨r, hr⟩
-        exact ⟨r, Polynomial.IsRoot.dvd hr (by simp [hfab])⟩
+      · rw [mul_comm, add_comm, Or.comm] at *
+        apply this b a <;> grind
+      · have : b.natDegree ≠ 0 := fun _ ↦ by
+          simp_all [Polynomial.isUnit_iff_degree_eq_zero, Polynomial.degree_eq_natDegree]
+        rcases ih a.natDegree (by lia) h rfl with ⟨r, hr⟩
+        exact ⟨r, hr.dvd (by simp)⟩
 
 open scoped Polynomial in
 open Classical in -- for `normalize` instance
 theorem Polynomial.has_root_of_monic_odd_natDegree_imp_not_irreducible {F : Type*} [Field F]
-    (h : ∀ {f : F[X]}, f.Monic → Odd f.natDegree → f.natDegree ≠ 1 → ¬(Irreducible f))
+    (h : ∀ {g : F[X]}, g.Monic → Odd g.natDegree → g.natDegree ≠ 1 → ¬ Irreducible g)
     {f : F[X]} (hf : Odd f.natDegree) : ∃ x, f.IsRoot x := by
-  refine has_root_of_odd_natDegree_imp_not_irreducible (fun {f} hf₁ hf₂ hf₃ ↦ ?_) hf
-  exact h (Polynomial.monic_normalize (Irreducible.ne_zero hf₃))
+  refine exists_root_of_odd_natDegree_imp_not_irreducible (fun {f} hf₁ hf₂ hf₃ ↦ ?_) hf
+  exact h (monic_normalize (Irreducible.ne_zero hf₃))
     (by simpa using hf₁) (by simpa using hf₂) (by simpa using hf₃)
 
 theorem IsGalois.exists_intermediateField_of_pow_prime_dvd
@@ -135,9 +133,9 @@ theorem IsGalois.exists_intermediateField_ge_card_pow_prime_mul_of_card_pow_prim
   have : 0 < p := hp.pos
   have : Module.finrank (↥M) L = p ^ (n - m) := by
     rw [← Module.finrank_div_finrank_cancel_left_of_nontrivial K, hM, hL,
-        ← Nat.pow_sub_mul_pow _ (by omega : m ≤ n), mul_assoc, Nat.mul_div_left _ (by positivity)]
+        ← Nat.pow_sub_mul_pow _ (by lia : m ≤ n), mul_assoc, Nat.mul_div_left _ (by positivity)]
   rcases IsGalois.exists_intermediateField_ge_card_pow_prime_of_card_pow_prime hp (M := M)
-    (n := n - m) (m := n - m') this (by omega) with ⟨N, hN, hNrk⟩
+    (n := n - m) (m := n - m') this (by lia) with ⟨N, hN, hNrk⟩
   refine ⟨N, hN, ?_⟩
   rw [← Module.finrank_div_finrank_cancel_right_of_nontrivial _ _ L, hL, hNrk,
       ← Nat.pow_sub_mul_pow _ hm'₂, mul_assoc, Nat.mul_div_right _ (by positivity)]
@@ -175,12 +173,12 @@ theorem estimate (hdeg : f.natDegree ≠ 0) {x : F} (hx : 1 ≤ x) :
   set M := (image (|f.coeff ·|) (range f.natDegree)).max' ne
   have hM : ∀ i < f.natDegree, |f.coeff i| ≤ M := fun i hi ↦
     le_max' _ _ <| mem_image_of_mem (|f.coeff ·|) (by simpa using hi)
-  have hM₀ : 0 ≤ M := (abs_nonneg _).trans (hM 0 (by omega))
+  have hM₀ : 0 ≤ M := (abs_nonneg _).trans (hM 0 (by lia))
   rw [Polynomial.eval_eq_sum_range, sum_range_succ, ← leadingCoeff]
   suffices f.natDegree * (-M * x ^ (f.natDegree - 1)) ≤
            ∑ i ∈ range f.natDegree, f.coeff i * x ^ i by
     have hxpow : x * x ^ (f.natDegree - 1) = x ^ f.natDegree := by
-      rw [← pow_succ', show f.natDegree - 1 + 1 = f.natDegree by omega]
+      rw [← pow_succ', show f.natDegree - 1 + 1 = f.natDegree by lia]
     linear_combination this + hxpow * f.leadingCoeff
   suffices ∀ i < f.natDegree, -M * x ^ (f.natDegree - 1) ≤ f.coeff i * x ^ i by
     simpa using card_nsmul_le_sum (range f.natDegree) (fun i ↦ f.coeff i * x ^ i)
@@ -188,7 +186,7 @@ theorem estimate (hdeg : f.natDegree ≠ 0) {x : F} (hx : 1 ≤ x) :
   intro i hi
   calc
     -M * x ^ (f.natDegree - 1) ≤ -M * x ^ i :=
-      mul_le_mul_of_nonpos_left (by gcongr; omega) (by simpa using hM₀)
+      mul_le_mul_of_nonpos_left (by gcongr; lia) (by simpa using hM₀)
     _ ≤ f.coeff i * x ^ i := by gcongr; exact neg_le_of_abs_le (hM _ hi)
 
 variable {f} in
@@ -220,12 +218,12 @@ theorem estimate2 (hdeg : Odd f.natDegree) {x : F} (hx : x ≤ -1) :
   set M := (image (|f.coeff ·|) (range f.natDegree)).max' ne
   have hM : ∀ i < f.natDegree, |f.coeff i| ≤ M := fun i hi ↦
     le_max' _ _ <| mem_image_of_mem (|f.coeff ·|) (by simpa using hi)
-  have hM₀ : 0 ≤ M := (abs_nonneg _).trans (hM 0 (by omega))
+  have hM₀ : 0 ≤ M := (abs_nonneg _).trans (hM 0 (by lia))
   rw [Polynomial.eval_eq_sum_range, sum_range_succ, ← leadingCoeff]
   suffices ∑ i ∈ range f.natDegree, f.coeff i * x ^ i ≤
            f.natDegree * (M * x ^ (f.natDegree - 1)) by
     have hxpow : x ^ f.natDegree = x * x ^ (f.natDegree - 1) := by
-      rw [← pow_succ', show f.natDegree - 1 + 1 = f.natDegree by omega]
+      rw [← pow_succ', show f.natDegree - 1 + 1 = f.natDegree by lia]
     linear_combination this + hxpow * f.leadingCoeff
   suffices ∀ i < f.natDegree, f.coeff i * x ^ i ≤ M * x ^ (f.natDegree - 1) by
     simpa using sum_le_card_nsmul (range f.natDegree) (fun i ↦ f.coeff i * x ^ i) _ <|
@@ -237,7 +235,7 @@ theorem estimate2 (hdeg : Odd f.natDegree) {x : F} (hx : x ≤ -1) :
       rw [← abs_pow, ← abs_mul]
       exact le_abs_self ..
     _ ≤ M * |x| ^ (f.natDegree - 1) := by
-      gcongr; exacts [hM _ hi, by simpa using abs_le_abs_of_nonpos (by linarith) hx, by omega]
+      gcongr; exacts [hM _ hi, by simpa using abs_le_abs_of_nonpos (by linarith) hx, by lia]
 
 variable {f} in
 theorem eventually_neg (hdeg : Odd f.natDegree) (hf : 0 < f.leadingCoeff) :

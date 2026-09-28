@@ -557,7 +557,7 @@ theorem gen_ne_one [Nontrivial S] : g ≠ 1 := fun hc ↦ by
 include h in
 theorem natDegree_gen_pos [Nontrivial S] : 0 < g.natDegree := by
   by_contra hg
-  exact h.gen_ne_one (eq_one_of_monic_natDegree_zero h.monic (by omega))
+  exact h.gen_ne_one (eq_one_of_monic_natDegree_zero h.monic (by lia))
 
 include h in
 theorem degree_gen_pos [Nontrivial S] : 0 < g.degree :=
@@ -647,7 +647,7 @@ theorem of_basis [Module.Finite R S] {n} (B : Module.Basis (Fin n) R S)
     have : (g %ₘ f).natDegree < n := by
       simpa [f_deg] using natDegree_modByMonic_lt g f_monic (fun hc ↦ by clear f_def; simp_all)
     rw [← modByMonic_eq_zero_iff_dvd f_monic,
-        Polynomial.ext_iff_natDegree_le (n := n - 1) (by omega) (by simp)]
+        Polynomial.ext_iff_natDegree_le (n := n - 1) (by lia) (by simp)]
     rw [← aeval_modByMonic_eq_self_of_root aeval_f, ← B.forall_coord_eq_zero_iff,
         aeval_eq_sum_range' this, Finset.sum_range, Fin.forall_iff] at hg
     simp_rw [← hB, B.coord_apply, map_sum, map_smul, B.repr_self] at hg
@@ -828,7 +828,7 @@ theorem coeff_root_pow {n} (hn : n < g.natDegree) :
 
 theorem coeff_root_pow_natDegree {i : ℕ} (hi : i < g.natDegree) :
     h.coeff (x ^ g.natDegree) i = - g.coeff i := by
-  simp [coeff, show i ≠ g.natDegree by omega]
+  simp [coeff, show i ≠ g.natDegree by lia]
 
 theorem coeff_root (hdeg : 1 < g.natDegree) : h.coeff x = Pi.single 1 1 := by
   rw [← h.coeff_root_pow hdeg, pow_one]
@@ -913,7 +913,7 @@ protected theorem leftMulMatrix : Algebra.leftMulMatrix h.basis x =
   · rw [h', eq_neg_iff_add_eq_zero, ← h.aeval_gen, aeval_eq_sum_range, add_comm,
         Finset.sum_range_succ, Finset.sum_range, coeff_natDegree,
         h.monic.leadingCoeff, one_smul]
-  · rw [Fintype.sum_eq_single ⟨k + 1, by omega⟩]
+  · rw [Fintype.sum_eq_single ⟨k + 1, by lia⟩]
     · simp
     intro l hl
     contrapose! hl

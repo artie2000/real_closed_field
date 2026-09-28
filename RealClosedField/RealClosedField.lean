@@ -5,7 +5,7 @@ Authors: Artie Khovanov
 -/
 import RealClosedField.OrderedAlgebra
 import RealClosedField.Algebra.Order.Field.IsSemireal
-import Mathlib.Algebra.Polynomial.SpecificDegree
+import Mathlib.FieldTheory.IsRealClosed.Basic
 
 -- TODO : figure out simp-normal form issue
 attribute [simp] IsSquare.sq
@@ -201,7 +201,7 @@ theorem exists_eq_pow_of_isSquare {x : R} (hx : IsSquare x) {n : ℕ} (hn : n > 
     · rcases even with ⟨m, hm⟩
       rcases hx with ⟨s, hs⟩
       rcases isSquare_or_isSquare_neg s with (h | h) <;>
-        rcases ih m (by omega) h (by omega) with ⟨r, hr⟩ <;>
+        rcases ih m (by lia) h (by lia) with ⟨r, hr⟩ <;>
         exact ⟨r, by simp [hm, pow_add, ← hr, hs]⟩
     · exact exists_eq_pow_of_odd x odd
 
@@ -297,7 +297,7 @@ theorem finite_extension_rank_le [FiniteDimensional R K] : Module.finrank R K �
     have := Module.finrank_bot_le_finrank_of_isScalarTower
       R K (IntermediateField.normalClosure R K (AlgebraicClosure K))
     have := Module.finrank_pos (R := R) (M := K)
-    omega
+    lia
   rcases Nat.exists_eq_two_pow_mul_odd (n := Module.finrank R K) Module.finrank_pos.ne'
     with ⟨k, a, ha, hka⟩
   have a_val : a = 1 := by
@@ -307,11 +307,11 @@ theorem finite_extension_rank_le [FiniteDimensional R K] : Module.finrank R K �
   suffices k ≤ 1 by interval_cases k <;> simp_all
   by_contra! k_ge
   rcases IsGalois.exists_intermediateField_of_card_pow_prime_mul
-    Nat.prime_two hka (by omega : 1 ≤ k) with ⟨M, hM⟩
+    Nat.prime_two hka (by lia : 1 ≤ k) with ⟨M, hM⟩
   rcases IsGalois.exists_intermediateField_ge_card_pow_prime_mul_of_card_pow_prime_mul
-    Nat.prime_two hka hM (by omega : 1 ≤ 2) (by omega) with ⟨N, hN_ge, hN⟩
+    Nat.prime_two hka hM (by lia : 1 ≤ 2) (by lia) with ⟨N, hN_ge, hN⟩
   rw [ge_iff_le] at hN_ge
-  have : Algebra.IsQuadraticExtension R M := ⟨by omega⟩
+  have : Algebra.IsQuadraticExtension R M := ⟨by lia⟩
   algebraize [(IntermediateField.inclusion hN_ge).toRingHom]
   have := IsScalarTower.of_algebraMap_eq'
     (IntermediateField.inclusion hN_ge).comp_algebraMap.symm
@@ -423,7 +423,7 @@ theorem irred_poly_classify {f : R[X]} (hf : f.Monic) :
         (by simpa [Polynomial.degree_eq_one_iff_natDegree_eq_one] using lin)
     · rcases quad with ⟨a, b, hb, rfl⟩
       have h_deg : ((X - C a) ^ 2 + C b ^ 2).natDegree = 2 := by simp
-      rw [hf.irreducible_iff_roots_eq_zero_of_degree_le_three (by omega) (by omega),
+      rw [hf.irreducible_iff_roots_eq_zero_of_degree_le_three (by lia) (by lia),
           Polynomial.roots_eq_zero_iff_isRoot_eq_bot hf.ne_zero]
       ext r
       suffices (r - a) ^ 2 + b ^ 2 ≠ 0 by simp [this]

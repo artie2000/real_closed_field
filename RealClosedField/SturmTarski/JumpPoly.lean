@@ -118,9 +118,9 @@ lemma jump_poly_mod (p q: Polynomial R) (x: R) : jump_val p q x = jump_val p (q 
          rw [H] at hcontra
          exact hbound hcontra
         rw [<- rootMultiplicity_le_iff hz'.1 x 0] at this
-        omega
+        lia
       else
-        have H : n = rootMultiplicity x p := by omega
+        have H : n = rootMultiplicity x p := by lia
         have : ¬(X - C x)^1 ∣ p' := by
           simp
           have hbound := rootMultiplicity_le_iff hf.1 x n
@@ -133,7 +133,7 @@ lemma jump_poly_mod (p q: Polynomial R) (x: R) : jump_val p q x = jump_val p (q 
           rw [H] at hcontra
           exact hbound hcontra
         rw [<- rootMultiplicity_le_iff hz'.2 x 0] at this
-        omega
+        lia
     have hcond: q' ≠ 0 ∧ Odd (rootMultiplicity x p' - rootMultiplicity x q') =
                ((q' % p' ≠ 0) ∧ Odd (rootMultiplicity x p' - rootMultiplicity x (q' % p'))) := by
         by_cases (rootMultiplicity x p' = 0)
@@ -145,7 +145,7 @@ lemma jump_poly_mod (p q: Polynomial R) (x: R) : jump_val p q x = jump_val p (q 
               apply (rootMultiplicity_le_iff hz'.1 x 0).mp
               linarith
             have hp_dvd : (X - C x) ∣ p' := by
-              have : rootMultiplicity x p' >= 1:= by omega
+              have : rootMultiplicity x p' >= 1:= by lia
               apply (le_rootMultiplicity_iff hz'.2).mp at this
               simp at this; exact this
             have hq_mod_ndvd : ¬ ((X - C x)^1 ∣ q' % p') := by
@@ -361,7 +361,7 @@ lemma jump_poly_sign (p q : Polynomial R) (x : R) :
           apply (Polynomial.le_rootMultiplicity_iff hp).mpr
           simp
           exact dvd_iff_isRoot.mpr hev
-        omega
+        lia
       · exact (mul_ne_zero_iff_right hq).mpr deriv_ne_0
     have elim_sgn_r_pos_p : sign_r_pos x (p * (derivative p * q)) = sign_r_pos x q := by
       have : sign_r_pos x (p * (derivative p * q)) = (sign_r_pos x (derivative p * p) ↔ sign_r_pos x q) := by
@@ -382,7 +382,7 @@ lemma jump_poly_sign (p q : Polynomial R) (x : R) :
     by_cases eval x q = 0
     next hevQ =>
       have : 0 < rootMultiplicity x q := (rootMultiplicity_pos hq).mpr hevQ
-      have : 1 - rootMultiplicity x q = 0 := by omega
+      have : 1 - rootMultiplicity x q = 0 := by lia
       have : ¬ Odd (1 - rootMultiplicity x q) := by rw [this]; exact Nat.not_odd_zero
       have lhs : simpleL = 0 := by
         simp [simpleL, this]
