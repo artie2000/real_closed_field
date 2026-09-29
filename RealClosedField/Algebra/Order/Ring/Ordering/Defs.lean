@@ -30,6 +30,8 @@ namespace Subsemiring
 
 variable {R : Type*} [CommRing R]
 
+-- TODO : membership tag on definition of support
+
 /--
 An ordering `O` on a ring `R` is a subsemiring of `R` such that `O ∪ -O = R` and
 the support `O ∩ -O` of `O` forms a prime ideal.
@@ -41,7 +43,7 @@ structure IsOrdering (S : Subsemiring R) : Prop where
     ∀ {x y : R}, x * y ∈ S.support →
       x ∈ S.support ∨ y ∈ S.support
 
-theorem IsOrdering.supportIdeal_isPrime {S : Subsemiring R} (hS : S.IsOrdering) :
+theorem IsOrdering.isPrime_supportIdeal {S : Subsemiring R} (hS : S.IsOrdering) :
     (S.supportIdeal hS.isSpanning).IsPrime where
   ne_top' := by
     apply_fun Submodule.toAddSubgroup
@@ -109,7 +111,7 @@ theorem top_toAddSubmonoid :
 /- An ordering is a preordering. -/
 theorem isPreordering_of_isOrdering {S : Subsemiring R} (hS : S.IsOrdering) : S.IsPreordering :=
     .of_ne_top hS.isSpanning <| fun hc ↦ by
-  have := hS.supportIdeal_isPrime.ne_top
+  have := hS.isPrime_supportIdeal.ne_top
   apply_fun Submodule.toAddSubgroup at this
     using Submodule.toAddSubgroup_injective (R := R) (M := R)
   simp [hc] at this

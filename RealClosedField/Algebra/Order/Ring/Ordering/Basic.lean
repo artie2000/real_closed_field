@@ -41,17 +41,19 @@ theorem one_notMem_toAddSubmonoid_support (hP : P.IsPreordering) : 1 ∉ P.suppo
 theorem toAddSubmonoid_support_ne_top (hP : P.IsPreordering) : P.support ≠ ⊤ := fun h ↦
   one_notMem_toAddSubmonoid_support hP (by simp [h])
 
-theorem isOrdering_iff :
+theorem isOrdering_iff (hP : P.IsPreordering) :
     P.IsOrdering ↔ ∀ a b : R, -(a * b) ∈ P → a ∈ P ∨ b ∈ P where
   mp hP a b _ := by
     by_contra
-    have := hP.isSpanning.mem_or_neg_mem
-    have : a * b ∈ P := by simpa using mul_mem (by grind : -a ∈ P) (by grind : -b ∈ P)
+    have : a * b ∈ P := by
+      grind [mul_mem, mul_neg, neg_mul, neg_neg, Subsemiring.mem_or_neg_mem hP.isSpanning]
     have : a ∈ P.support ∨ b ∈ P.support :=
-      Ideal.IsPrime.mem_or_mem inferInstance (by aesop)
-    aesop
+      Ideal.IsPrime.mem_or_mem hP.isPrime_supportIdeal (by simp; grind)
+    grind [Subsemiring.mem_support]
   mpr h :=
-    have : P.IsSpanning := by aesop
+    have : P.IsSpanning := by
+      simp [AddSubmonoid.IsSpanning]
+      grind [hP.mul_self_mem, neg_mul, mul_neg, neg_neg] -- TODO : figure out why `grind` doesn't know `neg_neg`
     .mk' this {
       ne_top' :=
         have := this.hasIdealSupport

@@ -26,14 +26,16 @@ namespace Subsemiring
 
 variable {S : Subsemiring R}
 
+theorem mem_support {x : R} : x ∈ S.support ↔ x ∈ S ∧ -x ∈ S := by simp
+
 theorem eq_zero_of_mem_of_neg_mem (hS : S.IsPointed) {x : R}
     (hx₁ : x ∈ S) (hx₂ : -x ∈ S) : x = 0 := hS.eq_zero_of_mem_of_neg_mem hx₁ hx₂
 
 theorem mem_or_neg_mem (hS : S.IsSpanning) : ∀ a, a ∈ S ∨ -a ∈ S :=
   hS.mem_or_neg_mem
 
-theorem _root_.AddSubmonoid.IsPointed.neg_one_notMem [Nontrivial R]
-    (hS : S.IsPointed) : -1 ∉ S := fun hc ↦ by
+theorem _root_.AddSubmonoid.IsPointed.neg_one_notMem [Nontrivial R] (hS : S.IsPointed) :
+    -1 ∉ S := fun hc ↦ by
   simpa [S.eq_zero_of_mem_of_neg_mem hS (by simp) hc] using zero_ne_one' R
 
 @[simps!]
@@ -46,12 +48,10 @@ def supportIdeal (hS : S.IsSpanning) : Ideal R where
 
 namespace supportIdeal
 
-@[simp]
-theorem mem_supportIdeal {S : Subsemiring R} (hS : S.IsSpanning) (x : R) :
+@[simp] theorem mem_supportIdeal {S : Subsemiring R} (hS : S.IsSpanning) {x : R} :
     x ∈ S.supportIdeal hS ↔ x ∈ S.support := .rfl
 
-@[simp]
-theorem supportIdeal_toAddSubgroup {S : Subsemiring R} (hS : S.IsSpanning) :
+@[simp] theorem supportIdeal_toAddSubgroup {S : Subsemiring R} (hS : S.IsSpanning) :
     (S.supportIdeal hS).toAddSubgroup = S.support := rfl
 
 end supportIdeal
