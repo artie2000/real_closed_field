@@ -4,8 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Florent Schaffhauser, Artie Khovanov
 -/
 import RealClosedField.Algebra.Order.Ring.Ordering.Defs
-import Mathlib.Tactic.FieldSimp
-import Mathlib.Tactic.LinearCombination
+import Mathlib.Tactic.Field
 
 /-!
 
@@ -35,18 +34,17 @@ theorem of_le (hP : P.IsPreordering) {Q : Subsemiring R} (hPQ : P ≤ Q) (hQ : -
 theorem unitsInv_mem (hP : P.IsPreordering) {a : Rˣ} (ha : ↑a ∈ P) : ↑a⁻¹ ∈ P := by
   simpa using show (a * (a⁻¹ * a⁻¹) : R) ∈ P by grind [mul_mem, IsPreordering.mul_self_mem]
 
-theorem one_notMem_toAddSubmonoid_support (hP : P.IsPreordering) : 1 ∉ P.support :=
-  fun h ↦ P.neg_one_notMem hP h.2
+theorem one_notMem_toAddSubmonoid_support (hP : P.IsPreordering) : 1 ∉ P.support := fun h ↦
+  P.neg_one_notMem hP h.2
 
-theorem toAddSubmonoid_support_ne_top (hP : P.IsPreordering) : P.support ≠ ⊤ :=
-  fun h ↦ one_notMem_toAddSubmonoid_support hP (by simp [h])
+theorem toAddSubmonoid_support_ne_top (hP : P.IsPreordering) : P.support ≠ ⊤ := fun h ↦
+  one_notMem_toAddSubmonoid_support hP (by simp [h])
 
-variable {P} in
 theorem isOrdering_iff :
     P.IsOrdering ↔ ∀ a b : R, -(a * b) ∈ P → a ∈ P ∨ b ∈ P where
-  mp _ a b _ := by
+  mp hP a b _ := by
     by_contra
-    have : ∀ (a : R), a ∈ P ∨ -a ∈ P := by aesop
+    have := hP.isSpanning.mem_or_neg_mem
     have : a * b ∈ P := by simpa using mul_mem (by grind : -a ∈ P) (by grind : -b ∈ P)
     have : a ∈ P.support ∨ b ∈ P.support :=
       Ideal.IsPrime.mem_or_mem inferInstance (by aesop)
@@ -80,17 +78,14 @@ instance [h : Fact (IsUnit (2 : R))] : P.HasIdealSupport := hasIdealSupport_of_i
 
 end IsPreordering
 
-variable {P} in
 theorem IsPreordering.of_isSpanning_of_isPointed [Nontrivial R]
     (hP₁ : P.IsSpanning) (hP₂ : P.IsPointed) : P.IsPreordering :=
   .of_support_ne_top hP₁ (by simp [*])
 
-variable {P} in
 theorem IsOrdering.of_isSpanning_of_isPointed [IsDomain R]
     (hP₁ : P.IsSpanning) (hP₂ : P.IsPointed) : P.IsOrdering := .mk' hP₁ <| by
   simpa [*] using Ideal.isPrime_bot
 
-variable {P} in
 theorem IsPreordering.of_isPointed [Nontrivial R]
     (hP : P.IsPointed) (h : .sumSq R ≤ P) : P.IsPreordering where
 
@@ -101,8 +96,10 @@ attribute [simp] Submonoid.mem_sInf
 attribute [simp] AddSubmonoid.mem_sInf
 attribute [simp] Subsemiring.mem_sInf
 
-instance (P₁ P₂ : Subsemiring R) [P₁.IsPreordering] [P₂.IsPreordering] :
+theorem IsPreordering.inf {P₁ P₂ : Subsemiring R} (hP₁ : P₁.IsPreordering) (hP₂ : P₂.IsPreordering) :
     (P₁ ⊓ P₂).IsPreordering where
+  mem_of_isSquare := by grind [mem_inf, mem_of_isSquare]
+  neg_one_notMem := by grind [mem_inf, neg_one_notMem]
 
 theorem IsPreordering.sInf {S : Set (Subsemiring R)}
     (hSn : S.Nonempty) (hS : ∀ s ∈ S, s.IsPreordering) : (sInf S).IsPreordering where
@@ -119,20 +116,22 @@ theorem IsPreordering.sSup  {S : Set (Subsemiring R)}
   neg_one_notMem := by
     simpa [mem_sSup_of_directedOn hSn hSd] using (fun x hx ↦ have := hS _ hx; neg_one_notMem x)
 
-instance [P'.IsOrdering] : IsOrdering (P'.comap f) := .mk'
+theorem IsOrdering.comap (hP' : P'.IsOrdering) : IsOrdering (P'.comap f) := .mk'
   (isSpanning_comap f (IsOrdering.isSpanning P'))
   (by simpa using inferInstanceAs (Ideal.comap f P'.support).IsPrime)
 
-instance [P'.IsPreordering] : (P'.comap f).IsPreordering where
+theorem IsPreordering.comap (hP' : P'.IsPreordering) : (P'.comap f).IsPreordering where
+  mem_of_isSquare := by grind [mem_comap, mem_of_isSquare]
+  neg_one_notMem := by grind [mem_comap, neg_one_notMem]
 
 variable {f P} in
-theorem IsOrdering.map [P.IsOrdering] (hf : Function.Surjective f)
-    (hsupp : RingHom.ker f ≤ P.support) : IsOrdering (P.map f) := mk'
+theorem IsOrdering.map (hP : P.IsOrdering) (hf : Function.Surjective f)
+    (hsupp : (RingHom.ker f).toAddSubgroup ≤ P.support) : IsOrdering (P.map f) := mk'
   (isSpanning_map (IsOrdering.isSpanning P) hf) <| by
     simpa [*] using Ideal.map_isPrime_of_surjective hf hsupp
 
-variable {f P} in
-theorem IsPreordering.map [P.IsPreordering] (hf : Function.Surjective f)
+variable {f} in
+theorem IsPreordering.map (hP : P.IsPreordering) (hf : Function.Surjective f)
     (hsupp : f.toAddMonoidHom.ker ≤ P.toAddSubmonoid.support) : (P.map f).IsPreordering where
   mem_of_isSquare hx := by
     rcases isSquare_subset_image_isSquare hf hx with ⟨x, hx, hfx⟩
@@ -147,24 +146,21 @@ end CommRing
 
 section Field
 
-variable {F : Type*} [Field F] (P : Subsemiring F)
+variable {F : Type*} [Field F] {P : Subsemiring F}
 
 namespace IsPreordering
 
-variable [P.IsPreordering]
+-- TODO : membership
+theorem inv_mem (hP : IsPreordering P) {a : F} (ha : a ∈ P) : a⁻¹ ∈ P := by
+  have mem : a * (a⁻¹ * a⁻¹) ∈ P := by grind [mul_mem, IsPreordering.mul_self_mem]
+  convert mem
+  field
 
-variable {P} in
-@[aesop 90% (rule_sets := [SetLike])]
-theorem inv_mem {a : F} (ha : a ∈ P) : a⁻¹ ∈ P := by
-  have mem : a * (a⁻¹ * a⁻¹) ∈ P := by aesop
-  field_simp at mem
-  simp_all
-
-theorem isPointed : P.IsPointed := fun {x} _ _ ↦ by
+theorem isPointed (hP : IsPreordering P) : P.IsPointed := fun {x} _ _ ↦ by
   by_contra
-  have mem : -x * x⁻¹ ∈ P := by aesop (erase simp neg_mul)
-  field_simp at mem
-  exact P.neg_one_notMem mem
+  exact P.neg_one_notMem hP <| by
+    simp at *
+    grind [neg_mul_mem, inv_mem]
 
 instance : P.HasIdealSupport := (IsPreordering.isPointed P).hasIdealSupport
 
