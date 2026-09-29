@@ -5,6 +5,7 @@ Authors: Florent Schaffhauser, Artie Khovanov
 -/
 import RealClosedField.Algebra.Order.Ring.Ordering.Defs
 import Mathlib.Tactic.Field
+import Mathlib.Tactic.LinearCombination
 
 /-!
 
