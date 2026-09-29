@@ -26,23 +26,35 @@ namespace Subsemiring
 
 variable {S : Subsemiring R}
 
-@[aesop safe forward (immediate := [hS, hx₁])]
 theorem eq_zero_of_mem_of_neg_mem (hS : S.IsPointed) {x : R}
     (hx₁ : x ∈ S) (hx₂ : -x ∈ S) : x = 0 := hS.eq_zero_of_mem_of_neg_mem hx₁ hx₂
 
-@[aesop safe forward (immediate := [hS, hx₂])]
-alias eq_zero_of_mem_of_neg_mem₂ := eq_zero_of_mem_of_neg_mem -- for Aesop
-
-@[aesop safe forward]
 theorem mem_or_neg_mem (hS : S.IsSpanning) : ∀ a, a ∈ S ∨ -a ∈ S :=
   hS.mem_or_neg_mem
 
-@[aesop simp, aesop safe forward]
 theorem _root_.AddSubmonoid.IsPointed.neg_one_notMem [Nontrivial R]
     (hS : S.IsPointed) : -1 ∉ S := fun hc ↦ by
   simpa [S.eq_zero_of_mem_of_neg_mem hS (by simp) hc] using zero_ne_one' R
 
--- PR SPLIT ↑1 ↓2
+@[simps!]
+def supportIdeal (hS : S.IsSpanning) : Ideal R where
+  __ : AddSubgroup R := S.toAddSubmonoid.support
+  smul_mem' x a ha := by
+    have : ∀ {x y}, -x ∈ S → -y ∈ S → x * y ∈ S := fun hx hy ↦ by simpa using mul_mem hx hy
+    simp_all [AddSubmonoid.IsSpanning]
+    grind [mul_mem, neg_mul_mem, mul_neg_mem]
+
+namespace supportIdeal
+
+@[simp]
+theorem mem_supportIdeal {S : Subsemiring R} (hS : S.IsSpanning) (x : R) :
+    x ∈ S.supportIdeal hS ↔ x ∈ S.support := .rfl
+
+@[simp]
+theorem supportIdeal_toAddSubgroup {S : Subsemiring R} (hS : S.IsSpanning) :
+    (S.supportIdeal hS).toAddSubgroup = S.support := rfl
+
+end supportIdeal
 
 -- TODO : minimise duplication in proofs; ensure duplication in theorems
 
@@ -87,9 +99,9 @@ theorem isSpanning_map (hS : S.IsSpanning) (hf : Function.Surjective f) : (S.map
 
 end Subsemiring
 
-section downstream
+section downstream -- `Mathlib.Algebra.Order.Ring.Cone`
 
--- TODO : downstream to `Mathlib.Algebra.Ring.Subsemiring.Order` or further
+-- begin #37298
 
 variable (R : Type*) [Ring R]
 
@@ -98,6 +110,8 @@ theorem Subsemiring.nonneg.isPointed [PartialOrder R] [IsOrderedRing R] :
 
 theorem Subsemiring.nonneg.isSpanning [LinearOrder R] [IsOrderedRing R] :
     (Subsemiring.nonneg R).IsSpanning := AddSubmonoid.nonneg.isSpanning R
+
+-- end #37298
 
 variable {R} {S : Subsemiring R} (hS : S.IsPointed)
 

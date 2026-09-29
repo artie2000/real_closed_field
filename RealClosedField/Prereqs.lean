@@ -144,12 +144,11 @@ theorem IsGalois.exists_intermediateField_ge_card_pow_prime_mul_of_card_pow_prim
   rw [← Module.finrank_div_finrank_cancel_right_of_nontrivial _ _ L, hL, hNrk,
       ← Nat.pow_sub_mul_pow _ hm'₂, mul_assoc, Nat.mul_div_right _ (by positivity)]
 
--- replace `exists_eq_mul_self` in Mathlib.FieldTheory.IsAlgClosed.Basic
--- `IsSepClosed` also
+-- #44309
 theorem IsAlgClosed.isSquare {k : Type*} [Field k] [IsAlgClosed k] (x : k) : IsSquare x :=
   IsAlgClosed.exists_eq_mul_self x
 
--- Mathlib.FieldTheory.IsAlgClosed.Basic
+-- #44310
 theorem IsAlgClosed.of_finiteDimensional_imp_finrank_eq_one.{u} (k : Type u) [Field k]
     (H : ∀ (l : Type u), [Field l] → [Algebra k l] → [FiniteDimensional k l] →
           Module.finrank k l = 1) :
@@ -160,9 +159,9 @@ theorem IsAlgClosed.of_finiteDimensional_imp_finrank_eq_one.{u} (k : Type u) [Fi
     have := H (AdjoinRoot f)
     rw [← Module.nonempty_algEquiv_iff_finrank_eq_one] at this
     use this.some.symm (AdjoinRoot.root f)
-    rw [← Polynomial.coe_aeval_eq_eval, Polynomial.aeval_algHom_apply]
-    simp
+    simp [← Polynomial.coe_aeval_eq_eval, Polynomial.aeval_algHom_apply]
 
+-- begin #44311
 section poly_estimate
 
 open Polynomial
@@ -277,3 +276,5 @@ theorem sign_change (hdeg: Odd f.natDegree) : ∃ x y, f.eval x < 0 ∧ 0 < f.ev
     exact ⟨y-1, x+1, hy _ (by linarith), hx _ (by linarith)⟩
 
 end poly_estimate
+
+-- end #44311
