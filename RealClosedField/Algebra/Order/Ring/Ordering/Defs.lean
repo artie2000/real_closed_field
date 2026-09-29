@@ -36,10 +36,10 @@ the support `O ∩ -O` of `O` forms a prime ideal.
 -/
 structure IsOrdering (S : Subsemiring R) : Prop where
   isSpanning : S.IsSpanning
-  support_ne_top : S.toAddSubmonoid.support ≠ ⊤
+  support_ne_top : S.support ≠ ⊤
   mem_support_or_mem_support :
-    ∀ {x y : R}, x * y ∈ S.toAddSubmonoid.support →
-      x ∈ S.toAddSubmonoid.support ∨ y ∈ S.toAddSubmonoid.support
+    ∀ {x y : R}, x * y ∈ S.support →
+      x ∈ S.support ∨ y ∈ S.support
 
 theorem IsOrdering.supportIdeal_isPrime {S : Subsemiring R} (hS : S.IsOrdering) :
     (S.supportIdeal hS.isSpanning).IsPrime where
@@ -50,8 +50,8 @@ theorem IsOrdering.supportIdeal_isPrime {S : Subsemiring R} (hS : S.IsOrdering) 
 
 /-- A preordering on a ring `R` is a subsemiring of `R` that contains all squares, but not `-1`. -/
 structure IsPreordering (S : Subsemiring R) : Prop where
-  mem_of_isSquare (S) {x} (hx : IsSquare x) : x ∈ S := by grind
-  neg_one_notMem (S) : -1 ∉ S := by grind
+  mem_of_isSquare (S) {x} (hx : IsSquare x) : x ∈ S := by grind -- by membership
+  neg_one_notMem (S) : -1 ∉ S := by grind -- by membership
 
 export IsPreordering (mem_of_isSquare)
 export IsPreordering (neg_one_notMem)
@@ -63,7 +63,7 @@ protected theorem mem_of_isSumSq {S : Subsemiring R} (hS : IsPreordering S)
     {x : R} (hx : IsSumSq x) : x ∈ S := by
   induction hx with
   | zero => simp
-  | sq_add => aesop (add unsafe mem_of_isSquare)
+  | sq_add => grind [mem_of_isSquare, IsSquare, add_mem]
 
 theorem sumSq_le {R : Type*} [CommRing R] {S : Subsemiring R} (hS : IsPreordering S) :
     Subsemiring.sumSq R ≤ S := fun _ ↦ by simp_all [Subsemiring.IsPreordering.mem_of_isSumSq]
@@ -87,7 +87,7 @@ theorem IsPreordering.of_ne_top
   mem_of_isSquare x := by
     rcases x with ⟨y, rfl⟩
     cases S.mem_or_neg_mem hS y with
-    | inl h => aesop
+    | inl h => grind [mul_mem]
     | inr h => simpa using (show -y * -y ∈ S by grind [mul_mem])
   neg_one_notMem hc := h <| by
     rw [Subsemiring.eq_top_iff']

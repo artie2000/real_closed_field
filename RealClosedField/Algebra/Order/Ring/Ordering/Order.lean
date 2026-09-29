@@ -27,15 +27,15 @@ open Classical in
 noncomputable def isOrderingLinearOrderEquiv :
     Equiv {O : Subsemiring F // O.IsOrdering}
           {o : LinearOrder F // IsStrictOrderedRing F} where
-  toFun := fun ⟨O, hO⟩ =>
+  toFun := fun ⟨O, hO⟩ ↦
     let ⟨o, ho⟩ := Ring.isPointedLinearOrderEquiv F
       ⟨O, Subsemiring.IsPreordering.isPointed O, Subsemiring.IsOrdering.isSpanning O⟩
     ⟨o, IsOrderedRing.toIsStrictOrderedRing F⟩
-  invFun := fun ⟨o, ho⟩ =>
+  invFun := fun ⟨o, ho⟩ ↦
     let ⟨O, hO⟩ := (Ring.isPointedLinearOrderEquiv F).symm ⟨o, inferInstance⟩
     ⟨O, Subsemiring.IsOrdering.of_isSpanning_of_isPointed hO.2 hO.1⟩
-  left_inv := fun ⟨_, _⟩ => by ext; simp
-  right_inv := fun ⟨_, _⟩ => by ext; simp
+  left_inv := fun ⟨_, _⟩ ↦ by ext; simp
+  right_inv := fun ⟨_, _⟩ ↦ by ext; simp
 
 @[simp]
 theorem isOrderingLinearOrderEquiv_apply (O : Subsemiring F) (h : O.IsOrdering) :

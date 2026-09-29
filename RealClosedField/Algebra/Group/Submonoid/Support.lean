@@ -65,7 +65,7 @@ variable {f M} in
 theorem map_mulSupport (hsupp : f.ker ≤ M.mulSupport) :
     (M.map f).mulSupport = (M.mulSupport).map f := by
   ext
-  refine ⟨fun ⟨⟨a, ⟨ha₁, ha₂⟩⟩, ⟨b, ⟨hb₁, hb₂⟩⟩⟩ => ?_,
+  refine ⟨fun ⟨⟨a, ⟨ha₁, ha₂⟩⟩, ⟨b, ⟨hb₁, hb₂⟩⟩⟩ ↦ ?_,
     by grind [Subgroup.mem_map, mem_map, mem_mulSupport]⟩
   have : (a * b)⁻¹ * b ∈ M := mul_mem (hsupp (show f (a * b) = 1 by simp_all)).2 hb₁
   grind [mem_mulSupport, SetLike.mem_coe, mul_inv_rev, inv_mul_cancel_comm, Subgroup.mem_map]
@@ -138,10 +138,10 @@ variable (G) in
 noncomputable def submonoidPartialOrderEquiv :
     Equiv {C : Submonoid G // C.IsMulPointed}
           {o : PartialOrder G // IsOrderedMonoid G} where
-  toFun := fun ⟨_, hC⟩ => ⟨.mkOfSubmonoid hC, .mkOfSubmonoid _⟩
-  invFun := fun ⟨_, _⟩ => ⟨.oneLE G, Submonoid.oneLE.isMulPointed G⟩
-  left_inv := fun ⟨_, _⟩ => by ext; simp
-  right_inv := fun ⟨_, _⟩ => by ext; simp [LE.le] -- TODO : figure out why [LE.le] works!
+  toFun := fun ⟨_, hC⟩ ↦ ⟨.mkOfSubmonoid hC, .mkOfSubmonoid _⟩
+  invFun := fun ⟨_, _⟩ ↦ ⟨.oneLE G, Submonoid.oneLE.isMulPointed G⟩
+  left_inv := fun ⟨_, _⟩ ↦ by ext; simp
+  right_inv := fun ⟨_, _⟩ ↦ by ext; simp [LE.le] -- TODO : figure out why [LE.le] works!
 
 @[to_additive (attr := simp)]
 theorem submonoidPartialOrderEquiv_apply
@@ -162,10 +162,10 @@ variable (G) in
 noncomputable def submonoidLinearOrderEquiv :
     Equiv {C : Submonoid G // C.IsMulPointed ∧ C.IsMulSpanning}
           {o : LinearOrder G // IsOrderedMonoid G} where
-  toFun := fun ⟨C, hC⟩ => ⟨.mkOfSubmonoid hC.1 hC.2, .mkOfSubmonoid hC.1⟩
-  invFun := fun ⟨_, _⟩ => ⟨.oneLE G, Submonoid.oneLE.isMulPointed G, Submonoid.oneLE.isMulSpanning G⟩
-  left_inv := fun ⟨_, _, _⟩ => by ext; simp
-  right_inv := fun ⟨_, _⟩ => by ext; simp
+  toFun := fun ⟨C, hC⟩ ↦ ⟨.mkOfSubmonoid hC.1 hC.2, .mkOfSubmonoid hC.1⟩
+  invFun := fun ⟨_, _⟩ ↦ ⟨.oneLE G, Submonoid.oneLE.isMulPointed G, Submonoid.oneLE.isMulSpanning G⟩
+  left_inv := fun ⟨_, _, _⟩ ↦ by ext; simp
+  right_inv := fun ⟨_, _⟩ ↦ by ext; simp
 
 open Classical in
 @[to_additive (attr := simp)]

@@ -14,9 +14,9 @@ open Classical in
 theorem Field.exists_isStrictOrderedRing_iff_isSemireal :
     (∃ _ : LinearOrder F, IsStrictOrderedRing F) ↔ IsSemireal F := by
   rw [Equiv.exists_subtype_congr (isOrderingLinearOrderEquiv F).symm]
-  exact ⟨fun ⟨O, hO⟩ => ⟨fun {s} hs h => Subsemiring.IsPreordering.neg_one_notMem O <|
+  exact ⟨fun ⟨O, hO⟩ => ⟨fun {s} hs h ↦ Subsemiring.IsPreordering.neg_one_notMem O <|
             Subsemiring.mem_of_isSumSq O (by simp_all [show s = -1 by linear_combination h])⟩,
-          fun _ =>
+          fun _ ↦
             letI exO := Subsemiring.IsPreordering.exists_le_isOrdering (Subsemiring.sumSq F)
             letI inst := (choose_spec exO).2
             ⟨choose exO, inferInstance⟩⟩
@@ -41,7 +41,7 @@ noncomputable def IsSemireal.unique_isStrictOrderedRing [IsSemireal F]
     generalize_proofs
     ext x y
     suffices x ≤ y ↔ IsSumSq (y - x) by simp [this]
-    refine ⟨fun hxy => ?_, fun hxy => by linarith [IsSumSq.nonneg hxy]⟩
+    refine ⟨fun hxy => ?_, fun hxy ↦ by linarith [IsSumSq.nonneg hxy]⟩
     · cases h (y - x) with | inl => assumption | inr h =>
       simp_all [show x = y by linarith [IsSumSq.nonneg h]]
 
@@ -57,7 +57,7 @@ theorem IsSemireal.isSumSq_or_isSumSq_neg [IsSemireal F]
   rcases Subsemiring.IsPreordering.exists_le_isOrdering_and_mem <|
     Subsemiring.IsPreordering.neg_one_notMem_closure_insert_of_neg_notMem
       (by simp_all : -(-x) ∉ (Subsemiring.sumSq F)) with ⟨O₂, hle₂, hO₂, hx₂⟩
-  exact (show O₁ ≠ O₂ from fun h => show x ≠ 0 by aesop <|
+  exact (show O₁ ≠ O₂ from fun h ↦ show x ≠ 0 by aesop <|
     (Subsemiring.IsPreordering.isPointed O₁).eq_zero_of_mem_of_neg_mem hx₁ (by simp_all)) <|
       h.unique inferInstance inferInstance
 
@@ -71,7 +71,7 @@ theorem IsSemireal.existsUnique_isStrictOrderedRing_iff [IsSemireal F] :
 theorem IsStrictOrderedRing.unique_isStrictOrderedRing_iff [LinearOrder F] [IsStrictOrderedRing F] :
     (∃! _ : LinearOrder F, IsStrictOrderedRing F) ↔ ∀ x : F, 0 ≤ x → IsSumSq x := by
   rw [IsSemireal.existsUnique_isStrictOrderedRing_iff]
-  refine ⟨fun h x hx => ?_, fun h x => ?_⟩
+  refine ⟨fun h x hx => ?_, fun h x ↦ ?_⟩
   · cases h x with | inl => assumption | inr ssnx =>
     aesop (add norm (show  x = 0 by linarith [IsSumSq.nonneg ssnx]))
   · by_cases hx : 0 ≤ x

@@ -29,17 +29,17 @@ namespace IsPreordering
 
 theorem of_le (hP : P.IsPreordering) {Q : Subsemiring R} (hPQ : P ≤ Q) (hQ : -1 ∉ Q) :
     Q.IsPreordering where
+  mem_of_isSquare := by grind [IsConcreteLE.le_iff, IsPreordering.mem_of_isSquare]
 
-@[aesop 90% (rule_sets := [SetLike])]
+-- TODO : membership tag
 theorem unitsInv_mem (hP : P.IsPreordering) {a : Rˣ} (ha : ↑a ∈ P) : ↑a⁻¹ ∈ P := by
-  have : (a * (a⁻¹ * a⁻¹) : R) ∈ P := by aesop (config := { enableSimp := false })
-  simp_all
+  simpa using show (a * (a⁻¹ * a⁻¹) : R) ∈ P by grind [mul_mem, IsPreordering.mul_self_mem]
 
-theorem one_notMem_toAddSubmonoid_support : 1 ∉ hP.support :=
-  fun h => P.neg_one_notMem h.2
+theorem one_notMem_toAddSubmonoid_support (hP : P.IsPreordering) : 1 ∉ P.support :=
+  fun h ↦ P.neg_one_notMem hP h.2
 
-theorem toAddSubmonoid_support_ne_top : P.toAddSubmonoid.support ≠ ⊤ :=
-  fun h => one_notMem_toAddSubmonoid_support P (by simp [h])
+theorem toAddSubmonoid_support_ne_top (hP : P.IsPreordering) : P.support ≠ ⊤ :=
+  fun h ↦ one_notMem_toAddSubmonoid_support hP (by simp [h])
 
 variable {P} in
 theorem isOrdering_iff :
@@ -137,7 +137,7 @@ theorem IsPreordering.map [P.IsPreordering] (hf : Function.Surjective f)
   mem_of_isSquare hx := by
     rcases isSquare_subset_image_isSquare hf hx with ⟨x, hx, hfx⟩
     exact ⟨x, by aesop⟩
-  neg_one_notMem := fun ⟨x', hx', _⟩ => by
+  neg_one_notMem := fun ⟨x', hx', _⟩ ↦ by
     have : -(x' + 1) + x' ∈ P := add_mem (hsupp (show f (x' + 1) = 0 by simp_all)).2 hx'
     aesop
 

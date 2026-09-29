@@ -127,10 +127,10 @@ variable (R) in
 noncomputable def isPointedPartialOrderEquiv :
     Equiv {C : PointedCone R M // C.IsPointed}
           {o : PartialOrder M // IsOrderedAddMonoid M ∧ IsOrderedModule R M} where
-  toFun := fun ⟨C, _⟩ => ⟨.mkOfAddSubmonoid C.toAddSubmonoid, .mkOfAddSubmonoid _, .mkOfPointedCone _⟩
-  invFun := fun ⟨_, ho⟩ => have := ho.1; have := ho.2; ⟨.positive R M, inferInstance⟩
-  left_inv := fun ⟨_, _⟩ => by ext; simp
-  right_inv := fun ⟨_, _, _⟩ => by ext; simp
+  toFun := fun ⟨C, _⟩ ↦ ⟨.mkOfAddSubmonoid C.toAddSubmonoid, .mkOfAddSubmonoid _, .mkOfPointedCone _⟩
+  invFun := fun ⟨_, ho⟩ ↦ have := ho.1; have := ho.2; ⟨.positive R M, inferInstance⟩
+  left_inv := fun ⟨_, _⟩ ↦ by ext; simp
+  right_inv := fun ⟨_, _, _⟩ ↦ by ext; simp
 
 @[simp]
 theorem isPointedPartialOrderEquiv_apply
@@ -150,12 +150,12 @@ open Classical in
 noncomputable def isPointedLinearOrderEquiv :
     Equiv {C : PointedCone R M // C.IsPointed ∧ C.IsSpanning}
           {o : LinearOrder M // IsOrderedAddMonoid M ∧ IsOrderedModule R M} where
-  toFun := fun ⟨C, hC⟩ => have := hC.1; have := hC.2;
+  toFun := fun ⟨C, hC⟩ ↦ have := hC.1; have := hC.2;
     ⟨.mkOfAddSubmonoid C.toAddSubmonoid, .mkOfAddSubmonoid _, .mkOfPointedCone _⟩
-  invFun := fun ⟨_, ho⟩ => have := ho.1; have := ho.2
+  invFun := fun ⟨_, ho⟩ ↦ have := ho.1; have := ho.2
     ⟨.positive R M, by infer_instance, by infer_instance⟩
-  left_inv := fun ⟨_, _, _⟩ => by ext; simp
-  right_inv := fun ⟨_, _, _⟩ => by ext; simp
+  left_inv := fun ⟨_, _, _⟩ ↦ by ext; simp
+  right_inv := fun ⟨_, _, _⟩ ↦ by ext; simp
 
 open Classical in
 @[simp]

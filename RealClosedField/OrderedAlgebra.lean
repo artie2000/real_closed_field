@@ -25,7 +25,7 @@ open scoped algebraMap in
 noncomputable def isOrderingOrderedAlgebraEquiv :
     Equiv {O : Subsemiring K // O.IsOrdering ∧ (Subsemiring.nonneg F).map (algebraMap F K) ≤ O}
           {l : LinearOrder K // IsStrictOrderedRing K ∧ IsOrderedModule F K} where
-  toFun := fun ⟨O, hO, hO₂⟩ =>
+  toFun := fun ⟨O, hO, hO₂⟩ ↦
     letI l := (isOrderingLinearOrderEquiv K ⟨O, hO⟩).1
     letI hl := (isOrderingLinearOrderEquiv K ⟨O, hO⟩).2
     ⟨l, ⟨inferInstance, .of_algebraMap_mono <| by
@@ -34,15 +34,15 @@ noncomputable def isOrderingOrderedAlgebraEquiv :
       apply_fun (fun s ↦ s.carrier : Subsemiring K → Set K) at hO₂
       · simpa [l] using (show Set.Ici (0 : F) ⊆ _ by simpa using hO₂) ha
       · exact fun _ _ h ↦ h⟩⟩
-  invFun := fun ⟨l, hl⟩ =>
+  invFun := fun ⟨l, hl⟩ ↦
     let O := (isOrderingLinearOrderEquiv K).symm ⟨l, hl.1⟩
-    ⟨O, O.property, fun x hx => by
+    ⟨O, O.property, fun x hx ↦ by
     rcases hl with ⟨hl, hl₂⟩
     have : ∀ b : F, 0 ≤ b → 0 ≤ (b : K) := fun _ h ↦ by
       simpa using algebraMap_mono (β := K) h
     aesop⟩
-  left_inv := fun ⟨_, _, _⟩ => by ext; simp
-  right_inv := fun ⟨_, _, _⟩ => by ext; simp
+  left_inv := fun ⟨_, _, _⟩ ↦ by ext; simp
+  right_inv := fun ⟨_, _, _⟩ ↦ by ext; simp
 
 @[simp]
 theorem isOrderingOrderedAlgebraEquiv_apply_coe
@@ -63,7 +63,7 @@ theorem exists_isOrderedAlgebra_iff_neg_one_notMem_sup :
     -1 ∉ ((Subsemiring.nonneg F).map (algebraMap F K) ⊔ Subsemiring.sumSq K) := by
   rw [Equiv.exists_subtype_congr (isOrderingOrderedAlgebraEquiv F K).symm]
   set P := (Subsemiring.nonneg F).map (algebraMap F K) ⊔ Subsemiring.sumSq K with hP
-  refine ⟨fun ⟨O, hO, hO₂⟩ hc => ?_, fun h => ?_⟩
+  refine ⟨fun ⟨O, hO, hO₂⟩ hc => ?_, fun h ↦ ?_⟩
   · suffices P ≤ O from IsPreordering.neg_one_notMem _ (this hc)
     rw [sup_le_iff]
     exact ⟨hO₂, fun _ ↦ by aesop⟩
@@ -123,7 +123,7 @@ theorem adj_sqrt_ordered {a : F} (ha : 0 ≤ a) (ha₂ : ¬ IsSquare a) :
   have : Fact (Irreducible (X ^ 2 - C a)) := Fact.mk <| by
     simpa [← X_sq_sub_C_irreducible_iff_not_isSquare] using ha₂
   have : 0 < a := lt_of_le_of_ne ha (by aesop)
-  refine Field.exists_isOrderedAlgebra_of_projection (hK.basis.coord 0) fun x hx => ?_
+  refine Field.exists_isOrderedAlgebra_of_projection (hK.basis.coord 0) fun x hx ↦ ?_
   suffices 0 < hK.coeff x 0 * hK.coeff x 0 + a * hK.coeff x 1 * hK.coeff x 1 by
     simpa [hK.basis_repr_eq_coeff]
   suffices h : hK.coeff x 0 ≠ 0 ∨ hK.coeff x 1 ≠ 0 by

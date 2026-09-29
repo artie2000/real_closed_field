@@ -32,7 +32,7 @@ def liftOfRightInverseAux (hf : Function.RightInverse f_inv f) (g : A →ₐ[R] 
     (hg : RingHom.ker f ≤ RingHom.ker g) :
     B →ₐ[R] C :=
   { RingHom.liftOfRightInverse f.toRingHom f_inv hf ⟨g.toRingHom, hg⟩ with
-    toFun := fun b => g (f_inv b)
+    toFun := fun b ↦ g (f_inv b)
     commutes' := by
       intro r
       rw [← map_algebraMap g, ← sub_eq_zero, ← map_sub g, ← RingHom.mem_ker]
@@ -66,7 +66,7 @@ See `AlgHom.eq_liftOfRightInverse` for the uniqueness lemma.
 def liftOfRightInverse (hf : Function.RightInverse f_inv f) :
     { g : A →ₐ[R] C // RingHom.ker f ≤ RingHom.ker g } ≃ (B →ₐ[R] C) where
   toFun g := f.liftOfRightInverseAux f_inv hf g.1 g.2
-  invFun φ := ⟨φ.comp f, fun x hx => RingHom.mem_ker.mpr <| by simp [RingHom.mem_ker.mp hx]⟩
+  invFun φ := ⟨φ.comp f, fun x hx ↦ RingHom.mem_ker.mpr <| by simp [RingHom.mem_ker.mp hx]⟩
   left_inv g := by
     ext
     simp only [comp_apply, liftOfRightInverseAux_comp_apply]
@@ -352,7 +352,7 @@ section lift
 
 noncomputable def liftEquiv :
     { y : T // g.aeval y = 0 } ≃ (S →ₐ[R] T) :=
-  ((Equiv.refl _).subtypeEquiv fun y => by simpa using h.aeval_gen_eq_zero_iff y).trans <|
+  ((Equiv.refl _).subtypeEquiv fun y ↦ by simpa using h.aeval_gen_eq_zero_iff y).trans <|
   h.toIsGenerator.liftEquiv
 
 @[simp]
@@ -755,7 +755,7 @@ variable {T : Type*} [CommRing T] [IsDomain T] [Algebra R T]
 
 noncomputable def liftEquivAroots :
     { y : T // y ∈ g.aroots T } ≃ (S →ₐ[R] T) :=
-  ((Equiv.refl _).subtypeEquiv fun x => by
+  ((Equiv.refl _).subtypeEquiv fun x ↦ by
     simp [map_monic_ne_zero h.monic]).trans h.liftEquiv
 
 @[simp]
@@ -870,7 +870,7 @@ noncomputable def basis : Basis (Fin g.natDegree) R S := Basis.ofRepr
     map_smul' := by simp [Finsupp.comapDomain_smul_of_injective Fin.val_injective] }
 
 @[simp]
-theorem coe_basis : ⇑h.basis = fun i : Fin g.natDegree => x ^ (i : ℕ) := by
+theorem coe_basis : ⇑h.basis = fun i : Fin g.natDegree ↦ x ^ (i : ℕ) := by
   simp [basis]
 
 theorem basis_apply (i) : h.basis i = x ^ (i : ℕ) := by simp
@@ -899,7 +899,7 @@ theorem finrank_eq_degree [Nontrivial R] : finrank R S = g.degree := by
 
 set_option trace.order true
 protected theorem leftMulMatrix : Algebra.leftMulMatrix h.basis x =
-    @Matrix.of (Fin g.natDegree) (Fin g.natDegree) _ fun i j =>
+    @Matrix.of (Fin g.natDegree) (Fin g.natDegree) _ fun i j ↦
       if ↑j + 1 = g.natDegree then -g.coeff i
       else if (i : ℕ) = j + 1 then 1
       else 0 := by

@@ -62,7 +62,7 @@ theorem mem_closure_insert {x} :
 
 theorem neg_one_notMem_closure_insert
     (h : ∀ x y, x ∈ P → y ∈ P → x + (1 + y) * a + 1 ≠ 0) :
-    -1 ∉ closure (insert a P) := fun _ => by
+    -1 ∉ closure (insert a P) := fun _ ↦ by
   rcases (mem_closure_insert).mp
       (show -1 * (1 + a) ∈ closure (insert a P) by aesop (erase simp neg_mul))
     with ⟨x, hx, y, hy, eqn⟩
@@ -92,7 +92,7 @@ theorem neg_one_notMem_closure_insert_of_neg_notMem
   rw [mem_closure_insert]
   rintro ⟨x, hx, y, hy, eqn⟩
   apply ha
-  have : y ≠ 0 := fun _ => by aesop
+  have : y ≠ 0 := fun _ ↦ by aesop
   rw [show -a = x * y⁻¹ + y⁻¹ by field_simp; linear_combination eqn]
   aesop
 
@@ -114,7 +114,7 @@ theorem exists_le_isOrdering (P : Subsemiring R) [P.IsPreordering] :
     ∃ O ≥ P, O.IsOrdering :=
   have ⟨_, _, hO⟩ : ∃ O, P ≤ O ∧ Maximal IsPreordering O := by
     refine zorn_le_nonempty₀ {P : Subsemiring R | IsPreordering P} ?_ P (by simpa)
-    exact fun S hS hc Q hQ =>
+    exact fun S hS hc Q hQ ↦
       ⟨_, IsPreordering.sSup (Set.nonempty_of_mem hQ) hc.directedOn hS, fun _ h ↦ le_sSup h⟩
   ⟨_, ‹_›, .of_maximal_isPreordering hO⟩
 
@@ -145,7 +145,7 @@ theorem maximal_isOrdering_iff_maximal_isPreordering {O : Subsemiring R} :
     ⟨have := hO.prop; inferInstance, fun P hP h ↦ by
       rcases IsPreordering.exists_le_isOrdering P with ⟨O', hO', hO'₂⟩
       simpa [Maximal.eq_of_ge hO hO'₂ (by order)] using hO'⟩
-  mpr hO := Maximal.mono hO (fun _ _ => inferInstance) (.of_maximal_isPreordering hO)
+  mpr hO := Maximal.mono hO (fun _ _ ↦ inferInstance) (.of_maximal_isPreordering hO)
 
 /- A preordering on a field `F` is maximal iff it is an ordering. -/
 theorem maximal_isPreordering_iff_isOrdering {F : Type*} [Field F] {O : Subsemiring F} :

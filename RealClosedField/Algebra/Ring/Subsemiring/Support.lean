@@ -56,15 +56,12 @@ theorem supportIdeal_toAddSubgroup {S : Subsemiring R} (hS : S.IsSpanning) :
 
 end supportIdeal
 
--- TODO : minimise duplication in proofs; ensure duplication in theorems
+-- begin #32889
 
 section upstream
 
--- TODO : move to right place and replace non-primed versions
-
 variable {R S : Type*} [Semiring R] [Semiring S] (f : R →+* S)
          (P : Subsemiring R) (Q : Subsemiring S)
-
 
 --  existing `comap_toSubmonoid` had RHS in a bad form for `simp` - `Submonoid.mem_mk` doesn't work
 @[simp]
@@ -86,6 +83,8 @@ theorem map_toAddSubmonoid : (P.map f).toAddSubmonoid = P.toAddSubmonoid.map f.t
   ext; simp
 
 end upstream
+
+-- end #32889
 
 variable {R R' : Type*} [Ring R] [Ring R'] {f : R →+* R'}
          {S T : Subsemiring R} {S' : Subsemiring R'} {s : Set (Subsemiring R)}
@@ -131,10 +130,10 @@ variable (R) in
 noncomputable def isPointedPartialOrderEquiv :
     Equiv {C : Subsemiring R // C.IsPointed}
           {o : PartialOrder R // IsOrderedRing R} where
-  toFun := fun ⟨_, hC⟩ => ⟨.mkOfAddSubmonoid hC, .mkOfSubsemiring _⟩
-  invFun := fun ⟨_, _⟩ => ⟨.nonneg R, Subsemiring.nonneg.isPointed R⟩
-  left_inv := fun ⟨_, _⟩ => by ext; simp
-  right_inv := fun ⟨_, _⟩ => by ext; simp [LE.le]
+  toFun := fun ⟨_, hC⟩ ↦ ⟨.mkOfAddSubmonoid hC, .mkOfSubsemiring _⟩
+  invFun := fun ⟨_, _⟩ ↦ ⟨.nonneg R, Subsemiring.nonneg.isPointed R⟩
+  left_inv := fun ⟨_, _⟩ ↦ by ext; simp
+  right_inv := fun ⟨_, _⟩ ↦ by ext; simp [LE.le]
 
 @[simp]
 theorem isPointedPartialOrderEquiv_apply
@@ -152,11 +151,11 @@ open Classical in
 noncomputable def isPointedLinearOrderEquiv :
     Equiv {C : Subsemiring R // C.IsPointed ∧ C.IsSpanning}
           {o : LinearOrder R // IsOrderedRing R} where
-  toFun := fun ⟨C, hC⟩ => ⟨.mkOfAddSubmonoid hC.1 hC.2, .mkOfSubsemiring hC.1⟩
-  invFun := fun ⟨_, _⟩ =>
+  toFun := fun ⟨C, hC⟩ ↦ ⟨.mkOfAddSubmonoid hC.1 hC.2, .mkOfSubsemiring hC.1⟩
+  invFun := fun ⟨_, _⟩ ↦
     ⟨.nonneg R, Subsemiring.nonneg.isPointed R, Subsemiring.nonneg.isSpanning R⟩
-  left_inv := fun ⟨_, _, _⟩ => by ext; simp
-  right_inv := fun ⟨_, _⟩ => by ext; simp
+  left_inv := fun ⟨_, _, _⟩ ↦ by ext; simp
+  right_inv := fun ⟨_, _⟩ ↦ by ext; simp
 
 open Classical in
 @[simp]
@@ -182,10 +181,10 @@ theorem Quotient.image_mk_eq_lift {α : Type*} {s : Setoid α} (A : Set α)
 @[to_additive]
 theorem QuotientGroup.mem_iff_mem_of_rel {G S : Type*} [CommGroup G]
     [SetLike S G] [MulMemClass S G] (H : Subgroup G) {M : S} (hM : (H : Set G) ⊆ M) :
-    ∀ x y, QuotientGroup.leftRel H x y → (x ∈ M ↔ y ∈ M) := fun x y hxy => by
+    ∀ x y, QuotientGroup.leftRel H x y → (x ∈ M ↔ y ∈ M) := fun x y hxy ↦ by
   rw [QuotientGroup.leftRel_apply] at hxy
-  exact ⟨fun h => by simpa using mul_mem h <| hM hxy,
-        fun h => by simpa using mul_mem h <| hM <| inv_mem hxy⟩
+  exact ⟨fun h ↦ by simpa using mul_mem h <| hM hxy,
+        fun h ↦ by simpa using mul_mem h <| hM <| inv_mem hxy⟩
 
 def decidablePred_mem_map_quotient_mk
     {R S : Type*} [CommRing R] [SetLike S R] [AddMemClass S R] (I : Ideal R)
@@ -246,11 +245,11 @@ open Classical in
 noncomputable def subsemiringLinearOrderEquiv (I : Ideal R) :
     Equiv {O : Subsemiring R // ∃ _ : O.IsSpanning, O.support = I}
           {o : LinearOrder (R ⧸ I) // IsOrderedRing (R ⧸ I)} where
-  toFun := fun ⟨O, hO⟩ => have := hO.1; have hs := hO.2; ⟨by rw [← hs]; exact .mkOfSubsemiring_quot O, .mkOfSubsemiring_quot O⟩
-  invFun := fun ⟨o, ho⟩ =>
+  toFun := fun ⟨O, hO⟩ ↦ have := hO.1; have hs := hO.2; ⟨by rw [← hs]; exact .mkOfSubsemiring_quot O, .mkOfSubsemiring_quot O⟩
+  invFun := fun ⟨o, ho⟩ ↦
     ⟨((Ring.isPointedLinearOrderEquiv _).symm ⟨o, ho⟩).val.comap (Ideal.Quotient.mk I),
     ⟨fun a ↦ by simpa using le_total ..⟩⟩
-  left_inv := fun ⟨O, hO⟩ => by
+  left_inv := fun ⟨O, hO⟩ ↦ by
     ext x
     simp [-Subsemiring.mem_map]
     constructor
@@ -259,7 +258,7 @@ noncomputable def subsemiringLinearOrderEquiv (I : Ideal R) :
       rw [← sub_eq_zero, ← map_sub, ← RingHom.mem_ker, Ideal.mk_ker] at hxy
       simpa using add_mem hxy.2 hy
     · aesop
-  right_inv := fun ⟨I, l, hl⟩ => by
+  right_inv := fun ⟨I, l, hl⟩ ↦ by
     refine Sigma.eq ?_ ?_
     · ext; simp [AddSubmonoid.mem_support, ← ge_antisymm_iff, ← RingHom.mem_ker]
     · simp

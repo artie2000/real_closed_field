@@ -31,7 +31,7 @@ lemma or_neg_of_mul_neg (a b : R) : a * b < 0 → a < 0 ∨ b < 0 := by
   nlinarith
 
 def rootsInInterval (f : Polynomial R) (a b : R) : Finset R :=
-  f.roots.toFinset.filter (fun x => x ∈ Ioo a b)
+  f.roots.toFinset.filter (fun x ↦ x ∈ Ioo a b)
 
 def sgn (k : R) : ℤ  :=
   if k > 0 then 1
@@ -42,11 +42,11 @@ lemma sgn_sgn_neg : ∀ x : R, sgn x < 0 ↔ x < 0 := by
   intro x
   unfold sgn
   split_ifs
-  next h =>
+  next h ↦
     simp only [Int.reduceLT, false_iff, not_lt]
     exact le_of_lt h
-  next h1 h2 => simp [h2]
-  next h1 h2 =>
+  next h1 h2 ↦ simp [h2]
+  next h1 h2 ↦
     simp only [Int.reduceNeg, Left.neg_neg_iff, zero_lt_one, true_iff]
     push_neg at h1 h2
     exact lt_of_le_of_ne h1 h2
@@ -55,17 +55,17 @@ lemma sgn_sgn_zero : ∀ x : R, sgn x = 0 ↔ x = 0 := by
   intro x
   unfold sgn
   split_ifs
-  next h => simp only [one_ne_zero, false_iff]; exact ne_of_gt h
-  next h => simp [h]
-  next h1 h2 => simp [h2]
+  next h ↦ simp only [one_ne_zero, false_iff]; exact ne_of_gt h
+  next h ↦ simp [h]
+  next h1 h2 ↦ simp [h2]
 
 lemma sgn_sgn_pos : ∀ x : R, sgn x > 0 ↔ x > 0 := by
   intro x
   unfold sgn
   split_ifs
-  next h => simp [h]
-  next h1 h2 => simp [h2]
-  next h1 h2 => simp [h1]
+  next h ↦ simp [h]
+  next h1 h2 ↦ simp [h2]
+  next h1 h2 ↦ simp [h1]
 
 def sgn_pos_inf (p : Polynomial R) : ℤ :=
   sgn p.leadingCoeff
@@ -90,7 +90,7 @@ lemma rootsInIntervalZero (a b : R) : rootsInInterval 0 a b = ∅ := by simp [ro
 
 @[simp]
 def rootsInSet (p : Polynomial R) (S : Set R) : Finset R :=
-  p.roots.toFinset.filter (fun x => x ∈ S)
+  p.roots.toFinset.filter (fun x ↦ x ∈ S)
 
 lemma rootsInSet_interval (p : Polynomial R) (a b : R) :
     rootsInInterval p a b = rootsInSet p (Set.Ioo a b) := by simp [rootsInInterval]
@@ -98,14 +98,14 @@ lemma rootsInSet_interval (p : Polynomial R) (a b : R) :
 lemma rootsInSet_cup (p : Polynomial R) (S T : Set R) :
     rootsInSet p S ∪ rootsInSet p T = rootsInSet p (S ∪ T) := by
   simp only [rootsInSet, mem_union]
-  exact Finset.filter_union_right (fun x => x ∈ S) (fun x => x ∈ T) p.roots.toFinset
+  exact Finset.filter_union_right (fun x => x ∈ S) (fun x ↦ x ∈ T) p.roots.toFinset
 
 lemma sgn_inf_comp (p : Polynomial R) :
     sgn_neg_inf p = sgn_pos_inf (p.comp (-Polynomial.X)) := by
   by_cases Even p.natDegree
-  next H =>
+  next H ↦
     simp [sgn_neg_inf, sgn_pos_inf, H]
-  next H =>
+  next H ↦
     simp [sgn_neg_inf, sgn_pos_inf, H, sgn]
     simp_all only [Nat.not_even_iff_odd, Odd.neg_one_pow, neg_mul, one_mul, Int.reduceNeg, Left.neg_pos_iff]
     split_ifs
@@ -123,9 +123,9 @@ lemma sgn_inf_comp (p : Polynomial R) :
 lemma next_non_root_interval (p : Polynomial R) (lb : R) (hp : p ≠ 0) :
     ∃ ub : R, lb < ub ∧ (∀ z ∈ Ioc lb ub, eval z p ≠ 0) := by
   by_cases ∃ r : R, eval r p = 0 ∧ r > lb
-  next hr =>
+  next hr ↦
     obtain ⟨r, hr1, hr2⟩ := hr
-    let S := p.roots.toFinset.filter (fun w => w > lb)
+    let S := p.roots.toFinset.filter (fun w ↦ w > lb)
     if hS: Finset.Nonempty S then
       obtain ⟨lr, hlr⟩ := Finset.min_of_nonempty hS
       have : lr ∈ S := Finset.mem_of_min hlr
@@ -159,7 +159,7 @@ lemma next_non_root_interval (p : Polynomial R) (lb : R) (hp : p ≠ 0) :
       have : Finset.Nonempty S := by simp_all only [ne_eq, gt_iff_lt,
         Finset.not_nonempty_iff_eq_empty, Finset.notMem_empty]
       exact hS this
-  next hr =>
+  next hr ↦
     push_neg at hr
     use lb + 1
     simp only [lt_add_iff_pos_right, zero_lt_one, mem_Ioc, ne_eq, and_imp, true_and]
@@ -170,9 +170,9 @@ lemma next_non_root_interval (p : Polynomial R) (lb : R) (hp : p ≠ 0) :
 lemma last_non_root_interval (p : Polynomial R) (ub : R) (hp : p ≠ 0) :
     ∃ lb : R, lb < ub ∧ (∀ z ∈ Ico lb ub, eval z p ≠ 0) := by
   by_cases ∃ r : R, eval r p = 0 ∧ r < ub
-  next hr =>
+  next hr ↦
     obtain ⟨r, hr1, hr2⟩ := hr
-    let S := p.roots.toFinset.filter (fun w => w < ub)
+    let S := p.roots.toFinset.filter (fun w ↦ w < ub)
     if hS: Finset.Nonempty S then
       obtain ⟨mr, hmr⟩ := Finset.max_of_nonempty hS
       have : mr ∈ S := Finset.mem_of_max hmr
@@ -206,7 +206,7 @@ lemma last_non_root_interval (p : Polynomial R) (ub : R) (hp : p ≠ 0) :
       have : Finset.Nonempty S := by simp_all only [ne_eq, Finset.not_nonempty_iff_eq_empty,
         Finset.notMem_empty]
       exact hS this
-  next hr =>
+  next hr ↦
     push_neg at hr
     use ub - 1
     simp
@@ -269,20 +269,20 @@ lemma not_eq_pos_or_neg_iff_1 (p : Polynomial R) (lb ub : R) :
     (∀ z ∈ Ioc lb ub, eval z p ≠ 0) ↔ ((∀ z ∈ Ioc lb ub, eval z p < 0) ∨ (∀ z ∈ Ioc lb ub, 0 < eval z p)) := by
   by_contra!
   cases this
-  next H =>
+  next H ↦
     obtain ⟨H₁, ⟨z₁, hz₁, hz₁'⟩, ⟨z₂, hz₂, hz₂'⟩⟩ := H
     have z1Neq0 : eval z₁ p ≠ 0 := by aesop
     have z1Pos : 0 < eval z₁ p := lt_of_le_of_ne hz₁' (id (Ne.symm z1Neq0))
     have z2Neg : eval z₂ p < 0 := lt_of_le_of_ne hz₂' (H₁ z₂ hz₂)
     by_cases z₁ < z₂
-    next hle =>
+    next hle ↦
       obtain ⟨r, hr₁, hr₂, hr₃⟩ := intermediate_value_property' (-p) z₁ z₂ (le_of_lt hle) (by simp; exact hz₁') (by simp; exact hz₂')
       simp at hr₃
       have : r ∈ Set.Ioc lb ub := by
         simp at hz₁ hz₂ ⊢
         constructor <;> linarith
       exact H₁ r this hr₃
-    next hge =>
+    next hge ↦
       push_neg at hge
       obtain ⟨r, hr₁, hr₂, hr₃⟩ := intermediate_value_property' p z₂ z₁ hge (le_of_lt z2Neg) (le_of_lt z1Pos)
       have : r ∈ Set.Ioc lb ub := by
@@ -291,13 +291,13 @@ lemma not_eq_pos_or_neg_iff_1 (p : Polynomial R) (lb ub : R) :
         · linarith
         · linarith
       exact H₁ r this hr₃
-  next H =>
+  next H ↦
     obtain ⟨⟨z, hz1, hz2⟩, H₂⟩ := H
     cases H₂
-    next H₂ =>
+    next H₂ ↦
       have := H₂ z hz1
       linarith
-    next H₂ =>
+    next H₂ ↦
       have := H₂ z hz1
       linarith
 
@@ -468,7 +468,7 @@ lemma rolle_theorem_weak {a b : R} (hab : a < b) {P : R[X]}
       derivative_pow, derivative_pow, derivative_X_sub_C, derivative_X_sub_C, mul_one, mul_one]
     rw [mul_add, mul_add, add_mul _ _ Q]
     nth_rw 2 [add_comm]
-    have : ∀ n : ℕ , (n : R[X]) + 1 = ↑(n + 1) := fun n => by simp only [Nat.cast_add, Nat.cast_one]
+    have : ∀ n : ℕ , (n : R[X]) + 1 = ↑(n + 1) := fun n ↦ by simp only [Nat.cast_add, Nat.cast_one]
     congr 1
     congr 1
     · simp [Nat.succ_eq_add_one] ; simp_rw [this, Nat.sub_one_add_one hbm] ; ring
@@ -510,7 +510,7 @@ lemma rolle_theorem_weak' {a b : R} (hab : a < b) {P : R[X]}
     (hPa : P.eval a = 0) (hPb : P.eval b = 0) :
     ∃ c ∈ Ioo a b , ((derivative P).eval c = 0 ∨ P.eval c = 0) := by
   by_contra! hcc
-  have hP : ∀ x ∈ Ioo a b , P.eval x ≠ 0 := fun x hx => (hcc x hx).2
+  have hP : ∀ x ∈ Ioo a b , P.eval x ≠ 0 := fun x hx ↦ (hcc x hx).2
   obtain ⟨c, hc1, hc2⟩ := rolle_theorem_weak hab hP hPa hPb
   exact (hcc c hc1).1 hc2
 
@@ -518,7 +518,7 @@ open Finset
 
 lemma rolle_theorem_induction (n : ℕ)
     {a b : R} {P : R[X]} (hab : a < b) (hPa : P.eval a = 0) (hPb : P.eval b = 0)
-    (hcard : #((Multiset.toFinset P.roots).filter ( fun x => x ∈ Ioo a b)) < n) :
+    (hcard : #((Multiset.toFinset P.roots).filter ( fun x ↦ x ∈ Ioo a b)) < n) :
     ∃ c ∈ Ioo a b, (derivative P).eval c = 0 := by
   revert P a b
   induction' n with n hn
@@ -551,7 +551,7 @@ theorem rolle_theorem  {a b : R} {P : R[X]} (hab : a < b)
     simp [this, hPab]
   · rw [h] at hPab
     exact rolle_theorem_induction
-      ((#((Multiset.toFinset P.roots).filter ( fun x => x ∈ Ioo a b))) + 1)
+      ((#((Multiset.toFinset P.roots).filter ( fun x ↦ x ∈ Ioo a b))) + 1)
       hab h hPab.symm (lt_add_one _)
 
 theorem mean_value_theorem {a b : R} {P : R[X]} (hab : a < b) :
@@ -646,7 +646,7 @@ theorem mul_cancel' {p q r: Polynomial R} (hr: r ≠ 0) : (r * p) / (r * q) = p 
     have : p/ C x = p / (C x * 1) := by rw [mul_one]
     rw [this, div_C_mul]; norm_num
   else
-    have hq : q ≠ 0 := Ne.symm (ne_of_apply_ne natDegree fun a => H (id (Eq.symm a)))
+    have hq : q ≠ 0 := Ne.symm (ne_of_apply_ne natDegree fun a ↦ H (id (Eq.symm a)))
     have : p = (p/q) * q + p % q := Eq.symm (EuclideanDomain.div_add_mod' p q)
     rw[this]; ring_nf
     if H': p % q = 0 then
@@ -679,7 +679,7 @@ lemma X_sub_C_ne_one (r : R) : X - C r ≠ 1 := by
 lemma rootsInInterval_mul {p q: Polynomial R} (a b: R) (hpq: p * q ≠ 0): rootsInInterval (p * q) a b = rootsInInterval p a b ∪ rootsInInterval q a b := by
   unfold rootsInInterval
   rw [roots_mul hpq, Multiset.toFinset_add]
-  exact Finset.filter_union (fun x => x ∈ Ioo a b) p.roots.toFinset q.roots.toFinset
+  exact Finset.filter_union (fun x ↦ x ∈ Ioo a b) p.roots.toFinset q.roots.toFinset
 
 lemma neg_neg_div (p q: Polynomial R) : - (-p/q) = p/q := by
   have: -1 = (-1:R)⁻¹ := Eq.symm inv_neg_one
@@ -794,7 +794,7 @@ lemma bound_sgn_pos_inf (p : Polynomial R) (hp : p ≠ 0) : ∃ ub : R, ∀ x, x
     refine le_trans (abs_sum_le_sum_abs _ _) ?_
     rw [sum_div]
     gcongr
-    next j hj =>
+    next j hj ↦
       norm_num
       have : abs x = x := abs_of_pos h2
       rw [this]
@@ -847,7 +847,7 @@ lemma root_ub (p : Polynomial R) (hp : p ≠ 0) :
     ∃ ub, (∀ x, eval x p = 0 → x < ub) ∧ (∀ x, x ≥ ub → sgn (eval x p) = sgn_pos_inf p) := by
   obtain ⟨ub1, hub1⟩ : ∃ ub1, ∀ x, eval x p = 0 → x < ub1 := by
     by_cases ∃ r, eval r p = 0
-    next H =>
+    next H ↦
       let roots := p.roots.toFinset
       obtain ⟨r, hr⟩ := H
       have : r ∈ p.roots.toFinset := Multiset.mem_toFinset.mpr ((mem_roots_iff_aeval_eq_zero hp).mpr hr)
@@ -861,7 +861,7 @@ lemma root_ub (p : Polynomial R) (hp : p ≠ 0) :
       intros x hx
       have := this x hx
       linarith
-    next H =>
+    next H ↦
       use 0
       intros x hx
       aesop
@@ -881,7 +881,7 @@ lemma root_lb (p : Polynomial R) (hp : p ≠ 0) :
     ∃ lb, (∀ x, eval x p = 0 → x > lb) ∧ (∀ x, x ≤ lb → sgn (eval x p) = sgn_neg_inf p) := by
   obtain ⟨lb1, hlb1⟩ : ∃ lb1, ∀ x, eval x p = 0 → x > lb1 := by
     by_cases ∃ r, eval r p = 0
-    next H =>
+    next H ↦
       let roots := p.roots.toFinset
       obtain ⟨r, hr⟩ := H
       have : r ∈ p.roots.toFinset := Multiset.mem_toFinset.mpr ((mem_roots_iff_aeval_eq_zero hp).mpr hr)
@@ -895,7 +895,7 @@ lemma root_lb (p : Polynomial R) (hp : p ≠ 0) :
       intros x hx
       have := this x hx
       linarith
-    next H =>
+    next H ↦
       use 0
       intros x hx
       aesop
@@ -917,8 +917,8 @@ lemma root_list_ub (ps : List (Polynomial R)) (a : R) (h0 : 0 ∉ ps) :
        (a < ub) ∧
        (∀ x : R, x ≥ ub → ∀ p ∈ ps, sgn (eval x p) = sgn_pos_inf p)) := by
   cases ps
-  next => simp; exact exists_gt a
-  next p ps =>
+  next ↦ simp; exact exists_gt a
+  next p ps ↦
     have p_not_zero : p ≠ 0 := Ne.symm (List.ne_of_not_mem_cons h0)
     have not_zero : 0 ∉ ps := List.not_mem_of_not_mem_cons h0
     obtain ⟨ub1, hub1, hub2, hub3⟩ := root_list_ub ps a not_zero
@@ -931,19 +931,19 @@ lemma root_list_ub (ps : List (Polynomial R)) (a : R) (h0 : 0 ∉ ps) :
     · intros pp hpp x hx
       have : pp = p ∨ pp ∈ ps := List.mem_cons.mp hpp
       cases this
-      next hmem =>
+      next hmem ↦
         rw [hmem] at hx
         exact lt_sup_of_lt_right (hub21 x hx)
-      next hmem => exact lt_sup_of_lt_left (hub1 pp hmem x hx)
+      next hmem ↦ exact lt_sup_of_lt_left (hub1 pp hmem x hx)
     · constructor
       · linarith
       · intros x hx pp hpp
         have : pp = p ∨ pp ∈ ps := List.mem_cons.mp hpp
         cases this
-        next hmem =>
+        next hmem ↦
           rw [hmem]
           exact hub22 x (by linarith)
-        next hmem =>
+        next hmem ↦
           exact hub3 x (by linarith) pp hmem
 
 lemma root_list_lb (ps : List (Polynomial R)) (b : R) (h0 : 0 ∉ ps) :
@@ -952,8 +952,8 @@ lemma root_list_lb (ps : List (Polynomial R)) (b : R) (h0 : 0 ∉ ps) :
        (lb < b) ∧
        (∀ x : R, x ≤ lb → ∀ p ∈ ps, sgn (eval x p) = sgn_neg_inf p)) := by
   cases ps
-  next => simp; exact exists_lt b
-  next p ps =>
+  next ↦ simp; exact exists_lt b
+  next p ps ↦
     have p_not_zero : p ≠ 0 := Ne.symm (List.ne_of_not_mem_cons h0)
     have not_zero : 0 ∉ ps := List.not_mem_of_not_mem_cons h0
     obtain ⟨lb1, hlb1, hlb2, hlb3⟩ := root_list_lb ps b not_zero
@@ -966,20 +966,20 @@ lemma root_list_lb (ps : List (Polynomial R)) (b : R) (h0 : 0 ∉ ps) :
     · intros pp hpp x hx
       have : pp = p ∨ pp ∈ ps := List.mem_cons.mp hpp
       cases this
-      next hmem =>
+      next hmem ↦
         rw [hmem] at hx
         exact inf_lt_of_right_lt (hlb21 x hx)
-      next hmem => exact inf_lt_of_left_lt (hlb1 pp hmem x hx)
+      next hmem ↦ exact inf_lt_of_left_lt (hlb1 pp hmem x hx)
     · constructor
       · exact inf_lt_of_left_lt hlb2
       · intros x hx pp hpp
         have : pp = p ∨ pp ∈ ps := List.mem_cons.mp hpp
         cases this
-        next hmem =>
+        next hmem ↦
           rw [hmem]
           apply hlb22
           linarith
-        next hmem =>
+        next hmem ↦
           apply hlb3
           · linarith
           · exact hmem

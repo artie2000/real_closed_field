@@ -18,13 +18,13 @@ theorem sturm_tarski_interval (a b : R) (p q : Polynomial R) (hab : a < b) (hpa 
   rw [cauchyIndex_poly_taq p q a b]
 
 def rootsAbove (f : Polynomial R) (a : R) : Finset R :=
-  f.roots.toFinset.filter (fun x => x > a)
+  f.roots.toFinset.filter (fun x ↦ x > a)
 
 def tarskiQuery_above (p q : Polynomial R) (a : R) : ℤ :=
   ∑ x ∈ rootsAbove p a, sgn (q.eval x)
 
 def rootsBelow (f : Polynomial R) (b : R) : Finset R :=
-  f.roots.toFinset.filter (fun x => x < b)
+  f.roots.toFinset.filter (fun x ↦ x < b)
 
 def tarskiQuery_below (p q : Polynomial R) (b : R) : ℤ :=
   ∑ x ∈ rootsBelow p b, sgn (q.eval x)
@@ -35,8 +35,8 @@ def tarskiQuery_R (p q : Polynomial R) : ℤ :=
 lemma seq_sgn_pos_inf_seqEvalSgn (ub : R) (ps : List (Polynomial R)) (key : ∀ x ≥ ub, ∀ pp ∈ ps, sgn (eval x pp) = sgn_pos_inf pp) :
     seq_sgn_pos_inf ps = seqEvalSgn ub ps := by
   cases ps
-  next => simp only [seq_sgn_pos_inf, seqEvalSgn]
-  next hd tl =>
+  next ↦ simp only [seq_sgn_pos_inf, seqEvalSgn]
+  next hd tl ↦
     simp only [seq_sgn_pos_inf, seqEvalSgn, List.cons.injEq, Int.cast_inj]
     constructor
     · apply Eq.symm
@@ -73,7 +73,7 @@ theorem sturm_tarski_above (a : R) (p q : Polynomial R) (hpa : eval a p ≠ 0) :
     intro a_1 a_2 a_3
     simp_all only [ne_eq, not_false_eq_true, ge_iff_le, ps]
     apply hub1
-    on_goal 2 => { exact a_2 }
+    on_goal 2 ↦ { exact a_2 }
     · simp_all only
   have changes_changes : seqVarAboveSturm p (derivative p * q) a = seqVarSturm_ab p (derivative p * q) a ub := by
     simp [seqVarSturm_ab, seqVarAboveSturm, seqVarAbove_a, seqVar_ab]
@@ -87,8 +87,8 @@ theorem sturm_tarski_above (a : R) (p q : Polynomial R) (hpa : eval a p ≠ 0) :
 lemma seq_sgn_neg_inf_seqEvalSgn (lb : R) (ps : List (Polynomial R)) (key : ∀ x ≤ lb, ∀ pp ∈ ps, sgn (eval x pp) = sgn_neg_inf pp) :
     seq_sgn_neg_inf ps = seqEvalSgn lb ps := by
   cases ps
-  next => simp only [seq_sgn_neg_inf, seqEvalSgn]
-  next hd tl =>
+  next ↦ simp only [seq_sgn_neg_inf, seqEvalSgn]
+  next hd tl ↦
     simp only [seq_sgn_neg_inf, seqEvalSgn, List.cons.injEq, Int.cast_inj]
     constructor
     · apply Eq.symm
@@ -121,7 +121,7 @@ theorem sturm_tarski_below (b : R) (p q : Polynomial R) (hpa : eval b p ≠ 0) :
     intro a a_1 a_2
     simp_all only [ne_eq, not_false_eq_true, gt_iff_lt, ps]
     apply hlb1
-    on_goal 2 => { exact a_1 }
+    on_goal 2 ↦ { exact a_1 }
     simp_all only
   have changes_changes : seqVarBelowSturm p (derivative p * q) b = seqVarSturm_ab p (derivative p * q) lb b := by
     simp [seqVarSturm_ab, seqVarBelowSturm, seqVarBelow_b, seqVar_ab]
@@ -166,7 +166,7 @@ theorem sturm_tarski_R (p q : Polynomial R) :
       simp_all only [not_false_eq_true, gt_iff_lt, ge_iff_le, ps]
       apply And.intro
       · apply hlb1
-        on_goal 2 => { exact a_1 }
+        on_goal 2 ↦ { exact a_1 }
         · simp_all only
       · apply hub1
         · exact this
