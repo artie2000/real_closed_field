@@ -28,22 +28,22 @@ variable {S : Subsemiring R}
 
 theorem mem_support {x : R} : x ∈ S.support ↔ x ∈ S ∧ -x ∈ S := by simp
 
-theorem eq_zero_of_mem_of_neg_mem (hS : S.IsPointed) {x : R}
-    (hx₁ : x ∈ S) (hx₂ : -x ∈ S) : x = 0 := hS.eq_zero_of_mem_of_neg_mem hx₁ hx₂
+theorem isPointed_def : S.IsPointed ↔ ∀ {x}, x ∈ S → -x ∈ S → x = 0 := by
+  simp [AddSubmonoid.IsPointed]
 
-theorem mem_or_neg_mem (hS : S.IsSpanning) : ∀ a, a ∈ S ∨ -a ∈ S :=
-  hS.mem_or_neg_mem
+theorem isSpanning_def : S.IsSpanning ↔ ∀ a, a ∈ S ∨ -a ∈ S := by simp [AddSubmonoid.IsSpanning]
 
 theorem _root_.AddSubmonoid.IsPointed.neg_one_notMem [Nontrivial R] (hS : S.IsPointed) :
     -1 ∉ S := fun hc ↦ by
-  simpa [S.eq_zero_of_mem_of_neg_mem hS (by simp) hc] using zero_ne_one' R
+  rw [isPointed_def] at hS
+  simpa [hS (one_mem _) hc] using zero_ne_one' R
 
 @[simps!]
 def supportIdeal (hS : S.IsSpanning) : Ideal R where
   __ : AddSubgroup R := S.toAddSubmonoid.support
   smul_mem' x a ha := by
+    simp_all [isSpanning_def]
     have : ∀ {x y}, -x ∈ S → -y ∈ S → x * y ∈ S := fun hx hy ↦ by simpa using mul_mem hx hy
-    simp_all [AddSubmonoid.IsSpanning]
     grind [mul_mem, neg_mul_mem, mul_neg_mem]
 
 namespace supportIdeal

@@ -38,7 +38,7 @@ theorem unitsInv_mem (hP : P.IsPreordering) {a : Rˣ} (ha : ↑a ∈ P) : ↑a�
 theorem one_notMem_toAddSubmonoid_support (hP : P.IsPreordering) : 1 ∉ P.support := fun h ↦
   P.neg_one_notMem hP h.2
 
-theorem toAddSubmonoid_support_ne_top (hP : P.IsPreordering) : P.support ≠ ⊤ := fun h ↦
+theorem support_ne_top (hP : P.IsPreordering) : P.support ≠ ⊤ := fun h ↦
   one_notMem_toAddSubmonoid_support hP (by simp [h])
 
 theorem isOrdering_iff (hP : P.IsPreordering) :
@@ -46,51 +46,51 @@ theorem isOrdering_iff (hP : P.IsPreordering) :
   mp hP a b _ := by
     by_contra
     have : a * b ∈ P := by
-      grind [mul_mem, mul_neg, neg_mul, neg_neg, Subsemiring.mem_or_neg_mem hP.isSpanning]
+      have := Subsemiring.isSpanning_def.mp hP.isSpanning
+      grind [mul_mem, mul_neg, neg_mul, neg_neg]
     have : a ∈ P.support ∨ b ∈ P.support :=
       Ideal.IsPrime.mem_or_mem hP.isPrime_supportIdeal (by simp; grind)
     grind [Subsemiring.mem_support]
-  mpr h :=
-    have : P.IsSpanning := by
-      simp [AddSubmonoid.IsSpanning]
+  mpr h := by
+    refine ⟨?_, hP.support_ne_top, fun {x y} ↦ ?_⟩
+    · simp [AddSubmonoid.IsSpanning]
       grind [hP.mul_self_mem, neg_mul, mul_neg, neg_neg] -- TODO : figure out why `grind` doesn't know `neg_neg`
-    .mk' this {
-      ne_top' :=
-        have := this.hasIdealSupport
-        IsPreordering.support_ne_top P
-      mem_or_mem' {x} {y} := by
-        by_contra
-        have := h (-x) y
-        have := h (-x) (-y)
-        have := h x y
-        have := h x (-y)
-        cases (by simp_all : x ∈ P ∨ -x ∈ P) <;> aesop
-    }
+    · simp_rw [Subsemiring.mem_support]
+      by_contra
+      have := h (-x) y
+      have := h (-x) (-y)
+      have := h x y
+      have := h x (-y)
+      cases (by simp_all : x ∈ P ∨ -x ∈ P) <;> simp_all
 
-theorem hasIdealSupport_of_isUnit_two (h : IsUnit (2 : R)) : P.HasIdealSupport where
-  smul_mem_support x a _ := by
-    rcases h.exists_right_inv with ⟨half, h2⟩
-    set y := (1 + x) * half
-    set z := (1 - x) * half
-    rw [show x = y ^ 2 - z ^ 2 by
-      linear_combination (- x - x * half * 2) * h2]
-    ring_nf
-    aesop (add simp sub_eq_add_neg)
-
-instance [h : Fact (IsUnit (2 : R))] : P.HasIdealSupport := hasIdealSupport_of_isUnit_two P h.out
+theorem smul_mem_support_of_isUnit_two (h : IsUnit (2 : R))
+    (x : R) {a : R} (ha : a ∈ P.support) : x * a ∈ P.support := by
+  rcases h.exists_right_inv with ⟨half, h2⟩
+  set y := (1 + x) * half
+  set z := (1 - x) * half
+  rw [show x = y ^ 2 - z ^ 2 by
+    linear_combination (- x - x * half * 2) * h2]
+  ring_nf
+  aesop (add simp sub_eq_add_neg)
 
 end IsPreordering
 
 theorem IsPreordering.of_isSpanning_of_isPointed [Nontrivial R]
     (hP₁ : P.IsSpanning) (hP₂ : P.IsPointed) : P.IsPreordering :=
-  .of_support_ne_top hP₁ (by simp [*])
+  .of_ne_top hP₁ fun hc ↦ one_ne_zero' R (by simp_all [AddSubmonoid.IsPointed]) -- TODO : ¬ T.IsPointed
 
 theorem IsOrdering.of_isSpanning_of_isPointed [IsDomain R]
-    (hP₁ : P.IsSpanning) (hP₂ : P.IsPointed) : P.IsOrdering := .mk' hP₁ <| by
-  simpa [*] using Ideal.isPrime_bot
+    (hP₁ : P.IsSpanning) (hP₂ : P.IsPointed) : P.IsOrdering where
+  isSpanning := hP₁
+  support_ne_top := by simp [hP₂]
+  mem_support_or_mem_support := by simp [hP₂]
 
 theorem IsPreordering.of_isPointed [Nontrivial R]
     (hP : P.IsPointed) (h : .sumSq R ≤ P) : P.IsPreordering where
+  mem_of_isSquare hx := h (by simpa using hx.isSumSq)
+  neg_one_notMem := by
+    rw [Subsemiring.isPointed_def] at hP
+    grind [one_mem, one_ne_zero]
 
 -- PR SPLIT ↑1 ↓2
 
@@ -155,19 +155,12 @@ namespace IsPreordering
 
 -- TODO : membership
 theorem inv_mem (hP : IsPreordering P) {a : F} (ha : a ∈ P) : a⁻¹ ∈ P := by
-  have mem : a * (a⁻¹ * a⁻¹) ∈ P := by grind [mul_mem, IsPreordering.mul_self_mem]
-  convert mem
-  field
+  suffices a * (a⁻¹ * a⁻¹) ∈ P by convert this; field
+  grind [mul_mem, IsPreordering.mul_self_mem]
 
-theorem isPointed (hP : IsPreordering P) : P.IsPointed := fun {x} _ _ ↦ by
-  by_contra
-  exact P.neg_one_notMem hP <| by
-    simp at *
-    grind [neg_mul_mem, inv_mem]
-
-instance : P.HasIdealSupport := (IsPreordering.isPointed P).hasIdealSupport
-
-instance : P.support.IsPrime := by simpa [IsPreordering.isPointed P] using Ideal.isPrime_bot
+theorem isPointed (hP : IsPreordering P) : P.IsPointed := by
+  rw [Subsemiring.isPointed_def]
+  grind [P.neg_one_notMem hP, neg_mul_mem, inv_mem]
 
 end IsPreordering
 

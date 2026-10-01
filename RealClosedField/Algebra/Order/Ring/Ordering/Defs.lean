@@ -83,18 +83,17 @@ protected theorem pow_two_mem {S : Subsemiring R} (hS : IsPreordering S) (x : R)
 end IsPreordering
 
 variable {S} in
-theorem IsPreordering.of_ne_top
-    {S : Subsemiring R} (hS : S.IsSpanning) (h : S ≠ ⊤) :
-    S.IsPreordering where
-  mem_of_isSquare x := by
-    rcases x with ⟨y, rfl⟩
-    cases S.mem_or_neg_mem hS y with
-    | inl h => grind [mul_mem]
-    | inr h => simpa using (show -y * -y ∈ S by grind [mul_mem])
-  neg_one_notMem hc := h <| by
-    rw [Subsemiring.eq_top_iff']
+theorem IsPreordering.of_ne_top {S : Subsemiring R} (hS : S.IsSpanning) (h : S ≠ ⊤) :
+    S.IsPreordering := by
+  rw [Subsemiring.isSpanning_def] at hS
+  refine ⟨fun x ↦ ?_, fun hc ↦ h ?_⟩
+  · rcases x with ⟨y, rfl⟩
+    rcases hS y with hy | hy
+    · exact mul_mem hy hy
+    · simpa using mul_mem hy hy
+  · rw [eq_top_iff]
     intro x
-    rcases hS.mem_or_neg_mem x with (hx | hx)
+    rcases hS x with hx | hx
     · simpa using hx
     · simpa using mul_mem hc hx
 
@@ -109,7 +108,7 @@ theorem top_toAddSubmonoid :
     (⊤ : Subsemiring R).toAddSubmonoid = ⊤ := rfl
 
 /- An ordering is a preordering. -/
-theorem isPreordering_of_isOrdering {S : Subsemiring R} (hS : S.IsOrdering) : S.IsPreordering :=
+theorem IsOrdering.isPreordering {S : Subsemiring R} (hS : S.IsOrdering) : S.IsPreordering :=
     .of_ne_top hS.isSpanning <| fun hc ↦ by
   have := hS.isPrime_supportIdeal.ne_top
   apply_fun Submodule.toAddSubgroup at this
