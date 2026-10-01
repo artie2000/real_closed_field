@@ -35,11 +35,11 @@ theorem of_le (hP : P.IsPreordering) {Q : Subsemiring R} (hPQ : P ≤ Q) (hQ : -
 theorem unitsInv_mem (hP : P.IsPreordering) {a : Rˣ} (ha : ↑a ∈ P) : ↑a⁻¹ ∈ P := by
   simpa using show (a * (a⁻¹ * a⁻¹) : R) ∈ P by grind [mul_mem, IsPreordering.mul_self_mem]
 
-theorem one_notMem_toAddSubmonoid_support (hP : P.IsPreordering) : 1 ∉ P.support := fun h ↦
+theorem one_notMem_support (hP : P.IsPreordering) : 1 ∉ P.support := fun h ↦
   P.neg_one_notMem hP h.2
 
 theorem support_ne_top (hP : P.IsPreordering) : P.support ≠ ⊤ := fun h ↦
-  one_notMem_toAddSubmonoid_support hP (by simp [h])
+  one_notMem_support hP (by simp [h])
 
 theorem isOrdering_iff (hP : P.IsPreordering) :
     P.IsOrdering ↔ ∀ a b : R, -(a * b) ∈ P → a ∈ P ∨ b ∈ P where
@@ -79,18 +79,18 @@ theorem IsPreordering.of_isSpanning_of_isPointed [Nontrivial R]
     (hP₁ : P.IsSpanning) (hP₂ : P.IsPointed) : P.IsPreordering :=
   .of_ne_top hP₁ fun hc ↦ one_ne_zero' R (by simp_all [AddSubmonoid.IsPointed]) -- TODO : ¬ T.IsPointed
 
-theorem IsOrdering.of_isSpanning_of_isPointed [IsDomain R]
-    (hP₁ : P.IsSpanning) (hP₂ : P.IsPointed) : P.IsOrdering where
-  isSpanning := hP₁
-  support_ne_top := by simp [hP₂]
-  mem_support_or_mem_support := by simp [hP₂]
-
 theorem IsPreordering.of_isPointed [Nontrivial R]
     (hP : P.IsPointed) (h : .sumSq R ≤ P) : P.IsPreordering where
   mem_of_isSquare hx := h (by simpa using hx.isSumSq)
   neg_one_notMem := by
     rw [Subsemiring.isPointed_def] at hP
     grind [one_mem, one_ne_zero]
+
+theorem IsOrdering.of_isSpanning_of_isPointed [IsDomain R]
+    (hP₁ : P.IsSpanning) (hP₂ : P.IsPointed) : P.IsOrdering where
+  isSpanning := hP₁
+  support_ne_top := by simp [hP₂]
+  mem_support_or_mem_support := by simp [hP₂]
 
 -- PR SPLIT ↑1 ↓2
 
@@ -108,7 +108,7 @@ theorem IsPreordering.sInf {S : Set (Subsemiring R)}
     (hSn : S.Nonempty) (hS : ∀ s ∈ S, s.IsPreordering) : (sInf S).IsPreordering where
   neg_one_notMem := by
     have := hS _ hSn.some_mem
-    simpa using ⟨_, hSn.some_mem, hSn.some.neg_one_notMem⟩
+    simpa using ⟨_, hSn.some_mem, (hS _ hSn.some_mem).neg_one_notMem⟩
 
 theorem IsPreordering.sSup  {S : Set (Subsemiring R)}
     (hSn : S.Nonempty) (hSd : DirectedOn (· ≤ ·) S)
@@ -117,7 +117,7 @@ theorem IsPreordering.sSup  {S : Set (Subsemiring R)}
     have := Set.Nonempty.some_mem hSn
     simpa [mem_sSup_of_directedOn hSn hSd] using ⟨_, this, by aesop⟩
   neg_one_notMem := by
-    simpa [mem_sSup_of_directedOn hSn hSd] using (fun x hx ↦ have := hS _ hx; neg_one_notMem x)
+    simpa [mem_sSup_of_directedOn hSn hSd] using (fun _ hx ↦ (hS _ hx).neg_one_notMem)
 
 theorem IsOrdering.comap (hP' : P'.IsOrdering) : IsOrdering (P'.comap f) := .mk'
   (isSpanning_comap f (IsOrdering.isSpanning P'))
