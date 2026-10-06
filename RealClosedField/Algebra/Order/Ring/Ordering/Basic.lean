@@ -107,8 +107,7 @@ theorem IsOrdering.comap (hP' : P'.IsOrdering) : IsOrdering (P'.comap f) :=
   have := hP'.isPrime_supportIdeal
   .of_isPrime_supportIdeal (isSpanning_comap f hP'.isSpanning) <| by
     convert (P'.supportIdeal hP'.isSpanning).comap_isPrime f
-    ext
-    simp
+    simp [← Submodule.toAddSubgroup_inj, Ideal.comap_eq_submodule_comap]
 
 theorem IsPreordering.comap (hP' : P'.IsPreordering) : (P'.comap f).IsPreordering where
   mem_of_isSquare := by grind [mem_comap, mem_of_isSquare, IsSquare.map]
@@ -121,9 +120,11 @@ theorem IsOrdering.map (hP : P.IsOrdering) (hf : Function.Surjective f)
   have : RingHomSurjective f := ⟨hf⟩
   .of_isPrime_supportIdeal (isSpanning_map hP.isSpanning hf) <| by
     convert Ideal.map_isPrime_of_surjective hf hsupp
-    rw [← Submodule.toAddSubgroup_inj, Ideal.map_eq_submodule_map,
-      Submodule.map_toAddSubgroup f.toSemilinearMap]
-    simp [Ideal.mem_map_iff_of_surjective _ hf]
+    -- TODO : fix defeq abuse at `hsupp` and remove hints
+    have := AddSubmonoid.map_support (f := f.toAddMonoidHom) (M := P.toAddSubmonoid) hsupp
+    -- TODO : fix coercion hell for `map` (by fixing defs) and change to `simp` proof
+    simp_rw [← Submodule.toAddSubgroup_inj, Ideal.map_eq_submodule_map, Submodule.map_toAddSubgroup',
+      supportIdeal_toAddSubgroup, map_toAddSubmonoid, this, RingHom.toAddMonoidHom_toSemilinearMap]
 
 variable {f} in
 theorem IsPreordering.map (hP : P.IsPreordering) (hf : Function.Surjective f)

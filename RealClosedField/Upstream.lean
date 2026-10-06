@@ -488,43 +488,11 @@ def supportIdeal (hS : S.IsSpanning) : Ideal R where
     have : ∀ {x y}, -x ∈ S → -y ∈ S → x * y ∈ S := fun hx hy ↦ by simpa using mul_mem hx hy
     grind [mul_mem, neg_mul_mem, mul_neg_mem]
 
-namespace supportIdeal
-
 @[simp] theorem mem_supportIdeal {S : Subsemiring R} (hS : S.IsSpanning) {x : R} :
     x ∈ S.supportIdeal hS ↔ x ∈ S.support := .rfl
 
 @[simp] theorem supportIdeal_toAddSubgroup {S : Subsemiring R} (hS : S.IsSpanning) :
     (S.supportIdeal hS).toAddSubgroup = S.support := rfl
-
-end supportIdeal
-
--- begin #32889
-section upstream
-
-variable {R S : Type*} [Semiring R] [Semiring S] (f : R →+* S)
-         (P : Subsemiring R) (Q : Subsemiring S)
-
---  existing `comap_toSubmonoid` had RHS in a bad form for `simp` - `Submonoid.mem_mk` doesn't work
-@[simp]
-theorem comap_toSubmonoid' : (Q.comap f).toSubmonoid = Q.toSubmonoid.comap f.toMonoidHom := by
-  ext; simp [-comap_toSubmonoid]
-
-@[simp]
-theorem comap_toAddSubmonoid :
-    (Q.comap f).toAddSubmonoid = Q.toAddSubmonoid.comap f.toAddMonoidHom := by
-  ext; simp
-
--- existing `map_toSubmonoid` had RHS in a bad form for `simp` - `Submonoid.mem_mk` doesn't work
-@[simp]
-theorem map_toSubmonoid' : (P.map f).toSubmonoid = P.toSubmonoid.map f.toMonoidHom := by
-  ext; simp [-map_toSubmonoid]
-
-@[simp]
-theorem map_toAddSubmonoid : (P.map f).toAddSubmonoid = P.toAddSubmonoid.map f.toAddMonoidHom := by
-  ext; simp
-
-end upstream
--- end #32889
 
 variable {R R' : Type*} [Ring R] [Ring R'] {f : R →+* R'}
          {S T : Subsemiring R} {S' : Subsemiring R'} {s : Set (Subsemiring R)}
@@ -707,3 +675,63 @@ noncomputable def subsemiringLinearOrderEquiv (I : Ideal R) :
 end Quot
 
 -/
+
+section map_comap
+
+-- stale PR at #32889
+-- TODO : fix definitions to avoid hom-classes so that these can be PR'd
+
+namespace Subsemiring
+
+variable {R S : Type*} [Semiring R] [Semiring S] (f : R →+* S)
+         (P : Subsemiring R) (Q : Subsemiring S)
+
+--  existing `comap_toSubmonoid` had RHS in a bad form for `simp` - `Submonoid.mem_mk` doesn't work
+@[simp]
+theorem comap_toSubmonoid' : (Q.comap f).toSubmonoid = Q.toSubmonoid.comap f.toMonoidHom := by
+  ext; simp [-comap_toSubmonoid]
+
+@[simp]
+theorem comap_toAddSubmonoid :
+    (Q.comap f).toAddSubmonoid = Q.toAddSubmonoid.comap f.toAddMonoidHom := by
+  ext; simp
+
+-- existing `map_toSubmonoid` had RHS in a bad form for `simp` - `Submonoid.mem_mk` doesn't work
+@[simp]
+theorem map_toSubmonoid' : (P.map f).toSubmonoid = P.toSubmonoid.map f.toMonoidHom := by
+  ext; simp [-map_toSubmonoid]
+
+@[simp]
+theorem map_toAddSubmonoid : (P.map f).toAddSubmonoid = P.toAddSubmonoid.map f.toAddMonoidHom := by
+  ext; simp
+
+end Subsemiring
+
+namespace Submodule
+
+variable {R S : Type*} [Ring R] [Ring S] (σ : R →+* S) (M : Type*)
+    (M₂ : Type*) [AddCommGroup M] [AddCommGroup M₂] [Module R M] [Module S M₂]
+    (f : M →ₛₗ[σ] M₂) (p : Submodule R M) (q : Submodule S M₂)
+
+-- `Submodule.map_toAddSubgroup` not general enough
+@[simp]
+theorem _root_.Submodule.map_toAddSubgroup' [RingHomSurjective σ] :
+    (p.map f).toAddSubgroup = p.toAddSubgroup.map f.toAddMonoidHom :=
+  rfl
+
+@[simp]
+theorem _root_.Submodule.comap_toAddSubgroup :
+    (q.comap f).toAddSubgroup = q.toAddSubgroup.comap f.toAddMonoidHom :=
+  rfl
+
+end Submodule
+
+theorem Ideal.comap_eq_submodule_comap {R S : Type*} [Semiring R] [Semiring S]
+    (f : R →+* S) (I : Ideal S) :
+    I.comap f = Submodule.comap f.toSemilinearMap I := rfl
+
+@[simp]
+theorem RingHom.toAddMonoidHom_toSemilinearMap {R S : Type*} [Semiring R] [Semiring S]
+    (f : R →+* S) : f.toSemilinearMap.toAddMonoidHom = f.toAddMonoidHom := rfl
+
+end map_comap
