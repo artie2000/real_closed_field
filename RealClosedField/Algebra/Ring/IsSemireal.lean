@@ -1,55 +1,11 @@
-/-
-Copyright (c) 2024 Florent Schaffhauser. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Florent Schaffhauser, Artie Khovanov
--/
-
 import RealClosedField.Algebra.Order.Ring.Ordering.Defs
-import RealClosedField.Algebra.Ring.IsFormallyReal
+import RealClosedField.Upstream
+import Mathlib.Algebra.Ring.IsSemireal.Defs
 import Mathlib.Tactic.FieldSimp
 import Mathlib.Tactic.LinearCombination
-
-/-!
-# Semireal rings
-
-A semireal ring is a commutative ring (with unit) in which `-1` is *not* a sum of squares.
-
-For instance, linearly ordered rings are semireal, because sums of squares are positive and `-1` is
-not.
-
-## Main declaration
-
-- `IsSemireal`: the predicate asserting that a commutative ring `R` is semireal.
-
-## References
-
-- *An introduction to real algebra*, by T.Y. Lam. Rocky Mountain J. Math. 14(4): 767-814 (1984).
-[lam_1984](https://doi.org/10.1216/RMJ-1984-14-4-767)
-
--/
+import Mathlib.Algebra.Ring.IsSemireal
 
 variable (R : Type*)
-
-/--
-A semireal ring is a commutative ring (with unit) in which `-1` is *not* a sum of
-squares. We define the predicate `IsSemireal R` for structures `R` equipped with
-a multiplication, an addition, a multiplicative unit and an additive unit.
--/
-@[mk_iff]
-class IsSemireal [Add R] [Mul R] [One R] [Zero R] : Prop where
-  one_add_ne_zero {s : R} (hs : IsSumSq s) : 1 + s ≠ 0
-
-/-- In a semireal ring, `-1` is not a sum of squares. -/
-theorem IsSemireal.not_isSumSq_neg_one [AddGroup R] [One R] [Mul R] [IsSemireal R] :
-    ¬ IsSumSq (-1 : R) := (by simpa using one_add_ne_zero ·)
-
-variable {R} in
-theorem isSemireal_iff_not_isSumSq_neg_one [AddGroup R] [One R] [Mul R] :
-    IsSemireal R ↔ ¬ IsSumSq (-1 : R) where
-  mp _ := IsSemireal.not_isSumSq_neg_one _
-  mpr h := ⟨by aesop (add simp add_eq_zero_iff_neg_eq)⟩
-
-alias ⟨_, IsSemireal.of_not_isSumSq_neg_one⟩ := isSemireal_iff_not_isSumSq_neg_one
 
 instance [NonAssocSemiring R] [Nontrivial R] [IsFormallyReal R] : IsSemireal R where
   one_add_ne_zero hs h_contr := by

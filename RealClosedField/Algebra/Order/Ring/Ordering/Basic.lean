@@ -1,22 +1,7 @@
-/-
-Copyright (c) 2024 Florent Schaffhauser. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Florent Schaffhauser, Artie Khovanov
--/
 import RealClosedField.Algebra.Order.Ring.Ordering.Defs
+import Mathlib.Algebra.Order.Ring.Ordering.Basic
 import Mathlib.Tactic.Field
 import Mathlib.Tactic.LinearCombination
-
-/-!
-
-We prove basic properties of orderings on rings, and show that they are preserved
-under certain operations.
-
-## References
-
-- [*An introduction to real algebra*, T.Y. Lam][lam_1984]
-
--/
 
 namespace Subsemiring
 
@@ -63,15 +48,14 @@ theorem isOrdering_iff (hP : P.IsPreordering) :
       have := h x (-y)
       cases (by simp_all : x ∈ P ∨ -x ∈ P) <;> simp_all
 
-theorem smul_mem_support_of_isUnit_two (h : IsUnit (2 : R))
+theorem smul_mem_support_of_isUnit_two (hP : P.IsPreordering) (h : IsUnit (2 : R))
     (x : R) {a : R} (ha : a ∈ P.support) : x * a ∈ P.support := by
   rcases h.exists_right_inv with ⟨half, h2⟩
-  set y := (1 + x) * half
-  set z := (1 - x) * half
-  rw [show x = y ^ 2 - z ^ 2 by
+  rw [Subsemiring.mem_support] at *
+  rw [show x = ((1 + x) * half) ^ 2 - ((1 - x) * half) ^ 2 by
     linear_combination (- x - x * half * 2) * h2]
-  ring_nf
-  aesop (add simp sub_eq_add_neg)
+  grind [sub_eq_add_neg, add_mem, mul_mem, mul_neg_mem, IsPreordering.pow_two_mem, neg_add_rev,
+    neg_neg, sub_eq_add_neg, sub_mul]
 
 end IsPreordering
 
@@ -106,8 +90,8 @@ theorem IsPreordering.inf {P₁ P₂ : Subsemiring R} (hP₁ : P₁.IsPreorderin
 
 theorem IsPreordering.sInf {S : Set (Subsemiring R)}
     (hSn : S.Nonempty) (hS : ∀ s ∈ S, s.IsPreordering) : (sInf S).IsPreordering where
+  mem_of_isSquare := by grind [mem_sInf, mem_of_isSquare]
   neg_one_notMem := by
-    have := hS _ hSn.some_mem
     simpa using ⟨_, hSn.some_mem, (hS _ hSn.some_mem).neg_one_notMem⟩
 
 theorem IsPreordering.sSup  {S : Set (Subsemiring R)}
@@ -119,29 +103,37 @@ theorem IsPreordering.sSup  {S : Set (Subsemiring R)}
   neg_one_notMem := by
     simpa [mem_sSup_of_directedOn hSn hSd] using (fun _ hx ↦ (hS _ hx).neg_one_notMem)
 
-theorem IsOrdering.comap (hP' : P'.IsOrdering) : IsOrdering (P'.comap f) := .mk'
-  (isSpanning_comap f (IsOrdering.isSpanning P'))
-  (by simpa using inferInstanceAs (Ideal.comap f P'.support).IsPrime)
+theorem IsOrdering.comap (hP' : P'.IsOrdering) : IsOrdering (P'.comap f) :=
+  have := hP'.isPrime_supportIdeal
+  .of_isPrime_supportIdeal (isSpanning_comap f hP'.isSpanning) <| by
+    convert (P'.supportIdeal hP'.isSpanning).comap_isPrime f
+    ext
+    simp
 
 theorem IsPreordering.comap (hP' : P'.IsPreordering) : (P'.comap f).IsPreordering where
-  mem_of_isSquare := by grind [mem_comap, mem_of_isSquare]
+  mem_of_isSquare := by grind [mem_comap, mem_of_isSquare, IsSquare.map]
   neg_one_notMem := by grind [mem_comap, neg_one_notMem]
 
-variable {f P} in
+variable {f} in
 theorem IsOrdering.map (hP : P.IsOrdering) (hf : Function.Surjective f)
-    (hsupp : (RingHom.ker f).toAddSubgroup ≤ P.support) : IsOrdering (P.map f) := mk'
-  (isSpanning_map (IsOrdering.isSpanning P) hf) <| by
-    simpa [*] using Ideal.map_isPrime_of_surjective hf hsupp
+    (hsupp : RingHom.ker f ≤ P.supportIdeal hP.isSpanning) : IsOrdering (P.map f) :=
+  have := hP.isPrime_supportIdeal
+  have : RingHomSurjective f := ⟨hf⟩
+  .of_isPrime_supportIdeal (isSpanning_map hP.isSpanning hf) <| by
+    convert Ideal.map_isPrime_of_surjective hf hsupp
+    rw [← Submodule.toAddSubgroup_inj, Ideal.map_eq_submodule_map,
+      Submodule.map_toAddSubgroup f.toSemilinearMap]
+    simp [Ideal.mem_map_iff_of_surjective _ hf]
 
 variable {f} in
 theorem IsPreordering.map (hP : P.IsPreordering) (hf : Function.Surjective f)
     (hsupp : f.toAddMonoidHom.ker ≤ P.toAddSubmonoid.support) : (P.map f).IsPreordering where
   mem_of_isSquare hx := by
-    rcases isSquare_subset_image_isSquare hf hx with ⟨x, hx, hfx⟩
-    exact ⟨x, by aesop⟩
+    rcases isSquare_subset_image_isSquare hf hx with ⟨x', ⟨_, _⟩, _⟩
+    exact ⟨x', by simp_all⟩
   neg_one_notMem := fun ⟨x', hx', _⟩ ↦ by
-    have : -(x' + 1) + x' ∈ P := add_mem (hsupp (show f (x' + 1) = 0 by simp_all)).2 hx'
-    aesop
+    have : -(1 + x') + x' ∈ P := add_mem (hsupp (show f (1 + x') = 0 by simp_all)).2 hx'
+    simp [hP.neg_one_notMem] at this
 
 end CommRing
 

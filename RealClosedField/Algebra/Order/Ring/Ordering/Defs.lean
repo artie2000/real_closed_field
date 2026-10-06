@@ -1,30 +1,5 @@
-/-
-Copyright (c) 2024 Florent Schaffhauser. All rights reserved.
-Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Florent Schaffhauser, Artie Khovanov
--/
-import RealClosedField.Algebra.Ring.Subsemiring.Support
-import Mathlib.Algebra.Ring.SumsOfSquares
-
-/-!
-# Ring orderings
-
-Let `R` be a commutative ring. We define orderings and preorderings on `R`
-as predicates on `Subsemiring R`.
-
-## Definitions
-
-* `IsOrdering`: an ordering is a subsemiring `O` such that `O ∪ -O = R` and
-the support `O ∩ -O` of `O` forms a prime ideal.
-* `IsPreordering`: a preordering is a subsemiring that contains all squares, but not `-1`.
-
-All orderings are preorderings.
-
-## References
-
-- [*An introduction to real algebra*, T.Y. Lam][lam_1984]
-
--/
+import RealClosedField.Upstream
+import Mathlib.Algebra.Order.Ring.Ordering.Defs
 
 namespace Subsemiring
 
@@ -49,6 +24,12 @@ theorem IsOrdering.isPrime_supportIdeal {S : Subsemiring R} (hS : S.IsOrdering) 
     apply_fun Submodule.toAddSubgroup
     simpa using hS.support_ne_top
   mem_or_mem' := hS.mem_support_or_mem_support
+
+theorem IsOrdering.of_isPrime_supportIdeal {S : Subsemiring R} (hS : S.IsSpanning)
+    (hS₂ : (S.supportIdeal hS).IsPrime) : S.IsOrdering where
+  isSpanning := hS
+  support_ne_top := by simpa [← Submodule.toAddSubgroup_inj] using hS₂.ne_top
+  mem_support_or_mem_support := hS₂.mem_or_mem
 
 /-- A preordering on a ring `R` is a subsemiring of `R` that contains all squares, but not `-1`. -/
 structure IsPreordering (S : Subsemiring R) : Prop where
