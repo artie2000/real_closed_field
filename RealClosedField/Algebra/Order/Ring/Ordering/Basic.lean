@@ -133,7 +133,7 @@ theorem IsPreordering.map (hP : P.IsPreordering) (hf : Function.Surjective f)
     rcases isSquare_subset_image_isSquare hf hx with ⟨x', ⟨_, _⟩, _⟩
     exact ⟨x', by simp_all⟩
   neg_one_notMem := fun ⟨x', hx', _⟩ ↦ by
-    have : -(1 + x') + x' ∈ P := add_mem (hsupp (show f (1 + x') = 0 by simp_all)).2 hx'
+    have : -(1 + x') + x' ∈ P := add_mem (hsupp (by simp [*])).2 hx'
     simp [hP.neg_one_notMem] at this
 
 end CommRing

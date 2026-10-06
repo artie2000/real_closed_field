@@ -29,7 +29,7 @@ noncomputable def isOrderingLinearOrderEquiv :
           {o : LinearOrder F // IsStrictOrderedRing F} where
   toFun := fun ⟨O, hO⟩ ↦
     let ⟨o, ho⟩ := Ring.isPointedLinearOrderEquiv F
-      ⟨O, Subsemiring.IsPreordering.isPointed O, Subsemiring.IsOrdering.isSpanning O⟩
+      ⟨O, hO.isPreordering.isPointed, hO.isSpanning⟩
     ⟨o, IsOrderedRing.toIsStrictOrderedRing F⟩
   invFun := fun ⟨o, ho⟩ ↦
     let ⟨O, hO⟩ := (Ring.isPointedLinearOrderEquiv F).symm ⟨o, inferInstance⟩
