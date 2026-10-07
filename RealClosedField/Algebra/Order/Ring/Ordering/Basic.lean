@@ -1,7 +1,5 @@
 import RealClosedField.Algebra.Order.Ring.Ordering.Defs
 import Mathlib.Algebra.Order.Ring.Ordering.Basic
-import Mathlib.Tactic.Field
-import Mathlib.Tactic.LinearCombination
 
 namespace Subsemiring
 
@@ -16,7 +14,7 @@ theorem of_le (hP : P.IsPreordering) {Q : Subsemiring R} (hPQ : P ≤ Q) (hQ : -
     Q.IsPreordering where
   mem_of_isSquare := by grind [IsConcreteLE.le_iff, IsPreordering.mem_of_isSquare]
 
--- TODO : membership tag
+-- TODO : membership
 theorem unitsInv_mem (hP : P.IsPreordering) {a : Rˣ} (ha : ↑a ∈ P) : ↑a⁻¹ ∈ P := by
   simpa using show (a * (a⁻¹ * a⁻¹) : R) ∈ P by grind [mul_mem, IsPreordering.mul_self_mem]
 
@@ -52,10 +50,9 @@ theorem smul_mem_support_of_isUnit_two (hP : P.IsPreordering) (h : IsUnit (2 : R
     (x : R) {a : R} (ha : a ∈ P.support) : x * a ∈ P.support := by
   rcases h.exists_right_inv with ⟨half, h2⟩
   rw [Subsemiring.mem_support] at *
-  rw [show x = ((1 + x) * half) ^ 2 - ((1 - x) * half) ^ 2 by
-    linear_combination (- x - x * half * 2) * h2]
-  grind [sub_eq_add_neg, add_mem, mul_mem, mul_neg_mem, IsPreordering.pow_two_mem, neg_add_rev,
-    neg_neg, sub_eq_add_neg, sub_mul]
+  suffices ((1 + x) * half) ^ 2 * a + ((1 - x) * half) ^ 2 * (- a) ∈ P ∧
+           ((1 + x) * half) ^ 2 * (- a) + ((1 - x) * half) ^ 2 * a ∈ P by grind
+  grind [add_mem, mul_mem, mul_neg_mem, IsPreordering.pow_two_mem] -- membership
 
 end IsPreordering
 
@@ -148,7 +145,7 @@ namespace IsPreordering
 
 -- TODO : membership
 theorem inv_mem (hP : IsPreordering P) {a : F} (ha : a ∈ P) : a⁻¹ ∈ P := by
-  suffices a * (a⁻¹ * a⁻¹) ∈ P by convert this; field
+  suffices a * (a⁻¹ * a⁻¹) ∈ P by grind
   grind [mul_mem, IsPreordering.mul_self_mem]
 
 theorem isPointed (hP : IsPreordering P) : P.IsPointed := by
