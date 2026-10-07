@@ -3,6 +3,7 @@ Copyright (c) 2025 Artie Khovanov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
+import RealClosedField.Upstream
 import Mathlib.Algebra.Polynomial.FieldDivision
 import Mathlib.FieldTheory.Minpoly.Basic
 import Mathlib.LinearAlgebra.FreeModule.StrongRankCondition
@@ -19,132 +20,7 @@ open Polynomial algebraMap
 
 -- TODO : make base ring argument in `Polynomial.aeval` explicit
 
--- ⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠ everything below this PR'd
-
-namespace AlgHom
-
-variable {R A B C : Type*} [CommRing R] [Ring A] [Ring B] [Ring C]
-variable [Algebra R A] [Algebra R B] [Algebra R C]
-variable (f : A →ₐ[R] B) (f_inv : B → A)
-
-/-- Auxiliary definition used to define `liftOfRightInverse` -/
-def liftOfRightInverseAux (hf : Function.RightInverse f_inv f) (g : A →ₐ[R] C)
-    (hg : RingHom.ker f ≤ RingHom.ker g) :
-    B →ₐ[R] C :=
-  { RingHom.liftOfRightInverse f.toRingHom f_inv hf ⟨g.toRingHom, hg⟩ with
-    toFun := fun b ↦ g (f_inv b)
-    commutes' := by
-      intro r
-      rw [← map_algebraMap g, ← sub_eq_zero, ← map_sub g, ← RingHom.mem_ker]
-      apply hg
-      rw [RingHom.mem_ker, map_sub f, sub_eq_zero, map_algebraMap f, hf _] }
-
-@[simp]
-theorem liftOfRightInverseAux_comp_apply (hf : Function.RightInverse f_inv f) (g : A →ₐ[R] C)
-    (hg : RingHom.ker f ≤ RingHom.ker g) (a : A) :
-    (f.liftOfRightInverseAux f_inv hf g hg) (f a) = g a :=
-  f.toAddMonoidHom.liftOfRightInverse_comp_apply f_inv hf ⟨g.toAddMonoidHom, hg⟩ a
-
-/-- `liftOfRightInverse f hf g hg` is the unique `R`-algebra homomorphism `φ`
-
-* such that `φ.comp f = g` (`AlgHom.liftOfRightInverse_comp`),
-* where `f : A →ₐ[R] B` has a right_inverse `f_inv` (`hf`),
-* and `g : B →ₐ[R] C` satisfies `hg : f.ker ≤ g.ker`.
-
-See `AlgHom.eq_liftOfRightInverse` for the uniqueness lemma.
-
-```
-   A .
-   |  \
- f |   \ g
-   |    \
-   v     \⌟
-   B ----> C
-      ∃!φ
-```
--/
-def liftOfRightInverse (hf : Function.RightInverse f_inv f) :
-    { g : A →ₐ[R] C // RingHom.ker f ≤ RingHom.ker g } ≃ (B →ₐ[R] C) where
-  toFun g := f.liftOfRightInverseAux f_inv hf g.1 g.2
-  invFun φ := ⟨φ.comp f, fun x hx ↦ RingHom.mem_ker.mpr <| by simp [RingHom.mem_ker.mp hx]⟩
-  left_inv g := by
-    ext
-    simp only [comp_apply, liftOfRightInverseAux_comp_apply]
-  right_inv φ := by
-    ext b
-    simp [liftOfRightInverseAux, hf b]
-
-/-- A non-computable version of `AlgHom.liftOfRightInverse` for when no computable right
-inverse is available, that uses `Function.surjInv`. -/
-@[simp]
-noncomputable abbrev liftOfSurjective' (hf : Function.Surjective f) : -- TODO : replace `AlgHom.liftOfSurjective`
-    { g : A →ₐ[R] C // RingHom.ker f ≤ RingHom.ker g } ≃ (B →ₐ[R] C) :=
-  f.liftOfRightInverse (Function.surjInv hf) (Function.rightInverse_surjInv hf)
-
-theorem liftOfRightInverse_comp_apply (hf : Function.RightInverse f_inv f)
-    (g : { g : A →ₐ[R] C // RingHom.ker f ≤ RingHom.ker g }) (x : A) :
-    (f.liftOfRightInverse f_inv hf g) (f x) = g.1 x :=
-  f.liftOfRightInverseAux_comp_apply f_inv hf g.1 g.2 x
-
-theorem liftOfRightInverse_comp (hf : Function.RightInverse f_inv f)
-    (g : { g : A →ₐ[R] C // RingHom.ker f ≤ RingHom.ker g }) :
-    (f.liftOfRightInverse f_inv hf g).comp f = g :=
-  AlgHom.ext <| f.liftOfRightInverse_comp_apply f_inv hf g
-
-theorem liftOfRightInverse_symm (hf : Function.RightInverse f_inv f) (φ : B →ₐ[R] C) :
-  (f.liftOfRightInverse f_inv hf).symm φ = φ.comp f := rfl
-
-theorem eq_liftOfRightInverse (hf : Function.RightInverse f_inv f) (g : A →ₐ[R] C)
-    (hg : RingHom.ker f ≤ RingHom.ker g) (h : B →ₐ[R] C) (hh : h.comp f = g) :
-    h = f.liftOfRightInverse f_inv hf ⟨g, hg⟩ := by
-  simp_rw [← hh]
-  exact ((f.liftOfRightInverse f_inv hf).apply_symm_apply _).symm
-
-end AlgHom
-
 namespace Polynomial
-
-@[gcongr]
-theorem aeval_dvd {S T : Type*} [CommSemiring S] [Semiring T] [Algebra S T]
-    {p q : Polynomial S} (a : T) : p ∣ q → p.aeval a ∣ q.aeval a := _root_.map_dvd (aeval a)
-
-theorem aeval_eq_zero_of_dvd_aeval_eq_zero'
-    {S T : Type*} [CommSemiring S] [Semiring T] [Algebra S T]
-    {p q : Polynomial S} (h₁ : p ∣ q) {a : T} (h₂ : p.aeval a = 0) :
-    q.aeval a = 0 :=
-  zero_dvd_iff.mp (h₂ ▸ aeval_dvd _ h₁)
-
-@[simp]
-theorem modByMonic_self {R : Type*} [Ring R] {p : R[X]} (hp : p.Monic) : p %ₘ p = 0 := by
-  rw [modByMonic_eq_zero_iff_dvd hp]
-
-theorem dvd_modByMonic_sub {R : Type*} [Ring R] (p q : R[X]) : q ∣ (p %ₘ q - p) := by
-  by_cases h : q.Monic
-  · simp [modByMonic_eq_sub_mul_div]
-  · simp [modByMonic_eq_of_not_monic, h]
-
-theorem dvd_modByMonic_iff_dvd {R : Type*} [Ring R] {p q : R[X]} :
-    q ∣ p %ₘ q ↔ q ∣ p := by
-  simpa using dvd_iff_dvd_of_dvd_sub <| dvd_modByMonic_sub p q
-
-theorem aeval_modByMonic_minpoly {R S : Type*} [CommRing R] [Ring S] [Algebra R S]
-    (p : R[X]) (x : S) : (p %ₘ minpoly R x).aeval x = p.aeval x :=
-  aeval_modByMonic_eq_self_of_root (minpoly.aeval ..)
-
-theorem degree_sub_lt_right {R : Type*} [Ring R] {p q : Polynomial R}
-    (hd : p.degree = q.degree) (hq0 : q ≠ 0) (hlc : p.leadingCoeff = q.leadingCoeff) :
-    (p - q).degree < q.degree := by
-  rw [← degree_neg, neg_sub]
-  exact degree_sub_lt hd.symm hq0 hlc.symm
-
-theorem Monic.natDegree_le_of_dvd {R : Type*} [Semiring R] {p q : R[X]}
-    (hp : p.Monic) (hq : q ≠ 0) (hdvd : p ∣ q) : p.natDegree ≤ q.natDegree := by
-  obtain ⟨r, rfl⟩ := hdvd
-  obtain rfl | hr := eq_or_ne r 0
-  · simp_all
-  simp [hp.natDegree_mul' hr]
-
--- ⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠⚠ everything above this this PR'd
 
 -- Mathlib.Algebra.Polynomial.AlgebraMap
 @[simp]
@@ -170,7 +46,7 @@ theorem RingHom.ker_eq_top_iff {R S : Type*} [Semiring R] [Semiring S]
 alias ⟨RingHom.subsingleton_of_ker_eq_top, _⟩ :=
   RingHom.ker_eq_top_iff
 
--- TODO : replace unprimed version
+-- TODO : tag unprimed version
 @[nontriviality]
 theorem RingHom.ker_eq_top_of_subsingleton' {R S : Type*} [Semiring R] [Semiring S]
     [Subsingleton S] {f : R →+* S} : RingHom.ker f = ⊤ := RingHom.ker_eq_top_iff.mpr inferInstance
@@ -263,7 +139,7 @@ variable {T : Type*} [Ring T] [Algebra R T]
 
 noncomputable def liftEquiv :
     { y : T // ∀ g : R[X], g.aeval x = 0 → g.aeval y = 0 } ≃ (S →ₐ[R] T) :=
-  ((AlgHomEquiv R T).subtypeEquiv (by simp [SetLike.le_def])).trans <|
+  ((AlgHomEquiv R T).subtypeEquiv (by simp [IsConcreteLE.le_iff])).trans <|
   AlgHom.liftOfSurjective' _ hx.aeval_surjective
 
 @[simp]
@@ -331,22 +207,17 @@ namespace IsSimpleGenerator
 
 variable {x g} (h : IsSimpleGenerator x g)
 
-include h in
-theorem aeval_eq_zero_iff {f} : f.aeval x = 0 ↔ g ∣ f :=
+theorem aeval_eq_zero_iff (h : IsSimpleGenerator x g) {f : R[X]} : f.aeval x = 0 ↔ g ∣ f :=
   aeval_eq_zero_iff_of_ker_aeval_eq_span_singleton h.ker_aeval
 
-include h in
-theorem aeval_self : g.aeval x = 0 := by rw [h.aeval_eq_zero_iff]
+theorem aeval_self (h : IsSimpleGenerator x g) : g.aeval x = 0 := by rw [h.aeval_eq_zero_iff]
 
 variable {T : Type*} [Ring T] [Algebra R T]
 
-include h in
-theorem aeval_gen_eq_zero_iff (y : T) :
+theorem aeval_gen_eq_zero_iff (y : T) (h : IsSimpleGenerator x g) :
     g.aeval y = 0 ↔ ∀ f : R[X], f.aeval x = 0 → f.aeval y = 0 where
-  mp hy f hf := aeval_eq_zero_of_dvd_aeval_eq_zero'
-    (by simpa [h.aeval_eq_zero_iff] using hf) hy
-  mpr hy := by
-    simpa using hy g (by simp [h.aeval_eq_zero_iff])
+  mp hy f hf := aeval_eq_zero_of_dvd_aeval_eq_zero (by simpa [h.aeval_eq_zero_iff] using hf) hy
+  mpr hy := by simpa using hy g (by simp [h.aeval_eq_zero_iff])
 
 section lift
 
@@ -356,7 +227,7 @@ noncomputable def liftEquiv :
   h.toIsGenerator.liftEquiv
 
 @[simp]
-theorem liftEquiv_symm_apply (φ : S →ₐ[R] T) :
+theorem liftEquiv_symm_apply {φ : S →ₐ[R] T} :
     h.liftEquiv.symm φ = φ x := by simp [liftEquiv]
 
 variable {y : T} (hy : g.aeval y = 0)
@@ -374,7 +245,7 @@ theorem lift_root : h.lift hy x = y := by simpa using h.lift_aeval hy X
 
 @[simp]
 /- Make `lift` the preferred spelling -/
-theorem liftEquiv_apply (z : S) : h.liftEquiv ⟨y, hy⟩ z = h.lift hy z := rfl
+theorem liftEquiv_apply (h : IsSimpleGenerator x g) {z : S} : h.liftEquiv ⟨y, hy⟩ z = h.lift hy z := rfl
 
 end lift
 
@@ -426,20 +297,20 @@ section map
 
 variable {T : Type*} [Ring T] [Algebra R T] (φ : S ≃ₐ[R] T)
 
-noncomputable def map : IsSimpleGenerator (φ x) g where
+theorem map (h : IsSimpleGenerator x g) : IsSimpleGenerator (φ x) g where
   adjoin_eq_top := by
     have : (adjoin R {x}).map φ.toAlgHom = ⊤ := by
       simp [h.adjoin_eq_top, AlgHom.range_eq_top, AlgEquiv.surjective]
     simpa [AlgHom.map_adjoin φ.toAlgHom {x}]
   ker_aeval := by
     rw [Polynomial.aeval_algEquiv, AlgHom.ker_coe, AlgHom.comp_toRingHom,
-        AlgEquiv.coe_ringHom_commutes, ← RingEquiv.toRingHom_eq_coe, RingHom.ker_equiv_comp,
+        AlgEquiv.toRingHom_toAlgHom, ← RingEquiv.toRingHom_eq_coe, RingHom.ker_equiv_comp,
         RingHom.ker_coe_toRingHom, h.ker_aeval]
 
 @[simp]
 theorem equivOfRoot_map :
     equivOfRoot h (h.map φ) h.aeval_self (by simpa [aeval_algEquiv] using h.aeval_self) = φ := by
-  apply_fun AlgHomClass.toAlgHom using AlgEquiv.coe_algHom_injective
+  apply_fun AlgHom.ofClass using AlgEquiv.coe_toAlgHom_injective
   exact h.algHom_ext (by simp)
 
 end map
@@ -509,7 +380,7 @@ theorem of_aeval_eq_zero_imp_minpoly_dvd (hx : IsIntegral R x)
   ker_aeval := by
     ext f
     simpa [Ideal.mem_span_singleton] using
-      ⟨h, fun h' ↦ aeval_eq_zero_of_dvd_aeval_eq_zero' h' (minpoly.aeval R x)⟩
+      ⟨h, fun h' ↦ aeval_eq_zero_of_dvd_aeval_eq_zero h' (minpoly.aeval R x)⟩
 
 theorem of_unique_of_degree_le_degree_minpoly (hx : IsIntegral R x)
     (h : ∀ f : R[X], f.Monic → f.aeval x = 0 → f.degree ≤ (minpoly R x).degree → f = minpoly R x) :
@@ -524,83 +395,70 @@ theorem of_unique_of_degree_le_degree_minpoly (hx : IsIntegral R x)
 
 variable (h : IsIntegralUnique x g)
 
-include h in
-theorem aeval_eq_zero_iff {f} : f.aeval x = 0 ↔ g ∣ f :=
+theorem aeval_eq_zero_iff (h : IsIntegralUnique x g) {f : R[X]} : f.aeval x = 0 ↔ g ∣ f :=
   aeval_eq_zero_iff_of_ker_aeval_eq_span_singleton h.ker_aeval
 
-include h in
-theorem aeval_gen : g.aeval x = 0 := by rw [h.aeval_eq_zero_iff]
+theorem aeval_gen (h : IsIntegralUnique x g) : g.aeval x = 0 := by rw [h.aeval_eq_zero_iff]
 
-include h in
-theorem isIntegral : IsIntegral R x := ⟨g, h.monic, h.aeval_gen⟩
+theorem isIntegral (h : IsIntegralUnique x g) : IsIntegral R x := ⟨g, h.monic, h.aeval_gen⟩
 
-include h in
-theorem gen_eq_one_iff_subsingleton : g = 1 ↔ Subsingleton S := by
+theorem gen_eq_one_iff_subsingleton (h : IsIntegralUnique x g) : g = 1 ↔ Subsingleton S := by
   rw [← isUnit_iff_subsingleton_of_ker_aeval h.ker_aeval, h.monic.isUnit_iff]
 
 alias ⟨subsingleton, _⟩ := gen_eq_one_iff_subsingleton
 
-include h in
+set_option warning.simp.varHead false in
 @[nontriviality]
-theorem gen_eq_one [Subsingleton S] : g = 1 := h.gen_eq_one_iff_subsingleton.mpr inferInstance
+theorem gen_eq_one [Subsingleton S] (h : IsIntegralUnique x g) : g = 1 :=
+  h.gen_eq_one_iff_subsingleton.mpr inferInstance
 
-include h in
-theorem nontrivial (hg : g ≠ 1) : Nontrivial S := by
+theorem nontrivial (h : IsIntegralUnique x g) (hg : g ≠ 1) : Nontrivial S := by
   rw [ne_eq, h.gen_eq_one_iff_subsingleton] at hg
   exact not_subsingleton_iff_nontrivial.mp hg
 
-include h in
-theorem gen_ne_one [Nontrivial S] : g ≠ 1 := fun hc ↦ by
+theorem gen_ne_one [Nontrivial S] (h : IsIntegralUnique x g) : g ≠ 1 := fun hc ↦ by
   rw [h.gen_eq_one_iff_subsingleton] at hc
   exact false_of_nontrivial_of_subsingleton S
 
-include h in
-theorem natDegree_gen_pos [Nontrivial S] : 0 < g.natDegree := by
+theorem natDegree_gen_pos [Nontrivial S] (h : IsIntegralUnique x g) : 0 < g.natDegree := by
   by_contra hg
   exact h.gen_ne_one (eq_one_of_monic_natDegree_zero h.monic (by lia))
 
-include h in
-theorem degree_gen_pos [Nontrivial S] : 0 < g.degree :=
+theorem degree_gen_pos [Nontrivial S] (h : IsIntegralUnique x g) : 0 < g.degree :=
   natDegree_pos_iff_degree_pos.mp h.natDegree_gen_pos
 
-include h in
-theorem minpoly_eq_gen : minpoly R x = g := by
+theorem minpoly_eq_gen (h : IsIntegralUnique x g) : minpoly R x = g := by
   rw [eq_of_monic_of_dvd_of_natDegree_le h.monic (minpoly.monic h.isIntegral)]
   · simp [← Ideal.mem_span_singleton, ← h.ker_aeval]
   · exact Polynomial.natDegree_le_natDegree <| minpoly.min _ x h.monic <| by
       simp [h.aeval_eq_zero_iff]
 
-include h in
-theorem gen_unique {g' : R[X]} (h' : IsIntegralUnique x g') : g = g' := by
+theorem gen_unique (h : IsIntegralUnique x g) {g' : R[X]}
+    (h' : IsIntegralUnique x g') : g = g' := by
   rw [← h.minpoly_eq_gen, ← h'.minpoly_eq_gen]
 
-include h in
-theorem irreducible_gen [IsDomain R] [IsDomain S] : Irreducible g := by
+theorem irreducible_gen [IsDomain R] [IsDomain S] (h : IsIntegralUnique x g) : Irreducible g := by
   rw [← h.minpoly_eq_gen]
   exact minpoly.irreducible h.isIntegral
 
-include h in
-theorem isIntegralUnique_minpoly : IsIntegralUnique x (minpoly R x) :=
+theorem isIntegralUnique_minpoly (h : IsIntegralUnique x g) : IsIntegralUnique x (minpoly R x) :=
   .of_ker_aeval_eq_span_minpoly h.isIntegral <| h.minpoly_eq_gen ▸ h.ker_aeval
 
-include h in
-theorem eq_gen_of_degree_le_degree_gen {f : R[X]} (hmo : f.Monic) (hf : f.aeval x = 0)
-    (fmin : f.degree ≤ g.degree) : f = g :=
+theorem eq_gen_of_degree_le_degree_gen (h : IsIntegralUnique x g)
+    {f : R[X]} (hmo : f.Monic) (hf : f.aeval x = 0) (fmin : f.degree ≤ g.degree) : f = g :=
   eq_of_monic_of_dvd_of_natDegree_le h.monic hmo
     (h.aeval_eq_zero_iff.mp hf) (natDegree_le_natDegree fmin)
 
-include h in
-theorem eq_gen_of_aeval_eq_zero_imp_degree_ge {f : R[X]} (hmo : f.Monic) (hf : f.aeval x = 0)
+theorem eq_gen_of_aeval_eq_zero_imp_degree_ge (h : IsIntegralUnique x g)
+    {f : R[X]} (hmo : f.Monic) (hf : f.aeval x = 0)
     (hmin : ∀ k : R[X], k.Monic → k.aeval x = 0 → f.degree ≤ k.degree) : f = g :=
   eq_gen_of_degree_le_degree_gen h hmo hf <| hmin g h.monic h.aeval_gen
 
-include h in
-theorem eq_gen_of_ker_aeval_eq_span {f : R[X]} (hf : f.Monic)
+theorem eq_gen_of_ker_aeval_eq_span (h : IsIntegralUnique x g) {f : R[X]} (hf : f.Monic)
     (hker : RingHom.ker (aeval x) = Ideal.span {f}) : f = g :=
   eq_of_ideal_span_eq_of_monic hf h.monic (by simp [← hker, h.ker_aeval])
 
-include h in
-theorem modByMonic_gen_eq_iff_aeval_eq (f₁ f₂ : R[X]) :
+theorem modByMonic_gen_eq_iff_aeval_eq (h : IsIntegralUnique x g) (f₁ f₂ : R[X]) :
     f₁ %ₘ g = f₂ %ₘ g ↔ f₁.aeval x = f₂.aeval x := by
   rw [← sub_eq_zero, ← sub_modByMonic, modByMonic_eq_zero_iff_dvd h.monic,
       ← h.aeval_eq_zero_iff, map_sub, sub_eq_zero]
@@ -642,7 +500,7 @@ theorem of_basis [Module.Finite R S] {n} (B : Module.Basis (Fin n) R S)
     refine ⟨f_monic, ?_⟩
     ext g
     rw [RingHom.mem_ker, Ideal.mem_span_singleton]
-    refine ⟨fun hg ↦ ?_, fun h ↦ by apply aeval_eq_zero_of_dvd_aeval_eq_zero' h aeval_f⟩
+    refine ⟨fun hg ↦ ?_, fun h ↦ by apply aeval_eq_zero_of_dvd_aeval_eq_zero h aeval_f⟩
     nontriviality R
     have : (g %ₘ f).natDegree < n := by
       simpa [f_deg] using natDegree_modByMonic_lt g f_monic (fun hc ↦ by clear f_def; simp_all)
@@ -662,6 +520,7 @@ theorem of_free [Module.Finite R S] [Module.Free R S] (hx : IsGenerator R x) :
   refine ⟨_, IsIntegralUniqueGen.of_basis
     (Module.Basis.mk (ι := Fin (Module.finrank R S)) (v := fun i ↦ x ^ (i : ℕ)) ?_ ?_)
     (fun i ↦ by rw [Module.Basis.coe_mk])⟩
+  -- TODO : wasn't this proved by someone else using the Or something property
   -- prove that a spanning set of size `finrank R S` is linearly independent (general nonsense)
   -- prove that `1, x, x ^ 2, ..., x ^ (d - 1)` spans by using tensors to reduce to `Field R`
   · sorry
@@ -796,14 +655,14 @@ section map
 
 variable {T : Type*} [Ring T] [Algebra R T] (φ : S ≃ₐ[R] T)
 
-noncomputable def map : IsIntegralUniqueGen (φ x) g where
+theorem map (h : IsIntegralUniqueGen x g) : IsIntegralUniqueGen (φ x) g where
   __ : IsSimpleGenerator (φ x) g := h.toIsSimpleGenerator.map φ
   monic := h.monic
 
 @[simp]
 theorem equivOfRoot_map : h.equivOfRoot (h.map φ).toIsSimpleGenerator
     h.aeval_gen (h.map φ).aeval_gen = φ := by
-  apply_fun AlgHomClass.toAlgHom using AlgEquiv.coe_algHom_injective
+  apply_fun AlgHom.ofClass using AlgEquiv.coe_toAlgHom_injective
   exact h.algHom_ext (by simp)
 
 end map

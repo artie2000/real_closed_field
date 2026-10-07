@@ -759,3 +759,86 @@ instance {F : Type*} [Field F] [IsSemireal F] : IsFormallyReal F :=
     exact IsSemireal.one_add_ne_zero (s := s * a⁻¹ ^ 2)
       (by grind [inv_pow, IsSumSq.mul, IsSquare.isSumSq, isSquare_inv, IsSquare.sq])
       (by grind)
+
+-- begin #37817
+namespace AlgHom
+
+variable {R A B C : Type*} [CommRing R] [Ring A] [Ring B] [Ring C]
+variable [Algebra R A] [Algebra R B] [Algebra R C]
+variable (f : A →ₐ[R] B) (f_inv : B → A)
+
+/-- Auxiliary definition used to define `liftOfRightInverse` -/
+def liftOfRightInverseAux (hf : Function.RightInverse f_inv f) (g : A →ₐ[R] C)
+    (hg : RingHom.ker f ≤ RingHom.ker g) :
+    B →ₐ[R] C :=
+  { RingHom.liftOfRightInverse f.toRingHom f_inv hf ⟨g.toRingHom, hg⟩ with
+    toFun := fun b ↦ g (f_inv b)
+    commutes' := by
+      intro r
+      rw [← map_algebraMap g, ← sub_eq_zero, ← map_sub g, ← RingHom.mem_ker]
+      apply hg
+      rw [RingHom.mem_ker, map_sub f, sub_eq_zero, map_algebraMap f, hf _] }
+
+@[simp]
+theorem liftOfRightInverseAux_comp_apply (hf : Function.RightInverse f_inv f) (g : A →ₐ[R] C)
+    (hg : RingHom.ker f ≤ RingHom.ker g) (a : A) :
+    (f.liftOfRightInverseAux f_inv hf g hg) (f a) = g a :=
+  f.toAddMonoidHom.liftOfRightInverse_comp_apply f_inv hf ⟨g.toAddMonoidHom, hg⟩ a
+
+/-- `liftOfRightInverse f hf g hg` is the unique `R`-algebra homomorphism `φ`
+
+* such that `φ.comp f = g` (`AlgHom.liftOfRightInverse_comp`),
+* where `f : A →ₐ[R] B` has a right_inverse `f_inv` (`hf`),
+* and `g : B →ₐ[R] C` satisfies `hg : f.ker ≤ g.ker`.
+
+See `AlgHom.eq_liftOfRightInverse` for the uniqueness lemma.
+
+```
+   A .
+   |  \
+ f |   \ g
+   |    \
+   v     \⌟
+   B ----> C
+      ∃!φ
+```
+-/
+def liftOfRightInverse (hf : Function.RightInverse f_inv f) :
+    { g : A →ₐ[R] C // RingHom.ker f ≤ RingHom.ker g } ≃ (B →ₐ[R] C) where
+  toFun g := f.liftOfRightInverseAux f_inv hf g.1 g.2
+  invFun φ := ⟨φ.comp f, fun x hx ↦ RingHom.mem_ker.mpr <| by simp [RingHom.mem_ker.mp hx]⟩
+  left_inv g := by
+    ext
+    simp only [comp_apply, liftOfRightInverseAux_comp_apply]
+  right_inv φ := by
+    ext b
+    simp [liftOfRightInverseAux, hf b]
+
+/-- A non-computable version of `AlgHom.liftOfRightInverse` for when no computable right
+inverse is available, that uses `Function.surjInv`. -/
+@[simp]
+noncomputable abbrev liftOfSurjective' (hf : Function.Surjective f) : -- TODO : replace `AlgHom.liftOfSurjective`
+    { g : A →ₐ[R] C // RingHom.ker f ≤ RingHom.ker g } ≃ (B →ₐ[R] C) :=
+  f.liftOfRightInverse (Function.surjInv hf) (Function.rightInverse_surjInv hf)
+
+theorem liftOfRightInverse_comp_apply (hf : Function.RightInverse f_inv f)
+    (g : { g : A →ₐ[R] C // RingHom.ker f ≤ RingHom.ker g }) (x : A) :
+    (f.liftOfRightInverse f_inv hf g) (f x) = g.1 x :=
+  f.liftOfRightInverseAux_comp_apply f_inv hf g.1 g.2 x
+
+theorem liftOfRightInverse_comp (hf : Function.RightInverse f_inv f)
+    (g : { g : A →ₐ[R] C // RingHom.ker f ≤ RingHom.ker g }) :
+    (f.liftOfRightInverse f_inv hf g).comp f = g :=
+  AlgHom.ext <| f.liftOfRightInverse_comp_apply f_inv hf g
+
+theorem liftOfRightInverse_symm (hf : Function.RightInverse f_inv f) (φ : B →ₐ[R] C) :
+  (f.liftOfRightInverse f_inv hf).symm φ = φ.comp f := rfl
+
+theorem eq_liftOfRightInverse (hf : Function.RightInverse f_inv f) (g : A →ₐ[R] C)
+    (hg : RingHom.ker f ≤ RingHom.ker g) (h : B →ₐ[R] C) (hh : h.comp f = g) :
+    h = f.liftOfRightInverse f_inv hf ⟨g, hg⟩ := by
+  simp_rw [← hh]
+  exact ((f.liftOfRightInverse f_inv hf).apply_symm_apply _).symm
+
+end AlgHom
+-- end #37817
