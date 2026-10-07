@@ -3,6 +3,7 @@ import Mathlib.Algebra.Ring.IsFormallyReal
 import Mathlib.Algebra.Ring.Subsemiring.Order
 import Mathlib.FieldTheory.Galois.Basic
 import Mathlib.GroupTheory.Sylow
+import Mathlib.Algebra.Ring.Semireal.Defs
 
 /- Lemmas that should be upstreamed to Mathlib -/
 
@@ -376,9 +377,9 @@ theorem Submonoid.oneLE.isMulSpanning [LinearOrder G] [IsOrderedMonoid G] :
 variable {G} {M : Submonoid G} (hM : M.IsMulPointed)
 
 /-- Construct a partial order by designating a submonoid with zero support in an abelian group. -/
-@[to_additive
+@[to_additive (attr := implicit_reducible)
 /-- Construct a partial order by designating a submonoid with zero support in an abelian group. -/]
-abbrev PartialOrder.mkOfSubmonoid : PartialOrder G where
+def PartialOrder.mkOfSubmonoid : PartialOrder G where
   le a b := b / a ∈ M
   le_refl a := by simp [one_mem]
   le_trans a b c nab nbc := by simpa using mul_mem nbc nab
@@ -399,14 +400,15 @@ theorem IsOrderedMonoid.mkOfSubmonoid :
 
 /-- Construct a linear order by designating
     a maximal submonoid with zero support in an abelian group. -/
-@[to_additive
+@[to_additive (attr := implicit_reducible)
 /-- Construct a linear order by designating
     a maximal submonoid with zero support in an abelian group. -/]
-abbrev LinearOrder.mkOfSubmonoid (hMs : M.IsMulSpanning) [DecidablePred (· ∈ M)] :
+def LinearOrder.mkOfSubmonoid (hMs : M.IsMulSpanning) [i : DecidablePred (· ∈ M)] :
     LinearOrder G where
   __ := PartialOrder.mkOfSubmonoid hM
   le_total a b := by simpa using hMs.mem_or_inv_mem (b / a)
-  toDecidableLE _ := _
+  toDecidableLE a b := i (b / a)
+
 -- end #37298
 
 -- `Mathlib.Algebra.Order.Group.Cone`
@@ -420,11 +422,16 @@ variable (G) in
     and partially ordered group structures on `G`. -/]
 noncomputable def submonoidPartialOrderEquiv :
     Equiv {C : Submonoid G // C.IsMulPointed}
-          {o : PartialOrder G // IsOrderedMonoid G} where
+          {_o : PartialOrder G // IsOrderedMonoid G} where
   toFun := fun ⟨_, hC⟩ ↦ ⟨.mkOfSubmonoid hC, .mkOfSubmonoid _⟩
   invFun := fun ⟨_, _⟩ ↦ ⟨.oneLE G, Submonoid.oneLE.isMulPointed G⟩
   left_inv := fun ⟨_, _⟩ ↦ by ext; simp
-  right_inv := fun ⟨_, _⟩ ↦ by ext; simp [LE.le] -- TODO : figure out why [LE.le] works!
+  right_inv := fun ⟨v, p⟩ ↦ by
+    -- TODO : fix proj-reduction with classes, simp, extends-projection
+    ext : 1
+    simp only
+    ext
+    simp
 
 @[to_additive (attr := simp)]
 theorem submonoidPartialOrderEquiv_apply
@@ -444,7 +451,7 @@ variable (G) in
     and linearly ordered group structures on `G`. -/]
 noncomputable def submonoidLinearOrderEquiv :
     Equiv {C : Submonoid G // C.IsMulPointed ∧ C.IsMulSpanning}
-          {o : LinearOrder G // IsOrderedMonoid G} where
+          {_o : LinearOrder G // IsOrderedMonoid G} where
   toFun := fun ⟨C, hC⟩ ↦ ⟨.mkOfSubmonoid hC.1 hC.2, .mkOfSubmonoid hC.1⟩
   invFun := fun ⟨_, _⟩ ↦ ⟨.oneLE G, Submonoid.oneLE.isMulPointed G, Submonoid.oneLE.isMulSpanning G⟩
   left_inv := fun ⟨_, _, _⟩ ↦ by ext; simp
@@ -535,11 +542,16 @@ variable (R) in
     and partially ordered ring structures on `R`. -/
 noncomputable def isPointedPartialOrderEquiv :
     Equiv {C : Subsemiring R // C.IsPointed}
-          {o : PartialOrder R // IsOrderedRing R} where
+          {_o : PartialOrder R // IsOrderedRing R} where
   toFun := fun ⟨_, hC⟩ ↦ ⟨.mkOfAddSubmonoid hC, .mkOfSubsemiring _⟩
   invFun := fun ⟨_, _⟩ ↦ ⟨.nonneg R, Subsemiring.nonneg.isPointed R⟩
   left_inv := fun ⟨_, _⟩ ↦ by ext; simp
-  right_inv := fun ⟨_, _⟩ ↦ by ext; simp [LE.le]
+  right_inv := fun ⟨_, _⟩ ↦ by
+    -- TODO : fix proj-reduction with classes, simp, extends-projection
+    ext : 1
+    simp only
+    ext
+    simp
 
 @[simp]
 theorem isPointedPartialOrderEquiv_apply
@@ -556,7 +568,7 @@ open Classical in
     and linearly ordered ring structures on `R`. -/
 noncomputable def isPointedLinearOrderEquiv :
     Equiv {C : Subsemiring R // C.IsPointed ∧ C.IsSpanning}
-          {o : LinearOrder R // IsOrderedRing R} where
+          {_o : LinearOrder R // IsOrderedRing R} where
   toFun := fun ⟨C, hC⟩ ↦ ⟨.mkOfAddSubmonoid hC.1 hC.2, .mkOfSubsemiring hC.1⟩
   invFun := fun ⟨_, _⟩ ↦
     ⟨.nonneg R, Subsemiring.nonneg.isPointed R, Subsemiring.nonneg.isSpanning R⟩
@@ -735,3 +747,15 @@ theorem RingHom.toAddMonoidHom_toSemilinearMap {R S : Type*} [Semiring R] [Semir
     (f : R →+* S) : f.toSemilinearMap.toAddMonoidHom = f.toAddMonoidHom := rfl
 
 end map_comap
+
+-- #44600
+instance {R : Type*} [NonAssocSemiring R] [Nontrivial R] [IsFormallyReal R] : IsSemireal R where
+  one_add_ne_zero := (one_ne_zero <| IsFormallyReal.eq_zero_of_add_right IsSumSq.one · ·)
+
+-- #44600
+instance {F : Type*} [Field F] [IsSemireal F] : IsFormallyReal F :=
+  .of_eq_zero_of_eq_zero_of_mul_self_add <| fun {s} {a} _ h ↦ by
+    by_contra
+    exact IsSemireal.one_add_ne_zero (s := s * a⁻¹ ^ 2)
+      (by grind [inv_pow, IsSumSq.mul, IsSquare.isSumSq, isSquare_inv, IsSquare.sq])
+      (by grind)

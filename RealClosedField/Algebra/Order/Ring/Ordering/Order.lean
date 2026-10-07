@@ -26,7 +26,7 @@ open Classical in
 /-- Equivalence between orderings on a field `F` and linearly ordered field structures on `F`. -/
 noncomputable def isOrderingLinearOrderEquiv :
     Equiv {O : Subsemiring F // O.IsOrdering}
-          {o : LinearOrder F // IsStrictOrderedRing F} where
+          {_o : LinearOrder F // IsStrictOrderedRing F} where
   toFun := fun ⟨O, hO⟩ ↦
     let ⟨o, ho⟩ := Ring.isPointedLinearOrderEquiv F
       ⟨O, hO.isPreordering.isPointed, hO.isSpanning⟩
@@ -35,13 +35,17 @@ noncomputable def isOrderingLinearOrderEquiv :
     let ⟨O, hO⟩ := (Ring.isPointedLinearOrderEquiv F).symm ⟨o, inferInstance⟩
     ⟨O, Subsemiring.IsOrdering.of_isSpanning_of_isPointed hO.2 hO.1⟩
   left_inv := fun ⟨_, _⟩ ↦ by ext; simp
-  right_inv := fun ⟨_, _⟩ ↦ by ext; simp
+  right_inv := fun ⟨_, _⟩ ↦ by
+    -- TODO : fix proj-reduction with classes, simp, extends-projection
+    ext : 1
+    simp
+    ext
+    simp
 
 @[simp]
 theorem isOrderingLinearOrderEquiv_apply (O : Subsemiring F) (h : O.IsOrdering) :
     (isOrderingLinearOrderEquiv F ⟨O, h⟩ : LinearOrder F) =
-    Ring.isPointedLinearOrderEquiv F
-      ⟨O, Subsemiring.IsPreordering.isPointed O, Subsemiring.IsOrdering.isSpanning O⟩ := by
+    Ring.isPointedLinearOrderEquiv F ⟨O, h.isPreordering.isPointed, h.isSpanning⟩ := by
   simp [isOrderingLinearOrderEquiv]
 
 @[simp]

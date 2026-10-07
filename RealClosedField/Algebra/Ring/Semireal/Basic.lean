@@ -15,10 +15,6 @@ We prove basic properties of semireal rings, such as their relationship to forma
 
 variable (R : Type*)
 
-instance [NonAssocSemiring R] [Nontrivial R] [IsFormallyReal R] : IsSemireal R where
-  one_add_ne_zero hs h_contr := by
-    simpa using IsFormallyReal.eq_zero_of_add_right IsSumSq.one hs h_contr
-
 section CommRing
 
 variable [CommRing R]
@@ -38,10 +34,3 @@ theorem exists_isPreordering_iff_isSemireal :
   mpr _ := ⟨_, Subsemiring.IsPreordering.sumSq R⟩
 
 end CommRing
-
-instance {F : Type*} [Field F] [IsSemireal F] : IsFormallyReal F :=
-  .of_eq_zero_of_eq_zero_of_mul_self_add <| fun {s} {a} _ h ↦ by
-    by_contra
-    exact IsSemireal.one_add_ne_zero (s := s * a⁻¹ ^ 2)
-      (by grind [inv_pow, IsSumSq.mul, IsSquare.isSumSq, isSquare_inv, IsSquare.sq])
-      (by grind)
