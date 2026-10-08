@@ -51,6 +51,8 @@ variable {f} in
 theorem isAdjoinRootMonic' (hf : f.Monic) : IsAdjoinRootMonic' (AdjoinRoot f) f :=
   ⟨isAdjoinRoot' f, hf⟩
 
+-- TODO : unconditional versions over a field for next 3 lemmas
+
 variable {f} in
 @[simp]
 theorem finrank [Nontrivial R] (hf : f.Monic) : Module.finrank R (AdjoinRoot f) = f.natDegree :=

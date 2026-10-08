@@ -14,14 +14,14 @@ open Classical in
 theorem Field.exists_isStrictOrderedRing_iff_isSemireal :
     (∃ _ : LinearOrder F, IsStrictOrderedRing F) ↔ IsSemireal F := by
   rw [Equiv.exists_subtype_congr (isOrderingLinearOrderEquiv F).symm]
-  exact ⟨fun ⟨O, hO⟩ => ⟨fun {s} hs h ↦ Subsemiring.IsPreordering.neg_one_notMem O <|
-            Subsemiring.mem_of_isSumSq O (by simp_all [show s = -1 by linear_combination h])⟩,
+  exact ⟨fun ⟨O, hO⟩ => ⟨fun {s} hs h ↦ hO.isPreordering.neg_one_notMem <|
+            hO.isPreordering.mem_of_isSumSq (by simp_all [show s = -1 by linear_combination h])⟩,
           fun _ ↦
-            letI exO := Subsemiring.IsPreordering.exists_le_isOrdering (Subsemiring.sumSq F)
-            letI inst := (choose_spec exO).2
-            ⟨choose exO, inferInstance⟩⟩
+            letI exO := (Subsemiring.IsPreordering.sumSq F).exists_le_isOrdering
+            ⟨choose exO, (choose_spec exO).2⟩⟩
 
 variable (F) in
+@[instance_reducible]
 noncomputable def LinearOrder.ofIsSemireal [IsSemireal F] : LinearOrder F :=
   (Field.exists_isStrictOrderedRing_iff_isSemireal.mpr inferInstance).choose
 
@@ -31,14 +31,19 @@ instance IsStrictOrderedRing.ofIsSemireal [IsSemireal F] :
     IsStrictOrderedRing F :=
   (Field.exists_isStrictOrderedRing_iff_isSemireal.mpr inferInstance).choose_spec
 
+@[instance_reducible]
 noncomputable def IsSemireal.unique_isStrictOrderedRing [IsSemireal F]
     (h : ∀ x : F, IsSumSq x ∨ IsSumSq (-x)) :
     Unique {l : LinearOrder F // IsStrictOrderedRing F} where
   default := Field.isOrderingLinearOrderEquiv F
-    ⟨Subsemiring.sumSq F, .mk' (by simpa using h) inferInstance⟩
+    ⟨Subsemiring.sumSq F, .of_isSpanning_of_isPointed
+      (by simpa [AddSubmonoid.IsSpanning] using h) (Subsemiring.IsPreordering.sumSq F).isPointed⟩
   uniq l' := by
     rcases l' with ⟨l', hl'⟩
     generalize_proofs
+    -- TODO : fix proj-reduction with classes, simp, extends-projection
+    ext : 1
+    simp
     ext x y
     suffices x ≤ y ↔ IsSumSq (y - x) by simp [this]
     refine ⟨fun hxy => ?_, fun hxy ↦ by linarith [IsSumSq.nonneg hxy]⟩
@@ -51,15 +56,15 @@ theorem IsSemireal.isSumSq_or_isSumSq_neg [IsSemireal F]
   rw [Equiv.existsUnique_subtype_congr (Field.isOrderingLinearOrderEquiv F).symm] at h
   by_contra! hc
   rcases hc with ⟨x, _⟩
-  rcases Subsemiring.IsPreordering.exists_le_isOrdering_and_mem <|
-    Subsemiring.IsPreordering.neg_one_notMem_closure_insert_of_neg_notMem
+  rcases (Subsemiring.IsPreordering.sumSq F).exists_le_isOrdering_and_mem <|
+    (Subsemiring.IsPreordering.sumSq F).neg_one_notMem_closure_insert_of_neg_notMem
       (by simp_all : -x ∉ (Subsemiring.sumSq F)) with ⟨O₁, hle₁, hO₁, hx₁⟩
-  rcases Subsemiring.IsPreordering.exists_le_isOrdering_and_mem <|
-    Subsemiring.IsPreordering.neg_one_notMem_closure_insert_of_neg_notMem
+  rcases (Subsemiring.IsPreordering.sumSq F).exists_le_isOrdering_and_mem <|
+    (Subsemiring.IsPreordering.sumSq F).neg_one_notMem_closure_insert_of_neg_notMem
       (by simp_all : -(-x) ∉ (Subsemiring.sumSq F)) with ⟨O₂, hle₂, hO₂, hx₂⟩
   exact (show O₁ ≠ O₂ from fun h ↦ show x ≠ 0 by aesop <|
-    (Subsemiring.IsPreordering.isPointed O₁).eq_zero_of_mem_of_neg_mem hx₁ (by simp_all)) <|
-      h.unique inferInstance inferInstance
+    hO₁.isPreordering.isPointed.eq_zero_of_mem_of_neg_mem hx₁ (by simp_all)) <|
+      h.unique hO₁ hO₂
 
 theorem IsSemireal.existsUnique_isStrictOrderedRing_iff [IsSemireal F] :
     (∃! _ : LinearOrder F, IsStrictOrderedRing F) ↔ ∀ x : F, IsSumSq x ∨ IsSumSq (-x) where
@@ -78,6 +83,7 @@ theorem IsStrictOrderedRing.unique_isStrictOrderedRing_iff [LinearOrder F] [IsSt
     · simp [h x hx]
     · simp [h (-x) (by linarith)]
 
+@[instance_reducible]
 noncomputable def Rat.unique_isStrictOrderedRing :
     Unique {l : LinearOrder ℚ // @IsStrictOrderedRing ℚ _ (l.toPartialOrder)} where
   default := ⟨inferInstance, inferInstance⟩

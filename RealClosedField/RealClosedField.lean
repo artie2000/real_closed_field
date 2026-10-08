@@ -6,22 +6,12 @@ Authors: Artie Khovanov
 import RealClosedField.OrderedAlgebra
 import RealClosedField.Algebra.Order.Field.IsSemireal
 import Mathlib.FieldTheory.IsRealClosed.Basic
+import Mathlib.Algebra.Polynomial.SpecificDegree
 
 -- TODO : figure out simp-normal form issue
 attribute [simp] IsSquare.sq
 
 open Polynomial
-
-/-- A field `R` is real closed if
-    1. `R` is real
-    2. for all `x ∈ R`, either `x` or `-x` is a square
-    3. every odd-degree polynomial has a root.
--/
-class IsRealClosed (R : Type*) [Field R] : Prop extends IsSemireal R where
-  isSquare_or_isSquare_neg (x : R) : IsSquare x ∨ IsSquare (-x)
-  exists_isRoot_of_odd_natDegree {f : R[X]} (hf : Odd f.natDegree) : ∃ x, f.IsRoot x
-
-attribute [aesop 90% forward] IsRealClosed.isSquare_or_isSquare_neg
 
 /-- A real closure of an ordered field is a real closed ordered algebraic extension. -/
 class IsRealClosure (K R : Type*) [Field K] [Field R] [LinearOrder K] [LinearOrder R] [Algebra K R]
@@ -43,7 +33,7 @@ theorem mk' [IsSemireal R]
     IsRealClosed R where
   isSquare_or_isSquare_neg := by grind
   exists_isRoot_of_odd_natDegree :=
-    Polynomial.has_root_of_monic_odd_natDegree_imp_not_irreducible h₂
+    Polynomial.exists_root_of_monic_odd_natDegree_imp_not_irreducible h₂
 
 -- TODO : idiomatic way to say a disjunction is saturated?
 theorem of_isAdjoinRoot_i_or_finrank_eq_one
@@ -71,7 +61,10 @@ theorem of_isAdjoinRoot_i_or_finrank_eq_one
     have fk_mul := Module.finrank_mul_finrank
       R (AdjoinRoot (X ^ 2 + 1 : R[X])) (AdjoinRoot (X ^ 2 - C x))
     have := finrank_le (AdjoinRoot (X ^ 2 - C x))
-    simp [← fk_mul, Monic] at this
+    -- TODO : remove when we have unconditional simp lemmas over a field for AdjoinRoot.finrank
+    have := AdjoinRoot.finrank (f := (X ^ 2 + 1 : R[X])) (by monicity!)
+    have := AdjoinRoot.finrank (f := (X ^ 2 - C x)) (by monicity!)
+    simp_all [← fk_mul]
   have := IsSemireal.of_forall_adjoinRoot_i_isSquare hK hK₂
   refine .mk' (fun {x} hx ↦ ?_) (fun {f} hf_monic hf_odd hf_deg hf_irr ↦ ?_)
   · have iu : IsIntegralGenSqrt (AdjoinRoot.root (X ^ 2 - C x)) x :=
@@ -109,21 +102,11 @@ theorem of_isAdjoinRoot_i_isAlgClosure {K : Type*} [Field K] [Algebra R K] [IsAl
       exact Or.inr hK
     · exact Or.inl (h.map hK.some.symm)
 
-theorem of_linearOrderedField [LinearOrder R] [IsStrictOrderedRing R]
-    (isSquare_of_nonneg : ∀ {x : R}, 0 ≤ x → IsSquare x)
-    (exists_isRoot_of_odd_natDegree : ∀ {f : R[X]}, Odd f.natDegree → ∃ x, f.IsRoot x) :
-    IsRealClosed R where
-  isSquare_or_isSquare_neg {x} := by
-    rcases le_or_gt x 0 with (neg | pos)
-    · exact Or.inr <| isSquare_of_nonneg (by linarith)
-    · exact Or.inl <| isSquare_of_nonneg (by linarith)
-  exists_isRoot_of_odd_natDegree := exists_isRoot_of_odd_natDegree
-
 theorem of_linearOrderedField' [LinearOrder R] [IsStrictOrderedRing R]
     (h₁ : ∀ {x : R}, 0 ≤ x → IsSquare x)
     (h₂ : ∀ {f : R[X]}, f.Monic → Odd f.natDegree → f.natDegree ≠ 1 → ¬(Irreducible f)) :
     IsRealClosed R :=
-  .of_linearOrderedField h₁ <| Polynomial.has_root_of_monic_odd_natDegree_imp_not_irreducible h₂
+  .of_linearOrderedField h₁ <| Polynomial.exists_root_of_monic_odd_natDegree_imp_not_irreducible h₂
 
 theorem of_intermediateValueProperty [LinearOrder R] [IsStrictOrderedRing R]
     (h : ∀ {f : R[X]} {x y : R}, x ≤ y → 0 ≤ f.eval x → f.eval y ≤ 0 →
@@ -174,12 +157,6 @@ section IsRealClosed
 
 variable [IsRealClosed R]
 
--- TODO : proper sqrt operation + API?
-
--- TODO : iff version for nonzero
-@[aesop 50%]
-theorem _root_.IsSquare.of_not_isSquare_neg {x : R} (hx : ¬ IsSquare (-x)) : IsSquare x := by aesop
-
 theorem _root_.IsSquare.of_isSumSq {x : R} (hx : IsSumSq x) : IsSquare x := by
   suffices IsSquare (-x) → x = 0 by aesop
   exact (IsFormallyReal.eq_zero_of_isSumSq_of_neg_isSumSq hx <| IsSquare.isSumSq ·)
@@ -188,22 +165,6 @@ instance : Fact (Irreducible (X ^ 2 + 1 : R[X])) := Fact.mk <| by
   suffices ¬ IsSquare (-1 : R) by
     simpa [← Polynomial.X_sq_sub_C_irreducible_iff_not_isSquare] using this
   aesop (add safe forward IsSemireal.not_isSumSq_neg_one)
-
-theorem exists_eq_pow_of_odd (x : R) {n : ℕ} (hn : Odd n) : ∃ r, x = r ^ n := by
-  rcases exists_isRoot_of_odd_natDegree (f := X ^ n - C x) (by simp [hn]) with ⟨r, hr⟩
-  exact ⟨r, by linear_combination - (by simpa using hr : r ^ n - x = 0)⟩
-
-theorem exists_eq_pow_of_isSquare {x : R} (hx : IsSquare x) {n : ℕ} (hn : n > 0) :
-    ∃ r, x = r ^ n := by
-  induction n using Nat.strong_induction_on generalizing x with
-  | h n ih =>
-    rcases Nat.even_or_odd n with (even | odd)
-    · rcases even with ⟨m, hm⟩
-      rcases hx with ⟨s, hs⟩
-      rcases isSquare_or_isSquare_neg s with (h | h) <;>
-        rcases ih m (by lia) h (by lia) with ⟨r, hr⟩ <;>
-        exact ⟨r, by simp [hm, pow_add, ← hr, hs]⟩
-    · exact exists_eq_pow_of_odd x odd
 
 /-! # Classification of algebraic extensions of a real closed field -/
 
@@ -216,7 +177,7 @@ theorem odd_finrank_extension [FiniteDimensional R K] (hK :  Odd (Module.finrank
   rcases Field.exists_isAdjoinRootMonic R K with ⟨f, hf⟩
   rw [hf.finrank_eq_natDegree] at *
   rcases exists_isRoot_of_odd_natDegree (f := f) hK with ⟨x, hx⟩
-  simpa using natDegree_eq_of_degree_eq_some <|
+  simpa [← degree_eq_iff_natDegree_eq_of_neZero] using
     degree_eq_one_of_irreducible_of_root hf.irreducible hx
 
 variable (K) in
@@ -268,8 +229,8 @@ theorem isSquare_of_isAdjoinRoot_i (hK : IsAdjoinRootMonic' K (X ^ 2 + 1 : R[X])
         linear_combination
           (by simp_all : (algebraMap R K) (hRi.coeff x 0) + (algebraMap R K) r₁ = 0)
       rw [this] at hr₁
-      exact ne <| (algebraMap.coe_inj _ _).mp <| by -- TODO : add more usable inj lemmas
-        simpa using eq_zero_of_pow_eq_zero (a := algebraMap _ K (hRi.coeff x 1)) (n := 2)
+      exact ne <| by
+        simpa using eq_zero_of_pow_eq_zero (x := algebraMap _ K (hRi.coeff x 1)) (n := 2)
           (by linear_combination hr₁)
     use r₂ + algebraMap _ _ (hRi.coeff x 1) / (2 * r₂) * i
     field_simp
@@ -317,7 +278,7 @@ theorem finite_extension_rank_le [FiniteDimensional R K] : Module.finrank R K �
     (IntermediateField.inclusion hN_ge).comp_algebraMap.symm
   have := Module.Finite.of_restrictScalars_finite R M N
   apply finrank_neq_two_of_isAdjoinRoot_i R (isAdjoinRoot_i_of_isQuadraticExtension R M) N
-  rw [Module.finrank_div_finrank' R M N, hM, hN]
+  rw [← Module.finrank_div_finrank_cancel_left_of_nontrivial R M N, hM, hN]
   simp_all
 
 theorem rank_eq_one_of_isAdjoinRoot_i (hK : IsAdjoinRootMonic' K (X ^ 2 + 1 : R[X])) (L : Type*)
@@ -410,8 +371,12 @@ theorem irred_poly_classify {f : R[X]} (hf : f.Monic) :
       · suffices AdjoinRoot.mk f ((X - C (iu.coeff (AdjoinRoot.root f) 0)) ^ 2 +
                                  C (iu.coeff (AdjoinRoot.root f) 1) ^ 2) = 0 by
           rw [AdjoinRoot.mk_eq_zero] at this
-          exact Polynomial.eq_of_dvd_of_natDegree_le_of_leadingCoeff this
-            (by simp [iu.finrank, ← AdjoinRoot.finrank hf]) (by simp [hf])
+          refine Polynomial.eq_of_dvd_of_natDegree_le_of_leadingCoeff this ?_ ?_
+          · simp_rw [← AdjoinRoot.finrank hf, iu.finrank]
+            compute_degree
+          · rw [hf]
+            symm
+            monicity!
         simp [← AdjoinRoot.algebraMap_eq]
         nth_rw 1 [eq_root]
         ring_nf
@@ -420,9 +385,9 @@ theorem irred_poly_classify {f : R[X]} (hf : f.Monic) :
   mpr h := by
     rcases h with (lin | quad)
     · exact Polynomial.irreducible_of_degree_eq_one
-        (by simpa [Polynomial.degree_eq_one_iff_natDegree_eq_one] using lin)
+        (by simpa [← Polynomial.degree_eq_iff_natDegree_eq_of_neZero] using lin)
     · rcases quad with ⟨a, b, hb, rfl⟩
-      have h_deg : ((X - C a) ^ 2 + C b ^ 2).natDegree = 2 := by simp
+      have h_deg : ((X - C a) ^ 2 + C b ^ 2).natDegree = 2 := by compute_degree!
       rw [hf.irreducible_iff_roots_eq_zero_of_degree_le_three (by lia) (by lia),
           Polynomial.roots_eq_zero_iff_isRoot_eq_bot hf.ne_zero]
       ext r
@@ -435,29 +400,19 @@ open Classical in
 theorem irred_poly_natDegree {f : R[X]} (hf : Irreducible f) : f.natDegree ≤ 2 := by
   rw [← f.natDegree_normalize]
   rcases (irred_poly_classify (Polynomial.monic_normalize (Irreducible.ne_zero hf))).mp
-    (by simpa using hf) with (h | ⟨_, _ , _, h⟩) <;>
-    simp [h]
+    (by simpa using hf) with (h | ⟨_, _ , _, h⟩)
+  · simp [h]
+  · rw [h]; compute_degree
 
 section LinearOrderedField
 
 variable (R) in
+@[instance_reducible]
 noncomputable def unique_isStrictOrderedRing :
-    Unique {l : LinearOrder R // IsStrictOrderedRing R} :=
+    Unique {_l : LinearOrder R // IsStrictOrderedRing R} :=
   IsSemireal.unique_isStrictOrderedRing (by aesop)
 
 variable [LinearOrder R] [IsStrictOrderedRing R]
-
-theorem nonneg_iff_isSquare {x : R} : 0 ≤ x ↔ IsSquare x where
-  mp h := by
-    suffices IsSquare (-x) → x = 0 by aesop
-    intro hc
-    linarith [IsSquare.nonneg hc]
-  mpr := IsSquare.nonneg
-
-alias ⟨isSquare_of_nonneg, _⟩ := nonneg_iff_isSquare
-
-theorem exists_eq_pow_of_nonneg {x : R} (hx : 0 ≤ x) {n : ℕ} (hn : n > 0) : ∃ r, x = r ^ n :=
-  exists_eq_pow_of_isSquare (isSquare_of_nonneg hx) hn
 
 theorem intermediate_value_property {f : R[X]} {x y : R}
     (hle : x ≤ y) (hx : 0 ≤ f.eval x) (hy : f.eval y ≤ 0) :

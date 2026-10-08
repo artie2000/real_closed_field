@@ -24,20 +24,19 @@ open Classical in
 open scoped algebraMap in
 noncomputable def isOrderingOrderedAlgebraEquiv :
     Equiv {O : Subsemiring K // O.IsOrdering ∧ (Subsemiring.nonneg F).map (algebraMap F K) ≤ O}
-          {l : LinearOrder K // IsStrictOrderedRing K ∧ IsOrderedModule F K} where
+          {_l : LinearOrder K // IsStrictOrderedRing K ∧ IsOrderedModule F K} where
   toFun := fun ⟨O, hO, hO₂⟩ ↦
     letI l := (isOrderingLinearOrderEquiv K ⟨O, hO⟩).1
     letI hl := (isOrderingLinearOrderEquiv K ⟨O, hO⟩).2
-    ⟨l, ⟨inferInstance, .of_algebraMap_mono <| by
+    ⟨l, ⟨hl, .of_algebraMap_mono <| by
       rw [monotone_iff_map_nonneg]
       intro a ha
-      rw [IsConcreteLE.le_iff] at hO₂
-      simp at hO₂
-      convert hO₂ _ ha
-      unfold l
       -- TODO : fix proj-reduction with classes, simp, extends-projection
-      sorry
-      ⟩⟩
+      have l_def : l = LinearOrder.mkOfAddSubmonoid hO.isPreordering.isPointed hO.isSpanning := by
+        simp [l]
+      rw [l_def]
+      rw [IsConcreteLE.le_iff] at hO₂
+      simpa using hO₂ (by simpa using ha)⟩⟩
   invFun := fun ⟨l, hl⟩ ↦
     let O := (isOrderingLinearOrderEquiv K).symm ⟨l, hl.1⟩
     ⟨O, O.property, fun x hx ↦ by
