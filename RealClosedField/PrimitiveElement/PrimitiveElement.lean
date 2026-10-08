@@ -472,6 +472,11 @@ namespace IsIntegralUniqueGen
 
 variable {x g}
 
+theorem isIntegralUniqueGen_minpoly (h : IsIntegralUniqueGen x g) :
+    IsIntegralUniqueGen x (minpoly R x) where
+  __ := h.isIntegralUnique_minpoly
+  __ := h.toIsSimpleGenerator
+
 theorem of_basis [Module.Finite R S] {n} (B : Module.Basis (Fin n) R S)
     (hB : ∀ i, B i = x ^ (i : ℕ)) :
     IsIntegralUniqueGen x (X ^ n - ∑ i : Fin n, C (B.repr (x ^ n) i) * X ^ (i : ℕ)) where
@@ -515,16 +520,36 @@ theorem of_basis [Module.Finite R S] {n} (B : Module.Basis (Fin n) R S)
     rintro x ⟨i, rfl⟩
     aesop
 
+-- upstream
+noncomputable def _root_.Module.Basis.mkOfSpanning
+    {ι R M : Type*} [Fintype ι] [CommRing R] [AddCommMonoid M] [Module R M]
+    [Module.Finite R M] [Module.Free R M]
+    {v : ι → M} (hι : Fintype.card ι = Module.finrank R M)
+    (hsp : ⊤ ≤ Submodule.span R (Set.range v)) : Module.Basis ι R M :=
+  .ofEquivFun <| LinearEquiv.symm <| LinearEquiv.ofBijective (Module.piEquiv _ R _ v) <|
+    OrzechProperty.bijective_of_surjective_of_finrank_le _
+      (by simp_all) (by nontriviality R; simp [hι])
+
+-- TODO : upstream
+@[simp]
+theorem _root_.Module.Basis.coe_mkOfSpanning
+    {ι R M : Type*} [Fintype ι] [CommRing R] [AddCommMonoid M] [Module R M]
+    [Module.Finite R M] [Module.Free R M]
+    {v : ι → M} (hι : Fintype.card ι = Module.finrank R M)
+    (hsp : ⊤ ≤ Submodule.span R (Set.range v)) :
+    ⇑(Module.Basis.mkOfSpanning hι hsp) = v := by
+  classical
+  simp [Module.Basis.mkOfSpanning, Module.piEquiv_apply_apply]
+
 theorem of_free [Module.Finite R S] [Module.Free R S] (hx : IsGenerator R x) :
-    ∃ g' : R[X], IsIntegralUniqueGen x g' := by
-  refine ⟨_, IsIntegralUniqueGen.of_basis
-    (Module.Basis.mk (ι := Fin (Module.finrank R S)) (v := fun i ↦ x ^ (i : ℕ)) ?_ ?_)
-    (fun i ↦ by rw [Module.Basis.coe_mk])⟩
-  -- TODO : wasn't this proved by someone else using the Or something property
-  -- prove that a spanning set of size `finrank R S` is linearly independent (general nonsense)
-  -- prove that `1, x, x ^ 2, ..., x ^ (d - 1)` spans by using tensors to reduce to `Field R`
-  · sorry
-  · sorry
+    IsIntegralUniqueGen x (minpoly R x) := by
+  refine IsIntegralUniqueGen.isIntegralUniqueGen_minpoly <| IsIntegralUniqueGen.of_basis
+    (Module.Basis.mkOfSpanning (ι := Fin (Module.finrank R S)) (v := fun i ↦ x ^ (i : ℕ))
+      (by simp) ?_) ?_
+  · have := minpoly.natDegree_le (A := R) x
+    sorry -- TODO
+  · simp
+
 
 variable (h : IsIntegralUniqueGen x g)
 
@@ -580,7 +605,7 @@ theorem repr_algebraMap [Nontrivial S] (r : R) :
 
 @[simp]
 theorem repr_ofNat [Nontrivial S] (n : ℕ) [Nat.AtLeastTwo n] :
-    h.repr ofNat(n) = (n : R) := by simpa using h.repr_algebraMap n
+    h.repr ofNat(n) = (n : R) := by simpa [OfNat.ofNat] using h.repr_algebraMap n
 
 @[simp]
 theorem repr_root_pow_algebraMap :
@@ -614,16 +639,16 @@ variable {T : Type*} [CommRing T] [IsDomain T] [Algebra R T]
 
 noncomputable def liftEquivAroots :
     { y : T // y ∈ g.aroots T } ≃ (S →ₐ[R] T) :=
-  ((Equiv.refl _).subtypeEquiv fun x ↦ by
-    simp [map_monic_ne_zero h.monic]).trans h.liftEquiv
+  ((Equiv.refl _).subtypeEquiv fun x ↦ by simp [map_monic_ne_zero h.monic]).trans h.liftEquiv
 
 @[simp]
 theorem liftEquivAroots_symm_apply (φ : S →ₐ[R] T) :
-    h.liftEquivAroots.symm φ = φ x := by simp [liftEquivAroots]
+    h.liftEquivAroots.symm φ = φ x := by simp [liftEquivAroots, Equiv.refl]
 
 @[simp]
 theorem liftEquivAroots_apply_apply {y : T} (hy : y ∈ g.aroots T) (z : S) :
-    h.liftEquivAroots ⟨y, hy⟩ z = h.lift (y := y) (by simp_all) z := by simp [liftEquivAroots]
+    h.liftEquivAroots ⟨y, hy⟩ z = h.lift (y := y) (by simp_all) z := by
+  simp [liftEquivAroots, Equiv.refl]
 
 noncomputable abbrev fintypeAlgHom : Fintype (S →ₐ[R] T) :=
   letI := Classical.decEq T
@@ -671,60 +696,76 @@ section basis
 
 open Module
 
-noncomputable def coeff : S →ₗ[R] ℕ → R :=
+-- TODO : `Polynomial.coeffLinearMap`?
+noncomputable def coeff : S →ₗ[R] ℕ →₀ R :=
   { toFun := Polynomial.coeff, map_add' p q := by ext; simp, map_smul' c p := by ext; simp } ∘ₗ
   h.repr
+
+theorem coeff_apply (z : S) : h.coeff z = (h.repr z).coeff := by simp [coeff]
 
 theorem coeff_apply_of_natDegree_le (z : S) {i : ℕ} (hi : g.natDegree ≤ i) :
     h.coeff z i = 0 := by
   nontriviality R
-  simpa [coeff] using h.repr_coeff_of_natDegree_le z hi
+  simpa [coeff_apply] using h.repr_coeff_of_natDegree_le z hi
 
 theorem coeff_root_pow {n} (hn : n < g.natDegree) :
-    h.coeff (x ^ n) = Pi.single n 1 := by
+    h.coeff (x ^ n) = Finsupp.single n 1 := by
   ext i
-  simp [coeff, hn, Pi.single_apply]
+  simp [coeff_apply, hn, Finsupp.single_apply]
+  grind -- TODO : fix properly
 
 theorem coeff_root_pow_natDegree {i : ℕ} (hi : i < g.natDegree) :
     h.coeff (x ^ g.natDegree) i = - g.coeff i := by
-  simp [coeff, show i ≠ g.natDegree by lia]
+  simp [coeff_apply, show i ≠ g.natDegree by lia]
 
-theorem coeff_root (hdeg : 1 < g.natDegree) : h.coeff x = Pi.single 1 1 := by
+theorem coeff_root (hdeg : 1 < g.natDegree) : h.coeff x = Finsupp.single 1 1 := by
   rw [← h.coeff_root_pow hdeg, pow_one]
 
 @[simp]
-theorem coeff_one [Nontrivial S] : h.coeff 1 = Pi.single 0 1 := by
+theorem coeff_one [Nontrivial S] : h.coeff 1 = Finsupp.single 0 1 := by
   simp [← h.coeff_root_pow h.natDegree_gen_pos]
 
 @[simp]
-theorem coeff_algebraMap [Nontrivial S] (r : R) : h.coeff (algebraMap R S r) = Pi.single 0 r := by
+theorem coeff_algebraMap [Nontrivial S] (r : R) :
+    h.coeff (algebraMap R S r) = Finsupp.single 0 r := by
   ext i
-  simp [coeff, Polynomial.coeff_C, Pi.single_apply]
+  simp [coeff_apply, Polynomial.coeff_C, Finsupp.single_apply]
+  grind -- TODO : fix properly
 
 @[simp]
 theorem coeff_ofNat [Nontrivial S] (n : ℕ) [Nat.AtLeastTwo n] :
-    h.coeff ofNat(n) = Pi.single 0 (n : R) := by simpa using h.coeff_algebraMap n
+    h.coeff ofNat(n) = Finsupp.single 0 (n : R) := by
+  simpa [OfNat.ofNat] using h.coeff_algebraMap n
 
-noncomputable def basis : Basis (Fin g.natDegree) R S := Basis.ofRepr
-  { toFun y := (h.repr y).toFinsupp.coeff.comapDomain _ Fin.val_injective.injOn
-    invFun f := (ofFinsupp (f.mapDomain Fin.val)).aeval x
+-- TODO : upstream
+@[simp]
+theorem Polynomial.coeff_toFinsupp {R : Type*} [Semiring R] (p : R[X]) :
+    p.toFinsupp.coeff = p.coeff := rfl
+
+noncomputable def basis : Basis (Fin g.natDegree) R S := .ofRepr
+  { toFun y := (h.coeff y).comapDomain _ Fin.val_injective.injOn
+    invFun f := Polynomial.aeval x ⟨⟨f.mapDomain Fin.val⟩⟩
     left_inv y := by
       simp only
       rw [Finsupp.mapDomain_comapDomain _ Fin.val_injective]
-      · simp
+      · convert h.aeval_repr y
+        simp [coeff_apply]
       · intro i hi
         contrapose! hi
-        simpa [toFinsupp_apply] using h.repr_coeff_of_natDegree_le y (by simpa using hi)
+        simpa using h.coeff_apply_of_natDegree_le y (by simpa using hi)
     right_inv f := by
       nontriviality R
       ext i
-      suffices { toFinsupp := Finsupp.mapDomain Fin.val f } %ₘ g =
-               { toFinsupp := Finsupp.mapDomain Fin.val f } by
-        simpa [this] using Finsupp.mapDomain_apply Fin.val_injective ..
+      suffices ⟨⟨f.mapDomain Fin.val⟩⟩ %ₘ g =
+               ⟨⟨f.mapDomain Fin.val⟩⟩ by
+        convert Finsupp.comapDomain_apply Fin.val _ Fin.val_injective.injOn _
+        simp [coeff_apply, this]
+        -- TODO : Set.univ version of mapDomain_apply'
+        rw [f.mapDomain_apply' Set.univ (fun _ _ ↦ trivial) Fin.val_injective.injOn trivial]
       rw [Polynomial.modByMonic_eq_self_iff h.monic,
           degree_eq_natDegree h.monic.ne_zero, degree_lt_iff_coeff_zero]
       intro m hm
-      simpa using Finsupp.mapDomain_notin_range _ _ (by simpa)
+      simpa using Finsupp.mapDomain_of_notMem_range _ _ (by simpa)
     map_add' := by simp [Finsupp.comapDomain_add_of_injective Fin.val_injective]
     map_smul' := by simp [Finsupp.comapDomain_smul_of_injective Fin.val_injective] }
 
@@ -781,7 +822,7 @@ protected theorem leftMulMatrix : Algebra.leftMulMatrix h.basis x =
 
 theorem basis_repr_eq_coeff (y : S) (i : Fin _) :
     h.basis.repr y i = h.coeff y ↑i := by
-  simp [basis, coeff, toFinsupp_apply]
+  simp [basis, coeff]
 
 theorem coeff_eq_basis_repr_of_lt_natDegree (z : S) (i : ℕ) (hi : i < g.natDegree) :
     h.coeff z i = h.basis.repr z ⟨i, hi⟩ := by simp [basis_repr_eq_coeff]
@@ -829,7 +870,7 @@ noncomputable def lift {T : Type*} [Ring T] [Algebra R T] {y : T} (hy : f.aeval 
 noncomputable def equiv {T : Type*} [Ring T] [Algebra R T] (h' : IsAdjoinRoot' T f):
     S ≃ₐ[R] T := h.pe.equiv h'.pe
 
-noncomputable def map {T : Type*} [Ring T] [Algebra R T] (φ : S ≃ₐ[R] T) :
+theorem map (h : IsAdjoinRoot' S f) {T : Type*} [Ring T] [Algebra R T] (φ : S ≃ₐ[R] T) :
     IsAdjoinRoot' T f where
   exists_root := ⟨_, by simpa using (h.pe.map φ)⟩
 
@@ -870,7 +911,7 @@ noncomputable def liftEquivAroots {T : Type*} [CommRing T] [IsDomain T] [Algebra
 noncomputable def fintypeAlgHom {T : Type*} [CommRing T] [IsDomain T] [Algebra R T] :
     Fintype (S →ₐ[R] T) := h.pe.fintypeAlgHom
 
-noncomputable def map {T : Type*} [Ring T] [Algebra R T] (φ : S ≃ₐ[R] T) :
+theorem map (h : IsAdjoinRootMonic' S f) {T : Type*} [Ring T] [Algebra R T] (φ : S ≃ₐ[R] T) :
     IsAdjoinRootMonic' T f where
   __ := IsAdjoinRoot'.map h.toIsAdjoinRoot' φ
   f_monic := h.f_monic
