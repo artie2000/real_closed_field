@@ -3,7 +3,7 @@ Copyright (c) 2025 Artie Khovanov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
-import RealClosedField.Prereqs
+import RealClosedField.Upstream
 import RealClosedField.PrimitiveElement.Quadratic
 import RealClosedField.Algebra.Order.Ring.Ordering.Adjoin
 import RealClosedField.Algebra.Order.Ring.Ordering.Order
@@ -31,9 +31,13 @@ noncomputable def isOrderingOrderedAlgebraEquiv :
     ⟨l, ⟨inferInstance, .of_algebraMap_mono <| by
       rw [monotone_iff_map_nonneg]
       intro a ha
-      apply_fun (fun s ↦ s.carrier : Subsemiring K → Set K) at hO₂
-      · simpa [l] using (show Set.Ici (0 : F) ⊆ _ by simpa using hO₂) ha
-      · exact fun _ _ h ↦ h⟩⟩
+      rw [IsConcreteLE.le_iff] at hO₂
+      simp at hO₂
+      convert hO₂ _ ha
+      unfold l
+      -- TODO : fix proj-reduction with classes, simp, extends-projection
+      sorry
+      ⟩⟩
   invFun := fun ⟨l, hl⟩ ↦
     let O := (isOrderingLinearOrderEquiv K).symm ⟨l, hl.1⟩
     ⟨O, O.property, fun x hx ↦ by
@@ -42,7 +46,12 @@ noncomputable def isOrderingOrderedAlgebraEquiv :
       simpa using algebraMap_mono (β := K) h
     aesop⟩
   left_inv := fun ⟨_, _, _⟩ ↦ by ext; simp
-  right_inv := fun ⟨_, _, _⟩ ↦ by ext; simp
+  right_inv := fun ⟨_, _, _⟩ ↦ by
+    -- TODO : fix proj-reduction with classes, simp, extends-projection
+    ext : 1
+    simp
+    ext
+    simp
 
 @[simp]
 theorem isOrderingOrderedAlgebraEquiv_apply_coe
@@ -64,14 +73,12 @@ theorem exists_isOrderedAlgebra_iff_neg_one_notMem_sup :
   rw [Equiv.exists_subtype_congr (isOrderingOrderedAlgebraEquiv F K).symm]
   set P := (Subsemiring.nonneg F).map (algebraMap F K) ⊔ Subsemiring.sumSq K with hP
   refine ⟨fun ⟨O, hO, hO₂⟩ hc => ?_, fun h ↦ ?_⟩
-  · suffices P ≤ O from IsPreordering.neg_one_notMem _ (this hc)
+  · suffices P ≤ O from hO.isPreordering.neg_one_notMem (this hc)
     rw [sup_le_iff]
-    exact ⟨hO₂, fun _ ↦ by aesop⟩
-    -- TODO : add `SetLike.subset_def` or something to Aesop as a low prio apply rule,
-    -- and golf the last 2 lines here
-  · have : P.IsPreordering := { }
-    rcases IsPreordering.exists_le_isOrdering P with ⟨O, hO, hO₂⟩
-    exact ⟨O, ⟨inferInstance, by simp_all⟩⟩
+    exact ⟨hO₂, fun _ ha ↦ hO.isPreordering.mem_of_isSumSq (mem_sumSq.mp ha)⟩
+  · have : P.IsPreordering := ⟨by aesop, by aesop⟩
+    rcases this.exists_le_isOrdering with ⟨O, hO, hO₂⟩
+    exact ⟨O, ⟨hO₂, by simp_all⟩⟩
 
 end Field
 
@@ -109,7 +116,7 @@ theorem Field.exists_isOrderedAlgebra_of_projection
     · rintro ⟨r, hr⟩ x ⟨d, rfl⟩
       by_cases hd : d = 0
       · simp [hd]
-      · simpa using (mul_nonneg_iff_of_pos_right (hπ d hd)).mpr hr
+      · simpa [Subsemiring.smul_def] using (mul_nonneg_iff_of_pos_right (hπ d hd)).mpr hr
   intro h
   simpa using not_le_of_gt (hπ 1 (by simp)) (by simpa using ih _ h)
 
@@ -150,8 +157,8 @@ theorem lift_poly_span_nonneg_isSquare {f : F[X]} {r : K} (hAdj : IsIntegralUniq
   | mem x hx =>
       rcases hx with ⟨y, rfl⟩
       refine ⟨hAdj.repr y * hAdj.repr y, by simp, Submodule.mem_span_of_mem ?_⟩
-      exact ⟨hAdj.repr y,
-          by simpa using Polynomial.natDegree_modByMonic_lt _ hAdj.monic f_ne_one⟩
+      exact ⟨hAdj.repr y, by simpa [IsIntegralUniqueGen.repr]
+        using Polynomial.natDegree_modByMonic_lt _ hAdj.monic f_ne_one⟩
   | smul r x hx ih =>
       rcases ih with ⟨g, rfl, hg⟩
       exact ⟨r • g, by simp [Subsemiring.smul_def, -Nonneg.coe_smul], by aesop⟩
@@ -177,7 +184,7 @@ theorem minus_one_notMem_span_nonneg_isSquare_mod_f {f : F[X]}
         rcases hg with ⟨r, _, rfl⟩
         by_cases hz : r = 0
         · simp_all
-        · simp_all only [Polynomial.natDegree_mul hz hz, Even.add_self, true_and, Set.mem_setOf_eq,
+        · simp_all only [Polynomial.natDegree_mul hz hz, Even.add_self, true_and, Set.mem_ofPred_eq,
                         Polynomial.leadingCoeff_mul]
           exact ⟨mul_self_nonneg _, by linarith⟩
     | smul x g _ ihg =>
@@ -225,7 +232,7 @@ theorem minus_one_notMem_span_nonneg_isSquare_mod_f {f : F[X]}
       let mkₐ := (AdjoinRoot.mkₐ k').toLinearMap.restrictScalars (Subsemiring.nonneg F)
       have : ⇑mkₐ '' ((fun x ↦ x * x) '' {g | g.natDegree < f.natDegree}) ⊆ {x | IsSquare x} :=
         fun x hx ↦ by
-          simp only [Set.mem_image, Set.mem_setOf_eq, exists_exists_and_eq_and] at hx
+          simp only [Set.mem_image, Set.mem_ofPred_eq, exists_exists_and_eq_and] at hx
           rcases hx with ⟨r, hr, rfl⟩
           simp [mkₐ]
       have := Submodule.span_mono (R := Subsemiring.nonneg F) this
