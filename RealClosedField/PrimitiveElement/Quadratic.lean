@@ -56,7 +56,8 @@ theorem basis_0 : h.basis 0 = 1 := by simp [basis]
 
 theorem basis_1 : h.basis 1 = r := by simp [basis]
 
-noncomputable def coeff := h.toIsIntegralUniqueGen.coeff
+-- Prevents the polynomial `(X ^ 2 - C a)` in the type of `h` being simplified
+@[reducible] noncomputable def coeff := h.toIsIntegralUniqueGen.coeff
 
 theorem basis_repr_eq_coeff (y : S) (i : Fin 2) :
     h.basis.repr y i = h.coeff y ↑i :=
@@ -67,21 +68,21 @@ theorem coeff_apply_of_two_le (z : S) {i : ℕ} (hi : 2 ≤ i) :
   h.toIsIntegralUniqueGen.coeff_apply_of_natDegree_le z (by simpa using hi)
 
 @[simp]
-theorem coeff_one : h.coeff 1 = Pi.single 0 1 :=
+theorem coeff_one : h.coeff 1 = Finsupp.single 0 1 :=
   letI _ := h.nontrivial
   h.toIsIntegralUniqueGen.coeff_one
 
 @[simp]
-theorem coeff_root : h.coeff r = Pi.single 1 1 :=
+theorem coeff_root : h.coeff r = Finsupp.single 1 1 :=
   h.toIsIntegralUniqueGen.coeff_root (by simp)
 
 @[simp]
-theorem coeff_algebraMap (k : R) : h.coeff (algebraMap _ _ k) = Pi.single 0 k :=
+theorem coeff_algebraMap (k : R) : h.coeff (algebraMap _ _ k) = Finsupp.single 0 k :=
   letI _ := h.nontrivial
   h.toIsIntegralUniqueGen.coeff_algebraMap k
 
 @[simp]
-theorem coeff_ofNat (n : ℕ) [Nat.AtLeastTwo n] : h.coeff ofNat(n) = Pi.single 0 (n : R) :=
+theorem coeff_ofNat (n : ℕ) [Nat.AtLeastTwo n] : h.coeff ofNat(n) = Finsupp.single 0 (n : R) :=
   letI _ := h.nontrivial
   h.toIsIntegralUniqueGen.coeff_ofNat n
 
@@ -214,7 +215,7 @@ theorem Algebra.IsQuadraticExtension.exists_isAdjoinRootMonic_X_pow_two_sub_C
         (algebraMap _ _ (h.coeff (s ^ 2) 1)) * s + (algebraMap _ _ (h.coeff (s ^ 2) 0)) := by
       have lc : (minpoly K s).coeff 2 = 1 := by simpa [sdeg] using h.monic.coeff_natDegree
       have scoeff : ∀ i < 2, h.coeff (s ^ 2) i = - (minpoly K s).coeff i := fun _ _ ↦ by
-        simpa [sdeg] using h.coeff_root_pow_natDegree (by simpa [sdeg])
+        simpa [sdeg] using h.coeff_root_pow_natDegree (by simp_all)
       have := by simpa [↓Polynomial.aeval_eq_sum_range, ← h.finrank_eq_natDegree,
         Algebra.IsQuadraticExtension.finrank_eq_two, Finset.sum_range_succ, smul_def, lc] using
           minpoly.aeval K s
