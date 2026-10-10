@@ -55,8 +55,7 @@ theorem of_isAdjoinRoot_i_or_finrank_eq_one
     rw [← X_sq_sub_C_irreducible_iff_not_isSquare] at hi
     have := Fact.mk hi
     have := AdjoinRoot.finite (f := X ^ 2 - C x) (by simp [Monic])
-    let : Module R (AdjoinRoot (X ^ 2 - C x)) := inferInstance -- TODO : remove this shortcut instance
-    let := Module.Finite.trans
+    have := Module.Finite.trans
       (R := R) (AdjoinRoot (X ^ 2 + 1 : R[X])) (AdjoinRoot (X ^ 2 - C x))
     have fk_mul := Module.finrank_mul_finrank
       R (AdjoinRoot (X ^ 2 + 1 : R[X])) (AdjoinRoot (X ^ 2 - C x))

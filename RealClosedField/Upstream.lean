@@ -123,10 +123,6 @@ theorem exists_intermediateField_finrank_pow_prime {p : ℕ} (hp : p.Prime) {n :
 end IsGalois
 -- end #44299
 
--- #44309
-theorem IsAlgClosed.isSquare {k : Type*} [Field k] [IsAlgClosed k] (x : k) : IsSquare x :=
-  IsAlgClosed.exists_eq_mul_self x
-
 -- #44310
 theorem IsAlgClosed.of_finiteDimensional_imp_finrank_eq_one.{u} (k : Type u) [Field k]
     (H : ∀ (l : Type u), [Field l] → [Algebra k l] → [FiniteDimensional k l] →
@@ -279,71 +275,6 @@ protected theorem Subsemiring.IsPointed.sumSq [CommRing R] [IsFormallyReal R] :
   simpa using AddSubmonoid.IsPointed.sumSq R
 
 end IsFormallyReal
-
--- begin #37252
-namespace Submonoid
-
-section Group
-
-variable {G H : Type*} [Group G] [Group H] (f : G →* H) (M N : Submonoid G) (M' : Submonoid H)
-         {s : Set (Submonoid G)}
-
-@[to_additive (attr := simp)]
-theorem mulSupport_bot : (⊥ : Submonoid G).mulSupport = ⊥ := by ext; simp
-
-@[to_additive (attr := simp)]
-theorem mulSupport_top : (⊤ : Submonoid G).mulSupport = ⊤ := by ext; simp
-
-variable {M N} in
-@[to_additive]
-theorem mulSupport_mono (h : M ≤ N) : M.mulSupport ≤ N.mulSupport := fun _ ↦ by
-  have := mem_of_le_of_mem h
-  grind [mem_mulSupport]
-
-@[to_additive (attr := simp)]
-theorem mulSupport_inf : (M ⊓ N).mulSupport = M.mulSupport ⊓ N.mulSupport := by
-  ext
-  grind [mem_mulSupport, Subgroup.mem_inf]
-
-@[to_additive (attr := simp)]
-theorem mulSupport_sInf (s : Set (Submonoid G)) :
-    (sInf s).mulSupport = InfSet.sInf (mulSupport '' s) := by ext; simp; grind
-
-variable {M'} in
-@[to_additive]
-theorem IsMulSpanning.comap (hM' : M'.IsMulSpanning) : (M'.comap f).IsMulSpanning := by
-  grind [IsMulSpanning, mem_comap]
-
-@[to_additive (attr := simp)]
-theorem comap_mulSupport : (M'.comap f).mulSupport = (M'.mulSupport).comap f := by ext; simp
-
-variable {f M} in
-@[to_additive]
-theorem IsMulSpanning.map (hM : M.IsMulSpanning) (hf : Function.Surjective f) :
-    (M.map f).IsMulSpanning := fun x ↦ by
-  obtain ⟨x', rfl⟩ := hf x
-  grind [IsMulSpanning, mem_map]
-
-end Group
-
-section CommGroup
-
-variable {G H : Type*} [CommGroup G] [CommGroup H] (f : G →* H) (M : Submonoid G)
-
-variable {f M} in
-@[to_additive (attr := simp)]
-theorem map_mulSupport (hsupp : f.ker ≤ M.mulSupport) :
-    (M.map f).mulSupport = (M.mulSupport).map f := by
-  ext
-  refine ⟨fun ⟨⟨a, ⟨ha₁, ha₂⟩⟩, ⟨b, ⟨hb₁, hb₂⟩⟩⟩ ↦ ?_,
-    by grind [Subgroup.mem_map, mem_map, mem_mulSupport]⟩
-  have : (a * b)⁻¹ * b ∈ M := mul_mem (hsupp (show f (a * b) = 1 by simp_all)).2 hb₁
-  grind [mem_mulSupport, SetLike.mem_coe, mul_inv_rev, inv_mul_cancel_comm, Subgroup.mem_map]
-
-end CommGroup
-
-end Submonoid
--- end #37252
 
 -- begin #37298
 variable (G : Type*) [CommGroup G]
