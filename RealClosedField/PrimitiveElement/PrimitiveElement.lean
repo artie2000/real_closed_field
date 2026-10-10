@@ -85,7 +85,7 @@ namespace Algebra
 
 @[mk_iff IsGenerator.def]
 structure IsGenerator : Prop where
-  adjoin_eq_top : adjoin R {x} = ⊤
+  adjoin_eq_top : R[x] = ⊤
 
 theorem isGenerator_iff_aeval_surjective :
     IsGenerator R x ↔ Function.Surjective (aeval x : R[X] →ₐ[R] S) := by
@@ -100,10 +100,10 @@ theorem aeval_surjective : Function.Surjective (aeval x : R[X] →ₐ[R] S) :=
   (isGenerator_iff_aeval_surjective ..).mp hx
 
 include hx in
-noncomputable def adjoinEquiv : ↥(adjoin R {x}) ≃ₐ[R] S :=
+noncomputable def adjoinEquiv : ↥(R[x]) ≃ₐ[R] S :=
   (Subalgebra.equivOfEq _ _ hx.adjoin_eq_top).trans Subalgebra.topEquiv
 
-theorem adjoinEquiv_apply (y : ↥(adjoin R {x})) : adjoinEquiv hx y = ↑y := rfl
+theorem adjoinEquiv_apply (y : ↥(R[x])) : adjoinEquiv hx y = ↑y := rfl
 
 theorem adjoinEquiv_symm_apply (y : S) : (adjoinEquiv hx).symm y = y := rfl
 
@@ -299,7 +299,7 @@ variable {T : Type*} [Ring T] [Algebra R T] (φ : S ≃ₐ[R] T)
 
 theorem map (h : IsSimpleGenerator x g) : IsSimpleGenerator (φ x) g where
   adjoin_eq_top := by
-    have : (adjoin R {x}).map φ.toAlgHom = ⊤ := by
+    have : (R[x]).map φ.toAlgHom = ⊤ := by
       simp [h.adjoin_eq_top, AlgHom.range_eq_top, AlgEquiv.surjective]
     simpa [AlgHom.map_adjoin φ.toAlgHom {x}]
   ker_aeval := by
@@ -520,7 +520,7 @@ theorem of_basis [Module.Finite R S] {n} (B : Module.Basis (Fin n) R S)
     rintro x ⟨i, rfl⟩
     aesop
 
--- upstream
+-- TODO : upstream
 noncomputable def _root_.Module.Basis.mkOfSpanning
     {ι R M : Type*} [Fintype ι] [CommRing R] [AddCommMonoid M] [Module R M]
     [Module.Finite R M] [Module.Free R M]
@@ -541,15 +541,25 @@ theorem _root_.Module.Basis.coe_mkOfSpanning
   classical
   simp [Module.Basis.mkOfSpanning, Module.piEquiv_apply_apply]
 
+-- TODO : upstream
+open scoped Classical in
+theorem _root_.Submodule.span_range_natDegree_minpoly_eq_adjoin
+    {R A : Type*} [CommRing R] [Ring A] [Algebra R A] {x : A} (hx : IsIntegral R x) :
+    Submodule.span R (Finset.image (x ^ ·) (Finset.range (natDegree (minpoly R x)))) =
+      Subalgebra.toSubmodule (Algebra.adjoin R {x}) :=
+  Submodule.span_range_natDegree_eq_adjoin (minpoly.monic hx) (minpoly.aeval R x)
+
 theorem of_free [Module.Finite R S] [Module.Free R S] (hx : IsGenerator R x) :
     IsIntegralUniqueGen x (minpoly R x) := by
   refine IsIntegralUniqueGen.isIntegralUniqueGen_minpoly <| IsIntegralUniqueGen.of_basis
     (Module.Basis.mkOfSpanning (ι := Fin (Module.finrank R S)) (v := fun i ↦ x ^ (i : ℕ))
       (by simp) ?_) ?_
-  · have := minpoly.natDegree_le (A := R) x
-    sorry -- TODO
+  · have := Submodule.span_range_natDegree_minpoly_eq_adjoin (IsIntegral.of_finite R x)
+    simp only [Finset.coe_image, Finset.coe_range, hx.adjoin_eq_top, top_toSubmodule] at this
+    rw [← this, show (fun i ↦ x ^ i.val) = (fun i ↦ x ^ i) ∘ Fin.val from rfl,
+      Set.range_comp, Fin.range_val]
+    exact Submodule.span_mono <| Set.image_mono <| by simpa using minpoly.natDegree_le (A := R) x
   · simp
-
 
 variable (h : IsIntegralUniqueGen x g)
 

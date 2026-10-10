@@ -73,73 +73,55 @@ theorem Polynomial.exists_root_of_monic_odd_natDegree_imp_not_irreducible {F : T
   exact h (monic_normalize (Irreducible.ne_zero hf₃))
     (by simpa using hf₁) (by simpa using hf₂) (by simpa using hf₃)
 
--- #44299
-theorem IsGalois.exists_intermediateField_of_pow_prime_dvd
-    {K L : Type*} [Field K] [Field L] [Algebra K L] [FiniteDimensional K L] [IsGalois K L]
-    {p n : ℕ} (hp : Nat.Prime p) (hn : p ^ n ∣ Module.finrank K L) :
-    ∃ M : IntermediateField K L, Module.finrank M L = p ^ n := by
-  have := Fact.mk hp
-  rw [← IsGalois.card_aut_eq_finrank K L] at hn
-  rcases Sylow.exists_subgroup_card_pow_prime p hn with ⟨H, hH⟩
-  exact ⟨IntermediateField.fixedField H,
-        by simpa [IntermediateField.finrank_fixedField_eq_card] using hH⟩
+-- begin #44299
 
--- #44299
-theorem IsGalois.exists_intermediateField_of_card_pow_prime_mul
-    {K L : Type*} [Field K] [Field L] [Algebra K L] [FiniteDimensional K L] [IsGalois K L]
-    {p n a : ℕ} (hp : Nat.Prime p) (hn : Module.finrank K L = p ^ n * a) {m : ℕ} (hm : m ≤ n) :
-    ∃ M : IntermediateField K L, Module.finrank K M = p ^ m * a := by
-  rcases IsGalois.exists_intermediateField_of_pow_prime_dvd hp
-    (by rw [hn]; exact Nat.pow_dvd_of_le_of_pow_dvd (by simp : n - m ≤ n) (by simp)) with ⟨M, hM⟩
-  use M
-  rw [← Module.finrank_div_finrank_cancel_right_of_nontrivial _ _ L, hn, hM,
-      ← Nat.pow_sub_mul_pow _ hm, mul_assoc, Nat.mul_div_right _ (by positivity [hp.pos])]
+theorem Sylow.exists_subgroup_card_pow_prime_le' {G : Type*} [Group G]
+    {p : ℕ} (hp : p.Prime) {n : ℕ}
+    (H : Subgroup G) [Finite H] (hH : p ^ n ∣ Nat.card H) :
+    ∃ K : Subgroup G, Nat.card K = p ^ n ∧ K ≤ H := by
+  rcases exists_subgroup_card_pow_prime_le_le hp (by simp) hH bot_le
+    with ⟨K, hcard, _, hle⟩
+  exact ⟨K, hcard, hle⟩
 
--- #44299
-theorem Sylow.exists_subgroup_le_card_pow_prime_of_card_pow_prime
-    {G : Type*} [Group G] {m n p : ℕ} (hp : Nat.Prime p)
-    {H : Subgroup G} (hH : Nat.card H = p ^ n) (hm : m ≤ n) :
-    ∃ H' ≤ H, Nat.card H' = p ^ m := by
-  have : p ^ m ≤ Nat.card H := by
-    rw [hH]
-    gcongr
-    exact Nat.Prime.one_le hp
-  rcases Sylow.exists_subgroup_card_pow_prime_of_le_card hp (IsPGroup.of_card hH) this with ⟨H', hH'⟩
-  refine ⟨H'.map H.subtype, Subgroup.map_subtype_le .., ?_⟩
-  rw [Subgroup.card_map_of_injective (Subgroup.subtype_injective H)]
-  exact hH'
+namespace IsGalois
 
--- #44299
-theorem IsGalois.exists_intermediateField_ge_card_pow_prime_of_card_pow_prime
-    {K L : Type*} [Field K] [Field L] [Algebra K L] [FiniteDimensional K L] [IsGalois K L]
-    {m n p : ℕ} (hp : Nat.Prime p) {M : IntermediateField K L}
-    (hM : Module.finrank M L = p ^ n) (hm : m ≤ n) :
-    ∃ N ≥ M, Module.finrank N L = p ^ m := by
-  rcases Sylow.exists_subgroup_le_card_pow_prime_of_card_pow_prime (H := M.fixingSubgroup)
-    hp (by rw [IsGalois.card_fixingSubgroup_eq_finrank, hM]) hm with
-    ⟨H', hH'₁, hH'₂⟩
-  exact ⟨IntermediateField.fixedField H',
-        by simpa [IntermediateField.le_iff_le] using hH'₁,
-        by simpa [IntermediateField.finrank_fixedField_eq_card] using hH'₂⟩
+open Module
 
--- #44299
-theorem IsGalois.exists_intermediateField_ge_card_pow_prime_mul_of_card_pow_prime_mul
-    {K L : Type*} [Field K] [Field L] [Algebra K L] [FiniteDimensional K L] [IsGalois K L]
-    {p n a : ℕ} (hp : Nat.Prime p) (hL : Module.finrank K L = p ^ n * a)
-    {m m' : ℕ} {M : IntermediateField K L} (hM : Module.finrank K M = p ^ m * a)
-    (hm'₁ : m ≤ m') (hm'₂ : m' ≤ n) :
-    ∃ N ≥ M, Module.finrank K N = p ^ m' * a := by
-  by_cases! haz : a = 0
-  · exact ⟨M, by simp, by simp_all⟩
-  have : 0 < p := hp.pos
-  have : Module.finrank (↥M) L = p ^ (n - m) := by
-    rw [← Module.finrank_div_finrank_cancel_left_of_nontrivial K, hM, hL,
-        ← Nat.pow_sub_mul_pow _ (by lia : m ≤ n), mul_assoc, Nat.mul_div_left _ (by positivity)]
-  rcases IsGalois.exists_intermediateField_ge_card_pow_prime_of_card_pow_prime hp (M := M)
-    (n := n - m) (m := n - m') this (by lia) with ⟨N, hN, hNrk⟩
-  refine ⟨N, hN, ?_⟩
-  rw [← Module.finrank_div_finrank_cancel_right_of_nontrivial _ _ L, hL, hNrk,
-      ← Nat.pow_sub_mul_pow _ hm'₂, mul_assoc, Nat.mul_div_right _ (by positivity)]
+variable {K L : Type*} [Field K] [Field L] [Algebra K L] [FiniteDimensional K L] [IsGalois K L]
+
+theorem fixedField_le_iff_fixingSubgroup_le {M : IntermediateField K L} {H : Subgroup Gal(L/K)} :
+    IntermediateField.fixedField H ≤ M ↔ M.fixingSubgroup ≤ H where
+  mp h := IntermediateField.fixingSubgroup_fixedField H ▸ IntermediateField.fixingSubgroup_le h
+  mpr h := fixedField_fixingSubgroup M ▸ IntermediateField.fixedField_le h
+
+theorem exists_intermediateField_finrank_pow_prime_le_le {p : ℕ} (hp : p.Prime) {n : ℕ}
+    {M N : IntermediateField K L} (hM : finrank M L ∣ p ^ n) (hN : p ^ n ∣ finrank N L)
+    (hMN : N ≤ M) :
+    ∃ O : IntermediateField K L, finrank O L = p ^ n ∧ N ≤ O ∧ O ≤ M := by
+  rw [← IsGalois.card_fixingSubgroup_eq_finrank] at hM hN
+  rcases Sylow.exists_subgroup_card_pow_prime_le_le hp hM hN
+    (IntermediateField.fixingSubgroup_le hMN) with ⟨G, _⟩
+  use IntermediateField.fixedField G
+  grind [IntermediateField.le_iff_le,
+    IntermediateField.finrank_fixedField_eq_card, fixedField_le_iff_fixingSubgroup_le]
+
+theorem exists_intermediateField_finrank_pow_prime_le {p : ℕ} (hp : p.Prime) {n : ℕ}
+    (h : p ^ n ∣ finrank K L) (M : IntermediateField K L) (hM : finrank M L ∣ p ^ n) :
+    ∃ N ≤ M, finrank N L = p ^ n := by
+  grind [exists_intermediateField_finrank_pow_prime_le_le hp hM (by simpa) bot_le]
+
+theorem exists_intermediateField_finrank_pow_prime_ge {p : ℕ} (hp : p.Prime) {n : ℕ}
+    (M : IntermediateField K L) (hM : p ^ n ∣ finrank M L) :
+    ∃ N ≥ M, finrank N L = p ^ n := by
+  grind [exists_intermediateField_finrank_pow_prime_le_le hp (by simp) hM le_top]
+
+theorem exists_intermediateField_finrank_pow_prime {p : ℕ} (hp : p.Prime) {n : ℕ}
+    (h : p ^ n ∣ finrank K L) :
+    ∃ N : IntermediateField K L, finrank N L = p ^ n := by
+  simpa using exists_intermediateField_finrank_pow_prime_le hp h ⊤ (by simp)
+
+end IsGalois
+-- end #44299
 
 -- #44309
 theorem IsAlgClosed.isSquare {k : Type*} [Field k] [IsAlgClosed k] (x : k) : IsSquare x :=

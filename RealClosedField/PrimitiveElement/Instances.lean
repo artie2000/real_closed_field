@@ -96,11 +96,11 @@ theorem isIntegral [Algebra.IsIntegral R S] (s : Set S) :
 
 @[simp]
 theorem ker_aeval :
-    RingHom.ker (aeval ⟨x, by aesop⟩ : R[X] →ₐ[R] ↥(adjoin R {x})) = RingHom.ker (aeval x) := by
+    RingHom.ker (aeval ⟨x, by aesop⟩ : R[X] →ₐ[R] ↥(R[x])) = RingHom.ker (aeval x) := by
   -- TODO : clean this proof up
   have : RingHomClass.toRingHom (aeval x) =
-            (RingHomClass.toRingHom (Subalgebra.val (Algebra.adjoin R {x}))).comp
-            (RingHomClass.toRingHom (aeval ⟨x, by aesop⟩ : R[X] →ₐ[R] ↥(adjoin R {x}))) := by
+            (RingHomClass.toRingHom (Subalgebra.val (Algebra.R[x]))).comp
+            (RingHomClass.toRingHom (aeval ⟨x, by aesop⟩ : R[X] →ₐ[R] ↥(R[x]))) := by
     ext a
     simp
     simp
@@ -108,34 +108,34 @@ theorem ker_aeval :
   simp
 
 theorem aeval_minpoly :
-    (aeval ⟨x, by aesop⟩ : R[X] →ₐ[R] ↥(adjoin R {x})) (minpoly R x) = 0 := by
+    (aeval ⟨x, by aesop⟩ : R[X] →ₐ[R] ↥(R[x])) (minpoly R x) = 0 := by
   rw [← RingHom.mem_ker]
   simp
 
 variable {R x} in
 theorem isIntegral_elem (hx : IsIntegral R x) :
-    IsIntegral R (⟨x, by aesop⟩ : ↥(adjoin R {x})) :=
+    IsIntegral R (⟨x, by aesop⟩ : ↥(R[x])) :=
   ⟨minpoly R x, minpoly.monic hx, aeval_minpoly R x⟩
 
-theorem isGenerator : IsGenerator R (⟨x, by aesop⟩ : ↥(adjoin R {x})) where
-  adjoin_eq_top := Subalgebra.map_injective (f := (adjoin R {x}).val) Subtype.val_injective
+theorem isGenerator : IsGenerator R (⟨x, by aesop⟩ : ↥(R[x])) where
+  adjoin_eq_top := Subalgebra.map_injective (f := (R[x]).val) Subtype.val_injective
     (by simp [Subalgebra.range_val])
 
 variable {R x} in
 theorem hasPrincipalKerAeval {g : R[X]} (h : RingHom.ker (aeval x) = Ideal.span {g}) :
-    IsSimpleGenerator (⟨x, by aesop⟩ : ↥(adjoin R {x})) g where
+    IsSimpleGenerator (⟨x, by aesop⟩ : ↥(R[x])) g where
   __ := isGenerator R x
   ker_aeval := by simp [h]
 
 variable {R x} in
 theorem isIntegralUnique {g : R[X]} (hx : IsIntegralUnique x g) :
-    IsIntegralUnique (⟨x, by aesop⟩ : ↥(adjoin R {x})) g where
+    IsIntegralUnique (⟨x, by aesop⟩ : ↥(R[x])) g where
   monic := hx.monic
   ker_aeval := by simp [hx.ker_aeval]
 
 variable {R x} in
 theorem isIntegralUniqueGen {g : R[X]}  (hx : IsIntegralUnique x g) :
-    IsIntegralUniqueGen (⟨x, by aesop⟩ : ↥(adjoin R {x})) g where
+    IsIntegralUniqueGen (⟨x, by aesop⟩ : ↥(R[x])) g where
   __ := hasPrincipalKerAeval hx.ker_aeval
   __ := isIntegralUnique hx
 

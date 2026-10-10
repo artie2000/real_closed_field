@@ -261,25 +261,28 @@ theorem finite_extension_rank_le [FiniteDimensional R K] : Module.finrank R K �
     lia
   rcases Nat.exists_eq_two_pow_mul_odd (n := Module.finrank R K) Module.finrank_pos.ne'
     with ⟨k, a, ha, hka⟩
-  have a_val : a = 1 := by
-    rcases IsGalois.exists_intermediateField_of_card_pow_prime_mul
-      Nat.prime_two hka (by simp : 0 ≤ k) with ⟨M, hM⟩
-    simp_all [odd_finrank_extension R (K := M) (by grind)]
+  have : a = 1 := by
+    rcases IsGalois.exists_intermediateField_finrank_pow_prime Nat.prime_two
+      (show 2 ^ k ∣ Module.finrank R K by simp [hka]) with ⟨M, hM⟩
+    suffices Module.finrank R M = a by grind [odd_finrank_extension]
+    simpa [hM, hka, mul_comm] using Module.finrank_mul_finrank R M K
+  subst a
   suffices k ≤ 1 by interval_cases k <;> simp_all
   by_contra! k_ge
-  rcases IsGalois.exists_intermediateField_of_card_pow_prime_mul
-    Nat.prime_two hka (by lia : 1 ≤ k) with ⟨M, hM⟩
-  rcases IsGalois.exists_intermediateField_ge_card_pow_prime_mul_of_card_pow_prime_mul
-    Nat.prime_two hka hM (by lia : 1 ≤ 2) (by lia) with ⟨N, hN_ge, hN⟩
-  rw [ge_iff_le] at hN_ge
-  have : Algebra.IsQuadraticExtension R M := ⟨by lia⟩
+  rcases IsGalois.exists_intermediateField_finrank_pow_prime Nat.prime_two
+    (show 2 ^ (k - 1) ∣ Module.finrank R K by simpa [hka] using pow_dvd_pow 2 (by lia))
+    with ⟨M, hM⟩
+  rcases IsGalois.exists_intermediateField_finrank_pow_prime_ge Nat.prime_two M
+    (show 2 ^ (k - 2) ∣ Module.finrank M K by simpa [hM] using pow_dvd_pow 2 (by lia))
+    with ⟨N, hN_ge, hN⟩
   algebraize [(IntermediateField.inclusion hN_ge).toRingHom]
-  have := IsScalarTower.of_algebraMap_eq'
-    (IntermediateField.inclusion hN_ge).comp_algebraMap.symm
-  have := Module.Finite.of_restrictScalars_finite R M N
-  apply finrank_neq_two_of_isAdjoinRoot_i R (isAdjoinRoot_i_of_isQuadraticExtension R M) N
-  rw [← Module.finrank_div_finrank_cancel_left_of_nontrivial R M N, hM, hN]
-  simp_all
+  suffices hMN : Module.finrank M N = 2 by
+    have : Algebra.IsQuadraticExtension R M := ⟨by
+      simpa [hka, hM, ← Nat.pow_sub_mul_pow _ (show k - 1 ≤ k by lia),
+        show k - (k - 1) = 1 by lia] using Module.finrank_mul_finrank R M K⟩
+    exact finrank_neq_two_of_isAdjoinRoot_i R (isAdjoinRoot_i_of_isQuadraticExtension R M) N hMN
+  have := IsScalarTower.of_algebraMap_eq' ((AlgHom.extendScalars M N.val).comp_algebraMap).symm
+  simpa [hM, hN] using Module.finrank_mul_finrank M N K
 
 theorem rank_eq_one_of_isAdjoinRoot_i (hK : IsAdjoinRootMonic' K (X ^ 2 + 1 : R[X])) (L : Type*)
     [Field L] [Algebra R L] [Algebra K L] [FiniteDimensional R L] [IsScalarTower R K L] :
