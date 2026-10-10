@@ -281,8 +281,12 @@ theorem finite_extension_rank_le [FiniteDimensional R K] : Module.finrank R K �
       simpa [hka, hM, ← Nat.pow_sub_mul_pow _ (show k - 1 ≤ k by lia),
         show k - (k - 1) = 1 by lia] using Module.finrank_mul_finrank R M K⟩
     exact finrank_neq_two_of_isAdjoinRoot_i R (isAdjoinRoot_i_of_isQuadraticExtension R M) N hMN
-  have := IsScalarTower.of_algebraMap_eq' ((AlgHom.extendScalars M N.val).comp_algebraMap).symm
-  simpa [hM, hN] using Module.finrank_mul_finrank M N K
+  have : IsScalarTower M N K :=
+    -- TODO : improve instance, remove need for type ascription,
+    --        possibly register with algebraize somehow?
+    .of_algebraMap_eq' ((AlgHom.extendScalars M N.val).comp_algebraMap).symm
+  simpa [hM, hN, ← Nat.pow_sub_mul_pow _ (show k - 2 ≤ k - 1 by lia),
+        show (k - 1) - (k - 2) = 1 by lia] using Module.finrank_mul_finrank M N K
 
 theorem rank_eq_one_of_isAdjoinRoot_i (hK : IsAdjoinRootMonic' K (X ^ 2 + 1 : R[X])) (L : Type*)
     [Field L] [Algebra R L] [Algebra K L] [FiniteDimensional R L] [IsScalarTower R K L] :

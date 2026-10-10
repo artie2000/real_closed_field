@@ -96,10 +96,10 @@ theorem isIntegral [Algebra.IsIntegral R S] (s : Set S) :
 
 @[simp]
 theorem ker_aeval :
-    RingHom.ker (aeval ⟨x, by aesop⟩ : R[X] →ₐ[R] ↥(R[x])) = RingHom.ker (aeval x) := by
+    RingHom.ker (aeval ⟨x, by aesop⟩ : R[X] →ₐ[R] R[x]) = RingHom.ker (aeval x) := by
   -- TODO : clean this proof up
   have : RingHomClass.toRingHom (aeval x) =
-            (RingHomClass.toRingHom (Subalgebra.val (Algebra.R[x]))).comp
+            (RingHomClass.toRingHom (Subalgebra.val R[x])).comp
             (RingHomClass.toRingHom (aeval ⟨x, by aesop⟩ : R[X] →ₐ[R] ↥(R[x]))) := by
     ext a
     simp
@@ -108,13 +108,13 @@ theorem ker_aeval :
   simp
 
 theorem aeval_minpoly :
-    (aeval ⟨x, by aesop⟩ : R[X] →ₐ[R] ↥(R[x])) (minpoly R x) = 0 := by
+    (aeval ⟨x, by aesop⟩ : R[X] →ₐ[R] R[x]) (minpoly R x) = 0 := by
   rw [← RingHom.mem_ker]
   simp
 
 variable {R x} in
 theorem isIntegral_elem (hx : IsIntegral R x) :
-    IsIntegral R (⟨x, by aesop⟩ : ↥(R[x])) :=
+    IsIntegral R (⟨x, by aesop⟩ : R[x]) :=
   ⟨minpoly R x, minpoly.monic hx, aeval_minpoly R x⟩
 
 theorem isGenerator : IsGenerator R (⟨x, by aesop⟩ : ↥(R[x])) where
