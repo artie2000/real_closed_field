@@ -101,29 +101,27 @@ theorem of_isAdjoinRoot_i_isAlgClosure {K : Type*} [Field K] [Algebra R K] [IsAl
       exact Or.inr hK
     · exact Or.inl (h.map hK.some.symm)
 
-theorem of_linearOrderedField' [LinearOrder R] [IsStrictOrderedRing R]
-    (h₁ : ∀ {x : R}, 0 ≤ x → IsSquare x)
-    (h₂ : ∀ {f : R[X]}, f.Monic → Odd f.natDegree → f.natDegree ≠ 1 → ¬(Irreducible f)) :
-    IsRealClosed R :=
-  .of_linearOrderedField h₁ <| Polynomial.exists_root_of_monic_odd_natDegree_imp_not_irreducible h₂
-
 theorem of_intermediateValueProperty [LinearOrder R] [IsStrictOrderedRing R]
     (h : ∀ {f : R[X]} {x y : R}, x ≤ y → 0 ≤ f.eval x → f.eval y ≤ 0 →
        ∃ z ∈ Set.Icc x y, f.eval z = 0) :
     IsRealClosed R := by
   refine .of_linearOrderedField (fun {x} hx ↦ ?_) (fun {f} hf ↦ ?_)
-  · have : x ≤ (x + 1) ^ 2 := by
-      suffices 0 ≤ 1 + x + x ^ 2 by linear_combination this
+  · rcases h (f := - X ^ 2 + C x) (x := 0) (y := x + 1) (by grind) (by simpa) <| by
+      suffices 0 ≤ 1 + x + x ^ 2 by simp; grind
       positivity
-    rcases h (f := - X ^ 2 + C x) (x := 0) (y := x + 1)
-      (by linarith) (by simpa using hx) (by simpa using this) with ⟨z, _, hz⟩
-    exact ⟨z, by linear_combination (by simpa using hz : _ = (0 : R))⟩
+      with ⟨z, _, hz⟩
+    exact ⟨z, by simp at hz; grind⟩
   · rcases sign_change hf with ⟨x, y, hx, hy⟩
     wlog hxy : y ≤ x
-    · simpa using this h (f := -f) (by simpa using hf) y x
-        (by simpa using hy) (by simpa using hx) (by order)
-    rcases h hxy (by order) (by order) with ⟨z, _, hz⟩
+    · simpa using this h (f := -f) (by simpa) y x (by simpa) (by simpa) (by grind)
+    rcases h hxy hy.le hx.le with ⟨z, _, hz⟩
     exact ⟨z, hz⟩
+
+theorem of_linearOrderedField' [LinearOrder R] [IsStrictOrderedRing R]
+    (h₁ : ∀ {x : R}, 0 ≤ x → IsSquare x)
+    (h₂ : ∀ {f : R[X]}, f.Monic → Odd f.natDegree → f.natDegree ≠ 1 → ¬(Irreducible f)) :
+    IsRealClosed R :=
+  .of_linearOrderedField h₁ <| Polynomial.exists_root_of_monic_odd_natDegree_imp_not_irreducible h₂
 
 theorem of_maximal_isOrderedAlgebra [LinearOrder R] [IsStrictOrderedRing R]
     (h : ∀ K : Type u, [Field K] → [LinearOrder K] → [IsStrictOrderedRing K] → [Algebra R K] →
@@ -150,7 +148,7 @@ theorem of_maximal_isSemireal [IsSemireal R]
          Module.finrank R K = 1) :
     IsRealClosed R :=
   let := LinearOrder.ofIsSemireal R
-  .of_maximal_isOrderedAlgebra fun K ↦ by exact h K
+  .of_maximal_isOrderedAlgebra fun K ↦ h K
 
 section IsRealClosed
 
