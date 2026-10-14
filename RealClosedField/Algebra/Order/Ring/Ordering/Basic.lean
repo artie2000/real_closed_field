@@ -6,7 +6,7 @@ namespace Subsemiring
 section CommRing
 
 variable {R S : Type*} [CommRing R] [CommRing S] (f : R →+* S)
-        {P : Subsemiring R} (P' : Subsemiring S)
+        {P : Subsemiring R} {P' : Subsemiring S}
 
 namespace IsPreordering
 

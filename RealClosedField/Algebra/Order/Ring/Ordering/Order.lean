@@ -14,7 +14,6 @@ import RealClosedField.Algebra.Order.Ring.Ordering.Basic
 linearly ordered field structures on `F`.
 * `Ring.isOrderingLinearOrderEquiv`: equivalence between orderings `O` on a ring `R` and
 linearly ordered field structures on the domain `R ⧸ O.support`.
-
 -/
 
 namespace Field
