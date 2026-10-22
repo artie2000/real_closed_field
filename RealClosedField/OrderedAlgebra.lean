@@ -110,8 +110,7 @@ theorem Field.exists_isOrderedAlgebra_of_projection
   have ih : ∀ x ∈ Submodule.span (Subsemiring.nonneg F) {x : K | IsSquare x}, 0 ≤ π x := by
     apply Submodule.closure_induction
     · simp
-    · intro x y _ _ _ _
-      linarith [map_add π x y]
+    · grind
     · rintro ⟨r, hr⟩ x ⟨d, rfl⟩
       by_cases hd : d = 0
       · simp [hd]
