@@ -7,6 +7,8 @@ namespace Localization
 
 variable {R : Type*} [CommRing R] [LinearOrder R] [IsStrictOrderedRing R] {s : Submonoid R}
 
+-- TODO : use `Nontrivial (Localization s)` instead? Using `OreLocalization.nontrivial_iff`
+
 open nonZeroDivisors in
 @[reducible] def le₀ (hs : 0 ∉ s) :
     LE (Localization s) where
