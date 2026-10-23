@@ -30,7 +30,7 @@ variable {R : Type*} [CommRing R] [LinearOrder R] [IsStrictOrderedRing R] (s : S
   [Nontrivial (Localization s)]
 
 instance le₀ : LE (Localization s) where
-  le a b := Localization.liftOn₂ a b (fun a₁ a₂ b₁ b₂ ↦ a₂ * b₂ * b₂ * a₁ ≤ b₂ * a₂ * a₂ * b₁)
+  le a b := liftOn₂ a b (fun a₁ a₂ b₁ b₂ ↦ a₂ * b₂ * b₂ * a₁ ≤ b₂ * a₂ * a₂ * b₁)
     fun {a₁ b₁ a₂ b₂ c₁ d₁ c₂ d₂} hab hcd ↦ propext <| by
       rw [r_iff_of_nontrivial] at hab hcd
       have hsq_pos (x : s) : 0 < (x : R) * x := by
@@ -59,7 +59,7 @@ theorem mk_le_mk₀ {a₁ b₁ : R} {a₂ b₂ : s} :
 instance partialOrder₀ : PartialOrder (Localization s) where
   __ := le₀ s
   le_refl a := a.induction_on (by simp)
-  le_trans a b c := Localization.induction_on₃ a b c fun a b c hab hbc => by
+  le_trans a b c := induction_on₃ a b c fun a b c hab hbc => by
       simp only [mk_le_mk₀] at hab hbc ⊢
       rw [← mul_le_mul_iff_right₀
         (show 0 < (b.2 : R) * b.2 by grind [mul_self_pos, coe_denom_ne_zero])]
@@ -72,8 +72,7 @@ instance partialOrder₀ : PartialOrder (Localization s) where
         _ ≤ ((a.2 : R) * a.2) * (c.2 * b.2 * b.2 * c.1) := by
           exact mul_le_mul_of_nonneg_left hbc (by simpa [sq] using sq_nonneg (a.2 : R))
         _ = ((b.2 : R) * b.2) * (c.2 * a.2 * a.2 * c.1) := by ring
-  le_antisymm a b :=
-    Localization.induction_on₂ a b fun a b hab hba => by
+  le_antisymm a b := induction_on₂ a b fun a b hab hba => by
       simp only [mk_le_mk₀] at hab hba
       rw [mk_eq_mk_iff, r_iff_of_nontrivial]
       apply mul_left_cancel₀
@@ -90,7 +89,7 @@ instance zeroLEOne₀ : ZeroLEOneClass (Localization s) where
 
 instance isOrderedAddMonoid₀ : IsOrderedAddMonoid (Localization s) where
   add_le_add_left a b hab c := by
-    induction a, b, c using Localization.induction_on₃ with
+    induction a, b, c using induction_on₃ with
     | H a b c =>
       simp_rw [add_mk, mk_le_mk₀] at hab ⊢
       calc
@@ -106,7 +105,7 @@ instance isOrderedAddMonoid₀ : IsOrderedAddMonoid (Localization s) where
             (b.2 * c.1 + c.2 * b.1) := by ring
 
 instance isOrderedRing₀ : IsOrderedRing (Localization s) :=
-  .of_mul_nonneg fun a b => Localization.induction_on₂ a b fun _ _ ha hb => by
+  .of_mul_nonneg fun a b => induction_on₂ a b fun _ _ ha hb => by
       simp_all [← mk_zero 1, mk_mul]
       grind [mul_nonneg ha hb]
 
