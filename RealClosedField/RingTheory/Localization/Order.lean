@@ -1,23 +1,22 @@
 import Mathlib.Algebra.Ring.Regular
 import Mathlib.RingTheory.Localization.FractionRing
 
-/- TODO: ordering on an ID <-> ordering on its fraction field -/
+/- TODO : ordering on an ID <-> ordering on its fraction field -/
+/- TODO : more generally, orderings on a localization at `s` correspond to
+          orderings with support disjoint from `s` -/
 
 namespace Localization
 
-variable {R : Type*} [CommRing R] [LinearOrder R] [IsStrictOrderedRing R] {s : Submonoid R}
+variable {R : Type*} [CommRing R] [LinearOrder R] [IsStrictOrderedRing R] (s : Submonoid R)
+  [Nontrivial (Localization s)]
 
--- TODO : use `Nontrivial (Localization s)` instead? Using `OreLocalization.nontrivial_iff`
-
-open nonZeroDivisors in
-@[reducible] def le₀ (hs : 0 ∉ s) :
-    LE (Localization s) where
+instance le₀ : LE (Localization s) where
   le a b := Localization.liftOn₂ a b (fun a₁ a₂ b₁ b₂ ↦ a₂ * b₂ * b₂ * a₁ ≤ b₂ * a₂ * a₂ * b₁)
     fun {a₁ b₁ a₂ b₂ c₁ d₁ c₂ d₂} hab hcd ↦ propext <| by
       rcases a₂, b₂, c₂, d₂ with
         ⟨⟨a₂, ha₂⟩, ⟨b₂, hb₂⟩, ⟨c₂, hc₂⟩, ⟨d₂, hd₂⟩⟩
       rcases r_iff_exists.mp hab, r_iff_exists.mp hcd with ⟨⟨_, he⟩, ⟨_, hf⟩⟩
-      have hpos : ∀ x, x ∈ s → x ≠ 0 := by grind
+      have hpos : ∀ x, x ∈ s → x ≠ 0 := by grind [OreLocalization.nontrivial_iff]
       simp_all only [mul_eq_mul_left_iff, SetLike.coe_mem, or_false, ne_eq]
       rw [← mul_le_mul_iff_right₀ (show 0 < b₂ * b₂ by simp [*])]
       suffices b₂ * a₁ * (a₂ * c₂ * c₂ * b₂) ≤
@@ -35,13 +34,14 @@ open nonZeroDivisors in
       rw [mul_le_mul_iff_right₀ (show 0 < c₂ * c₂ by simp [*])]
       ring_nf
 
+variable {s} in
 @[simp]
-theorem mk_le_mk₀ (hs : 0 ∉ s) {a₁ b₁ : R} {a₂ b₂ : s} :
-    let := le₀ hs
+theorem mk_le_mk₀ {a₁ b₁ : R} {a₂ b₂ : s} :
+    let := le₀ s
     mk a₁ a₂ ≤ mk b₁ b₂ ↔ a₂ * b₂ * b₂ * a₁ ≤ b₂ * a₂ * a₂ * b₁ := .rfl
 
-@[reducible] def partialOrder₀ (hs : 0 ∉ s) : PartialOrder (Localization s) where
-  __ := le₀ hs
+instance partialOrder₀ : PartialOrder (Localization s) where
+  __ := le₀ s
   le_refl a := a.induction_on (by simp)
   le_trans a b c :=
     Localization.induction_on₃ a b c fun a b c hab hbc => by
@@ -60,8 +60,13 @@ theorem mk_le_mk₀ (hs : 0 ∉ s) {a₁ b₁ : R} {a₂ b₂ : s} :
         exact fun hab hba => ⟨1, by rw [hab.antisymm hba]⟩
     all_goals rfl
 
-instance {R : Type} [CommRing R] [LinearOrder R] [IsStrictOrderedRing R] :
-    LinearOrder (FractionRing R) where
-  __ := foo (s := nonZeroDivisors R) (by simp)
+instance linearOrder₀ : LinearOrder (Localization s) where
+  __ := partialOrder₀ s
+  le_total := by sorry
+  toDecidableLE := by sorry
+
+#synth LinearOrder (FractionRing R)
+#synth CommRing (FractionRing R)
+#synth IsStrictOrderedRing (FractionRing R)
 
 end Localization
