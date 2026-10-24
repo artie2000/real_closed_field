@@ -5,6 +5,8 @@ import Mathlib.RingTheory.Localization.FractionRing
 /- TODO : more generally, orderings on a localization at `s` correspond to
           orderings with support disjoint from `s` -/
 
+-- TODO : switch to ring cone method
+
 -- ⚠ some of the statements and proofs are AI-generated and have not yet been deslopified
 
 theorem nontrivial_localization_iff_le_nonZeroDivisors
