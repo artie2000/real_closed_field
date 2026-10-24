@@ -27,6 +27,7 @@ orderings are precisely maximal preorderings.
 -/
 
 -- TODO : replace `aesop` with `membership`
+-- TODO : use `grw` with `IsPreordering.mono`
 
 variable {R : Type*} [CommRing R]
 
