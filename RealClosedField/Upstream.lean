@@ -500,8 +500,7 @@ theorem eq_liftOfRightInverse (hf : Function.RightInverse f_inv f) (g : A →ₐ
 end AlgHom
 -- end #37817
 
--- ⚠⚠⚠ NOT PR'D YET ⚠⚠⚠
-
+-- begin #36863
 variable {R : Type*} [Ring R]
 
 namespace Subsemiring
@@ -545,6 +544,18 @@ theorem isSpanning_map (hS : S.IsSpanning) (hf : Function.Surjective f) : (S.map
   hS.map (f := f.toAddMonoidHom) hf
 
 end Subsemiring
+-- end #36863
+
+-- ⚠⚠⚠ NOT PR'D YET ⚠⚠⚠
+
+-- Mathlib.GroupTheory.MonoidLocalization.Basic
+/-- Copy of `Quotient.recOnSubsingleton` for `Localization` -/
+@[to_additive (attr := elab_as_elim)
+/-- Copy of `Quotient.recOnSubsingleton` for `AddLocalization` -/]
+def Localization.recOnSubsingleton {M : Type*} [CommMonoid M] {S : Submonoid M}
+    {r : Localization S → Sort*} [h : ∀ (a : M) (b : ↥S), Subsingleton (r (mk a b))]
+    (x : Localization S) (f : (a : M) → (b : ↥S) → r (mk a b)) : r x :=
+  @Quotient.recOnSubsingleton' _ _ r (Prod.rec fun _ _ => h ..) x (Prod.rec fun _ _ => f ..)
 
 -- `Mathlib.Algebra.Order.Group.Cone`
 namespace CommGroup

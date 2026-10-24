@@ -1,13 +1,11 @@
-import Mathlib.Algebra.Ring.Regular
-import Mathlib.RingTheory.Localization.FractionRing
+import RealClosedField.Upstream
 
 /- TODO : ordering on an ID <-> ordering on its fraction field -/
 /- TODO : more generally, orderings on a localization at `s` correspond to
           orderings with support disjoint from `s` -/
 
--- TODO : switch to ring cone method
-
--- ⚠ some of the statements and proofs are AI-generated and have not yet been deslopified
+-- TODO : change upstream
+attribute [simp] Localization.liftOn_mk
 
 theorem nontrivial_localization_iff_le_nonZeroDivisors
     {R : Type*} [CommRing R] [IsDomain R] {s : Submonoid R} :
@@ -31,85 +29,59 @@ theorem r_iff_of_nontrivial {R : Type*} [CommRing R] [IsDomain R] {s : Submonoid
 variable {R : Type*} [CommRing R] [LinearOrder R] [IsStrictOrderedRing R] (s : Submonoid R)
   [Nontrivial (Localization s)]
 
-instance le₀ : LE (Localization s) where
-  le a b := liftOn₂ a b (fun a₁ a₂ b₁ b₂ ↦ a₂ * b₂ * b₂ * a₁ ≤ b₂ * a₂ * a₂ * b₁)
-    fun {a₁ b₁ a₂ b₂ c₁ d₁ c₂ d₂} hab hcd ↦ propext <| by
-      rw [r_iff_of_nontrivial] at hab hcd
-      have hsq_pos (x : s) : 0 < (x : R) * x := by
-        grind [mul_self_pos, coe_denom_ne_zero]
-      rw [← mul_le_mul_iff_right₀ (hsq_pos b₂)]
-      suffices (a₁ : R) * b₂ * (a₂ * c₂ * c₂ * b₂) ≤ b₂ * b₂ * (c₂ * a₂ * a₂ * c₁) ↔
-          b₂ * d₂ * d₂ * b₁ ≤ d₂ * b₂ * b₂ * d₁ by grind
-      rw [hab]
-      suffices (a₂ : R) * a₂ * (c₂ * c₂ * b₂ * b₁) ≤ a₂ * a₂ * (c₂ * b₂ * b₂ * c₁) ↔
-          b₂ * d₂ * d₂ * b₁ ≤ d₂ * b₂ * b₂ * d₁ by grind
-      rw [mul_le_mul_iff_right₀ (hsq_pos a₂)]
-      rw [← mul_le_mul_iff_right₀ (hsq_pos d₂)]
-      suffices (d₂ : R) * d₂ * (c₂ * c₂ * b₂ * b₁) ≤ c₁ * d₂ * (c₂ * b₂ * b₂ * d₂) ↔
-          b₂ * d₂ * d₂ * b₁ ≤ d₂ * b₂ * b₂ * d₁ by grind
-      rw [hcd]
-      suffices (c₂ : R) * c₂ * (d₂ * d₂ * b₂ * b₁) ≤ c₂ * c₂ * (d₁ * b₂ * b₂ * d₂) ↔
-          b₂ * d₂ * d₂ * b₁ ≤ d₂ * b₂ * b₂ * d₁ by grind
-      rw [mul_le_mul_iff_right₀ (hsq_pos c₂)]
-      ring_nf
+@[reducible] def nonneg_priv : Subsemiring (Localization s) where
+  carrier := .ofPred fun x ↦ liftOn x (fun a₁ a₂ ↦ 0 ≤ a₁ * (a₂ : R))
+      fun {a₁ b₁ a₂ b₂} hab ↦ propext <| by
+    rw [r_iff_of_nontrivial] at hab
+    have hsq_pos (x : s) : 0 < (x : R) * x := by
+      grind [mul_self_pos, coe_denom_ne_zero]
+    calc
+      _ ↔ _ := (mul_nonneg_iff_of_pos_right (hsq_pos b₂)).symm
+      _ ↔ _ := by ring_nf
+      _ ↔ _ := congr(0 ≤ $hab * a₂ * b₂)
+      _ ↔ _ := by ring_nf
+      _ ↔ _ := mul_nonneg_iff_of_pos_right (hsq_pos a₂)
+  zero_mem' := by simp [← mk_zero 1]
+  one_mem' := by simp [← mk_one]
+  add_mem' {x y} := induction_on₂ x y fun x y hx hy ↦ by
+    simp_rw [Set.mem_ofPred_eq, add_mk, liftOn_mk, Submonoid.coe_mul] at *
+    suffices 0 ≤ x.1 * x.2 * y.2 ^ 2 + y.1 * y.2 * x.2 ^ 2 by grind
+    positivity
+  mul_mem' {x y} := induction_on₂ x y fun x y hx hy ↦ by
+    simp_rw [Set.mem_ofPred_eq, mk_mul, liftOn_mk, Submonoid.coe_mul] at *
+    suffices 0 ≤ x.1 * x.2 * (y.1 * y.2) by grind
+    positivity
 
-variable {s} in
-@[simp]
-theorem mk_le_mk₀ {a₁ b₁ : R} {a₂ b₂ : s} :
-    mk a₁ a₂ ≤ mk b₁ b₂ ↔ a₂ * b₂ * b₂ * a₁ ≤ b₂ * a₂ * a₂ * b₁ := .rfl
+theorem isPointed_nonneg_priv : (nonneg_priv s).IsPointed :=
+  fun x ↦ induction_on x fun x h₁ h₂ ↦ by
+    simp only [AddSubmonoid.mem_mk, AddSubsemigroup.mem_mk, Set.mem_ofPred_eq,
+      liftOn_mk, neg_mk] at *
+    rw [← mk_zero 1, mk_eq_mk_iff, r_iff_of_nontrivial]
+    grind [zero_eq_mul, coe_denom_ne_zero, mk_eq_mk_iff, r_iff_of_nontrivial]
 
-instance partialOrder₀ : PartialOrder (Localization s) where
-  __ := le₀ s
-  le_refl a := a.induction_on (by simp)
-  le_trans a b c := induction_on₃ a b c fun a b c hab hbc => by
-      simp only [mk_le_mk₀] at hab hbc ⊢
-      rw [← mul_le_mul_iff_right₀
-        (show 0 < (b.2 : R) * b.2 by grind [mul_self_pos, coe_denom_ne_zero])]
-      calc
-        ((b.2 : R) * b.2) * (a.2 * c.2 * c.2 * a.1)
-            = ((c.2 : R) * c.2) * (a.2 * b.2 * b.2 * a.1) := by ring
-        _ ≤ ((c.2 : R) * c.2) * (b.2 * a.2 * a.2 * b.1) := by
-          exact mul_le_mul_of_nonneg_left hab (by simpa [sq] using sq_nonneg (c.2 : R))
-        _ = ((a.2 : R) * a.2) * (b.2 * c.2 * c.2 * b.1) := by ring
-        _ ≤ ((a.2 : R) * a.2) * (c.2 * b.2 * b.2 * c.1) := by
-          exact mul_le_mul_of_nonneg_left hbc (by simpa [sq] using sq_nonneg (a.2 : R))
-        _ = ((b.2 : R) * b.2) * (c.2 * a.2 * a.2 * c.1) := by ring
-  le_antisymm a b := induction_on₂ a b fun a b hab hba => by
-      simp only [mk_le_mk₀] at hab hba
-      rw [mk_eq_mk_iff, r_iff_of_nontrivial]
-      apply mul_left_cancel₀
-        (mul_ne_zero (coe_denom_ne_zero a.2) (coe_denom_ne_zero b.2))
-      grind [hab.antisymm hba]
+instance : DecidablePred fun x ↦ x ∈ (nonneg_priv s).toAddSubmonoid := fun x ↦
+  recOnSubsingleton x (fun a₁ a₂ ↦ decidable_of_iff' (0 ≤ a₁ * a₂) (by simp))
 
-instance linearOrder₀ : LinearOrder (Localization s) where
-  __ := partialOrder₀ s
-  le_total a b := induction_on₂ a b fun a b => by simpa using le_total ..
-  toDecidableLE a b := recOnSubsingleton₂ a b fun _ _ _ _ => decidable_of_iff' _ mk_le_mk₀
+instance : LinearOrder (Localization s) :=
+  .mkOfAddSubmonoid (isPointed_nonneg_priv s) fun x ↦ induction_on x fun x ↦ by
+    simpa [neg_mk] using le_total ..
 
-instance zeroLEOne₀ : ZeroLEOneClass (Localization s) where
-  zero_le_one := by simp [← mk_zero 1, ← mk_one, mk_le_mk₀]
+instance : IsOrderedRing (Localization s) := .mkOfSubsemiring (isPointed_nonneg_priv s)
 
-instance isOrderedAddMonoid₀ : IsOrderedAddMonoid (Localization s) where
-  add_le_add_left a b hab c := by
-    induction a, b, c using induction_on₃ with
-    | H a b c =>
-      simp_rw [add_mk, mk_le_mk₀] at hab ⊢
-      calc
-        ((a.2 : R) * c.2) * (b.2 * c.2) * (b.2 * c.2) *
-            (a.2 * c.1 + c.2 * a.1)
-            = a.2 * a.2 * b.2 * b.2 * c.2 * c.2 * c.2 * c.1 +
-              (a.2 * b.2 * b.2 * a.1) * (((c.2 : R) * c.2) * (c.2 * c.2)) := by ring
-        _ ≤ a.2 * a.2 * b.2 * b.2 * c.2 * c.2 * c.2 * c.1 +
-              (b.2 * a.2 * a.2 * b.1) * (((c.2 : R) * c.2) * (c.2 * c.2)) :=
-          add_le_add_right (mul_le_mul_of_nonneg_right hab
-            (mul_nonneg (mul_self_nonneg _) (mul_self_nonneg _))) _
-        _ = ((b.2 : R) * c.2) * (a.2 * c.2) * (a.2 * c.2) *
-            (b.2 * c.1 + c.2 * b.1) := by ring
+@[simp high]
+theorem mk_le_mk₀ (a₁ b₁ : R) (a₂ b₂ : s) :
+    mk a₁ a₂ ≤ mk b₁ b₂ ↔ a₁ * a₂ * b₂ * b₂ ≤ b₁ * b₂ * a₂ * a₂ := by
+  simp [sub_mk]
+  grind
 
-instance isOrderedRing₀ : IsOrderedRing (Localization s) :=
-  .of_mul_nonneg fun a b => induction_on₂ a b fun _ _ ha hb => by
-      simp_all [← mk_zero 1, mk_mul]
-      grind [mul_nonneg ha hb]
+@[simp high]
+theorem algebraMap_mono (a b : R) :
+    algebraMap _ (Localization s) a ≤ algebraMap _ _ b ↔ a ≤ b := by
+  simp [← mk_one_eq_algebraMap]
+
+@[mono]
+theorem algebraMap_monotone : Monotone (algebraMap R (Localization s)) :=
+  fun _ _ ↦ (algebraMap_mono _ _ _).mpr
 
 #synth IsStrictOrderedRing (FractionRing R)
 
