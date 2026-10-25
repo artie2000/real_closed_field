@@ -5,6 +5,7 @@ Authors: Artie Khovanov
 -/
 import RealClosedField.OrderedAlgebra
 import RealClosedField.Algebra.Order.Field.IsSemireal
+import Mathlib.FieldTheory.Galois.Sylow
 import Mathlib.FieldTheory.IsRealClosed.Basic
 import Mathlib.Algebra.Polynomial.SpecificDegree
 
@@ -393,10 +394,10 @@ theorem irred_poly_classify {f : R[X]} (hf : f.Monic) :
     · rcases quad with ⟨a, b, hb, rfl⟩
       have h_deg : ((X - C a) ^ 2 + C b ^ 2).natDegree = 2 := by compute_degree!
       rw [hf.irreducible_iff_roots_eq_zero_of_degree_le_three (by lia) (by lia),
-          Polynomial.roots_eq_zero_iff_isRoot_eq_bot hf.ne_zero]
-      ext r
+          Polynomial.roots_eq_zero_iff_not_isRoot hf.ne_zero]
+      intro r
       suffices (r - a) ^ 2 + b ^ 2 ≠ 0 by simp [this]
-      contrapose! hb
+      contrapose hb
       rw [← sq_eq_zero_iff]
       simpa using IsFormallyReal.eq_zero_of_add_left (by aesop) (by aesop) hb
 

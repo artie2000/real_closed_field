@@ -17,7 +17,7 @@ theorem mem_sup_left {R : Type*} [Semiring R] {a b : Subsemiring R} {x : R} :
 theorem mem_sup_right {R : Type*} [Semiring R] {a b : Subsemiring R} {x : R} :
     x ∈ b → x ∈ a ⊔ b := by gcongr; exact le_sup_right
 
--- #44287
+-- #44487
 @[simp]
 theorem irreducible_normalize_iff {α : Type*}
     [CommMonoidWithZero α] [IsCancelMulZero α] [NormalizationMonoid α] (x : α) :
@@ -72,56 +72,6 @@ theorem Polynomial.exists_root_of_monic_odd_natDegree_imp_not_irreducible {F : T
   refine exists_root_of_odd_natDegree_imp_not_irreducible (fun {f} hf₁ hf₂ hf₃ ↦ ?_) hf
   exact h (monic_normalize (Irreducible.ne_zero hf₃))
     (by simpa using hf₁) (by simpa using hf₂) (by simpa using hf₃)
-
--- begin #44299
-
-theorem Sylow.exists_subgroup_card_pow_prime_le' {G : Type*} [Group G]
-    {p : ℕ} (hp : p.Prime) {n : ℕ}
-    (H : Subgroup G) [Finite H] (hH : p ^ n ∣ Nat.card H) :
-    ∃ K : Subgroup G, Nat.card K = p ^ n ∧ K ≤ H := by
-  rcases exists_subgroup_card_pow_prime_le_le hp (by simp) hH bot_le
-    with ⟨K, hcard, _, hle⟩
-  exact ⟨K, hcard, hle⟩
-
-namespace IsGalois
-
-open Module
-
-variable {K L : Type*} [Field K] [Field L] [Algebra K L] [FiniteDimensional K L] [IsGalois K L]
-
-theorem fixedField_le_iff_fixingSubgroup_le {M : IntermediateField K L} {H : Subgroup Gal(L/K)} :
-    IntermediateField.fixedField H ≤ M ↔ M.fixingSubgroup ≤ H where
-  mp h := IntermediateField.fixingSubgroup_fixedField H ▸ IntermediateField.fixingSubgroup_le h
-  mpr h := fixedField_fixingSubgroup M ▸ IntermediateField.fixedField_le h
-
-theorem exists_intermediateField_finrank_pow_prime_le_le {p : ℕ} (hp : p.Prime) {n : ℕ}
-    {M N : IntermediateField K L} (hM : finrank M L ∣ p ^ n) (hN : p ^ n ∣ finrank N L)
-    (hMN : N ≤ M) :
-    ∃ O : IntermediateField K L, finrank O L = p ^ n ∧ N ≤ O ∧ O ≤ M := by
-  rw [← IsGalois.card_fixingSubgroup_eq_finrank] at hM hN
-  rcases Sylow.exists_subgroup_card_pow_prime_le_le hp hM hN
-    (IntermediateField.fixingSubgroup_le hMN) with ⟨G, _⟩
-  use IntermediateField.fixedField G
-  grind [IntermediateField.le_iff_le,
-    IntermediateField.finrank_fixedField_eq_card, fixedField_le_iff_fixingSubgroup_le]
-
-theorem exists_intermediateField_finrank_pow_prime_le {p : ℕ} (hp : p.Prime) {n : ℕ}
-    (h : p ^ n ∣ finrank K L) (M : IntermediateField K L) (hM : finrank M L ∣ p ^ n) :
-    ∃ N ≤ M, finrank N L = p ^ n := by
-  grind [exists_intermediateField_finrank_pow_prime_le_le hp hM (by simpa) bot_le]
-
-theorem exists_intermediateField_finrank_pow_prime_ge {p : ℕ} (hp : p.Prime) {n : ℕ}
-    (M : IntermediateField K L) (hM : p ^ n ∣ finrank M L) :
-    ∃ N ≥ M, finrank N L = p ^ n := by
-  grind [exists_intermediateField_finrank_pow_prime_le_le hp (by simp) hM le_top]
-
-theorem exists_intermediateField_finrank_pow_prime {p : ℕ} (hp : p.Prime) {n : ℕ}
-    (h : p ^ n ∣ finrank K L) :
-    ∃ N : IntermediateField K L, finrank N L = p ^ n := by
-  simpa using exists_intermediateField_finrank_pow_prime_le hp h ⊤ (by simp)
-
-end IsGalois
--- end #44299
 
 -- #44310
 theorem IsAlgClosed.of_finiteDimensional_imp_finrank_eq_one.{u} (k : Type u) [Field k]

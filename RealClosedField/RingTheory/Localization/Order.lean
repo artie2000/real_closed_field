@@ -37,9 +37,7 @@ variable {R : Type*} [CommRing R] [LinearOrder R] [IsStrictOrderedRing R] (s : S
       grind [mul_self_pos, coe_denom_ne_zero]
     calc
       _ ↔ _ := (mul_nonneg_iff_of_pos_right (hsq_pos b₂)).symm
-      _ ↔ _ := by ring_nf
-      _ ↔ _ := congr(0 ≤ $hab * a₂ * b₂)
-      _ ↔ _ := by ring_nf
+      _ ↔ _ := by grind
       _ ↔ _ := mul_nonneg_iff_of_pos_right (hsq_pos a₂)
   zero_mem' := by simp [← mk_zero 1]
   one_mem' := by simp [← mk_one]
