@@ -13,12 +13,10 @@ variable {F : Type*} [Field F]
 open Classical in
 theorem Field.exists_isStrictOrderedRing_iff_isSemireal :
     (∃ _ : LinearOrder F, IsStrictOrderedRing F) ↔ IsSemireal F := by
-  rw [Equiv.exists_subtype_congr (isOrderingLinearOrderEquiv F).symm]
-  exact ⟨fun ⟨O, hO⟩ => ⟨fun {s} hs h ↦ hO.isPreordering.neg_one_notMem <|
-            hO.isPreordering.mem_of_isSumSq (by simp_all [show s = -1 by linear_combination h])⟩,
-          fun _ ↦
-            letI exO := (Subsemiring.IsPreordering.sumSq F).exists_le_isOrdering
-            ⟨choose exO, (choose_spec exO).2⟩⟩
+  rw [Equiv.exists_subtype_congr (isOrderingLinearOrderEquiv F).symm,
+    ← exists_isPreordering_iff_isSemireal]
+  exact ⟨fun ⟨_, hO⟩ ↦ ⟨_, hO.isPreordering⟩,
+    fun ⟨_, hP⟩ ↦ by grind [hP.exists_le_isOrdering]⟩
 
 variable (F) in
 @[instance_reducible]

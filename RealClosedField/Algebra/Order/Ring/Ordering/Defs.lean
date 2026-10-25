@@ -5,7 +5,7 @@ namespace Subsemiring
 
 variable {R : Type*} [CommRing R]
 
--- TODO : membership tag on definition of support
+-- TODO : apply membership tags as in PR
 
 /--
 An ordering `O` on a ring `R` is a subsemiring of `R` such that `O ∪ -O = R` and
