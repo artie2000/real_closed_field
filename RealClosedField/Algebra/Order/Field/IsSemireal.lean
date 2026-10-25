@@ -34,7 +34,7 @@ instance IsStrictOrderedRing.ofIsSemireal [IsSemireal F] :
 @[instance_reducible]
 noncomputable def IsSemireal.unique_isStrictOrderedRing [IsSemireal F]
     (h : ∀ x : F, IsSumSq x ∨ IsSumSq (-x)) :
-    Unique {l : LinearOrder F // IsStrictOrderedRing F} where
+    Unique {_l : LinearOrder F // IsStrictOrderedRing F} where
   default := Field.isOrderingLinearOrderEquiv F
     ⟨Subsemiring.sumSq F, .of_isSpanning_of_isPointed
       (by simpa [AddSubmonoid.IsSpanning] using h) (Subsemiring.IsPreordering.sumSq F).isPointed⟩

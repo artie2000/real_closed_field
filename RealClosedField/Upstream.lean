@@ -42,36 +42,14 @@ theorem Polynomial.exists_odd_natDegree_monic_irreducible_factor
 
 -- #44287
 open scoped Polynomial in
-theorem Polynomial.exists_root_of_odd_natDegree_imp_not_irreducible {F : Type*} [Field F]
-    (h : ∀ {g : F[X]}, Odd g.natDegree → g.natDegree ≠ 1 → ¬ Irreducible g)
+theorem Polynomial.exists_root_of_odd_natDegree_irreducible_imp_natDegree_eq_one
+    {F : Type*} [Field F]
+    (h : ∀ {g : F[X]}, g.Monic → Odd g.natDegree → Irreducible g → g.natDegree = 1)
     {f : F[X]} (hf : Odd f.natDegree) : ∃ x, f.IsRoot x := by
-  induction hdeg : f.natDegree using Nat.strong_induction_on generalizing f with | h n ih =>
-    subst hdeg
-    by_cases hdeg1 : f.natDegree = 1
-    · exact exists_root_of_degree_eq_one <| by
-        simpa [← degree_eq_iff_natDegree_eq_of_neZero] using hdeg1
-    · rcases irreducible_or_factor (not_isUnit_of_natDegree_pos f (by grind)) with
-          _ | ⟨a, b, ha, hb, rfl⟩
-      · grind
-      have hsum : (a * b).natDegree = a.natDegree + b.natDegree :=
-        natDegree_mul (by grind) (by grind)
-      wlog h : Odd a.natDegree generalizing a b
-      · rw [mul_comm, add_comm] at *
-        apply this b a <;> grind
-      · have : b.natDegree ≠ 0 := fun _ ↦ by
-          simp_all [isUnit_iff_degree_eq_zero, degree_eq_natDegree (show b ≠ 0 by grind)]
-        rcases ih a.natDegree (by lia) h rfl with ⟨r, hr⟩
-        exact ⟨r, hr.dvd (by simp)⟩
-
--- #44287
-open scoped Polynomial in
-open Classical in -- for `normalize` instance
-theorem Polynomial.exists_root_of_monic_odd_natDegree_imp_not_irreducible {F : Type*} [Field F]
-    (h : ∀ {g : F[X]}, g.Monic → Odd g.natDegree → g.natDegree ≠ 1 → ¬ Irreducible g)
-    {f : F[X]} (hf : Odd f.natDegree) : ∃ x, f.IsRoot x := by
-  refine exists_root_of_odd_natDegree_imp_not_irreducible (fun {f} hf₁ hf₂ hf₃ ↦ ?_) hf
-  exact h (monic_normalize (Irreducible.ne_zero hf₃))
-    (by simpa using hf₁) (by simpa using hf₂) (by simpa using hf₃)
+  rcases f.exists_odd_natDegree_monic_irreducible_factor hf with ⟨g, _, _, _, hd⟩
+  rcases g.exists_root_of_degree_eq_one
+    (degree_eq_iff_natDegree_eq_of_neZero.mpr (h ‹_› ‹_› ‹_›)) with ⟨x, hx⟩
+  exact ⟨x, hx.dvd hd⟩
 
 -- #44310
 theorem IsAlgClosed.of_finiteDimensional_imp_finrank_eq_one.{u} (k : Type u) [Field k]

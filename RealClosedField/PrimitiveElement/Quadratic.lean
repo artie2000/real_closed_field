@@ -194,7 +194,7 @@ theorem Algebra.IsQuadraticExtension.exists_isAdjoinRootMonic_X_pow_two_sub_C
     ∃ a : K, IsAdjoinRootMonic' L (X ^ 2 - C a) := by
   have : (⊥ : Subalgebra K L) ≠ ⊤ := by
     simp [Subalgebra.bot_eq_top_iff_finrank_eq_one, Algebra.IsQuadraticExtension.finrank_eq_two]
-  rcases SetLike.exists_not_mem_of_ne_top ⊥ this rfl with ⟨s, hs⟩
+  rcases SetLike.exists_notMem_of_ne_top ⊥ this rfl with ⟨s, hs⟩
   have h : IsIntegralUniqueGen s _ := {
     IsIntegrallyClosed.isIntegralUnique (Algebra.IsIntegral.isIntegral (R := K) s),
     IsQuadraticExtension.isGenerator_of_notMem_bot hs with }

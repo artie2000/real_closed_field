@@ -29,6 +29,8 @@ theorem r_iff_of_nontrivial {R : Type*} [CommRing R] [IsDomain R] {s : Submonoid
 variable {R : Type*} [CommRing R] [LinearOrder R] [IsStrictOrderedRing R] (s : Submonoid R)
   [Nontrivial (Localization s)]
 
+-- TODO : upstream lemmas above this one
+
 @[reducible] def nonneg_priv : Subsemiring (Localization s) where
   carrier := .ofPred fun x ↦ liftOn x (fun a₁ a₂ ↦ 0 ≤ a₁ * (a₂ : R))
       fun {a₁ b₁ a₂ b₂} hab ↦ propext <| by

@@ -27,16 +27,6 @@ variable {R : Type u} [Field R]
 
 /-! # Sufficient conditions to be real closed -/
 
--- TODO : make use of this constructor
-theorem mk' [IsSemireal R]
-    (h₁ : ∀ {x : R}, ¬ IsSquare x → IsSquare (-x))
-    (h₂ : ∀ {f : R[X]}, f.Monic → Odd f.natDegree → f.natDegree ≠ 1 → ¬(Irreducible f)) :
-    IsRealClosed R where
-  isSquare_or_isSquare_neg := by grind
-  exists_isRoot_of_odd_natDegree :=
-    Polynomial.exists_root_of_monic_odd_natDegree_imp_not_irreducible h₂
-
--- TODO : idiomatic way to say a disjunction is saturated?
 theorem of_isAdjoinRoot_i_or_finrank_eq_one
     (hR : ¬ IsSquare (-1 : R))
     (h : ∀ K : Type u, [Field K] → [Algebra R K] → [FiniteDimensional R K] →
@@ -66,8 +56,11 @@ theorem of_isAdjoinRoot_i_or_finrank_eq_one
     have := AdjoinRoot.finrank (f := (X ^ 2 - C x)) (by monicity!)
     simp_all [← fk_mul]
   have := IsSemireal.of_forall_adjoinRoot_i_isSquare hK hK₂
-  refine .mk' (fun {x} hx ↦ ?_) (fun {f} hf_monic hf_odd hf_deg hf_irr ↦ ?_)
-  · have iu : IsIntegralGenSqrt (AdjoinRoot.root (X ^ 2 - C x)) x :=
+  refine ⟨fun x ↦ ?_, Polynomial.exists_root_of_odd_natDegree_irreducible_imp_natDegree_eq_one
+      fun {f} hf_monic hf_odd hf_irr ↦ ?_⟩
+  · suffices ¬ IsSquare x → IsSquare (-x) by grind
+    intro hx
+    have iu : IsIntegralGenSqrt (AdjoinRoot.root (X ^ 2 - C x)) x :=
       ⟨AdjoinRoot.isIntegralUniqueGen (by simp [Monic])⟩
     have := iu.finite
     have : Fact (Irreducible (X ^ 2 - C x)) := Fact.mk <| by
@@ -118,17 +111,13 @@ theorem of_intermediateValueProperty [LinearOrder R] [IsStrictOrderedRing R]
     rcases h hxy hy.le hx.le with ⟨z, _, hz⟩
     exact ⟨z, hz⟩
 
-theorem of_linearOrderedField' [LinearOrder R] [IsStrictOrderedRing R]
-    (h₁ : ∀ {x : R}, 0 ≤ x → IsSquare x)
-    (h₂ : ∀ {f : R[X]}, f.Monic → Odd f.natDegree → f.natDegree ≠ 1 → ¬(Irreducible f)) :
-    IsRealClosed R :=
-  .of_linearOrderedField h₁ <| Polynomial.exists_root_of_monic_odd_natDegree_imp_not_irreducible h₂
-
 theorem of_maximal_isOrderedAlgebra [LinearOrder R] [IsStrictOrderedRing R]
     (h : ∀ K : Type u, [Field K] → [LinearOrder K] → [IsStrictOrderedRing K] → [Algebra R K] →
            [Algebra.IsAlgebraic R K] → [IsOrderedModule R K] → Module.finrank R K = 1) :
     IsRealClosed R := by
-  refine .of_linearOrderedField' (fun {x} hx ↦ ?_) (fun {f} hf_monic hf_odd hf_deg hf_irr ↦ ?_)
+  refine .of_linearOrderedField (fun {x} hx ↦ ?_)
+    (Polynomial.exists_root_of_odd_natDegree_irreducible_imp_natDegree_eq_one
+      fun {f} hf_monic hf_odd hf_irr ↦ ?_)
   · by_contra hx₂
     have ar := AdjoinRoot.isAdjoinRootMonic' (f := X ^ 2 - C x) (by simp [Monic])
     have := ar.finite
@@ -142,7 +131,7 @@ theorem of_maximal_isOrderedAlgebra [LinearOrder R] [IsStrictOrderedRing R]
     have := ar.finite
     have := Fact.mk hf_irr
     rcases odd_deg_ordered hf_odd with ⟨_, _, _⟩
-    exact hf_deg (h (AdjoinRoot f))
+    exact h (AdjoinRoot f)
 
 theorem of_maximal_isSemireal [IsSemireal R]
     (h : ∀ K : Type u, [Field K] → [IsSemireal K] → [Algebra R K] → [Algebra.IsAlgebraic R K] →
