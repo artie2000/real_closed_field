@@ -111,6 +111,8 @@ theorem of_intermediateValueProperty [LinearOrder R] [IsStrictOrderedRing R]
     rcases h hxy hy.le hx.le with ⟨z, _, hz⟩
     exact ⟨z, hz⟩
 
+
+-- TODO : universe polymorphic version (prove general thing about bounding algebraic extensions?)
 theorem of_maximal_isOrderedAlgebra [LinearOrder R] [IsStrictOrderedRing R]
     (h : ∀ K : Type u, [Field K] → [LinearOrder K] → [IsStrictOrderedRing K] → [Algebra R K] →
            [Algebra.IsAlgebraic R K] → [IsOrderedModule R K] → Module.finrank R K = 1) :
