@@ -5,7 +5,7 @@ Authors: Artie Khovanov
 -/
 import RealClosedField.Upstream
 import RealClosedField.PrimitiveElement.Quadratic
-import RealClosedField.Algebra.Order.Ring.Ordering.Adjoin
+import RealClosedField.Algebra.Order.Ring.Ordering.Extend
 import Mathlib.Algebra.Order.Algebra
 
 attribute [-simp] AdjoinRoot.algebraMap_eq
