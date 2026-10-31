@@ -1,9 +1,11 @@
-import Mathlib.Algebra.Group.Submonoid.Support
+import Mathlib.Algebra.Ring.Subsemiring.Support
 import Mathlib.Algebra.Ring.IsFormallyReal
 import Mathlib.Algebra.Ring.Subsemiring.Order
-import Mathlib.FieldTheory.Galois.Basic
-import Mathlib.GroupTheory.Sylow
+import Mathlib.Algebra.Polynomial.FieldDivision
+import Mathlib.RingTheory.Polynomial.UniqueFactorization
 import Mathlib.Algebra.Ring.Semireal.Defs
+import Mathlib.Tactic.LinearCombination
+import Mathlib.Tactic.FieldSimp
 
 /- Lemmas that should be upstreamed to Mathlib -/
 
@@ -17,19 +19,12 @@ theorem mem_sup_left {R : Type*} [Semiring R] {a b : Subsemiring R} {x : R} :
 theorem mem_sup_right {R : Type*} [Semiring R] {a b : Subsemiring R} {x : R} :
     x ∈ b → x ∈ a ⊔ b := by gcongr; exact le_sup_right
 
--- #44487
-@[simp]
-theorem irreducible_normalize_iff {α : Type*}
-    [CommMonoidWithZero α] [IsCancelMulZero α] [NormalizationMonoid α] (x : α) :
-    Irreducible (normalize x) ↔ Irreducible x :=
-  Associated.irreducible_iff (normalize_associated x)
-
 -- #44287
 open scoped Polynomial in
 theorem Polynomial.exists_odd_natDegree_monic_irreducible_factor
     {F : Type*} [Field F] {f : F[X]} (hf : Odd f.natDegree) :
     ∃ g : F[X], (Odd g.natDegree) ∧ g.Monic ∧ Irreducible g ∧ g ∣ f := by
-  induction h : f.natDegree using Nat.strong_induction_on generalizing f with | h n ih =>
+  induction h : f.natDegree using Nat.strong_induction_on generalizing f with | ind n ih =>
     have hu : ¬ IsUnit f := not_isUnit_of_natDegree_pos _ (Odd.pos hf)
     rcases exists_monic_irreducible_factor f hu with ⟨g, g_monic, g_irred, g_div⟩
     by_cases g_deg : Odd g.natDegree
@@ -50,19 +45,6 @@ theorem Polynomial.exists_root_of_odd_natDegree_irreducible_imp_natDegree_eq_one
   rcases g.exists_root_of_degree_eq_one
     (degree_eq_iff_natDegree_eq_of_neZero.mpr (h ‹_› ‹_› ‹_›)) with ⟨x, hx⟩
   exact ⟨x, hx.dvd hd⟩
-
--- #44310
-theorem IsAlgClosed.of_finiteDimensional_imp_finrank_eq_one.{u} (k : Type u) [Field k]
-    (H : ∀ (l : Type u), [Field l] → [Algebra k l] → [FiniteDimensional k l] →
-          Module.finrank k l = 1) :
-    IsAlgClosed k :=
-  .of_exists_root _ fun f f_monic f_irr ↦ by
-    have := Fact.mk f_irr
-    have := f_monic.finite_adjoinRoot
-    have := H (AdjoinRoot f)
-    rw [← Module.nonempty_algEquiv_iff_finrank_eq_one] at this
-    use this.some.symm (AdjoinRoot.root f)
-    simp [← Polynomial.coe_aeval_eq_eval, Polynomial.aeval_algHom_apply]
 
 -- begin #44311
 section poly_estimate
@@ -428,38 +410,17 @@ theorem eq_liftOfRightInverse (hf : Function.RightInverse f_inv f) (g : A →ₐ
 end AlgHom
 -- end #37817
 
--- begin #36863
+-- begin #45455
 variable {R : Type*} [Ring R]
 
 namespace Subsemiring
 
 variable {S : Subsemiring R}
 
-theorem mem_support {x : R} : x ∈ S.support ↔ x ∈ S ∧ -x ∈ S := by simp
-
-theorem isPointed_def : S.IsPointed ↔ ∀ {x}, x ∈ S → -x ∈ S → x = 0 := by
-  simp [AddSubmonoid.IsPointed]
-
-theorem isSpanning_def : S.IsSpanning ↔ ∀ a, a ∈ S ∨ -a ∈ S := by simp [AddSubmonoid.IsSpanning]
-
 theorem _root_.AddSubmonoid.IsPointed.neg_one_notMem [Nontrivial R] (hS : S.IsPointed) :
     -1 ∉ S := fun hc ↦ by
   rw [isPointed_def] at hS
   simpa [hS (one_mem _) hc] using zero_ne_one' R
-
-@[simps!]
-def supportIdeal (hS : S.IsSpanning) : Ideal R where
-  __ : AddSubgroup R := S.toAddSubmonoid.support
-  smul_mem' x a ha := by
-    simp_all [isSpanning_def]
-    have : ∀ {x y}, -x ∈ S → -y ∈ S → x * y ∈ S := fun hx hy ↦ by simpa using mul_mem hx hy
-    grind [mul_mem, neg_mul_mem, mul_neg_mem]
-
-@[simp] theorem mem_supportIdeal {S : Subsemiring R} (hS : S.IsSpanning) {x : R} :
-    x ∈ S.supportIdeal hS ↔ x ∈ S.support := .rfl
-
-@[simp] theorem supportIdeal_toAddSubgroup {S : Subsemiring R} (hS : S.IsSpanning) :
-    (S.supportIdeal hS).toAddSubgroup = S.support := rfl
 
 variable {R R' : Type*} [Ring R] [Ring R'] {f : R →+* R'}
          {S T : Subsemiring R} {S' : Subsemiring R'} {s : Set (Subsemiring R)}
@@ -472,7 +433,7 @@ theorem isSpanning_map (hS : S.IsSpanning) (hf : Function.Surjective f) : (S.map
   hS.map (f := f.toAddMonoidHom) hf
 
 end Subsemiring
--- end #36863
+-- end #45455
 
 -- ⚠⚠⚠ NOT PR'D YET ⚠⚠⚠
 

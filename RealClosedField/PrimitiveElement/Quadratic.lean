@@ -12,7 +12,7 @@ import Mathlib.Algebra.Ring.SumsOfSquares
 -- TODO : upstream
 theorem Polynomial.X_sq_sub_C_irreducible_iff_not_isSquare {F : Type*} [Field F] (a : F) :
     Irreducible (X ^ 2 - C a) ↔ ¬ IsSquare a := by
-  rw [isSquare_iff_exists_sq, X_pow_sub_C_irreducible_iff_of_prime Nat.prime_two]
+  rw [isSquare_iff_exists_sq, irreducible_X_pow_sub_C_iff_of_prime Nat.prime_two]
   grind only
 
 open Polynomial

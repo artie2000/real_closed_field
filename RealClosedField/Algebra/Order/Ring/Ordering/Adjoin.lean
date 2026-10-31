@@ -8,7 +8,8 @@ import RealClosedField.Algebra.Order.Ring.Ordering.Basic
 
 /-!
 
-Let `R` be a commutative ring, and let `P` be a preordering on `R`.
+Let `R` be a commutative ring, and let `P` be a preordering on `R`. We prove that every preordering
+on `R` extends to an ordering on `R`, and characterise maximal orderings.
 
 ## Main results
 
@@ -26,7 +27,7 @@ orderings are precisely maximal preorderings.
 [lam_1984](https://doi.org/10.1216/RMJ-1984-14-4-767)
 -/
 
--- TODO : replace `aesop` with `membership`
+-- TODO : replace `membership` with `membership`
 -- TODO : use `grw` with `IsPreordering.mono`
 
 variable {R : Type*} [CommRing R]
@@ -39,49 +40,49 @@ variable {P : Subsemiring R} (a : R)
 ### Sufficient conditions for adjoining an element to a preordering
 -/
 
+-- TODO : upstream
+attribute [membership =] SetLike.mem_coe
+
 variable {a} in
 theorem closure_insert (hP : P.IsPreordering) (hx : -1 ∉ closure (insert a P)) :
-    (closure (insert a P)).IsPreordering := hP.of_le (fun _ ↦ by aesop) hx
+    (closure (insert a P)).IsPreordering := hP.mono (fun _ ↦ by membership) hx
 
 variable {a} in
 theorem mem_closure_insert (hP : P.IsPreordering) {x} :
     x ∈ closure (insert a P) ↔ ∃ y ∈ P, ∃ z ∈ P, x = y + a * z where
   mp hx := by
     induction hx using Subsemiring.closure_induction with
-    | mem x hx => cases hx
-                  · exact ⟨0, by aesop, 1, by aesop, by simp_all⟩
-                  · exact ⟨x, ‹_›, 0, by aesop, by simp⟩
-    | zero => exact ⟨0, by aesop, 0, by aesop, by simp⟩
-    | one => exact ⟨1, by aesop, 0, by aesop, by simp⟩
+    | mem x hx =>
+      rcases hx with rfl | hx
+      · exact ⟨0, by membership, 1, by membership, by simp⟩
+      · exact ⟨x, hx, 0, by membership, by simp⟩
+    | zero => exact ⟨0, by membership, 0, by membership, by simp⟩
+    | one => exact ⟨1, by membership, 0, by membership, by simp⟩
     | add _ _ _ _ ha hb =>
       rcases ha, hb with ⟨⟨x₁, hx₁, y₁, hy₁, rfl⟩, ⟨x₂, hx₂, y₂, hy₂, rfl⟩⟩
-      exact ⟨x₁ + x₂, by aesop, y₁ + y₂, by aesop, by grind⟩
+      exact ⟨x₁ + x₂, by membership, y₁ + y₂, by membership, by grind⟩
     | mul _ _ _ _ ha hb =>
       rcases ha, hb with ⟨⟨x₁, hx₁, y₁, hy₁, rfl⟩, ⟨x₂, hx₂, y₂, hy₂, rfl⟩⟩
-      exact ⟨x₁ * x₂ + (a * a) * (y₁ * y₂), by aesop, x₁ * y₂ + y₁ * x₂, by aesop,
+      exact ⟨x₁ * x₂ + (a * a) * (y₁ * y₂), by membership, x₁ * y₂ + y₁ * x₂, by membership,
         by grind⟩
-  mpr := by aesop
+  mpr := by membership
 
 theorem neg_one_notMem_closure_insert (hP : P.IsPreordering)
     (h : ∀ x y, x ∈ P → y ∈ P → x + (1 + y) * a + 1 ≠ 0) :
-    -1 ∉ closure (insert a P) := fun _ ↦ by
-  rcases hP.mem_closure_insert.mp
-      (show -1 * (1 + a) ∈ closure (insert a P) by aesop (erase simp neg_mul))
+    -1 ∉ closure (insert a P) := by
+  contrapose! h
+  rcases hP.mem_closure_insert.mp (show -1 * (1 + a) ∈ closure (insert a P) by membership)
     with ⟨x, hx, y, hy, eqn⟩
-  exact h _ _ hx hy (by grind)
+  exact ⟨x, y, hx, hy, by grind⟩
 
 theorem neg_one_notMem_closure_insert_or_of_neg_mul_mem (hP : P.IsPreordering)
     {x y : R} (h : -(x * y) ∈ P) :
     -1 ∉ closure (insert x P) ∨ -1 ∉ closure (insert y P) := by
-  rw [hP.mem_closure_insert]
-  by_contra
-  apply hP.neg_one_notMem
-  rcases hP.mem_closure_insert.mp (show -1 ∈ closure (insert x P) by aesop)
-    with ⟨s₁, hs₁, s₂, hs₂, eqx⟩
-  rcases hP.mem_closure_insert.mp (show -1 ∈ closure (insert y P) by aesop)
-    with ⟨t₁, ht₁, t₂, ht₂, eqy⟩
-  suffices (-(x * y)) * s₂ * t₂ + s₁ + t₁ + (s₁ * t₁) ∈ P by grind
-  aesop (config := { enableSimp := false })
+  simp_rw [hP.mem_closure_insert]
+  by_contra! hc
+  rcases hc with ⟨⟨s₁, _, s₂, _, _⟩, ⟨t₁, _, t₂, _, _⟩⟩
+  suffices (-(x * y)) * s₂ * t₂ + s₁ + t₁ + (s₁ * t₁) ∈ P by membership
+  membership
 
 /--
 If `F` is a field, `P` is a preordering on `F`, and `a` is an element of `P` such that `-a ∉ P`,
@@ -91,43 +92,43 @@ theorem neg_one_notMem_closure_insert_of_neg_notMem
     {F : Type*} [Field F] {P : Subsemiring F} (hP : P.IsPreordering) {a : F} (ha : -a ∉ P) :
     -1 ∉ Subsemiring.closure (insert a P) := by
   rw [hP.mem_closure_insert]
-  rintro ⟨x, hx, y, hy, eqn⟩
-  apply ha
-  suffices x * y⁻¹ + y⁻¹ ∈ P by grind [hP.neg_one_notMem]
-  aesop (add unsafe inv_mem)
+  contrapose ha
+  rcases ha with ⟨x, _, y, _, _⟩
+  suffices x * y⁻¹ + y⁻¹ ∈ P by membership
+  membership
 
 theorem exists_le_and_mem_or_mem (hP : P.IsPreordering) (x y : R) (h : -(x * y) ∈ P) :
     ∃ Q ≥ P, Q.IsPreordering ∧ (x ∈ Q ∨ y ∈ Q) := by
   rcases hP.neg_one_notMem_closure_insert_or_of_neg_mul_mem h with h | h <;>
-    exact ⟨_, fun _ ↦ by aesop, hP.closure_insert h, by aesop⟩
+    exact ⟨_, fun _ ↦ by membership, hP.closure_insert h, by membership⟩
 
 /- A maximal preordering on `R` is an ordering. -/
 theorem _root_.Subsemiring.IsOrdering.of_maximal_isPreordering
     (max : Maximal IsPreordering P) : P.IsOrdering :=
   max.prop.isOrdering_iff.mpr <| fun a b h => by
   rcases max.prop.exists_le_and_mem_or_mem _ _ h with ⟨O', hO'₁, hO'₂, hO'₃⟩
-  aesop (add safe forward (max.le_of_ge hO'₂ hO'₁))
+  grind [max.le_of_ge hO'₂ hO'₁]
 
 /- Every preordering on `R` extends to an ordering. -/
 theorem exists_le_isOrdering (hP : P.IsPreordering) :
     ∃ O ≥ P, O.IsOrdering :=
-  have ⟨_, _, hO⟩ : ∃ O, P ≤ O ∧ Maximal IsPreordering O := by
-    refine zorn_le_nonempty₀ {P : Subsemiring R | IsPreordering P} ?_ P (by simpa)
-    exact fun S hS hc Q hQ ↦
-      ⟨_, IsPreordering.sSup (Set.nonempty_of_mem hQ) hc.directedOn hS, fun _ h ↦ le_sSup h⟩
-  ⟨_, ‹_›, .of_maximal_isPreordering hO⟩
+  have ⟨_, O_ge, O_max⟩ : ∃ O, P ≤ O ∧ Maximal IsPreordering O :=
+    zorn_le_nonempty₀ {P : Subsemiring R | IsPreordering P} (fun S hS hc Q hQ ↦
+      ⟨_, IsPreordering.sSup (Set.nonempty_of_mem hQ) hc.directedOn hS, fun _ ↦ le_sSup⟩) _
+      (by simpa)
+  ⟨_, O_ge, .of_maximal_isPreordering O_max⟩
 
 theorem exists_le_isOrdering_and_mem
     {P : Subsemiring R} (hP : P.IsPreordering) {a : R} (h : -1 ∉ closure (insert a P)) :
     ∃ O ≥ P, O.IsOrdering ∧ a ∈ O := by
   rcases (hP.closure_insert h).exists_le_isOrdering with ⟨_, _, hO⟩
-  exact ⟨_, fun _ ↦ by aesop, hO, by aesop⟩
+  exact ⟨_, fun _ ↦ by membership, hO, by membership⟩
 
 theorem exists_le_isOrdering_and_mem_or_neg_mem (hP : P.IsPreordering) :
     ∃ Q ≥ P, Q.IsOrdering ∧ (a ∈ Q ∨ -a ∈ Q) := by
   rcases hP.exists_le_and_mem_or_mem a (-a) (by simp [hP]) with ⟨_, _, hP', _⟩
   rcases hP'.exists_le_isOrdering with ⟨_, _, hO⟩
-  exact ⟨_, by grind, hO, by aesop⟩
+  exact ⟨_, by grind, hO, by membership⟩
 
 theorem exists_lt_isOrdering (hP : P.IsPreordering) (hp : a ∉ P) (hn : -a ∉ P) :
     ∃ Q > P, Q.IsOrdering := by
@@ -136,13 +137,12 @@ theorem exists_lt_isOrdering (hP : P.IsPreordering) (hp : a ∉ P) (hn : -a ∉ 
 
 end IsPreordering
 
-/- A maximal ordering on `R` is precisely a maixmal preordering on `R`. -/
+/- A maximal ordering on `R` is precisely a maximal preordering on `R`. -/
 theorem maximal_isOrdering_iff_maximal_isPreordering {O : Subsemiring R} :
     Maximal IsOrdering O ↔ Maximal IsPreordering O where
-  mp hO :=
-    ⟨hO.prop.isPreordering, fun _ hP _ ↦ by
-      rcases hP.exists_le_isOrdering with ⟨O', hO', hO'₂⟩
-      simpa [Maximal.eq_of_ge hO hO'₂ (by order)] using hO'⟩
+  mp hO := ⟨hO.prop.isPreordering, fun _ hP _ ↦ by
+    rcases hP.exists_le_isOrdering with ⟨_, hO', hO'₂⟩
+    simpa [hO.eq_of_ge hO'₂ (by grind)] using hO'⟩
   mpr hO := .mono hO (fun _ hO ↦ hO.isPreordering) (.of_maximal_isPreordering hO)
 
 /- A preordering on a field `F` is maximal iff it is an ordering. -/

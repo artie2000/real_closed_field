@@ -111,7 +111,6 @@ theorem of_intermediateValueProperty [LinearOrder R] [IsStrictOrderedRing R]
     rcases h hxy hy.le hx.le with ⟨z, _, hz⟩
     exact ⟨z, hz⟩
 
-
 -- TODO : universe polymorphic version (prove general thing about bounding algebraic extensions?)
 theorem of_maximal_isOrderedAlgebra [LinearOrder R] [IsStrictOrderedRing R]
     (h : ∀ K : Type u, [Field K] → [LinearOrder K] → [IsStrictOrderedRing K] → [Algebra R K] →
@@ -414,7 +413,7 @@ theorem intermediate_value_property {f : R[X]} {x y : R}
     (hle : x ≤ y) (hx : 0 ≤ f.eval x) (hy : f.eval y ≤ 0) :
     ∃ z ∈ Set.Icc x y, f.eval z = 0 := by
   induction hdeg : f.natDegree using Nat.strong_induction_on generalizing f with
-  | h n ih =>
+  | ind n ih =>
     subst hdeg
     by_cases! hz : f.natDegree = 0
     · rw [f.eq_C_of_natDegree_eq_zero hz] at hx hy ⊢

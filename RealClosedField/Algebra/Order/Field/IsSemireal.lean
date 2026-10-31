@@ -5,7 +5,6 @@ Authors: Artie Khovanov
 -/
 import RealClosedField.Algebra.Ring.Semireal.Basic
 import RealClosedField.Algebra.Order.Ring.Ordering.Adjoin
-import RealClosedField.Algebra.Order.Ring.Ordering.Order
 import RealClosedField.PrimitiveElement.Quadratic
 
 variable {F : Type*} [Field F]

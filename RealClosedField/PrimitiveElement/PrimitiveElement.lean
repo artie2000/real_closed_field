@@ -5,7 +5,7 @@ Authors: Artie Khovanov
 -/
 import RealClosedField.Upstream
 import Mathlib.Algebra.Polynomial.FieldDivision
-import Mathlib.FieldTheory.Minpoly.Basic
+import Mathlib.FieldTheory.Minpoly.Finite
 import Mathlib.LinearAlgebra.FreeModule.StrongRankCondition
 import Mathlib.RingTheory.IntegralClosure.Algebra.Basic
 import Mathlib.Tactic.DepRewrite
@@ -761,7 +761,7 @@ noncomputable def basis : Basis (Fin g.natDegree) R S := .ofRepr
       · convert h.aeval_repr y
         simp [coeff_apply]
       · intro i hi
-        contrapose! hi
+        contrapose hi
         simpa using h.coeff_apply_of_natDegree_le y (by simpa using hi)
     right_inv f := by
       nontriviality R

@@ -6,7 +6,6 @@ Authors: Artie Khovanov
 import RealClosedField.Upstream
 import RealClosedField.PrimitiveElement.Quadratic
 import RealClosedField.Algebra.Order.Ring.Ordering.Adjoin
-import RealClosedField.Algebra.Order.Ring.Ordering.Order
 import Mathlib.Algebra.Order.Algebra
 
 attribute [-simp] AdjoinRoot.algebraMap_eq
@@ -209,7 +208,7 @@ theorem minus_one_notMem_span_nonneg_isSquare_mod_f {f : F[X]}
                                Polynomial.natDegree_add_eq_right_of_degree_lt hdeg] using ihh
           | inr hdeg => simpa [Polynomial.leadingCoeff_add_of_degree_lt' hdeg,
                                Polynomial.natDegree_add_eq_left_of_degree_lt hdeg] using ihg
-  induction h : f.natDegree using Nat.strong_induction_on generalizing f g with | h n ih =>
+  induction h : f.natDegree using Nat.strong_induction_on generalizing f g with | ind n ih =>
     rcases h with rfl
     rcases g_facts _ (Irreducible.natDegree_pos hf₂) _ hg with
       ⟨leadingCoeff_nonneg, natDegree_even, natDegree_lt⟩

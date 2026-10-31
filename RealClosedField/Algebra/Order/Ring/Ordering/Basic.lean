@@ -1,7 +1,9 @@
-import RealClosedField.Algebra.Order.Ring.Ordering.Defs
+import RealClosedField.Upstream
 import Mathlib.Algebra.Order.Ring.Ordering.Basic
 
 namespace Subsemiring
+
+-- begin #45456
 
 section CommRing
 
@@ -10,62 +12,19 @@ variable {R S : Type*} [CommRing R] [CommRing S] (f : R →+* S)
 
 namespace IsPreordering
 
-theorem of_le (hP : P.IsPreordering) {Q : Subsemiring R} (hPQ : P ≤ Q) (hQ : -1 ∉ Q) :
+@[gcongr]
+theorem mono (hP : P.IsPreordering) {Q : Subsemiring R} (hPQ : P ≤ Q) (hQ : -1 ∉ Q) :
     Q.IsPreordering where
-  mem_of_isSquare := by grind [IsConcreteLE.le_iff, IsPreordering.mem_of_isSquare]
-
--- TODO : membership
-theorem unitsInv_mem (hP : P.IsPreordering) {a : Rˣ} (ha : ↑a ∈ P) : ↑a⁻¹ ∈ P := by
-  simpa using show (a * (a⁻¹ * a⁻¹) : R) ∈ P by grind [mul_mem, IsPreordering.mul_self_mem]
-
-theorem one_notMem_support (hP : P.IsPreordering) : 1 ∉ P.support := fun h ↦
-  P.neg_one_notMem hP h.2
-
-theorem support_ne_top (hP : P.IsPreordering) : P.support ≠ ⊤ := fun h ↦
-  one_notMem_support hP (by simp [h])
-
-theorem isOrdering_iff (hP : P.IsPreordering) :
-    P.IsOrdering ↔ ∀ a b : R, -(a * b) ∈ P → a ∈ P ∨ b ∈ P where
-  mp hP a b _ := by
-    by_contra
-    have : a * b ∈ P := by
-      have := Subsemiring.isSpanning_def.mp hP.isSpanning
-      grind [mul_mem, mul_neg, neg_mul, neg_neg]
-    have : a ∈ P.support ∨ b ∈ P.support :=
-      Ideal.IsPrime.mem_or_mem hP.isPrime_supportIdeal (by simp; grind)
-    grind [Subsemiring.mem_support]
-  mpr h := by
-    refine ⟨?_, hP.support_ne_top, fun {x y} ↦ ?_⟩
-    · simp [AddSubmonoid.IsSpanning]
-      grind [hP.mul_self_mem, neg_mul, mul_neg, neg_neg] -- TODO : figure out why `grind` doesn't know `neg_neg`
-    · simp_rw [Subsemiring.mem_support]
-      by_contra
-      have := h (-x) y
-      have := h (-x) (-y)
-      have := h x y
-      have := h x (-y)
-      cases (by simp_all : x ∈ P ∨ -x ∈ P) <;> simp_all
-
-theorem smul_mem_support_of_isUnit_two (hP : P.IsPreordering) (h : IsUnit (2 : R))
-    (x : R) {a : R} (ha : a ∈ P.support) : x * a ∈ P.support := by
-  rcases h.exists_right_inv with ⟨half, h2⟩
-  rw [Subsemiring.mem_support] at *
-  suffices ((1 + x) * half) ^ 2 * a + ((1 - x) * half) ^ 2 * (- a) ∈ P ∧
-           ((1 + x) * half) ^ 2 * (- a) + ((1 - x) * half) ^ 2 * a ∈ P by grind
-  grind [add_mem, mul_mem, mul_neg_mem, IsPreordering.pow_two_mem] -- membership
 
 end IsPreordering
 
+theorem IsPreordering.of_sumSq_le_of_isPointed [Nontrivial R]
+    (h : .sumSq R ≤ P) (hP : P.IsPointed) : P.IsPreordering :=
+  .of_sumSq_le h <| by grind [membership, isPointed_def, one_ne_zero]
+
 theorem IsPreordering.of_isSpanning_of_isPointed [Nontrivial R]
     (hP₁ : P.IsSpanning) (hP₂ : P.IsPointed) : P.IsPreordering :=
-  .of_ne_top hP₁ fun hc ↦ one_ne_zero' R (by simp_all [AddSubmonoid.IsPointed]) -- TODO : ¬ T.IsPointed
-
-theorem IsPreordering.of_isPointed [Nontrivial R]
-    (hP : P.IsPointed) (h : .sumSq R ≤ P) : P.IsPreordering where
-  mem_of_isSquare hx := h (by simpa using hx.isSumSq)
-  neg_one_notMem := by
-    rw [Subsemiring.isPointed_def] at hP
-    grind [one_mem, one_ne_zero]
+  .of_sumSq_le_of_isPointed hP₁.sumSq_le hP₂
 
 theorem IsOrdering.of_isSpanning_of_isPointed [IsDomain R]
     (hP₁ : P.IsSpanning) (hP₂ : P.IsPointed) : P.IsOrdering where
@@ -73,7 +32,7 @@ theorem IsOrdering.of_isSpanning_of_isPointed [IsDomain R]
   support_ne_top := by simp [hP₂]
   mem_support_or_mem_support := by simp [hP₂]
 
--- PR SPLIT ↑1 ↓2
+-- end #45456
 
 -- TODO : upstream and add similar
 attribute [simp] Submonoid.mem_sInf
@@ -135,25 +94,46 @@ theorem IsPreordering.map (hP : P.IsPreordering) (hf : Function.Surjective f)
 
 end CommRing
 
--- PR SPLIT ↑2 ↓1
+end Subsemiring
 
-section Field
+namespace Field
 
-variable {F : Type*} [Field F] {P : Subsemiring F}
+variable {F : Type*} [Field F]
 
-namespace IsPreordering
+variable (F) in
+open Classical in
+/-- Equivalence between orderings on a field `F` and linearly ordered field structures on `F`. -/
+noncomputable def isOrderingLinearOrderEquiv :
+    Equiv {O : Subsemiring F // O.IsOrdering}
+          {_o : LinearOrder F // IsStrictOrderedRing F} where
+  toFun := fun ⟨O, hO⟩ ↦
+    let ⟨o, ho⟩ := Ring.isPointedLinearOrderEquiv F
+      ⟨O, hO.isPreordering.isPointed, hO.isSpanning⟩
+    ⟨o, IsOrderedRing.toIsStrictOrderedRing F⟩
+  invFun := fun ⟨o, ho⟩ ↦
+    let ⟨O, hO⟩ := (Ring.isPointedLinearOrderEquiv F).symm ⟨o, inferInstance⟩
+    ⟨O, Subsemiring.IsOrdering.of_isSpanning_of_isPointed hO.2 hO.1⟩
+  left_inv := fun ⟨_, _⟩ ↦ by ext; simp
+  right_inv := fun ⟨_, _⟩ ↦ by
+    -- TODO : fix proj-reduction with classes, simp, extends-projection
+    ext : 1
+    simp
+    ext
+    simp
 
--- TODO : membership
-theorem inv_mem (hP : IsPreordering P) {a : F} (ha : a ∈ P) : a⁻¹ ∈ P := by
-  suffices a * (a⁻¹ * a⁻¹) ∈ P by grind
-  grind [mul_mem, IsPreordering.mul_self_mem]
+@[simp]
+theorem isOrderingLinearOrderEquiv_apply (O : Subsemiring F) (h : O.IsOrdering) :
+    (isOrderingLinearOrderEquiv F ⟨O, h⟩ : LinearOrder F) =
+    Ring.isPointedLinearOrderEquiv F ⟨O, h.isPreordering.isPointed, h.isSpanning⟩ := by
+  simp [isOrderingLinearOrderEquiv]
 
-theorem isPointed (hP : IsPreordering P) : P.IsPointed := by
-  rw [Subsemiring.isPointed_def]
-  grind [P.neg_one_notMem hP, neg_mul_mem, inv_mem]
-
-end IsPreordering
+@[simp]
+theorem isOrderingLinearOrderEquiv_symm_apply_val
+    (o : LinearOrder F) (h : IsStrictOrderedRing F) :
+    ((isOrderingLinearOrderEquiv F).symm ⟨o, h⟩ : Subsemiring F) =
+    (Ring.isPointedLinearOrderEquiv F).symm ⟨o, inferInstance⟩ := by
+  simp [isOrderingLinearOrderEquiv]
 
 end Field
 
-end Subsemiring
+-- TODO : `Ring.isOrderingLinearOrderEquiv` from unfinished part of `Algebra.Order.Cone.Order`
