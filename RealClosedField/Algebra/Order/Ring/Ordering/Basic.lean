@@ -91,6 +91,9 @@ namespace Field
 
 variable {F : Type*} [Field F]
 
+-- TODO : add constructors and bijection between orderings and pointed spanning subsemirings
+--        then rewrite the below bijection and orderedalgebra bijection by composition
+
 variable (F) in
 open Classical in
 /-- Equivalence between orderings on a field `F` and linearly ordered field structures on `F`. -/
