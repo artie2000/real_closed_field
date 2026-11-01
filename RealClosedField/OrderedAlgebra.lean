@@ -31,7 +31,7 @@ noncomputable def isOrderingOrderedAlgebraEquiv :
       rw [monotone_iff_map_nonneg]
       intro a ha
       -- TODO : fix proj-reduction with classes, simp, extends-projection
-      have l_def : l = LinearOrder.mkOfAddSubmonoid hO.isPreordering.isPointed hO.isSpanning := by
+      have l_def : l = .ofAddSubmonoid hO.isPreordering.isPointed hO.isSpanning := by
         simp [l]
       rw [l_def]
       rw [IsConcreteLE.le_iff] at hO₂
