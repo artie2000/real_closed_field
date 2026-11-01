@@ -6,6 +6,7 @@ Authors: Artie Khovanov
 import RealClosedField.Upstream
 import RealClosedField.PrimitiveElement.Quadratic
 import RealClosedField.Algebra.Order.Ring.Ordering.Extend
+import RealClosedField.Geometry.Convex.Cone.Order
 import Mathlib.Algebra.Order.Algebra
 
 attribute [-simp] AdjoinRoot.algebraMap_eq
@@ -14,9 +15,7 @@ variable {F K : Type*} [Field F] [LinearOrder F] [IsStrictOrderedRing F] [Field 
 
 namespace Field
 
--- TODO : generalise to ordered extensions of rings :
---        correspondence between `Subalgebra (.nonneg R) S` (with `IsPointed`)
---        and `IsOrderedModule R S`
+-- TODO : generalise using correspondence between pointed (linear) cones and ordered modules
 
 variable (F K) in
 open Classical in
