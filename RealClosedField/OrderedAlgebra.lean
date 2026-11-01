@@ -29,12 +29,8 @@ noncomputable def isOrderingOrderedAlgebraEquiv :
     ⟨l, ⟨hl, .of_algebraMap_mono <| by
       rw [monotone_iff_map_nonneg]
       intro a ha
-      -- TODO : fix proj-reduction with classes, simp, extends-projection
-      have l_def : l = .ofAddSubmonoid hO.isPreordering.isPointed hO.isSpanning := by
-        simp [l]
-      rw [l_def]
       rw [IsConcreteLE.le_iff] at hO₂
-      simpa using hO₂ (by simpa using ha)⟩⟩
+      simpa +instances [l] using hO₂ (by simpa using ha)⟩⟩
   invFun := fun ⟨l, hl⟩ ↦
     let O := (isOrderingLinearOrderEquiv K).symm ⟨l, hl.1⟩
     ⟨O, O.property, fun x hx ↦ by
@@ -43,12 +39,7 @@ noncomputable def isOrderingOrderedAlgebraEquiv :
       simpa using algebraMap_mono (β := K) h
     aesop⟩
   left_inv := fun ⟨_, _, _⟩ ↦ by ext; simp
-  right_inv := fun ⟨_, _, _⟩ ↦ by
-    -- TODO : fix proj-reduction with classes, simp, extends-projection
-    ext : 1
-    simp
-    ext
-    simp
+  right_inv := fun ⟨_, _, _⟩ ↦ by ext; simp +instances
 
 @[simp]
 theorem isOrderingOrderedAlgebraEquiv_apply_coe

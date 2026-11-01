@@ -287,12 +287,7 @@ noncomputable def submonoidPartialOrderEquiv :
   toFun := fun ⟨_, hC⟩ ↦ ⟨.ofSubmonoid hC, .ofSubmonoid _⟩
   invFun := fun ⟨_, _⟩ ↦ ⟨.oneLE G, .oneLE _⟩
   left_inv := fun ⟨_, _⟩ ↦ by ext; simp
-  right_inv := fun ⟨v, p⟩ ↦ by
-    -- TODO : fix proj-reduction with classes, simp, extends-projection
-    ext : 1
-    simp only
-    ext
-    simp
+  right_inv := fun ⟨_, _⟩ ↦ by ext; simp +instances
 
 @[to_additive (attr := simp)]
 theorem submonoidPartialOrderEquiv_apply
@@ -342,12 +337,7 @@ noncomputable def isPointedPartialOrderEquiv :
   toFun := fun ⟨_, hC⟩ ↦ ⟨.ofAddSubmonoid hC, .ofSubsemiring _⟩
   invFun := fun ⟨_, _⟩ ↦ ⟨.nonneg R, .nonneg _⟩
   left_inv := fun ⟨_, _⟩ ↦ by ext; simp
-  right_inv := fun ⟨_, _⟩ ↦ by
-    -- TODO : fix proj-reduction with classes, simp, extends-projection
-    ext : 1
-    simp
-    ext
-    simp
+  right_inv := fun ⟨_, _⟩ ↦ by ext; simp +instances
 
 @[simp]
 theorem isPointedPartialOrderEquiv_apply
