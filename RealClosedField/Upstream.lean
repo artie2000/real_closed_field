@@ -1,3 +1,4 @@
+import Mathlib.Algebra.Order.Ring.Cone
 import Mathlib.Algebra.Ring.Subsemiring.Support
 import Mathlib.Algebra.Ring.IsFormallyReal
 import Mathlib.Algebra.Ring.Subsemiring.Order
@@ -186,74 +187,7 @@ protected theorem Subsemiring.IsPointed.sumSq [CommRing R] [IsFormallyReal R] :
 
 end IsFormallyReal
 
--- begin #37298
-variable (G : Type*) [CommGroup G]
-
-@[to_additive]
-theorem Submonoid.oneLE.isMulPointed [PartialOrder G] [IsOrderedMonoid G] :
-    (oneLE G).IsMulPointed := by simp_all [IsMulPointed, ge_antisymm_iff]
-
-@[to_additive]
-theorem Submonoid.oneLE.isMulSpanning [LinearOrder G] [IsOrderedMonoid G] :
-    (oneLE G).IsMulSpanning := by simp_all [IsMulSpanning, le_total]
-
-variable {G} {M : Submonoid G} (hM : M.IsMulPointed)
-
-/-- Construct a partial order by designating a submonoid with zero support in an abelian group. -/
-@[to_additive (attr := implicit_reducible)
-/-- Construct a partial order by designating a submonoid with zero support in an abelian group. -/]
-def PartialOrder.mkOfSubmonoid : PartialOrder G where
-  le a b := b / a ∈ M
-  le_refl a := by simp [one_mem]
-  le_trans a b c nab nbc := by simpa using mul_mem nbc nab
-  le_antisymm a b nab nba := by
-    simpa [div_eq_one, eq_comm] using hM.eq_one_of_mem_of_inv_mem nab (by simpa using nba)
-
-variable {hM} in
-@[to_additive (attr := simp)]
-theorem PartialOrder.mkOfSubmonoid_le_iff {a b : G} :
-    (mkOfSubmonoid hM).le a b ↔ b / a ∈ M := .rfl
-
-@[to_additive]
-theorem IsOrderedMonoid.mkOfSubmonoid :
-    letI _ := PartialOrder.mkOfSubmonoid hM
-    IsOrderedMonoid G :=
-  letI _ := PartialOrder.mkOfSubmonoid hM
-  { mul_le_mul_left := fun a b nab c ↦ by simpa [· ≤ ·] using nab }
-
-/-- Construct a linear order by designating
-    a maximal submonoid with zero support in an abelian group. -/
-@[to_additive (attr := implicit_reducible)
-/-- Construct a linear order by designating
-    a maximal submonoid with zero support in an abelian group. -/]
-def LinearOrder.mkOfSubmonoid (hMs : M.IsMulSpanning) [i : DecidablePred (· ∈ M)] :
-    LinearOrder G where
-  __ := PartialOrder.mkOfSubmonoid hM
-  le_total a b := by simpa using hMs.mem_or_inv_mem (b / a)
-  toDecidableLE a b := i (b / a)
-
--- end #37298
-
 variable (R : Type*) [Ring R]
-
--- #37298
-theorem Subsemiring.nonneg.isPointed [PartialOrder R] [IsOrderedRing R] :
-    (Subsemiring.nonneg R).IsPointed := AddSubmonoid.nonneg.isPointed R
-
--- #37298
-theorem Subsemiring.nonneg.isSpanning [LinearOrder R] [IsOrderedRing R] :
-    (Subsemiring.nonneg R).IsSpanning := AddSubmonoid.nonneg.isSpanning R
-
-variable {R} {S : Subsemiring R} (hS : S.IsPointed)
-
--- #37298
-theorem IsOrderedRing.mkOfSubsemiring :
-    letI _ := PartialOrder.mkOfAddSubmonoid hS
-    IsOrderedRing R :=
-  letI _ := PartialOrder.mkOfAddSubmonoid hS
-  haveI := IsOrderedAddMonoid.mkOfAddSubmonoid hS
-  haveI : ZeroLEOneClass R := ⟨by simp⟩
-  .of_mul_nonneg fun x y xnn ynn ↦ show _ ∈ S by simpa using Subsemiring.mul_mem _ xnn ynn
 
 section map_comap
 
@@ -435,19 +369,10 @@ theorem isSpanning_map (hS : S.IsSpanning) (hf : Function.Surjective f) : (S.map
 end Subsemiring
 -- end #45455
 
--- ⚠⚠⚠ NOT PR'D YET ⚠⚠⚠
-
--- Mathlib.GroupTheory.MonoidLocalization.Basic
-/-- Copy of `Quotient.recOnSubsingleton` for `Localization` -/
-@[to_additive (attr := elab_as_elim)
-/-- Copy of `Quotient.recOnSubsingleton` for `AddLocalization` -/]
-def Localization.recOnSubsingleton {M : Type*} [CommMonoid M] {S : Submonoid M}
-    {r : Localization S → Sort*} [h : ∀ (a : M) (b : ↥S), Subsingleton (r (mk a b))]
-    (x : Localization S) (f : (a : M) → (b : ↥S) → r (mk a b)) : r x :=
-  @Quotient.recOnSubsingleton' _ _ r (Prod.rec fun _ _ => h ..) x (Prod.rec fun _ _ => f ..)
-
--- `Mathlib.Algebra.Order.Group.Cone`
+-- begin #45547
 namespace CommGroup
+
+variable {G : Type*} [CommGroup G]
 
 variable (G) in
 /-- Equivalence between submonoids with zero support in an abelian group `G`
@@ -458,8 +383,8 @@ variable (G) in
 noncomputable def submonoidPartialOrderEquiv :
     Equiv {C : Submonoid G // C.IsMulPointed}
           {_o : PartialOrder G // IsOrderedMonoid G} where
-  toFun := fun ⟨_, hC⟩ ↦ ⟨.mkOfSubmonoid hC, .mkOfSubmonoid _⟩
-  invFun := fun ⟨_, _⟩ ↦ ⟨.oneLE G, Submonoid.oneLE.isMulPointed G⟩
+  toFun := fun ⟨_, hC⟩ ↦ ⟨.ofSubmonoid hC, .ofSubmonoid _⟩
+  invFun := fun ⟨_, _⟩ ↦ ⟨.oneLE G, .oneLE _⟩
   left_inv := fun ⟨_, _⟩ ↦ by ext; simp
   right_inv := fun ⟨v, p⟩ ↦ by
     -- TODO : fix proj-reduction with classes, simp, extends-projection
@@ -471,7 +396,7 @@ noncomputable def submonoidPartialOrderEquiv :
 @[to_additive (attr := simp)]
 theorem submonoidPartialOrderEquiv_apply
     (C : Submonoid G) (h : C.IsMulPointed) :
-    submonoidPartialOrderEquiv G ⟨C, h⟩ = PartialOrder.mkOfSubmonoid h := rfl
+    submonoidPartialOrderEquiv G ⟨C, h⟩ = PartialOrder.ofSubmonoid h := rfl
 
 @[to_additive (attr := simp)]
 theorem submonoidPartialOrderEquiv_symm_apply (o : PartialOrder G) (h : IsOrderedMonoid G) :
@@ -487,8 +412,8 @@ variable (G) in
 noncomputable def submonoidLinearOrderEquiv :
     Equiv {C : Submonoid G // C.IsMulPointed ∧ C.IsMulSpanning}
           {_o : LinearOrder G // IsOrderedMonoid G} where
-  toFun := fun ⟨C, hC⟩ ↦ ⟨.mkOfSubmonoid hC.1 hC.2, .mkOfSubmonoid hC.1⟩
-  invFun := fun ⟨_, _⟩ ↦ ⟨.oneLE G, Submonoid.oneLE.isMulPointed G, Submonoid.oneLE.isMulSpanning G⟩
+  toFun := fun ⟨C, hC⟩ ↦ ⟨.ofSubmonoid hC.1 hC.2, .ofSubmonoid _⟩
+  invFun := fun ⟨_, _⟩ ↦ ⟨.oneLE G, .oneLE _, .oneLE _⟩
   left_inv := fun ⟨_, _, _⟩ ↦ by ext; simp
   right_inv := fun ⟨_, _⟩ ↦ by ext; simp
 
@@ -496,7 +421,7 @@ open Classical in
 @[to_additive (attr := simp)]
 theorem submonoidLinearOrderEquiv_apply
     (C : Submonoid G) (h : C.IsMulPointed ∧ C.IsMulSpanning) :
-    submonoidLinearOrderEquiv G ⟨C, h⟩ = LinearOrder.mkOfSubmonoid h.1 h.2 := rfl
+    submonoidLinearOrderEquiv G ⟨C, h⟩ = LinearOrder.ofSubmonoid h.1 h.2 := rfl
 
 @[to_additive (attr := simp)]
 theorem submonoidLinearOrderEquiv_symm_apply (l : LinearOrder G) (h : IsOrderedMonoid G) :
@@ -513,20 +438,20 @@ variable (R) in
 noncomputable def isPointedPartialOrderEquiv :
     Equiv {C : Subsemiring R // C.IsPointed}
           {_o : PartialOrder R // IsOrderedRing R} where
-  toFun := fun ⟨_, hC⟩ ↦ ⟨.mkOfAddSubmonoid hC, .mkOfSubsemiring _⟩
-  invFun := fun ⟨_, _⟩ ↦ ⟨.nonneg R, Subsemiring.nonneg.isPointed R⟩
+  toFun := fun ⟨_, hC⟩ ↦ ⟨.ofAddSubmonoid hC, .ofSubsemiring _⟩
+  invFun := fun ⟨_, _⟩ ↦ ⟨.nonneg R, .nonneg _⟩
   left_inv := fun ⟨_, _⟩ ↦ by ext; simp
   right_inv := fun ⟨_, _⟩ ↦ by
     -- TODO : fix proj-reduction with classes, simp, extends-projection
     ext : 1
-    simp only
+    simp
     ext
     simp
 
 @[simp]
 theorem isPointedPartialOrderEquiv_apply
     (C : Subsemiring R) (h : C.IsPointed) :
-    isPointedPartialOrderEquiv R ⟨C, h⟩ = PartialOrder.mkOfAddSubmonoid h := rfl
+    isPointedPartialOrderEquiv R ⟨C, h⟩ = PartialOrder.ofAddSubmonoid h := rfl
 
 @[simp]
 theorem isPointedPartialOrderEquiv_symm_apply (o : PartialOrder R) (h : IsOrderedRing R) :
@@ -539,9 +464,8 @@ open Classical in
 noncomputable def isPointedLinearOrderEquiv :
     Equiv {C : Subsemiring R // C.IsPointed ∧ C.IsSpanning}
           {_o : LinearOrder R // IsOrderedRing R} where
-  toFun := fun ⟨C, hC⟩ ↦ ⟨.mkOfAddSubmonoid hC.1 hC.2, .mkOfSubsemiring hC.1⟩
-  invFun := fun ⟨_, _⟩ ↦
-    ⟨.nonneg R, Subsemiring.nonneg.isPointed R, Subsemiring.nonneg.isSpanning R⟩
+  toFun := fun ⟨C, hC⟩ ↦ ⟨.ofAddSubmonoid hC.1 hC.2, .ofSubsemiring _⟩
+  invFun := fun ⟨_, _⟩ ↦ ⟨.nonneg R, .nonneg _, .nonneg _⟩
   left_inv := fun ⟨_, _, _⟩ ↦ by ext; simp
   right_inv := fun ⟨_, _⟩ ↦ by ext; simp
 
@@ -549,13 +473,25 @@ open Classical in
 @[simp]
 theorem isPointedLinearOrderEquiv_apply
     (C : Subsemiring R) (h : C.IsPointed ∧ C.IsSpanning) :
-    isPointedLinearOrderEquiv R ⟨C, h⟩ = LinearOrder.mkOfAddSubmonoid h.1 h.2 := rfl
+    isPointedLinearOrderEquiv R ⟨C, h⟩ = LinearOrder.ofAddSubmonoid h.1 h.2 := rfl
 
 @[simp]
 theorem isPointedLinearOrderEquiv_symm_apply (o : LinearOrder R) (h : IsOrderedRing R) :
     (isPointedLinearOrderEquiv R).symm ⟨o, h⟩ = Subsemiring.nonneg R := rfl
 
 end Ring
+-- end #45547
+
+-- ⚠⚠⚠ NOT PR'D YET ⚠⚠⚠
+
+-- Mathlib.GroupTheory.MonoidLocalization.Basic
+/-- Copy of `Quotient.recOnSubsingleton` for `Localization` -/
+@[to_additive (attr := elab_as_elim)
+/-- Copy of `Quotient.recOnSubsingleton` for `AddLocalization` -/]
+def Localization.recOnSubsingleton {M : Type*} [CommMonoid M] {S : Submonoid M}
+    {r : Localization S → Sort*} [h : ∀ (a : M) (b : ↥S), Subsingleton (r (mk a b))]
+    (x : Localization S) (f : (a : M) → (b : ↥S) → r (mk a b)) : r x :=
+  @Quotient.recOnSubsingleton' _ _ r (Prod.rec fun _ _ => h ..) x (Prod.rec fun _ _ => f ..)
 
 /- TODO : quotient versions: need to lift the constructions to prop equality?
 

@@ -63,10 +63,10 @@ instance : DecidablePred fun x ↦ x ∈ (nonneg_priv s).toAddSubmonoid := fun x
   recOnSubsingleton x (fun a₁ a₂ ↦ decidable_of_iff' (0 ≤ a₁ * a₂) (by simp))
 
 instance : LinearOrder (Localization s) :=
-  .mkOfAddSubmonoid (isPointed_nonneg_priv s) fun x ↦ induction_on x fun x ↦ by
+  .ofAddSubmonoid (isPointed_nonneg_priv s) fun x ↦ induction_on x fun x ↦ by
     simpa [neg_mk] using le_total ..
 
-instance : IsOrderedRing (Localization s) := .mkOfSubsemiring (isPointed_nonneg_priv s)
+instance : IsOrderedRing (Localization s) := .ofSubsemiring (isPointed_nonneg_priv s)
 
 @[simp high]
 theorem mk_le_mk₀ (a₁ b₁ : R) (a₂ b₂ : s) :
