@@ -1,5 +1,5 @@
 import Mathlib.Algebra.Order.Ring.Cone
-import Mathlib.Algebra.Ring.Subsemiring.Support
+import Mathlib.Algebra.Order.Ring.Ordering.Defs
 import Mathlib.Algebra.Ring.IsFormallyReal
 import Mathlib.Algebra.Ring.Subsemiring.Order
 import Mathlib.Algebra.Polynomial.FieldDivision
@@ -187,8 +187,6 @@ protected theorem Subsemiring.IsPointed.sumSq [CommRing R] [IsFormallyReal R] :
 
 end IsFormallyReal
 
-variable (R : Type*) [Ring R]
-
 section map_comap
 
 -- stale PR at #32889
@@ -249,17 +247,37 @@ theorem RingHom.toAddMonoidHom_toSemilinearMap {R S : Type*} [Semiring R] [Semir
 
 end map_comap
 
--- #44600
+-- begin #44600
 instance {R : Type*} [NonAssocSemiring R] [Nontrivial R] [IsFormallyReal R] : IsSemireal R where
   one_add_ne_zero := (one_ne_zero <| IsFormallyReal.eq_zero_of_add_right IsSumSq.one · ·)
 
--- #44600
+section CommRing
+
+variable (R : Type*) [CommRing R]
+
+theorem Subsemiring.IsPreordering.sumSq [IsSemireal R] : (Subsemiring.sumSq R).IsPreordering where
+  mem_of_isSquare h := by simpa using IsSquare.isSumSq h
+  neg_one_notMem := by simpa using IsSemireal.not_isSumSq_neg_one R
+
+variable {R} in
+theorem isSemireal_ofIsPreordering {P : Subsemiring R} (hP : P.IsPreordering) : IsSemireal R :=
+  .of_not_isSumSq_neg_one (hP.neg_one_notMem <| hP.mem_of_isSumSq ·)
+
+variable {R} in
+theorem exists_isPreordering_iff_isSemireal :
+    (∃ P : Subsemiring R, P.IsPreordering) ↔ IsSemireal R where
+  mp | ⟨_, hP⟩ => isSemireal_ofIsPreordering hP
+  mpr _ := ⟨_, Subsemiring.IsPreordering.sumSq R⟩
+
+end CommRing
+
 instance {F : Type*} [Field F] [IsSemireal F] : IsFormallyReal F :=
   .of_eq_zero_of_eq_zero_of_mul_self_add <| fun {s} {a} _ h ↦ by
     by_contra
     exact IsSemireal.one_add_ne_zero (s := s * a⁻¹ ^ 2)
       (by grind [inv_pow, IsSumSq.mul, IsSquare.isSumSq, isSquare_inv, IsSquare.sq])
       (by grind)
+-- end #44600
 
 -- begin #37817
 namespace AlgHom

@@ -3,7 +3,6 @@ Copyright (c) 2025 Artie Khovanov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Artie Khovanov
 -/
-import RealClosedField.Algebra.Ring.Semireal.Basic
 import RealClosedField.Algebra.Order.Ring.Ordering.Extend
 import RealClosedField.PrimitiveElement.Quadratic
 
