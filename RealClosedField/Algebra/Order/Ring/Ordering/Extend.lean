@@ -26,6 +26,8 @@ orderings are precisely maximal preorderings.
 [lam_1984](https://doi.org/10.1216/RMJ-1984-14-4-767)
 -/
 
+-- PR'ed : #45547
+
 variable {R : Type*} [CommRing R] {F : Type*} [Field F]
 
 namespace Subsemiring.IsPreordering

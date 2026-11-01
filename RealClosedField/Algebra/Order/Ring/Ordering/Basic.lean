@@ -1,56 +1,47 @@
 import RealClosedField.Upstream
 import Mathlib.Algebra.Order.Ring.Ordering.Basic
 
-namespace Subsemiring
-
--- begin #45456
+namespace Subsemiring.IsPreordering
 
 section CommRing
 
 variable {R S : Type*} [CommRing R] [CommRing S] (f : R →+* S)
         {P : Subsemiring R} {P' : Subsemiring S}
 
-namespace IsPreordering
-
+-- #45547
 @[gcongr]
 theorem mono (hP : P.IsPreordering) {Q : Subsemiring R} (hPQ : P ≤ Q) (hQ : -1 ∉ Q) :
     Q.IsPreordering where
 
-end IsPreordering
-
-theorem IsPreordering.of_sumSq_le_of_isPointed [Nontrivial R]
+-- begin #45456
+theorem of_sumSq_le_of_isPointed [Nontrivial R]
     (h : .sumSq R ≤ P) (hP : P.IsPointed) : P.IsPreordering :=
   .of_sumSq_le h <| by grind [membership, isPointed_def, one_ne_zero]
 
-theorem IsPreordering.of_isSpanning_of_isPointed [Nontrivial R]
+theorem of_isSpanning_of_isPointed [Nontrivial R]
     (hP₁ : P.IsSpanning) (hP₂ : P.IsPointed) : P.IsPreordering :=
   .of_sumSq_le_of_isPointed hP₁.sumSq_le hP₂
 
-theorem IsOrdering.of_isSpanning_of_isPointed [IsDomain R]
+theorem _root_.Subsemiring.IsOrdering.of_isSpanning_of_isPointed [IsDomain R]
     (hP₁ : P.IsSpanning) (hP₂ : P.IsPointed) : P.IsOrdering where
   isSpanning := hP₁
   support_ne_top := by simp [hP₂]
   mem_support_or_mem_support := by simp [hP₂]
-
 -- end #45456
 
--- TODO : upstream and add similar
-attribute [simp] Submonoid.mem_sInf
-attribute [simp] AddSubmonoid.mem_sInf
-attribute [simp] Subsemiring.mem_sInf
-
-theorem IsPreordering.inf {P₁ P₂ : Subsemiring R} (hP₁ : P₁.IsPreordering) (hP₂ : P₂.IsPreordering) :
+theorem inf {P₁ P₂ : Subsemiring R} (hP₁ : P₁.IsPreordering) (hP₂ : P₂.IsPreordering) :
     (P₁ ⊓ P₂).IsPreordering where
   mem_of_isSquare := by grind [mem_inf, mem_of_isSquare]
   neg_one_notMem := by grind [mem_inf, neg_one_notMem]
 
-theorem IsPreordering.sInf {S : Set (Subsemiring R)}
+theorem sInf {S : Set (Subsemiring R)}
     (hSn : S.Nonempty) (hS : ∀ s ∈ S, s.IsPreordering) : (sInf S).IsPreordering where
   mem_of_isSquare := by grind [mem_sInf, mem_of_isSquare]
   neg_one_notMem := by
     simpa using ⟨_, hSn.some_mem, (hS _ hSn.some_mem).neg_one_notMem⟩
 
-theorem IsPreordering.sSup  {S : Set (Subsemiring R)}
+-- #45547
+theorem sSup  {S : Set (Subsemiring R)}
     (hSn : S.Nonempty) (hSd : DirectedOn (· ≤ ·) S)
     (hS : ∀ s ∈ S, s.IsPreordering) : (sSup S).IsPreordering where
   mem_of_isSquare x := by
@@ -59,18 +50,18 @@ theorem IsPreordering.sSup  {S : Set (Subsemiring R)}
   neg_one_notMem := by
     simpa [mem_sSup_of_directedOn hSn hSd] using (fun _ hx ↦ (hS _ hx).neg_one_notMem)
 
-theorem IsOrdering.comap (hP' : P'.IsOrdering) : IsOrdering (P'.comap f) :=
+theorem _root_.Subsemiring.IsOrdering.comap (hP' : P'.IsOrdering) : IsOrdering (P'.comap f) :=
   have := hP'.isPrime_supportIdeal
   .of_isPrime_supportIdeal (isSpanning_comap f hP'.isSpanning) <| by
     convert (P'.supportIdeal hP'.isSpanning).comap_isPrime f
     simp [← Submodule.toAddSubgroup_inj, Ideal.comap_eq_submodule_comap]
 
-theorem IsPreordering.comap (hP' : P'.IsPreordering) : (P'.comap f).IsPreordering where
+theorem comap (hP' : P'.IsPreordering) : (P'.comap f).IsPreordering where
   mem_of_isSquare := by grind [mem_comap, mem_of_isSquare, IsSquare.map]
   neg_one_notMem := by grind [mem_comap, neg_one_notMem]
 
 variable {f} in
-theorem IsOrdering.map (hP : P.IsOrdering) (hf : Function.Surjective f)
+theorem _root_.Subsemiring.IsOrdering.map (hP : P.IsOrdering) (hf : Function.Surjective f)
     (hsupp : RingHom.ker f ≤ P.supportIdeal hP.isSpanning) : IsOrdering (P.map f) :=
   have := hP.isPrime_supportIdeal
   have : RingHomSurjective f := ⟨hf⟩
@@ -83,7 +74,7 @@ theorem IsOrdering.map (hP : P.IsOrdering) (hf : Function.Surjective f)
       supportIdeal_toAddSubgroup, map_toAddSubmonoid, this, RingHom.toAddMonoidHom_toSemilinearMap]
 
 variable {f} in
-theorem IsPreordering.map (hP : P.IsPreordering) (hf : Function.Surjective f)
+theorem map (hP : P.IsPreordering) (hf : Function.Surjective f)
     (hsupp : f.toAddMonoidHom.ker ≤ P.toAddSubmonoid.support) : (P.map f).IsPreordering where
   mem_of_isSquare hx := by
     rcases isSquare_subset_image_isSquare hf hx with ⟨x', ⟨_, _⟩, _⟩
@@ -94,7 +85,7 @@ theorem IsPreordering.map (hP : P.IsPreordering) (hf : Function.Surjective f)
 
 end CommRing
 
-end Subsemiring
+end Subsemiring.IsPreordering
 
 namespace Field
 
