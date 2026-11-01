@@ -110,11 +110,7 @@ noncomputable def isPointedPartialOrderEquiv :
   toFun := fun ⟨_, hC⟩ ↦ ⟨.ofAddSubmonoid hC, .ofAddSubmonoid _, .ofAddSubmonoid _⟩
   invFun := fun ⟨_, ⟨_, _⟩⟩ ↦ ⟨.positive R M, PointedCone.IsPointed.positive _⟩
   left_inv := fun ⟨_, _⟩ ↦ by ext; simp
-  right_inv := fun ⟨_, _, _⟩ ↦ by
-    ext : 1
-    simp only
-    ext
-    simp
+  right_inv := fun ⟨_, _, _⟩ ↦ by ext; simp +instances
 
 @[simp]
 theorem isPointedPartialOrderEquiv_apply

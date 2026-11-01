@@ -108,12 +108,7 @@ noncomputable def isOrderingLinearOrderEquiv :
     let ⟨O, hO⟩ := (Ring.isPointedLinearOrderEquiv F).symm ⟨o, inferInstance⟩
     ⟨O, Subsemiring.IsOrdering.of_isSpanning_of_isPointed hO.2 hO.1⟩
   left_inv := fun ⟨_, _⟩ ↦ by ext; simp
-  right_inv := fun ⟨_, _⟩ ↦ by
-    -- TODO : fix proj-reduction with classes, simp, extends-projection
-    ext : 1
-    simp
-    ext
-    simp
+  right_inv := fun ⟨_, _⟩ ↦ by ext; simp +instances
 
 @[simp]
 theorem isOrderingLinearOrderEquiv_apply (O : Subsemiring F) (h : O.IsOrdering) :
