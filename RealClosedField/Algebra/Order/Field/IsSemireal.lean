@@ -39,7 +39,7 @@ noncomputable def IsSemireal.unique_isStrictOrderedRing [IsSemireal F]
     generalize_proofs
     ext x y
     simp +instances
-    refine ⟨fun hxy ↦ ?_, fun hxy ↦ by grind [hxy.nonneg]⟩
+    refine ⟨fun _ ↦ ?_, fun hxy ↦ by grind [hxy.nonneg]⟩
     · rcases h (y - x) with h | h
       · exact h
       · simp [show x = y by linarith [h.nonneg]]
