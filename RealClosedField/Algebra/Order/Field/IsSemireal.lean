@@ -37,14 +37,12 @@ noncomputable def IsSemireal.unique_isStrictOrderedRing [IsSemireal F]
   uniq l' := by
     rcases l' with ⟨l', hl'⟩
     generalize_proofs
-    -- TODO : fix proj-reduction with classes, simp, extends-projection
-    ext : 1
-    simp
     ext x y
-    suffices x ≤ y ↔ IsSumSq (y - x) by simp [this]
-    refine ⟨fun hxy => ?_, fun hxy ↦ by linarith [IsSumSq.nonneg hxy]⟩
-    · cases h (y - x) with | inl => assumption | inr h =>
-      simp_all [show x = y by linarith [IsSumSq.nonneg h]]
+    simp +instances
+    refine ⟨fun hxy ↦ ?_, fun hxy ↦ by grind [hxy.nonneg]⟩
+    · rcases h (y - x) with h | h
+      · exact h
+      · simp [show x = y by linarith [h.nonneg]]
 
 theorem IsSemireal.isSumSq_or_isSumSq_neg [IsSemireal F]
     (h : ∃! _ : LinearOrder F, IsStrictOrderedRing F) :
