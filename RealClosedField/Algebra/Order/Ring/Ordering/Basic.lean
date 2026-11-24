@@ -103,12 +103,10 @@ open Classical in
 /-- Equivalence between orderings on a field `F` and linearly ordered field structures on `F`. -/
 noncomputable def isOrderingLinearOrderEquiv :
     {O : Subsemiring F // O.IsOrdering} ≃
-    {_o : LinearOrder F // IsStrictOrderedRing F} :=
+    {_o : LinearOrder F // IsOrderedRing F} :=
   ((Equiv.refl _).subtypeEquiv
     fun _ ↦ by simpa using Subsemiring.isOrdering_iff_isPointed_isSpanning).trans
-  ((Ring.isPointedLinearOrderEquiv F).trans
-  ((Equiv.refl (LinearOrder F)).subtypeEquiv fun _ ↦ by
-    simpa +instances using ⟨fun _ ↦ inferInstance, fun _ ↦ inferInstance⟩))
+  (Ring.isPointedLinearOrderEquiv F)
 
 @[simp]
 theorem isOrderingLinearOrderEquiv_apply (O : Subsemiring F) (h : O.IsOrdering) :
@@ -118,7 +116,7 @@ theorem isOrderingLinearOrderEquiv_apply (O : Subsemiring F) (h : O.IsOrdering) 
 
 @[simp]
 theorem isOrderingLinearOrderEquiv_symm_apply_val
-    (o : LinearOrder F) (h : IsStrictOrderedRing F) :
+    (o : LinearOrder F) (h : IsOrderedRing F) :
     ((isOrderingLinearOrderEquiv F).symm ⟨o, h⟩ : Subsemiring F) =
     (Ring.isPointedLinearOrderEquiv F).symm ⟨o, inferInstance⟩ := by
   simp [isOrderingLinearOrderEquiv]
