@@ -105,7 +105,7 @@ noncomputable def isOrderingLinearOrderEquiv :
     {O : Subsemiring F // O.IsOrdering} ≃
     {_o : LinearOrder F // IsOrderedRing F} :=
   ((Equiv.refl _).subtypeEquiv
-    fun _ ↦ by simpa using Subsemiring.isOrdering_iff_isPointed_isSpanning).trans
+    fun _ ↦ by simpa using Subsemiring.isOrdering_iff_isPointed_and_isSpanning).trans
   (Ring.isPointedLinearOrderEquiv F)
 
 @[simp]
