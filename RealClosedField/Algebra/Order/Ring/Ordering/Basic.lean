@@ -87,7 +87,7 @@ end CommRing
 
 end IsPreordering
 
-theorem isOrdering_iff_isPointed_isSpanning {F : Type*} [Field F] {S : Subsemiring F} :
+theorem isOrdering_iff_isPointed_and_isSpanning {F : Type*} [Field F] {S : Subsemiring F} :
     S.IsOrdering ↔ S.IsPointed ∧ S.IsSpanning :=
   ⟨fun h ↦ ⟨h.isPreordering.isPointed, h.isSpanning⟩,
   fun ⟨h₁, h₂⟩ ↦ .of_isSpanning_of_isPointed h₁ h₂⟩
