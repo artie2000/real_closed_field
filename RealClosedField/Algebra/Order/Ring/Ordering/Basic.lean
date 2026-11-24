@@ -19,14 +19,14 @@ theorem of_sumSq_le_of_isPointed [Nontrivial R]
   .of_sumSq_le h <| by grind [membership, isPointed_def, one_ne_zero]
 
 theorem of_isSpanning_of_isPointed [Nontrivial R]
-    (hP₁ : P.IsSpanning) (hP₂ : P.IsPointed) : P.IsPreordering :=
-  .of_sumSq_le_of_isPointed hP₁.sumSq_le hP₂
+    (hP₁ : P.IsPointed) (hP₂ : P.IsSpanning) : P.IsPreordering :=
+  .of_sumSq_le_of_isPointed hP₂.sumSq_le hP₁
 
 theorem _root_.Subsemiring.IsOrdering.of_isSpanning_of_isPointed [IsDomain R]
-    (hP₁ : P.IsSpanning) (hP₂ : P.IsPointed) : P.IsOrdering where
-  isSpanning := hP₁
-  support_ne_top := by simp [hP₂]
-  mem_support_or_mem_support := by simp [hP₂]
+    (hP₁ : P.IsPointed) (hP₂ : P.IsSpanning) : P.IsOrdering where
+  isSpanning := hP₂
+  support_ne_top := by simp [hP₁]
+  mem_support_or_mem_support := by simp [hP₁]
 -- end #45456
 
 theorem inf {P₁ P₂ : Subsemiring R} (hP₁ : P₁.IsPreordering) (hP₂ : P₂.IsPreordering) :
@@ -85,30 +85,30 @@ theorem map (hP : P.IsPreordering) (hf : Function.Surjective f)
 
 end CommRing
 
-end Subsemiring.IsPreordering
+end IsPreordering
+
+theorem isOrdering_iff_isPointed_isSpanning {F : Type*} [Field F] {S : Subsemiring F} :
+    S.IsOrdering ↔ S.IsPointed ∧ S.IsSpanning :=
+  ⟨fun h ↦ ⟨h.isPreordering.isPointed, h.isSpanning⟩,
+  fun ⟨h₁, h₂⟩ ↦ .of_isSpanning_of_isPointed h₁ h₂⟩
+
+end Subsemiring
 
 namespace Field
 
 variable {F : Type*} [Field F]
 
--- TODO : add constructors and bijection between orderings and pointed spanning subsemirings
---        then rewrite the below bijection and orderedalgebra bijection by composition
-
 variable (F) in
 open Classical in
 /-- Equivalence between orderings on a field `F` and linearly ordered field structures on `F`. -/
 noncomputable def isOrderingLinearOrderEquiv :
-    Equiv {O : Subsemiring F // O.IsOrdering}
-          {_o : LinearOrder F // IsStrictOrderedRing F} where
-  toFun := fun ⟨O, hO⟩ ↦
-    let ⟨o, ho⟩ := Ring.isPointedLinearOrderEquiv F
-      ⟨O, hO.isPreordering.isPointed, hO.isSpanning⟩
-    ⟨o, IsOrderedRing.toIsStrictOrderedRing F⟩
-  invFun := fun ⟨o, ho⟩ ↦
-    let ⟨O, hO⟩ := (Ring.isPointedLinearOrderEquiv F).symm ⟨o, inferInstance⟩
-    ⟨O, Subsemiring.IsOrdering.of_isSpanning_of_isPointed hO.2 hO.1⟩
-  left_inv := fun ⟨_, _⟩ ↦ by ext; simp
-  right_inv := fun ⟨_, _⟩ ↦ by ext; simp +instances
+    {O : Subsemiring F // O.IsOrdering} ≃
+    {_o : LinearOrder F // IsStrictOrderedRing F} :=
+  ((Equiv.refl _).subtypeEquiv
+    fun _ ↦ by simpa using Subsemiring.isOrdering_iff_isPointed_isSpanning).trans
+  ((Ring.isPointedLinearOrderEquiv F).trans
+  ((Equiv.refl (LinearOrder F)).subtypeEquiv fun _ ↦ by
+    simpa +instances using ⟨fun _ ↦ inferInstance, fun _ ↦ inferInstance⟩))
 
 @[simp]
 theorem isOrderingLinearOrderEquiv_apply (O : Subsemiring F) (h : O.IsOrdering) :

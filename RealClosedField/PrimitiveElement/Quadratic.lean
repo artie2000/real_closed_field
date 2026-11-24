@@ -9,6 +9,7 @@ import Mathlib.Data.Finsupp.Notation
 import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
 import Mathlib.Algebra.Ring.SumsOfSquares
 
+-- TODO : move to `QuadraticAlgebra`? how to link?
 -- TODO : upstream
 theorem Polynomial.X_sq_sub_C_irreducible_iff_not_isSquare {F : Type*} [Field F] (a : F) :
     Irreducible (X ^ 2 - C a) ↔ ¬ IsSquare a := by
