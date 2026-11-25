@@ -8,40 +8,25 @@ import Mathlib.Geometry.Convex.Cone.Pointed
 import Mathlib.Algebra.Group.Submonoid.Support
 import Mathlib.Algebra.Order.Group.Cone
 
--- TODO : sync with current work eg #33664
--- TODO : when can `R` be a partial order?
+variable {R : Type*} [Ring R] {M : Type*} [AddCommGroup M] [Module R M]
 
-variable {R : Type*} [Ring R] [LinearOrder R] [IsOrderedRing R]
+section PartialOrder
 
-section Module
-
-variable {M : Type*} [AddCommGroup M] [Module R M]
+variable [PartialOrder R] [IsOrderedRing R]
 
 namespace PointedCone
 
 variable {C : PointedCone R M}
 
--- TODO : lemmas like for subsemiring
+theorem mem_support {x : M} : x ∈ C.support ↔ x ∈ C ∧ -x ∈ C := by simp
 
-@[aesop 50% apply, aesop safe forward (immediate := [hx₁])]
-theorem eq_zero_of_mem_of_neg_mem (hC : C.IsPointed) {x : M} (hx₁ : x ∈ C) (hx₂ : -x ∈ C) : x = 0 :=
-  hC.eq_zero_of_mem_of_neg_mem hx₁ hx₂
+theorem isPointed_def : C.IsPointed ↔ ∀ {x}, x ∈ C → -x ∈ C → x = 0 := by
+  simp [AddSubmonoid.IsPointed]
 
-@[aesop safe forward (immediate := [hx₂])]
-alias eq_zero_of_mem_of_neg_mem₂ := eq_zero_of_mem_of_neg_mem -- for Aesop
+theorem isSpanning_def : C.IsSpanning ↔ ∀ a, a ∈ C ∨ -a ∈ C := by simp [AddSubmonoid.IsSpanning]
 
-@[aesop safe forward, aesop safe apply]
-theorem mem_or_neg_mem (hC : C.IsSpanning) : ∀ a, a ∈ C ∨ -a ∈ C := hC.mem_or_neg_mem
-
-variable {M M' : Type*} [AddCommGroup M] [Module R M] [AddCommGroup M'] [Module R M']
-         (f : M →ₗ[R] M')
-         (C D : PointedCone R M) (C' : PointedCone R M') {s : Set (PointedCone R M)}
-
--- TODO : reverse direction of the simp lemma `PointedCone.support_eq`
-@[simp]
-theorem lineal_eq_bot (hC : C.IsPointed) : C.lineal = ⊥ := by
-  apply_fun Submodule.toAddSubgroup using Submodule.toAddSubgroup_injective
-  simpa [← support_eq] using hC.support_eq_bot
+variable {M' : Type*} [AddCommGroup M'] [Module R M']
+  (f : M →ₗ[R] M') (C D : PointedCone R M) (C' : PointedCone R M') {s : Set (PointedCone R M)}
 
 theorem comap_isSpanning (hC' : C'.IsSpanning) : (C'.comap f).IsSpanning :=
   hC'.comap (f := f.toAddMonoidHom)
@@ -50,51 +35,24 @@ variable {f} in
 theorem map_isSpanning (hC : C.IsSpanning) (hf : Function.Surjective f) : (C.map f).IsSpanning :=
   hC.map (f := f.toAddMonoidHom) hf
 
-theorem _root_.AddSubmonoid.IsPointed.of_lineal_eq_bot (h : C.lineal = ⊥) : C.IsPointed :=
-  fun x _ _ ↦ by
-    apply_fun (x ∈ ·) at h
-    simp_all
-
-variable {C D} in
-theorem lineal_mono (h : C ≤ D) : C.lineal ≤ D.lineal := fun _ ↦ by aesop
-
-@[simp]
-theorem lineal_inf : (C ⊓ D).lineal = C.lineal ⊓ D.lineal := by aesop
-
-@[simp]
-theorem lineal_sInf : (sInf s).lineal = InfSet.sInf (lineal '' s) := by aesop
-
-@[simp]
-theorem lineal_comap : (C'.comap f).lineal = (C'.lineal).comap f := by ext; simp
-
-variable {f C} in
-@[simp]
-theorem lineal_map (hsupp : f.ker ≤ C.lineal) : (C.map f).lineal = (C.lineal).map f := by
-  ext x
-  have := AddSubmonoid.support_map (f := f.toAddMonoidHom) hsupp
-  apply_fun (x ∈ ·) at this
-  simpa
-
 end PointedCone
 
-variable (M)
+-- TODO : rename `PointedCone.positive` to `PointedCone.nonneg`
 
--- TODO : rename `positive` to `nonneg`?
+variable (M) in
 theorem PointedCone.IsSpanning.positive
     [LinearOrder M] [IsOrderedAddMonoid M] [IsOrderedModule R M] :
     (PointedCone.positive R M).IsSpanning := .nonneg M
 
+variable (M) in
 theorem PointedCone.IsPointed.positive
     [PartialOrder M] [IsOrderedAddMonoid M] [IsOrderedModule R M] :
     (PointedCone.positive R M).IsPointed := .nonneg M
 
-variable {M} {C : PointedCone R M} (hC : C.IsPointed)
-
-theorem IsOrderedModule.ofAddSubmonoid :
+theorem IsOrderedModule.ofAddSubmonoid {C : PointedCone R M} (hC : C.IsPointed) :
     letI _ := PartialOrder.ofAddSubmonoid hC
     IsOrderedModule R M :=
   letI _ := PartialOrder.ofAddSubmonoid hC
-  haveI := IsOrderedAddMonoid.ofAddSubmonoid hC
   { smul_le_smul_of_nonneg_left _ hr _ _ hm := by simpa [smul_sub] using C.smul_mem hr hm
     smul_le_smul_of_nonneg_right _ hm r₁ r₂ hr := by
       simpa [sub_smul] using C.smul_mem (r := r₂ - r₁) (by simpa using hr) hm }
@@ -150,3 +108,52 @@ theorem isPointedLinearOrderEquiv_symm_apply (o : LinearOrder M)
     (isPointedLinearOrderEquiv R).symm ⟨o, h⟩ = PointedCone.positive R M := rfl
 
 end Module
+
+end PartialOrder
+
+section Lineal
+
+variable [LinearOrder R] [IsOrderedRing R]
+
+namespace PointedCone
+
+-- TODO : switch to galois connection proofs
+
+variable {M M' : Type*} [AddCommGroup M] [Module R M] [AddCommGroup M'] [Module R M']
+         (f : M →ₗ[R] M')
+         (C D : PointedCone R M) (C' : PointedCone R M') {s : Set (PointedCone R M)}
+
+-- TODO : reverse direction of the simp lemma `PointedCone.support_eq`
+@[simp]
+theorem lineal_eq_bot (hC : C.IsPointed) : C.lineal = ⊥ := by
+  apply_fun Submodule.toAddSubgroup using Submodule.toAddSubgroup_injective
+  simpa [← support_eq] using hC.support_eq_bot
+
+theorem _root_.AddSubmonoid.IsPointed.of_lineal_eq_bot (h : C.lineal = ⊥) : C.IsPointed :=
+  fun x _ _ ↦ by
+    apply_fun (x ∈ ·) at h
+    simp_all
+
+variable {C D} in
+theorem lineal_mono (h : C ≤ D) : C.lineal ≤ D.lineal := fun _ ↦ by aesop
+
+@[simp]
+theorem lineal_inf : (C ⊓ D).lineal = C.lineal ⊓ D.lineal := by aesop
+
+@[simp]
+theorem lineal_sInf : (sInf s).lineal = InfSet.sInf (lineal '' s) := by aesop
+
+@[simp]
+theorem lineal_comap : (C'.comap f).lineal = (C'.lineal).comap f := by ext; simp
+
+variable {f C} in
+@[simp]
+theorem lineal_map (hsupp : f.ker ≤ C.lineal) : (C.map f).lineal = (C.lineal).map f := by
+  ext x
+  have := AddSubmonoid.support_map (f := f.toAddMonoidHom) hsupp
+  apply_fun (x ∈ ·) at this
+  simpa
+
+end PointedCone
+
+end Lineal
