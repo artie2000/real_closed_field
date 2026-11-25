@@ -16,7 +16,7 @@ open Polynomial
 
 /-- A real closure of an ordered field is a real closed ordered algebraic extension. -/
 class IsRealClosure (K R : Type*) [Field K] [Field R] [LinearOrder K] [LinearOrder R] [Algebra K R]
-    [IsStrictOrderedRing R] [IsStrictOrderedRing K] extends
+    [IsOrderedRing R] [IsOrderedRing K] extends
     IsRealClosed R, IsOrderedModule K R, Algebra.IsAlgebraic K R
 
 namespace IsRealClosed
@@ -95,7 +95,7 @@ theorem of_isAdjoinRoot_i_isAlgClosure {K : Type*} [Field K] [Algebra R K] [IsAl
       exact Or.inr hK
     · exact Or.inl (h.map hK.some.symm)
 
-theorem of_intermediateValueProperty [LinearOrder R] [IsStrictOrderedRing R]
+theorem of_intermediateValueProperty [LinearOrder R] [IsOrderedRing R]
     (h : ∀ {f : R[X]} {x y : R}, x ≤ y → 0 ≤ f.eval x → f.eval y ≤ 0 →
        ∃ z ∈ Set.Icc x y, f.eval z = 0) :
     IsRealClosed R := by
@@ -112,8 +112,8 @@ theorem of_intermediateValueProperty [LinearOrder R] [IsStrictOrderedRing R]
     exact ⟨z, hz⟩
 
 -- TODO : universe polymorphic version (prove general thing about bounding algebraic extensions?)
-theorem of_maximal_isOrderedAlgebra [LinearOrder R] [IsStrictOrderedRing R]
-    (h : ∀ K : Type u, [Field K] → [LinearOrder K] → [IsStrictOrderedRing K] → [Algebra R K] →
+theorem of_maximal_isOrderedAlgebra [LinearOrder R] [IsOrderedRing R]
+    (h : ∀ K : Type u, [Field K] → [LinearOrder K] → [IsOrderedRing K] → [Algebra R K] →
            [Algebra.IsAlgebraic R K] → [IsOrderedModule R K] → Module.finrank R K = 1) :
     IsRealClosed R := by
   refine .of_linearOrderedField (fun {x} hx ↦ ?_)
@@ -403,11 +403,11 @@ section LinearOrderedField
 
 variable (R) in
 @[instance_reducible]
-noncomputable def unique_isStrictOrderedRing :
-    Unique {_l : LinearOrder R // IsStrictOrderedRing R} :=
-  IsSemireal.unique_isStrictOrderedRing (by aesop)
+noncomputable def unique_isOrderedRing :
+    Unique {_l : LinearOrder R // IsOrderedRing R} :=
+  IsSemireal.unique_isOrderedRing (by aesop)
 
-variable [LinearOrder R] [IsStrictOrderedRing R]
+variable [LinearOrder R] [IsOrderedRing R]
 
 theorem intermediate_value_property {f : R[X]} {x y : R}
     (hle : x ≤ y) (hx : 0 ≤ f.eval x) (hy : f.eval y ≤ 0) :
@@ -468,9 +468,9 @@ theorem TFAE :
   tfae_finish
 
 variable (R) in
-theorem TFAE_linearOrderedField [LinearOrder R] [IsStrictOrderedRing R] :
+theorem TFAE_linearOrderedField [LinearOrder R] [IsOrderedRing R] :
     [IsRealClosed R,
-    (∀ K : Type u, [Field K] → [LinearOrder K] → [IsStrictOrderedRing K] → [Algebra R K] →
+    (∀ K : Type u, [Field K] → [LinearOrder K] → [IsOrderedRing K] → [Algebra R K] →
       [Algebra.IsAlgebraic R K] → [IsOrderedModule R K] → Module.finrank R K = 1),
     (∀ {f : R[X]} {x y : R}, x ≤ y → 0 ≤ f.eval x → f.eval y ≤ 0 →
       ∃ z ∈ Set.Icc x y, f.eval z = 0)].TFAE := by
@@ -495,7 +495,7 @@ namespace IsRealClosure
 
 universe u v
 
-variable {R : Type u} [Field R] [LinearOrder R] [IsStrictOrderedRing R]
+variable {R : Type u} [Field R] [LinearOrder R] [IsOrderedRing R]
 
 -- TODO : "order extension" partial order on ordered subfields, to apply Zorn on
 
@@ -503,7 +503,7 @@ variable {R : Type u} [Field R] [LinearOrder R] [IsStrictOrderedRing R]
 /- variable (R) in
 noncomputable def realClosure (K : Type v) [Field K] [Algebra R K] : IntermediateField R K :=
   Classical.choose <| zorn_le₀
-    {L : IntermediateField R K | ∃ l : LinearOrder L, IsStrictOrderedRing L ∧ IsOrderedModule R L}
+    {L : IntermediateField R K | ∃ l : LinearOrder L, IsOrderedRing L ∧ IsOrderedModule R L}
     fun c hc hc_chain ↦ by
   use sSup c
   refine ⟨?_, fun _ ↦ le_sSup⟩

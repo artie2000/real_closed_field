@@ -16,7 +16,7 @@ We begin with a purely algebraic characterisation of an ordered field. This reli
 
 \begin{theorem}
   \label{thm:ord_iff_real}
-  \lean{Field.exists_isStrictOrderedRing_iff_isSemireal}
+  \lean{Field.exists_isOrderedRing_iff_isSemireal}
   \leanok
   A field can be ordered if and only if it is real (that is, $-1$ is not a sum of squares).
 \end{theorem}
@@ -28,7 +28,7 @@ We can also characterise algebraically whether a field $F$ has a unique ordering
 
 \begin{lemma}
   \label{lem:unique_ord_cond}
-  \lean{IsSemireal.existsUnique_isStrictOrderedRing_iff, IsSemireal.unique_isStrictOrderedRing}
+  \lean{IsSemireal.existsUnique_isOrderedRing_iff, IsSemireal.unique_isOrderedRing}
   \leanok
   Let $F$ be a real field. There is a unique ordering on $F$ if and only if, for each $a\in F$, either $a$ or $-a$ is a sum of squares. In this ordering, the non-negative elements are precisely the sums of squares in $F$.
 \end{lemma}
@@ -38,7 +38,7 @@ We can also characterise algebraically whether a field $F$ has a unique ordering
 
 \begin{corollary}
   \label{cor:unique_ord_cond_ordered}
-  \lean{IsStrictOrderedRing.unique_isStrictOrderedRing_iff}
+  \lean{IsOrderedRing.unique_isOrderedRing_iff}
   \leanok
   Let $F$ be an ordered field. Then $F$ has a unique field ordering if and only if every non-negative element is a sum of squares.
 \end{corollary}
@@ -49,7 +49,7 @@ We can also characterise algebraically whether a field $F$ has a unique ordering
 
 \begin{corollary}
   \label{cor:unique_ord_Q}
-  \lean{Rat.unique_isStrictOrderedRing}
+  \lean{Rat.unique_isOrderedRing}
   \leanok
   There is a unique field ordering on $\Q$.
 \end{corollary}

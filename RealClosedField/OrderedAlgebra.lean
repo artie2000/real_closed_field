@@ -9,6 +9,8 @@ import RealClosedField.Algebra.Order.Ring.Ordering.Extend
 import RealClosedField.Geometry.Convex.Cone.Order
 import Mathlib.Algebra.Order.Algebra
 
+-- TODO : split out into correct files
+
 variable {R S : Type*} [CommSemiring R] [PartialOrder R] [IsOrderedRing R] [Ring S] [Algebra R S]
 
 theorem Subsemiring.map_algebraMap_nonneg_le_nonneg

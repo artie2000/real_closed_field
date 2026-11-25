@@ -10,6 +10,8 @@ import Mathlib.Algebra.Order.Group.Cone
 
 variable {R M : Type*}
 
+-- TODO : figure out upstreaming
+
 namespace PointedCone
 
 section support

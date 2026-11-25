@@ -379,7 +379,7 @@ end Ring
 section poly_estimate
 
 open Polynomial
-variable {F : Type*} [Field F] [LinearOrder F] [IsStrictOrderedRing F] (f : F[X])
+variable {F : Type*} [Field F] [LinearOrder F] [IsOrderedRing F] (f : F[X])
 
 open Finset in
 variable {f} in

@@ -26,7 +26,7 @@ theorem r_iff_of_nontrivial {R : Type*} [CommRing R] [IsDomain R] {s : Submonoid
     [Nontrivial (Localization s)] (a c : R) (b d : s) : (r s) (a, b) (c, d) ↔ a * d = b * c :=
   r_iff_of_le_nonZeroDivisors (le_nonZeroDivisors_of_nontrivial_localization _) ..
 
-variable {R : Type*} [CommRing R] [LinearOrder R] [IsStrictOrderedRing R] (s : Submonoid R)
+variable {R : Type*} [CommRing R] [LinearOrder R] [IsOrderedRing R] (s : Submonoid R)
   [Nontrivial (Localization s)]
 
 -- TODO : upstream lemmas above this one
@@ -83,6 +83,6 @@ theorem algebraMap_mono (a b : R) :
 theorem algebraMap_monotone : Monotone (algebraMap R (Localization s)) :=
   fun _ _ ↦ (algebraMap_mono _ _ _).mpr
 
-#synth IsStrictOrderedRing (FractionRing R)
+#synth IsOrderedRing (FractionRing R)
 
 end Localization
