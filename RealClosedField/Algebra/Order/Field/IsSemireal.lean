@@ -33,12 +33,12 @@ noncomputable def IsSemireal.unique_isOrderedRing [IsSemireal F]
     Unique {_l : LinearOrder F // IsOrderedRing F} where
   default := Field.isOrderingLinearOrderEquiv F
     ⟨Subsemiring.sumSq F, .of_isSpanning_of_isPointed
-      (by simpa [AddSubmonoid.IsSpanning] using h) (Subsemiring.IsPreordering.sumSq F).isPointed⟩
+      (Subsemiring.IsPreordering.sumSq F).isPointed (by simpa [AddSubmonoid.IsSpanning] using h)⟩
   uniq l' := by
     rcases l' with ⟨l', hl'⟩
     generalize_proofs
     ext x y
-    simp +instances
+    simp +instances [Equiv.subtypeEquivRight_apply] -- TODO : make `Equiv.subtypeEquivRight_apply` a `simp` lemma
     refine ⟨fun _ ↦ ?_, fun hxy ↦ by grind [hxy.nonneg]⟩
     · rcases h (y - x) with h | h
       · exact h
