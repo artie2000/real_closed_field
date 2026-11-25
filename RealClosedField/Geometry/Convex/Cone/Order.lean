@@ -8,15 +8,14 @@ import Mathlib.Geometry.Convex.Cone.Pointed
 import Mathlib.Algebra.Group.Submonoid.Support
 import Mathlib.Algebra.Order.Group.Cone
 
-variable {R : Type*} [Ring R] {M : Type*} [AddCommGroup M] [Module R M]
-
-section PartialOrder
-
-variable [PartialOrder R] [IsOrderedRing R]
+variable {R M : Type*}
 
 namespace PointedCone
 
-variable {C : PointedCone R M}
+section support
+
+variable [Semiring R] [PartialOrder R] [IsOrderedRing R] [AddCommGroup M] [Module R M]
+  {C : PointedCone R M}
 
 theorem mem_support {x : M} : x ∈ C.support ↔ x ∈ C ∧ -x ∈ C := by simp
 
@@ -35,87 +34,11 @@ variable {f} in
 theorem map_isSpanning (hC : C.IsSpanning) (hf : Function.Surjective f) : (C.map f).IsSpanning :=
   hC.map (f := f.toAddMonoidHom) hf
 
-end PointedCone
+end support
 
--- TODO : rename `PointedCone.positive` to `PointedCone.nonneg`
+section lineal
 
-variable (M) in
-theorem PointedCone.IsSpanning.positive
-    [LinearOrder M] [IsOrderedAddMonoid M] [IsOrderedModule R M] :
-    (PointedCone.positive R M).IsSpanning := .nonneg M
-
-variable (M) in
-theorem PointedCone.IsPointed.positive
-    [PartialOrder M] [IsOrderedAddMonoid M] [IsOrderedModule R M] :
-    (PointedCone.positive R M).IsPointed := .nonneg M
-
-theorem IsOrderedModule.ofAddSubmonoid {C : PointedCone R M} (hC : C.IsPointed) :
-    letI _ := PartialOrder.ofAddSubmonoid hC
-    IsOrderedModule R M :=
-  letI _ := PartialOrder.ofAddSubmonoid hC
-  { smul_le_smul_of_nonneg_left _ hr _ _ hm := by simpa [smul_sub] using C.smul_mem hr hm
-    smul_le_smul_of_nonneg_right _ hm r₁ r₂ hr := by
-      simpa [sub_smul] using C.smul_mem (r := r₂ - r₁) (by simpa using hr) hm }
-
-namespace Module
-
-variable (R) in
-/-- Equivalence between cones with zero lineality space in an `R`-module `M`
-    and partially ordered `R`-module structures on `M`. -/
-noncomputable def isPointedPartialOrderEquiv :
-    Equiv {C : PointedCone R M // C.IsPointed}
-          {_o : PartialOrder M // IsOrderedAddMonoid M ∧ IsOrderedModule R M} where
-  toFun := fun ⟨_, hC⟩ ↦ ⟨.ofAddSubmonoid hC, .ofAddSubmonoid _, .ofAddSubmonoid _⟩
-  invFun := fun ⟨_, ⟨_, _⟩⟩ ↦ ⟨.positive R M, PointedCone.IsPointed.positive _⟩
-  left_inv := fun ⟨_, _⟩ ↦ by ext; simp
-  right_inv := fun ⟨_, _, _⟩ ↦ by ext; simp +instances
-
-@[simp]
-theorem isPointedPartialOrderEquiv_apply
-    (C : PointedCone R M) (h : C.IsPointed) :
-    isPointedPartialOrderEquiv R ⟨C, h⟩ = PartialOrder.ofAddSubmonoid h := rfl
-
-@[simp]
-theorem isPointedPartialOrderEquiv_symm_apply (o : PartialOrder M)
-    (h : IsOrderedAddMonoid M ∧ IsOrderedModule R M) :
-    have := h.1; have := h.2
-    (isPointedPartialOrderEquiv R).symm ⟨o, h⟩ = ConvexCone.positive R M := rfl
-
-variable (R) in
-open Classical in
-/-- Equivalence between maximal cones with zero lineality space in an `R`-module `M`
-    and linearly ordered `R`-module structures on `M`. -/
-noncomputable def isPointedLinearOrderEquiv :
-    Equiv {C : PointedCone R M // C.IsPointed ∧ C.IsSpanning}
-          {_o : LinearOrder M // IsOrderedAddMonoid M ∧ IsOrderedModule R M} where
-  toFun := fun ⟨C, hC⟩ ↦
-    ⟨.ofAddSubmonoid hC.1 hC.2, .ofAddSubmonoid _, .ofAddSubmonoid _⟩
-  invFun := fun ⟨_, ⟨_, _⟩⟩ ↦
-    ⟨.positive R M, PointedCone.IsPointed.positive _, PointedCone.IsSpanning.positive _⟩
-  left_inv := fun ⟨_, _, _⟩ ↦ by ext; simp
-  right_inv := fun ⟨_, _, _⟩ ↦ by ext; simp
-
-open Classical in
-@[simp]
-theorem isPointedLinearOrderEquiv_apply
-    (C : PointedCone R M) (h : C.IsPointed ∧ C.IsSpanning) :
-    isPointedLinearOrderEquiv R ⟨C, h⟩ = LinearOrder.ofAddSubmonoid h.1 h.2 := rfl
-
-@[simp]
-theorem isPointedLinearOrderEquiv_symm_apply (o : LinearOrder M)
-    (h : IsOrderedAddMonoid M ∧ IsOrderedModule R M) :
-    have := h.1; have := h.2
-    (isPointedLinearOrderEquiv R).symm ⟨o, h⟩ = PointedCone.positive R M := rfl
-
-end Module
-
-end PartialOrder
-
-section Lineal
-
-variable [LinearOrder R] [IsOrderedRing R]
-
-namespace PointedCone
+variable [Ring R] [LinearOrder R] [IsOrderedRing R]
 
 -- TODO : switch to galois connection proofs
 
@@ -154,6 +77,88 @@ theorem lineal_map (hsupp : f.ker ≤ C.lineal) : (C.map f).lineal = (C.lineal).
   apply_fun (x ∈ ·) at this
   simpa
 
+end lineal
+
 end PointedCone
 
-end Lineal
+section Order
+
+variable [Semiring R] [PartialOrder R] [IsOrderedRing R] [AddCommGroup M] [Module R M]
+
+-- TODO : rename `PointedCone.positive` to `PointedCone.nonneg`
+
+variable (M) in
+theorem PointedCone.IsSpanning.positive
+    [LinearOrder M] [IsOrderedAddMonoid M] [IsOrderedModule R M] :
+    (PointedCone.positive R M).IsSpanning := .nonneg M
+
+variable (M) in
+theorem PointedCone.IsPointed.positive
+    [PartialOrder M] [IsOrderedAddMonoid M] [IsOrderedModule R M] :
+    (PointedCone.positive R M).IsPointed := .nonneg M
+
+variable [IsOrderedCancelAddMonoid R] [ExistsAddOfLE R]
+
+theorem IsOrderedModule.ofPointedCone
+    {C : PointedCone R M} (hC : C.IsPointed) :
+    letI _ := PartialOrder.ofAddSubmonoid hC
+    IsOrderedModule R M :=
+  letI _ := PartialOrder.ofAddSubmonoid hC
+  { smul_le_smul_of_nonneg_left _ hr _ _ hm := by simpa [smul_sub] using C.smul_mem hr hm
+    smul_le_smul_of_nonneg_right _ hm r₁ r₂ hr := by
+      rcases exists_add_of_le hr with ⟨r, rfl⟩
+      simpa [add_smul] using C.smul_mem (r := r) (by simpa using hr) hm }
+
+namespace Module
+
+variable (R) in
+/-- Equivalence between cones with zero lineality space in an `R`-module `M`
+    and partially ordered `R`-module structures on `M`. -/
+noncomputable def isPointedPartialOrderEquiv :
+    Equiv {C : PointedCone R M // C.IsPointed}
+          {_o : PartialOrder M // IsOrderedAddMonoid M ∧ IsOrderedModule R M} where
+  toFun := fun ⟨_, hC⟩ ↦ ⟨.ofAddSubmonoid hC, .ofAddSubmonoid _, .ofPointedCone _⟩
+  invFun := fun ⟨_, ⟨_, _⟩⟩ ↦ ⟨.positive R M, PointedCone.IsPointed.positive _⟩
+  left_inv := fun ⟨_, _⟩ ↦ by ext; simp
+  right_inv := fun ⟨_, _, _⟩ ↦ by ext; simp +instances
+
+@[simp]
+theorem isPointedPartialOrderEquiv_apply
+    (C : PointedCone R M) (h : C.IsPointed) :
+    isPointedPartialOrderEquiv R ⟨C, h⟩ = PartialOrder.ofAddSubmonoid h := rfl
+
+@[simp]
+theorem isPointedPartialOrderEquiv_symm_apply (o : PartialOrder M)
+    (h : IsOrderedAddMonoid M ∧ IsOrderedModule R M) :
+    have := h.1; have := h.2
+    (isPointedPartialOrderEquiv R).symm ⟨o, h⟩ = ConvexCone.positive R M := rfl
+
+variable (R) in
+open Classical in
+/-- Equivalence between maximal cones with zero lineality space in an `R`-module `M`
+    and linearly ordered `R`-module structures on `M`. -/
+noncomputable def isPointedLinearOrderEquiv :
+    Equiv {C : PointedCone R M // C.IsPointed ∧ C.IsSpanning}
+          {_o : LinearOrder M // IsOrderedAddMonoid M ∧ IsOrderedModule R M} where
+  toFun := fun ⟨C, hC⟩ ↦
+    ⟨.ofAddSubmonoid hC.1 hC.2, .ofAddSubmonoid _, .ofPointedCone _⟩
+  invFun := fun ⟨_, ⟨_, _⟩⟩ ↦
+    ⟨.positive R M, PointedCone.IsPointed.positive _, PointedCone.IsSpanning.positive _⟩
+  left_inv := fun ⟨_, _, _⟩ ↦ by ext; simp
+  right_inv := fun ⟨_, _, _⟩ ↦ by ext; simp
+
+open Classical in
+@[simp]
+theorem isPointedLinearOrderEquiv_apply
+    (C : PointedCone R M) (h : C.IsPointed ∧ C.IsSpanning) :
+    isPointedLinearOrderEquiv R ⟨C, h⟩ = LinearOrder.ofAddSubmonoid h.1 h.2 := rfl
+
+@[simp]
+theorem isPointedLinearOrderEquiv_symm_apply (o : LinearOrder M)
+    (h : IsOrderedAddMonoid M ∧ IsOrderedModule R M) :
+    have := h.1; have := h.2
+    (isPointedLinearOrderEquiv R).symm ⟨o, h⟩ = PointedCone.positive R M := rfl
+
+end Module
+
+end Order
