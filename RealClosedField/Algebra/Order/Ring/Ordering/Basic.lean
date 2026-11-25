@@ -101,23 +101,11 @@ variable {F : Type*} [Field F]
 variable (F) in
 open Classical in
 /-- Equivalence between orderings on a field `F` and linearly ordered field structures on `F`. -/
-noncomputable def isOrderingLinearOrderEquiv :
+@[reducible] noncomputable def isOrderingLinearOrderEquiv :
     {O : Subsemiring F // O.IsOrdering} ≃
     {_o : LinearOrder F // IsOrderedRing F} :=
   (Equiv.subtypeEquivRight fun _ ↦ Subsemiring.isOrdering_iff_isPointed_and_isSpanning).trans
   (Ring.isPointedLinearOrderEquiv F)
-
-@[simp]
-theorem isOrderingLinearOrderEquiv_apply (O : Subsemiring F) (h : O.IsOrdering) :
-    (isOrderingLinearOrderEquiv F ⟨O, h⟩ : LinearOrder F) =
-    Ring.isPointedLinearOrderEquiv F ⟨O, h.isPreordering.isPointed, h.isSpanning⟩ := by
-  simp [isOrderingLinearOrderEquiv, Equiv.subtypeEquivRight_apply]
-
-@[simp]
-theorem isOrderingLinearOrderEquiv_symm_apply_val (o : LinearOrder F) (h : IsOrderedRing F) :
-    ((isOrderingLinearOrderEquiv F).symm ⟨o, h⟩ : Subsemiring F) =
-    (Ring.isPointedLinearOrderEquiv F).symm ⟨o, inferInstance⟩ := by
-  simp [isOrderingLinearOrderEquiv]
 
 end Field
 

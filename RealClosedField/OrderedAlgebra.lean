@@ -86,44 +86,14 @@ variable {F K : Type*} [Field F] [LinearOrder F] [IsOrderedRing F] [Field K] [Al
 
 namespace Field
 
--- TODO : generalise using correspondence between pointed (linear) cones and ordered modules
-
 variable (F K) in
-open Classical in
 open scoped algebraMap in
-noncomputable def isOrderingOrderedAlgebraEquiv :
+@[reducible] noncomputable def isOrderingOrderedAlgebraEquiv :
     Equiv {O : Subsemiring K // O.IsOrdering ∧ (Subsemiring.nonneg F).map (algebraMap F K) ≤ O}
-          {_l : LinearOrder K // IsOrderedRing K ∧ IsOrderedModule F K} where
-  toFun := fun ⟨O, hO, hO₂⟩ ↦
-    letI l := (isOrderingLinearOrderEquiv K ⟨O, hO⟩).1
-    letI hl := (isOrderingLinearOrderEquiv K ⟨O, hO⟩).2
-    ⟨l, ⟨hl, .of_algebraMap_mono <| by
-      rw [monotone_iff_map_nonneg]
-      intro a ha
-      rw [IsConcreteLE.le_iff] at hO₂
-      simpa +instances [l] using hO₂ (by simpa using ha)⟩⟩
-  invFun := fun ⟨l, hl⟩ ↦
-    let O := (isOrderingLinearOrderEquiv K).symm ⟨l, hl.1⟩
-    ⟨O, O.property, fun x hx ↦ by
-    rcases hl with ⟨hl, hl₂⟩
-    have : ∀ b : F, 0 ≤ b → 0 ≤ (b : K) := fun _ h ↦ by
-      simpa using algebraMap_mono (β := K) h
-    aesop⟩
-  left_inv := fun ⟨_, _, _⟩ ↦ by ext; simp
-  right_inv := fun ⟨_, _, _⟩ ↦ by ext; simp +instances
-
-@[simp]
-theorem isOrderingOrderedAlgebraEquiv_apply_coe
-    (O : Subsemiring K) (hO : O.IsOrdering)
-    (hO₂ : Subsemiring.map (algebraMap F K) (Subsemiring.nonneg F) ≤ O) :
-    (isOrderingOrderedAlgebraEquiv F K ⟨O, hO, hO₂⟩ : LinearOrder K) =
-    isOrderingLinearOrderEquiv K ⟨O, hO⟩ := rfl
-
-@[simp]
-theorem isOrderingOrderedAlgebraEquiv_symm_apply_coe
-    (l : LinearOrder K) (hl : IsOrderedRing K) (hl₂ : IsOrderedModule F K) :
-    ((isOrderingOrderedAlgebraEquiv F K).symm ⟨l, hl, hl₂⟩ : Subsemiring K) =
-    (isOrderingLinearOrderEquiv K).symm ⟨l, hl⟩ := rfl
+          {_o : LinearOrder K // IsOrderedRing K ∧ IsOrderedModule F K} :=
+  (Equiv.subtypeEquivRight fun _ ↦ by
+    grind [Subsemiring.isOrdering_iff_isPointed_and_isSpanning]).trans
+  (Algebra.isPointedLinearOrderEquiv F K)
 
 open Classical Subsemiring in
 theorem exists_isOrderedAlgebra_iff_neg_one_notMem_sup :
