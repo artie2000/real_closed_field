@@ -16,7 +16,7 @@ variable {R S : Type*} [CommSemiring R] [PartialOrder R] [IsOrderedRing R] [Ring
 theorem Subsemiring.map_algebraMap_nonneg_le_nonneg
     [PartialOrder S] [IsOrderedRing S] [IsOrderedModule R S] :
     (Subsemiring.nonneg R).map (algebraMap R S) ≤ Subsemiring.nonneg S :=
-  fun _ ⟨_, h₁, h₂⟩ ↦ h₂ ▸ algebraMap_nonneg S h₁
+  fun _ ⟨_, h₁, h₂⟩ ↦ h₂ ▸ algebraMap_nonneg _ h₁
 
 variable [IsOrderedCancelAddMonoid R] [ExistsAddOfLE R]
 
